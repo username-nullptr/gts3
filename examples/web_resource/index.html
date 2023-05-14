@@ -1,0 +1,143 @@
+﻿<!DOCTYPE html>
+<html>
+  <body>
+	<h3>this is a test!</h3><br/>
+	  <img src="image.jpg"/>
+	<h3>tree picture</h3><br/>
+	<p>
+	  <a href="/cgi-bin/cgi0?p1=hello">cgi test</a>
+	</p>
+	<p>
+	  <a href="/plugin-lib/plugin0">plugin0 test</a>
+	  <body>&nbsp;&nbsp;&nbsp;</body>
+	  <a href="/plugin-lib/plugin1/test?p0=hello;p1=world">plugin1 test</a>
+	</p>
+	<p>
+	  <a href="/netprotocol.html">网络协议栈</a>
+	</p>
+	<p>
+	  <a href="/web.html">Web服务流程</a>
+	  <body>&nbsp;&nbsp;&nbsp;</body>
+	  <a href="/http-parsing.html">Http解析流程</a>
+	  <body>&nbsp;&nbsp;&nbsp;</body>
+	  <a href="/log.html">日志模块机制</a>
+	</p>
+	<p>
+	  <a href="/xxxxxxxxxxx">404test</a>
+	</p>
+	<p>
+	  <a href="/download/hello.txt" download="hello.txt">下载0</a>
+	</p>
+
+	<script>
+	  function createHttpRequest()
+	  {
+		var xmlHttp = null;
+		try {
+		  xmlHttp = new XMLHttpRequest();
+		} catch(e) {
+		  try {
+			xmlHttp = new ActiveXObject("Msxml2.XMLHTTP");
+		  } catch(e) {
+			try {
+			  xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+			} catch(e) {
+			  alert("您的浏览器不支持AJAX！");
+			}
+		  }
+		}
+		return xmlHttp;
+	  }
+
+	  function uploadFileToServer()
+	  {
+		var uploadFile = document.getElementById("upload_file_id");
+		var uploadTip = document.getElementById("upload_tip_id");
+		var uploadProgress = document.getElementById("upload_progress_id");
+
+		if( uploadFile.value == "" ) {
+		  uploadTip.innerText = "请选择一个文件";
+		} else if( uploadFile.files[0].size > 0 && uploadFile.files[0].size < (10*1024*1024*1024) ) {
+		  try {
+			if( window.FileReader ) {
+			  var fReader = new FileReader();
+			  var xhreq = createHttpRequest();
+			  xhreq.onreadystatechange = function() {
+				if( xhreq.readyState == 4 ) {
+				  if( xhreq.status == 200 ) {
+					uploadTip.innerText = "文件上传成功";
+					setTimeout(function() {
+					  hideUploadDialog()
+					}, 2000); //2秒后隐藏
+				  } else {
+					uploadTip.innerText = "文件上传失败了";
+				  }
+				}
+			  }
+			  fReader.onload = function(e) {
+				xhreq.open("POST", "/cgi-bin/upload", true);
+				xhreq.setRequestHeader("Content-type", "application/octet-stream"); //流类型
+				xhreq.setRequestHeader("Content-length", uploadFile.files[0].size); //文件大小
+				xhreq.setRequestHeader("Upload-file-name", encodeURI(uploadFile.files[0].name)); //兼容中文
+				xhreq.send(fReader.result);
+			  }
+			  fReader.onprogress = function(e) {
+				uploadProgress.value = e.loaded * 100 / e.total;
+			  }
+			  fReader.readAsArrayBuffer(uploadFile.files[0]);
+			  uploadProgress.style.visibility = "visible";
+			  uploadProgress.value = 0;
+			} else {
+			  uploadTip.innerText = "浏览器不支持上传文件";
+			}
+		  } catch(e) {
+			uploadTip.innerText = "文件上传失败";
+		  }
+		} else {
+		  uploadTip.innerText = "文件不符合要求";
+		}
+	  }
+
+	  function showUploadDialog()
+	  {
+		var up_dialog = document.getElementById("upload_dialog");
+		document.getElementById("upload_tip_id").innerText = "请选择要上传的文件";
+		document.getElementById("upload_progress_id").style.visibility = "hidden";
+		up_dialog.style.visibility = "visible";
+	  }
+
+	  function hideUploadDialog()
+	  {
+		var up_dialog = document.getElementById("upload_dialog");
+		document.getElementById("upload_progress_id").style.visibility = "hidden";
+		up_dialog.style.visibility = "hidden";
+	  }
+	</script>
+
+	<body>
+	  <div id="content_div">
+		<br>
+		<a class="style_copyright_a" href="javascript:void(0);" onclick="showUploadDialog()">上传新文件</a>
+	  </div>
+	  <div id="upload_dialog" class="upload_dialog_div">
+		<div class="style_content_div">
+		  <div class="style_content_upper_div">
+			<div class="style_content_file_div">
+			  <span class="style_file_span"> 文件路径：</span>
+			  <input class="style_file_content" type="file" id="upload_file_id"/>
+			</div>
+			<div class="style_content_prog_div">
+			  <span class="style_prog_span_hit" id="upload_tip_id"> 请选择要上传的文件 </span>
+			  <progress class="style_prog_content" id="upload_progress_id" value="0" max="100"></progress>
+			</div>
+		  </div>
+		  <div class="style_content_lower_div">
+			<span class="style_content_span" onmouseover="this.style.background='#cccccc'" onmouseout="this.style.background=''" onclick="hideUploadDialog()">取消</span>
+			<span class="style_content_span" onmouseover="this.style.background='#F5CCDC'" onmouseout="this.style.background=''" onclick="uploadFileToServer()">确定</span>
+		  </div>
+		</div>
+	  </div>
+	</body>
+
+  </body>
+</html>

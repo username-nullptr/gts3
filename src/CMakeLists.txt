@@ -1,0 +1,7 @@
+project(GTS VERSION 3.0.0)
+add_compile_definitions(GTS_VERSION_STR="3.0.0")
+
+add_subdirectory(core)
+add_subdirectory(log)
+add_subdirectory(server)
+add_subdirectory(web)

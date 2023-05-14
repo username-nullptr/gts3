@@ -1,0 +1,14 @@
+Source of the third-party library:
+
+asio        https://github.com/chriskohlhoff/asio.git
+
+rttr        https://github.com/rttrorg/rttr.git
+            https://gitee.com/jin-xiaoqiang/rttr.git
+
+inifile     https://github.com/Rookfighter/inifile-cpp.git
+
+fmt         https://github.com/fmtlib/fmt.git
+
+rapidjson   https://gitee.com/Tencent/RapidJSON.git
+
+filesystem  https://gitee.com/shaoguangcn/cpp-filesystem.git

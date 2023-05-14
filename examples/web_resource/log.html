@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<!-- saved from url=(0016)http://localhost -->
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+    <title>log</title>
+    <style>
+        body{
+            margin: 0;
+        }
+        #content-info{
+            width: auto;
+            margin: 0 auto;
+            text-align: center;
+        }
+        #author-info{
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+        #title{
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            padding-top: 10px;
+            margin-bottom: 2px;
+            font-size: 34px;
+            color: #505050;
+        }
+        .text{
+            white-space:nowrap;
+            text-overflow: ellipsis;
+            display: inline-block;
+            margin-right: 20px;
+            margin-bottom: 2px;
+            font-size: 20px;
+            color: #8c8c8c;
+        }
+        #navBar{
+            position: fixed;
+            right:0;
+            bottom: 0;
+            background-color: #f0f3f4;
+            overflow-y: auto;
+            text-align: center;
+        }
+        #svg-container{
+            width: 100%;
+            min-width: 0;
+            margin: 0 10px;
+        }
+        #nav-thumbs{
+            padding: 0 5px;
+        }
+        .nav-thumb{
+            position: relative;
+            margin: 10px auto;
+        }
+        .nav-thumb >p{
+            text-align: center;
+            font-size: 12px;
+            margin: 4px 0 0 0;
+        }
+        .nav-thumb >div{
+            position: relative;
+            display: inline-block;
+            border: 1px solid #c6cfd5;
+        }
+        .nav-thumb img{
+            display: block;
+        }
+        .nav-thumb span{
+            pointer-events: none;
+        }
+        #main-content{
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #d0cfd8;
+            display: flex;
+            height: auto;
+            flex-flow: row wrap;
+            text-align:center;
+        }
+        #svg-container >svg{
+            display: block;
+            margin:10px auto;
+            margin-bottom: 0;
+        }
+        #copyright{
+            bottom: 0;
+            left: 50%;
+            margin: 5px auto;
+            font-size: 16px;
+            color: #515151;
+        }
+        #copyright >a{
+            text-decoration: none;
+            color: #77C;
+        }
+        .number{
+            position: absolute;
+            top:0;
+            left:0;
+            border-top:22px solid #76838f;
+            border-right: 22px solid transparent;
+        }
+        .pagenum{
+            font-size: 12px;
+            color: #fff;
+            position: absolute;
+            top: -23px;
+            left: 2px;
+        }
+        #navBar::-webkit-scrollbar{
+            width: 8px;
+            background-color: #f5f5f5;
+        }
+        #navBar::-webkit-scrollbar-track{
+            -webkit-box-shadow: inset 0 0 4px rgba(0,0,0,.3);
+            border-radius: 8px;
+            background-color: #fff;
+        }
+        #navBar::-webkit-scrollbar-thumb{
+            border-radius: 8px;
+            -webkit-box-shadow: inset 0 0 4px rgba(0,0,0,.3);
+            background-color: #6b6b70;
+        }
+        #navBar::-webkit-scrollbar-thumb:hover{
+            background-color: #4a4a4f;
+        }
+        .nav-thumb >div:hover{
+            box-shadow:1px 1px 4px rgba(0,0,0,.4);
+        }
+        .selected .number{
+            border-color: #08a1ef transparent;
+        }
+</style>
+  </head>
+  <body>
+    <div id="main-area">
+      <div id="content-info"></div>
+      <div id="main-content">
+        <div id="svg-container"><svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events" width="795" height="714" id="page1" preserveAspectRadio="xMinYMin meet" viewBox="0 0 795 714" xmlns="http://www.w3.org/2000/svg"><defs/><rect width="795" height="714" fill="#ffffff" y="0" x="0" stroke="#808080"/><g transform="translate(223.00,417.70)" id="shape1"><path fill-rule="nonzero" fill="#e9f8f5" d="M217.0,205.0L217.0,.0L.0,.0L.0,205.0L217.0,205.0z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="32.0" x="24.5">11:21:14:306-11:42:41:421</tspan><tspan y="70.0" x="24.5">12:01:23:333-12:32:09:672</tspan><tspan y="108.0" x="24.5">12:59:38:096-13:44:14:327</tspan><tspan y="146.0" x="24.5">14:13:53:882-14:46:36:715</tspan><tspan y="184.0" x="24.5">15:11:28:581-15:40:31:536</tspan></text></g><g transform="translate(599.26,641.05)" id="shape2"><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="23.0" x="58.0"> </tspan></text></g><g transform="translate(223.00,389.70)" id="shape3"><path fill-rule="nonzero" fill="#e8e9f5" d="M120.0,28.0L120.0,.0L.0,.0L.0,28.0L120.0,28.0z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="19.5" x="22.0">2022-12-06</tspan></text></g><g transform="translate(599.26,587.70)" id="shape4"><path fill-rule="nonzero" fill="#fff0e7" d="M120.0,35.0L120.0,.0L.0,.0L.0,35.0L120.0,35.0z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="23.0" x="34.0">日志输出</tspan></text></g><g transform="translate(459.63,492.70)" id="shape5"><path fill-rule="nonzero" fill="#fff6e9" d="M120.0,98.0L120.0,.0L.0,.0L.0,98.0L120.0,98.0z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="35.5" x="8.0">单个文件大小超出</tspan><tspan y="54.5" x="8.0">限制，创建新文件</tspan><tspan y="73.5" x="21.0">继续存储日志</tspan></text></g><g transform="translate(599.26,605.20)" id="shape6"><path fill="none" stroke-width="1" d="M.0,.0C-19.6,.0,-39.1,.0,-55.9,.1C-72.7,.1,-86.6,.2,-103.4,.2C-118.8,.3,-136.6,.3,-154.6,.3" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M-153.3,3.3L-159.3,.3L-153.3,-2.7L-153.3,3.3" stroke="#191919"/></g><g transform="translate(599.26,412.31)" id="shape7"><path fill-rule="nonzero" fill="#fff0e7" d="M157.0,64.5L157.0,.0L.0,.0L.0,64.5L157.0,64.5z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="28.3" x="7.0">当天日志缓存大小超出限</tspan><tspan y="47.3" x="7.0">制，删除最早的记录文件</tspan></text></g><g transform="translate(440.00,444.56)" id="shape8"><path fill="none" stroke-width="1" d="M.0,.0L153.3,.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M153.3,-3.0L159.3,.0L153.3,3.0L153.3,-3.0" stroke="#191919"/></g><g transform="translate(223.00,94.20)" id="shape9"><path fill-rule="nonzero" fill="#e9f8f5" d="M217.0,205.0L217.0,.0L.0,.0L.0,205.0L217.0,205.0z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="32.0" x="24.5">11:21:14:306-11:42:41:421</tspan><tspan y="70.0" x="24.5">12:01:23:333-12:32:09:672</tspan><tspan y="108.0" x="24.5">12:59:38:096-13:44:14:327</tspan><tspan y="146.0" x="24.5">14:13:53:882-14:46:36:715</tspan><tspan y="184.0" x="24.5">15:11:28:581-15:40:31:536</tspan></text></g><g transform="translate(223.00,66.20)" id="shape10"><path fill-rule="nonzero" fill="#e8e9f5" d="M120.0,28.0L120.0,.0L.0,.0L.0,28.0L120.0,28.0z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="19.5" x="22.0">2022-12-05</tspan></text></g><g transform="translate(599.26,88.20)" id="shape11"><path fill-rule="nonzero" fill="#fff0e7" d="M157.0,64.5L157.0,.0L.0,.0L.0,64.5L157.0,64.5z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="28.3" x="7.0">日志缓存总量超出限制，</tspan><tspan y="47.3" x="20.0">删除最早的记录文件</tspan></text></g><g transform="translate(440.00,120.65)" id="shape12"><path fill="none" stroke-width="1" d="M.0,.0L153.3,-0.2" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M153.3,-3.2L159.3,-0.2L153.3,2.8L153.3,-3.2" stroke="#191919"/></g><path fill-rule="nonzero" fill="#ebebeb" transform="translate(145.00,113.70)" id="shape13" d="M38.0,13.5L38.0,.0L.0,.0L.0,13.5L38.0,13.5z" stroke-width="1" stroke="#101843"/><path fill-rule="nonzero" fill="#ebebeb" transform="translate(145.00,152.70)" id="shape14" d="M38.0,13.5L38.0,.0L.0,.0L.0,13.5L38.0,13.5z" stroke-width="1" stroke="#101843"/><path fill-rule="nonzero" fill="#ebebeb" transform="translate(145.00,189.95)" id="shape15" d="M38.0,13.5L38.0,.0L.0,.0L.0,13.5L38.0,13.5z" stroke-width="1" stroke="#101843"/><path fill-rule="nonzero" fill="#ebebeb" transform="translate(145.00,225.95)" id="shape16" d="M38.0,13.5L38.0,.0L.0,.0L.0,13.5L38.0,13.5z" stroke-width="1" stroke="#101843"/><path fill-rule="nonzero" fill="#ebebeb" transform="translate(145.00,267.95)" id="shape17" d="M38.0,13.5L38.0,.0L.0,.0L.0,13.5L38.0,13.5z" stroke-width="1" stroke="#101843"/><path fill-rule="nonzero" fill="#ebebeb" transform="translate(145.00,436.33)" id="shape18" d="M38.0,13.5L38.0,.0L.0,.0L.0,13.5L38.0,13.5z" stroke-width="1" stroke="#101843"/><path fill-rule="nonzero" fill="#ebebeb" transform="translate(145.00,475.33)" id="shape19" d="M38.0,13.5L38.0,.0L.0,.0L.0,13.5L38.0,13.5z" stroke-width="1" stroke="#101843"/><path fill-rule="nonzero" fill="#ebebeb" transform="translate(145.00,512.58)" id="shape20" d="M38.0,13.5L38.0,.0L.0,.0L.0,13.5L38.0,13.5z" stroke-width="1" stroke="#101843"/><path fill-rule="nonzero" fill="#ebebeb" transform="translate(145.00,548.58)" id="shape21" d="M38.0,13.5L38.0,.0L.0,.0L.0,13.5L38.0,13.5z" stroke-width="1" stroke="#101843"/><path fill-rule="nonzero" fill="#ebebeb" transform="translate(145.00,590.58)" id="shape22" d="M38.0,13.5L38.0,.0L.0,.0L.0,13.5L38.0,13.5z" stroke-width="1" stroke="#101843"/><g transform="translate(164.00,590.58)" id="shape23"><path fill="none" stroke-width="1" d="M.0,.0L.0,-22.5" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M-3.0,-22.5L.0,-28.5L3.0,-22.5L-3.0,-22.5" stroke="#191919"/></g><g transform="translate(164.00,512.58)" id="shape24"><path fill="none" stroke-width="1" d="M.0,.0L.0,-17.8" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M-3.0,-17.8L.0,-23.8L3.0,-17.8L-3.0,-17.8" stroke="#191919"/></g><g transform="translate(164.00,548.58)" id="shape25"><path fill="none" stroke-width="1" d="M.0,.0L.0,-16.5" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M-3.0,-16.5L.0,-22.5L3.0,-16.5L-3.0,-16.5" stroke="#191919"/></g><g transform="translate(141.00,641.05)" id="shape26"><path fill-rule="nonzero" fill="#ffecec" d="M46.0,20.6L46.0,.0L.0,.0L.0,20.6L46.0,20.6z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="15.8" x="13.5">log</tspan></text></g><g transform="translate(164.00,641.05)" id="shape27"><path fill="none" stroke-width="1" d="M.0,.0L.0,-31.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M-3.0,-31.0L.0,-37.0L3.0,-31.0L-3.0,-31.0" stroke="#191919"/></g><g transform="translate(164.00,475.33)" id="shape28"><path fill="none" stroke-width="1" d="M.0,.0L.0,-19.5" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M-3.0,-19.5L.0,-25.5L3.0,-19.5L-3.0,-19.5" stroke="#191919"/></g><g transform="translate(164.00,436.33)" id="shape29"><path fill="none" stroke-width="1" d="M.0,.0L.0,-148.9" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M-3.0,-148.9L.0,-154.9L3.0,-148.9L-3.0,-148.9" stroke="#191919"/></g><g transform="translate(164.00,267.95)" id="shape30"><path fill="none" stroke-width="1" d="M.0,.0L.0,-22.5" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M-3.0,-22.5L.0,-28.5L3.0,-22.5L-3.0,-22.5" stroke="#191919"/></g><g transform="translate(164.00,225.95)" id="shape31"><path fill="none" stroke-width="1" d="M.0,.0L.0,-16.5" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M-3.0,-16.5L.0,-22.5L3.0,-16.5L-3.0,-16.5" stroke="#191919"/></g><g transform="translate(164.00,189.95)" id="shape32"><path fill="none" stroke-width="1" d="M.0,.0L.0,-17.8" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M-3.0,-17.8L.0,-23.8L3.0,-17.8L-3.0,-17.8" stroke="#191919"/></g><g transform="translate(164.00,152.70)" id="shape33"><path fill="none" stroke-width="1" d="M.0,.0L.0,-19.5" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M-3.0,-19.5L.0,-25.5L3.0,-19.5L-3.0,-19.5" stroke="#191919"/></g><g transform="translate(134.00,41.70)" id="shape34"><path fill-rule="nonzero" fill="#ffecec" d="M60.0,20.0L60.0,.0L.0,.0L.0,20.0L60.0,20.0z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="15.5" x="7.0">remove</tspan></text></g><g transform="translate(164.00,113.70)" id="shape35"><path fill="none" stroke-width="1" d="M.0,.0L.0,-46.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M-3.0,-46.0L.0,-52.0L3.0,-46.0L-3.0,-46.0" stroke="#191919"/></g><g transform="translate(39.00,433.08)" id="shape36"><path fill-rule="nonzero" fill="#ffecec" d="M60.0,20.0L60.0,.0L.0,.0L.0,20.0L60.0,20.0z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="15.5" x="7.0">remove</tspan></text></g><g transform="translate(145.00,443.08)" id="shape37"><path fill="none" stroke-width="1" d="M.0,.0L-40.0,.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M-40.0,3.0L-46.0,.0L-40.0,-3.0L-40.0,3.0" stroke="#191919"/></g><g transform="translate(352.00,355.70)" id="shape38"><path fill-rule="nonzero" fill="#fff6e9" d="M143.0,52.0L143.0,.0L.0,.0L.0,52.0L143.0,52.0z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="22.0" x="6.5">每个日志文件都以开始</tspan><tspan y="41.0" x="13.0">时间和结束时间命名</tspan></text></g></svg></div>
+      </div>
+      <div id="navBar">
+        <div id="nav-thumbs"/>
+      </div>
+    </div>
+    <script>
+        const svgs=document.getElementById("svg-container").children;
+        const UA=window.navigator.userAgent;
+        const ua=(UA.indexOf('rv:11')+UA.indexOf('Firefox'))>=0;
+        const svgcount=document.getElementById('svg-container').childElementCount;
+        var styleArr=[];
+        var heightArr=[];
+        var navBar=document.getElementById('navBar');
+        var conInfo=document.getElementById('content-info');
+        for(var i=0;i<svgcount;i++){
+            styleArr[i] = {width:svgs[i].getAttribute('width'),height:svgs[i].getAttribute('height')}
+        }
+        window.onresize=function () {
+            renavstyle();
+            resvgstyle();
+        };
+        window.onscroll=renavstyle;
+        window.onload=function () {
+            renavstyle();
+            var sideWidth=navBar.offsetWidth;
+            document.getElementById('content-info').style.marginRight=sideWidth+'px';
+            document.getElementById('main-content').style.marginRight=sideWidth+'px';
+            resvgstyle();
+            doscroll();
+        };
+        function recontainstyle() {
+            var topHeight=conInfo.clientHeight;
+            var svgHeight=0;
+            for(var i=0;i<svgcount;i++){
+                heightArr[i]=svgs[i].getBoundingClientRect().height+10;
+                svgHeight+=svgs[i].clientHeight ||svgs[i].getBoundingClientRect().height;
+            }
+            var fullHeight=svgHeight+Number(topHeight);
+            if(fullHeight<window.innerHeight){
+            document.getElementById('main-content').style.position='absolute';
+            document.getElementById('main-content').style.top=topHeight+'px';
+        }else{
+            document.getElementById('main-content').style.position='';
+        }
+        }
+        function resvgstyle() {
+            var sideWidth=navBar.offsetWidth+20;
+            for(var i=0;i<svgcount;i++){
+                var oriWidth = styleArr[i].width;
+                var oriHeight = styleArr[i].height;
+                var percent = oriHeight / oriWidth;
+                var innerWidth=document.body.offsetWidth-sideWidth;
+                if (innerWidth <= oriWidth) {
+                    svgs[i].removeAttribute('width');
+                    svgs[i].removeAttribute('height');
+                    if (ua) {
+                        svgs[i].setAttribute('height',innerWidth*percent);
+                    }
+                }else {
+                    svgs[i].setAttribute('width', oriWidth);
+                    svgs[i].setAttribute('height', oriHeight);
+                }
+            }
+            recontainstyle();
+        }
+        function renavstyle() {
+            var topHeight=conInfo.clientHeight;
+            var scrollTop=document.body.scrollTop||document.documentElement.scrollTop;
+            if(scrollTop>topHeight){
+                document.getElementById('navBar').style.top=0+'px';
+            }else{
+                document.getElementById('navBar').style.top=topHeight-scrollTop+'px';
+            }
+            doscroll();
+        }
+        function doscroll() {
+            var topHeight=conInfo.clientHeight;
+            var scrollTop=document.body.scrollTop||document.documentElement.scrollTop;
+            for(var i=0;i<svgcount;i++){
+                var sum=0;
+                for(var j=0;j<=i;j++){
+                    sum+=heightArr[j];
+                }
+                if(scrollTop+window.innerHeight/2-topHeight-sum<0){
+                    var sub=Number(i)+1;
+                    if(document.querySelector('#nav-thumbs .selected')){
+                        document.querySelector('#nav-thumbs .selected').classList.remove('selected');
+                    }
+                    if(document.querySelector('.nav-thumb:nth-of-type('+sub+')')){
+                        document.querySelector('.nav-thumb:nth-of-type('+sub+')').classList.add('selected');
+                    }
+                    break;
+                }
+            }
+        }
+        var navs=document.querySelectorAll('.nav-thumb');
+        for(i=0;i<navs.length;i++){
+            navs[i].children[0].onclick=function () {
+                document.querySelector('#nav-thumbs .selected').classList.remove('selected');
+                this.parentNode.classList.add('selected');
+            }
+        }
+</script>
+  </body>
+</html>

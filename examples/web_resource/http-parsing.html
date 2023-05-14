@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<!-- saved from url=(0016)http://localhost -->
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+    <title>http-parsing</title>
+    <style>
+        body{
+            margin: 0;
+        }
+        #content-info{
+            width: auto;
+            margin: 0 auto;
+            text-align: center;
+        }
+        #author-info{
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+        #title{
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            padding-top: 10px;
+            margin-bottom: 2px;
+            font-size: 34px;
+            color: #505050;
+        }
+        .text{
+            white-space:nowrap;
+            text-overflow: ellipsis;
+            display: inline-block;
+            margin-right: 20px;
+            margin-bottom: 2px;
+            font-size: 20px;
+            color: #8c8c8c;
+        }
+        #navBar{
+            position: fixed;
+            right:0;
+            bottom: 0;
+            background-color: #f0f3f4;
+            overflow-y: auto;
+            text-align: center;
+        }
+        #svg-container{
+            width: 100%;
+            min-width: 0;
+            margin: 0 10px;
+        }
+        #nav-thumbs{
+            padding: 0 5px;
+        }
+        .nav-thumb{
+            position: relative;
+            margin: 10px auto;
+        }
+        .nav-thumb >p{
+            text-align: center;
+            font-size: 12px;
+            margin: 4px 0 0 0;
+        }
+        .nav-thumb >div{
+            position: relative;
+            display: inline-block;
+            border: 1px solid #c6cfd5;
+        }
+        .nav-thumb img{
+            display: block;
+        }
+        .nav-thumb span{
+            pointer-events: none;
+        }
+        #main-content{
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #d0cfd8;
+            display: flex;
+            height: auto;
+            flex-flow: row wrap;
+            text-align:center;
+        }
+        #svg-container >svg{
+            display: block;
+            margin:10px auto;
+            margin-bottom: 0;
+        }
+        #copyright{
+            bottom: 0;
+            left: 50%;
+            margin: 5px auto;
+            font-size: 16px;
+            color: #515151;
+        }
+        #copyright >a{
+            text-decoration: none;
+            color: #77C;
+        }
+        .number{
+            position: absolute;
+            top:0;
+            left:0;
+            border-top:22px solid #76838f;
+            border-right: 22px solid transparent;
+        }
+        .pagenum{
+            font-size: 12px;
+            color: #fff;
+            position: absolute;
+            top: -23px;
+            left: 2px;
+        }
+        #navBar::-webkit-scrollbar{
+            width: 8px;
+            background-color: #f5f5f5;
+        }
+        #navBar::-webkit-scrollbar-track{
+            -webkit-box-shadow: inset 0 0 4px rgba(0,0,0,.3);
+            border-radius: 8px;
+            background-color: #fff;
+        }
+        #navBar::-webkit-scrollbar-thumb{
+            border-radius: 8px;
+            -webkit-box-shadow: inset 0 0 4px rgba(0,0,0,.3);
+            background-color: #6b6b70;
+        }
+        #navBar::-webkit-scrollbar-thumb:hover{
+            background-color: #4a4a4f;
+        }
+        .nav-thumb >div:hover{
+            box-shadow:1px 1px 4px rgba(0,0,0,.4);
+        }
+        .selected .number{
+            border-color: #08a1ef transparent;
+        }
+</style>
+  </head>
+  <body>
+    <div id="main-area">
+      <div id="content-info"></div>
+      <div id="main-content">
+        <div id="svg-container"><svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events" width="1708" height="1628" id="page1" preserveAspectRadio="xMinYMin meet" viewBox="0 0 1708 1628" xmlns="http://www.w3.org/2000/svg"><defs/><rect width="1708" height="1628" fill="#ffffff" y="0" x="0" stroke="#808080"/><g transform="translate(261.00,39.00)" id="shape1"><path fill-rule="nonzero" fill="#b0b4df" d="M22.0,44.0L78.0,44.0L78.0,44.0C90.2,44.0,100.0,34.2,100.0,22.0C100.0,9.8,90.2,.0,78.0,.0L22.0,.0L22.0,.0C9.8,.0,.0,9.8,.0,22.0C.0,34.2,9.8,44.0,22.0,44.0z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="27.5" x="16.0">Socket可读</tspan></text></g><g transform="translate(261.75,144.02)" id="shape2"><path fill-rule="nonzero" fill="#e9f8f5" d="M100.0,60.0L100.0,.0L.0,.0L.0,60.0L100.0,60.0z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:Microsoft YaHei;font-size:10.00pt;font-style:italic;font-weight:bold"><tspan y="36.0" x="15.0">关闭定时器</tspan></text></g><g transform="translate(311.00,83.00)" id="shape3"><path fill="none" stroke-width="1" d="M.0,.0L.0,55.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M3.0,55.0L.0,61.0L-3.0,55.0L3.0,55.0" stroke="#191919"/></g><g transform="translate(232.50,265.03)" id="shape4"><path fill-rule="nonzero" fill="#e8e9f5" d="M79.3,82.6L158.5,41.3L79.3,.0L.0,41.3L79.3,82.6z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="37.3" x="52.3">state == </tspan><tspan y="56.3" x="39.3">ReadingBody</tspan></text></g><g transform="translate(311.75,204.02)" id="shape5"><path fill="none" stroke-width="1" d="M.0,.0L.0,55.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M3.0,55.0L.0,61.0L-3.0,55.0L3.0,55.0" stroke="#191919"/></g><g transform="translate(1036.13,581.08)" id="shape6"><path fill-rule="nonzero" fill="#ffffff" d="M.0,130.9L.0,.0L225.7,.0L225.7,130.9L225.7,130.9C210.0,119.2,190.5,112.2,169.3,112.2C148.1,112.2,128.6,119.2,112.9,130.9L112.9,130.9C97.1,142.7,77.6,149.6,56.4,149.6C35.3,149.6,15.7,142.7,.0,130.9z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="23.6" x="4.4">enum State {</tspan><tspan y="42.6" x="4.4">    WaitingRequest,</tspan><tspan y="61.6" x="4.4">    ReadingHeaders,</tspan><tspan y="80.6" x="4.4">    ReadingBody,</tspan><tspan y="99.6" x="4.4">};</tspan></text></g><g transform="translate(391.00,306.31)" id="shape7"><path fill="none" stroke-width="1" d="M.0,.0L105.0,.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M105.0,-3.0L111.0,.0L105.0,3.0L105.0,-3.0" stroke="#191919"/><rect width="13.0" height="19.0" fill="#ffffff" y="-9.5" x="50.0"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="5.5" x="50.0">是</tspan></text></g><g transform="translate(503.76,284.31)" id="shape8"><path fill-rule="nonzero" fill="#d0f0ea" d="M240.6,44.0L240.6,.0L.0,.0L.0,44.0L240.6,44.0z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="27.5" x="24.8">emit request->bodyReadyRead</tspan></text></g><g transform="translate(311.75,347.59)" id="shape9"><path fill="none" stroke-width="1" d="M.0,.0L.0,78.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M3.0,78.0L.0,84.0L-3.0,78.0L3.0,78.0" stroke="#191919"/><rect width="13.0" height="19.0" fill="#ffffff" y="32.5" x="-5.5"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="47.5" x="-5.5">否</tspan></text></g><g transform="translate(232.50,979.90)" id="shape10"><path fill-rule="nonzero" fill="#e8e9f5" d="M79.3,81.9L158.5,40.9L79.3,.0L.0,40.9L79.3,81.9z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="36.9" x="52.3">state == </tspan><tspan y="55.9" x="31.3">WaitingRequest</tspan></text></g><g transform="translate(237.75,431.91)" id="shape11"><path fill-rule="nonzero" fill="#e9f8f5" d="M148.0,60.0L148.0,.0L.0,.0L.0,60.0L148.0,60.0z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="35.5" x="22.0">尝试读取一行数据</tspan></text></g><g transform="translate(857.13,284.31)" id="shape12"><path fill-rule="nonzero" fill="#ffd8d7" d="M22.0,44.0L78.0,44.0L78.0,44.0C90.2,44.0,100.0,34.2,100.0,22.0C100.0,9.8,90.2,.0,78.0,.0L22.0,.0L22.0,.0C9.8,.0,.0,9.8,.0,22.0C.0,34.2,9.8,44.0,22.0,44.0z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="27.5" x="31.0">return</tspan></text></g><g transform="translate(744.37,306.31)" id="shape13"><path fill="none" stroke-width="1" d="M.0,.0L106.0,.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M106.0,-3.0L112.0,.0L106.0,3.0L106.0,-3.0" stroke="#191919"/></g><g transform="translate(248.63,545.91)" id="shape14"><path fill-rule="nonzero" fill="#e8e9f5" d="M62.4,101.6L124.8,50.8L62.4,.0L.0,50.8L62.4,101.6z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="46.8" x="29.9">没读到数据</tspan><tspan y="65.8" x="29.9">或出现错误</tspan></text></g><g transform="translate(311.75,491.91)" id="shape15"><path fill="none" stroke-width="1" d="M.0,.0L.0,48.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M3.0,48.0L.0,54.0L-3.0,48.0L3.0,48.0" stroke="#191919"/></g><g transform="translate(531.50,574.69)" id="shape16"><path fill-rule="nonzero" fill="#ffd8d7" d="M22.0,44.0L78.0,44.0L78.0,44.0C90.2,44.0,100.0,34.2,100.0,22.0C100.0,9.8,90.2,.0,78.0,.0L22.0,.0L22.0,.0C9.8,.0,.0,9.8,.0,22.0C.0,34.2,9.8,44.0,22.0,44.0z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="27.5" x="31.0">return</tspan></text></g><g transform="translate(373.38,596.69)" id="shape17"><path fill="none" stroke-width="1" d="M.0,.0L151.0,.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M151.0,-3.0L157.0,.0L151.0,3.0L151.0,-3.0" stroke="#191919"/><rect width="13.0" height="19.0" fill="#ffffff" y="-9.5" x="73.0"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="5.5" x="73.0">是</tspan></text></g><g transform="translate(311.00,647.47)" id="shape18"><path fill="none" stroke-width="1" d="M.0,.0L.0,132.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M3.0,132.0L.0,138.0L-3.0,132.0L3.0,132.0" stroke="#191919"/><rect width="13.0" height="19.0" fill="#ffffff" y="59.5" x="-5.5"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="74.5" x="-5.5">否</tspan></text></g><g transform="translate(232.50,1120.28)" id="shape19"><path fill-rule="nonzero" fill="#e8e9f5" d="M79.3,80.9L158.5,40.4L79.3,.0L.0,40.4L79.3,80.9z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="36.4" x="52.3">state == </tspan><tspan y="55.4" x="29.8">ReadingHeaders</tspan></text></g><g transform="translate(311.75,1061.78)" id="shape20"><path fill="none" stroke-width="1" d="M.0,.0L.0,52.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M3.0,52.0L.0,58.0L-3.0,52.0L3.0,52.0" stroke="#191919"/><rect width="13.0" height="19.0" fill="#ffffff" y="19.5" x="-5.5"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="34.5" x="-5.5">否</tspan></text></g><g transform="translate(391.00,1160.72)" id="shape21"><path fill="none" stroke-width="1" d="M.0,.0L80.0,.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M80.0,-3.0L86.0,.0L80.0,3.0L80.0,-3.0" stroke="#191919"/><rect width="13.0" height="19.0" fill="#ffffff" y="-9.5" x="37.5"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="5.5" x="37.5">是</tspan></text></g><g transform="translate(311.75,1201.16)" id="shape22"><path fill="none" stroke-width="1" d="M.0,.0L.0,96.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M3.0,96.0L.0,102.0L-3.0,96.0L3.0,96.0" stroke="#191919"/><rect width="13.0" height="19.0" fill="#ffffff" y="41.5" x="-5.5"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="56.5" x="-5.5">否</tspan></text></g><g transform="translate(261.00,1304.06)" id="shape23"><path fill-rule="nonzero" fill="#ffd8d7" d="M22.0,44.0L78.0,44.0L78.0,44.0C90.2,44.0,100.0,34.2,100.0,22.0C100.0,9.8,90.2,.0,78.0,.0L22.0,.0L22.0,.0C9.8,.0,.0,9.8,.0,22.0C.0,34.2,9.8,44.0,22.0,44.0z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="27.5" x="31.0">return</tspan></text></g><g transform="translate(232.50,1160.72)" id="shape24"><path fill="none" stroke-width="1" d="M.0,.0L-121.5,.0L-121.5,-698.8L-0.8,-698.8" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M-0.8,-701.8L5.3,-698.8L-0.8,-695.8L-0.8,-701.8" stroke="#191919"/></g><g transform="translate(243.50,786.81)" id="shape25"><path fill-rule="nonzero" fill="#e9f8f5" d="M135.0,60.0L135.0,.0L.0,.0L.0,60.0L135.0,60.0z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="35.5" x="22.5">数据插入buffer</tspan></text></g><g transform="translate(311.00,846.81)" id="shape26"><path fill="none" stroke-width="1" d="M.0,.0L.0,127.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M3.0,127.0L.0,133.0L-3.0,127.0L3.0,127.0" stroke="#191919"/></g><g transform="translate(465.00,909.74)" id="shape27"><path fill-rule="nonzero" fill="#e8e9f5" d="M116.0,71.9L232.0,35.9L116.0,.0L.0,35.9L116.0,71.9z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="41.4" x="47.0">buffer是否以"\r\n"结尾</tspan></text></g><g transform="translate(391.00,1020.84)" id="shape28"><path fill="none" stroke-width="1" d="M.0,.0L189.0,.0L189.0,-32.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M186.0,-32.0L189.0,-38.0L192.0,-32.0L186.0,-32.0" stroke="#191919"/><rect width="13.0" height="19.0" fill="#ffffff" y="-9.5" x="108.0"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="5.5" x="108.0">是</tspan></text></g><g transform="translate(697.00,945.68)" id="shape29"><path fill="none" stroke-width="1" d="M.0,.0L119.0,.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M119.0,-3.0L125.0,.0L119.0,3.0L119.0,-3.0" stroke="#191919"/><rect width="13.0" height="19.0" fill="#ffffff" y="-9.5" x="57.0"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="5.5" x="57.0">是</tspan></text></g><g transform="translate(581.00,909.74)" id="shape30"><path fill="none" stroke-width="1" d="M.0,.0L.0,-45.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M-3.0,-45.0L.0,-51.0L3.0,-45.0L-3.0,-45.0" stroke="#191919"/><rect width="13.0" height="19.0" fill="#ffffff" y="-35.0" x="-5.5"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="-20.0" x="-5.5">否</tspan></text></g><g transform="translate(478.00,790.72)" id="shape31"><path fill-rule="nonzero" fill="#e8e9f5" d="M103.5,68.2L207.0,34.1L103.5,.0L.0,34.1L103.5,68.2z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="39.6" x="47.0">buffer.size > 1024</tspan></text></g><g transform="translate(494.71,662.51)" id="shape32"><path fill-rule="nonzero" fill="#fff6e9" d="M173.6,68.2L173.6,.0L.0,.0L.0,68.2L173.6,68.2z"/><path fill="none" stroke-width="1" d="M173.6,68.2L173.6,.0L.0,.0L.0,68.2L173.6,68.2zM15.0,68.2L15.0,.0L15.0,68.2zM158.6,68.2L158.6,.0L158.6,68.2z" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="39.6" x="21.8">尝试复位任务（对象）</tspan></text></g><g transform="translate(581.50,790.72)" id="shape33"><path fill="none" stroke-width="1" d="M.0,.0L.0,-54.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M-3.0,-54.0L.0,-60.0L3.0,-54.0L-3.0,-54.0" stroke="#191919"/><rect width="13.0" height="19.0" fill="#ffffff" y="-39.5" x="-5.5"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="-24.5" x="-5.5">是</tspan></text></g><g transform="translate(581.50,662.51)" id="shape34"><path fill="none" stroke-width="1" d="M.0,.0L.0,-38.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M-3.0,-38.0L.0,-44.0L3.0,-38.0L-3.0,-38.0" stroke="#191919"/></g><g transform="translate(685.00,824.81)" id="shape35"><path fill="none" stroke-width="1" d="M.0,.0L124.0,.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M124.0,-3.0L130.0,.0L124.0,3.0L124.0,-3.0" stroke="#191919"/><rect width="13.0" height="19.0" fill="#ffffff" y="-9.5" x="59.5"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="5.5" x="59.5">否</tspan></text></g><g transform="translate(815.00,794.81)" id="shape36"><path fill-rule="nonzero" fill="#e9f8f5" d="M109.0,60.0L109.0,.0L.0,.0L.0,60.0L109.0,60.0z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:Microsoft YaHei;font-size:10.00pt;font-style:italic;font-weight:bold"><tspan y="36.0" x="19.5">启动定时器</tspan></text></g><g transform="translate(822.13,915.68)" id="shape37"><path fill-rule="nonzero" fill="#e9f8f5" d="M170.0,60.0L170.0,.0L.0,.0L.0,60.0L170.0,60.0z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="35.5" x="26.5">解析请求并保存信息</tspan></text></g><g transform="translate(1110.56,915.68)" id="shape38"><path fill-rule="nonzero" fill="#e9f8f5" d="M100.0,60.0L100.0,.0L.0,.0L.0,60.0L100.0,60.0z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="35.5" x="18.0">清空buffer</tspan></text></g><g transform="translate(992.13,945.68)" id="shape39"><path fill="none" stroke-width="1" d="M.0,.0L112.0,.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M112.0,-3.0L118.0,.0L112.0,3.0L112.0,-3.0" stroke="#191919"/></g><g transform="translate(1329.00,921.04)" id="shape40"><path fill-rule="nonzero" fill="#d0f0ea" d="M189.0,49.3L189.0,.0L.0,.0L.0,49.3L189.0,49.3z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="30.5" x="21.0">state = ReadingHeaders</tspan></text></g><g transform="translate(1210.56,945.68)" id="shape41"><path fill="none" stroke-width="1" d="M.0,.0L113.0,.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M113.0,-3.0L119.0,.0L113.0,3.0L113.0,-3.0" stroke="#191919"/></g><g transform="translate(1423.50,921.04)" id="shape42"><path fill="none" stroke-width="1" d="M.0,.0L.0,-460.0L-1032.0,-460.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M-1032.0,-457.0L-1038.0,-460.0L-1032.0,-463.0L-1032.0,-457.0" stroke="#191919"/></g><g transform="translate(478.00,1125.13)" id="shape43"><path fill-rule="nonzero" fill="#e8e9f5" d="M93.5,71.2L187.0,35.6L93.5,.0L.0,35.6L93.5,71.2z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="41.1" x="43.0">buffer == "\r\n"</tspan></text></g><g transform="translate(665.00,1160.72)" id="shape44"><path fill="none" stroke-width="1" d="M.0,.0L64.0,.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M64.0,-3.0L70.0,.0L64.0,3.0L64.0,-3.0" stroke="#191919"/><rect width="13.0" height="19.0" fill="#ffffff" y="-9.5" x="29.5"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="5.5" x="29.5">是</tspan></text></g><g transform="translate(571.50,1196.31)" id="shape45"><path fill="none" stroke-width="1" d="M.0,.0L.0,88.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M3.0,88.0L.0,94.0L-3.0,88.0L3.0,88.0" stroke="#191919"/><rect width="13.0" height="19.0" fill="#ffffff" y="37.5" x="-5.5"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="52.5" x="-5.5">否</tspan></text></g><g transform="translate(455.50,1290.12)" id="shape46"><path fill-rule="nonzero" fill="#e8e9f5" d="M116.0,71.9L232.0,35.9L116.0,.0L.0,35.9L116.0,71.9z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="41.4" x="47.0">buffer是否以"\r\n"结尾</tspan></text></g><g transform="translate(571.50,1362.00)" id="shape47"><path fill="none" stroke-width="1" d="M.0,.0L.0,193.0L-67.0,193.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M-67.0,196.0L-73.0,193.0L-67.0,190.0L-67.0,196.0" stroke="#191919"/><rect width="13.0" height="19.0" fill="#ffffff" y="123.5" x="-5.5"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="138.5" x="-5.5">否</tspan></text></g><g transform="translate(328.00,1524.00)" id="shape48"><path fill-rule="nonzero" fill="#e9f8f5" d="M170.0,60.0L170.0,.0L.0,.0L.0,60.0L170.0,60.0z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="26.0" x="20.0">解析一个请求头并保存</tspan><tspan y="45.0" x="42.5">（key-value）</tspan></text></g><g transform="translate(167.00,1525.00)" id="shape49"><path fill-rule="nonzero" fill="#e9f8f5" d="M100.0,60.0L100.0,.0L.0,.0L.0,60.0L100.0,60.0z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="35.5" x="18.0">清空buffer</tspan></text></g><g transform="translate(328.00,1554.00)" id="shape50"><path fill="none" stroke-width="1" d="M.0,.0L-55.0,.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M-55.0,3.0L-61.0,.0L-55.0,-3.0L-55.0,3.0" stroke="#191919"/></g><g transform="translate(735.00,1136.08)" id="shape51"><path fill-rule="nonzero" fill="#d0f0ea" d="M189.0,49.3L189.0,.0L.0,.0L.0,49.3L189.0,49.3z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="30.5" x="30.5">state = ReadingBody</tspan></text></g><g transform="translate(924.00,1160.72)" id="shape52"><path fill="none" stroke-width="1" d="M.0,.0L58.0,.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M58.0,-3.0L64.0,.0L58.0,3.0L58.0,-3.0" stroke="#191919"/></g><g transform="translate(988.25,1130.72)" id="shape53"><path fill-rule="nonzero" fill="#e9f8f5" d="M100.0,60.0L100.0,.0L.0,.0L.0,60.0L100.0,60.0z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="35.5" x="18.0">清空buffer</tspan></text></g><g transform="translate(1152.50,1136.08)" id="shape54"><path fill-rule="nonzero" fill="#d0f0ea" d="M163.0,49.3L163.0,.0L.0,.0L.0,49.3L163.0,49.3z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="30.1" x="29.0">emit newRequest</tspan></text></g><g transform="translate(1088.25,1160.72)" id="shape55"><path fill="none" stroke-width="1" d="M.0,.0L58.0,.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M58.0,-3.0L64.0,.0L58.0,3.0L58.0,-3.0" stroke="#191919"/></g><g transform="translate(1130.00,1245.00)" id="shape56"><path fill-rule="nonzero" fill="#e8e9f5" d="M104.0,71.9L208.0,35.9L104.0,.0L.0,35.9L104.0,71.9z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="41.4" x="43.5">Content-Length >0</tspan></text></g><g transform="translate(1428.00,1258.00)" id="shape57"><path fill-rule="nonzero" fill="#d0f0ea" d="M240.6,44.0L240.6,.0L.0,.0L.0,44.0L240.6,44.0z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="27.5" x="24.8">emit request->bodyReadyRead</tspan></text></g><g transform="translate(1498.31,1402.94)" id="shape58"><path fill-rule="nonzero" fill="#ffd8d7" d="M22.0,44.0L78.0,44.0L78.0,44.0C90.2,44.0,100.0,34.2,100.0,22.0C100.0,9.8,90.2,.0,78.0,.0L22.0,.0L22.0,.0C9.8,.0,.0,9.8,.0,22.0C.0,34.2,9.8,44.0,22.0,44.0z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="27.5" x="31.0">return</tspan></text></g><g transform="translate(1338.00,1280.94)" id="shape59"><path fill="none" stroke-width="1" d="M.0,.0L84.0,.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M84.0,-3.0L90.0,.0L84.0,3.0L84.0,-3.0" stroke="#191919"/><rect width="13.0" height="19.0" fill="#ffffff" y="-9.5" x="39.5"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="5.5" x="39.5">是</tspan></text></g><g transform="translate(1548.31,1302.00)" id="shape60"><path fill="none" stroke-width="1" d="M.0,.0L.0,94.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M3.0,94.0L.0,100.0L-3.0,94.0L3.0,94.0" stroke="#191919"/></g><g transform="translate(1234.00,1316.88)" id="shape61"><path fill="none" stroke-width="1" d="M.0,.0L.0,67.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M3.0,67.0L.0,73.0L-3.0,67.0L3.0,67.0" stroke="#191919"/><rect width="13.0" height="19.0" fill="#ffffff" y="27.0" x="-5.5"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="42.0" x="-5.5">否</tspan></text></g><g transform="translate(652.50,1389.00)" id="shape62"><path fill-rule="nonzero" fill="#e8e9f5" d="M103.5,68.2L207.0,34.1L103.5,.0L.0,34.1L103.5,68.2z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="39.6" x="47.0">buffer.size > 1024</tspan></text></g><g transform="translate(1346.00,1424.00)" id="shape63"><path fill="none" stroke-width="1" d="M.0,.0L145.0,.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M145.0,-3.0L151.0,.0L145.0,3.0L145.0,-3.0" stroke="#191919"/></g><g transform="translate(669.21,1520.91)" id="shape64"><path fill-rule="nonzero" fill="#fff6e9" d="M173.6,68.2L173.6,.0L.0,.0L.0,68.2L173.6,68.2z"/><path fill="none" stroke-width="1" d="M173.6,68.2L173.6,.0L.0,.0L.0,68.2L173.6,68.2zM15.0,68.2L15.0,.0L15.0,68.2zM158.6,68.2L158.6,.0L158.6,68.2z" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="39.6" x="21.8">尝试复位任务（对象）</tspan></text></g><g transform="translate(926.00,1394.94)" id="shape65"><path fill-rule="nonzero" fill="#e9f8f5" d="M109.0,60.0L109.0,.0L.0,.0L.0,60.0L109.0,60.0z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:Microsoft YaHei;font-size:10.00pt;font-style:italic;font-weight:bold"><tspan y="36.0" x="19.5">启动定时器</tspan></text></g><g transform="translate(930.50,1532.00)" id="shape66"><path fill-rule="nonzero" fill="#ffd8d7" d="M22.0,44.0L78.0,44.0L78.0,44.0C90.2,44.0,100.0,34.2,100.0,22.0C100.0,9.8,90.2,.0,78.0,.0L22.0,.0L22.0,.0C9.8,.0,.0,9.8,.0,22.0C.0,34.2,9.8,44.0,22.0,44.0z" stroke-width="1" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="27.5" x="31.0">return</tspan></text></g><g transform="translate(756.00,1457.19)" id="shape67"><path fill="none" stroke-width="1" d="M.0,.0L.0,57.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M3.0,57.0L.0,63.0L-3.0,57.0L3.0,57.0" stroke="#191919"/><rect width="13.0" height="19.0" fill="#ffffff" y="22.0" x="-5.5"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="37.0" x="-5.5">是</tspan></text></g><g transform="translate(842.79,1555.00)" id="shape68"><path fill="none" stroke-width="1" d="M.0,.0L82.0,.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M82.0,-3.0L88.0,.0L82.0,3.0L82.0,-3.0" stroke="#191919"/></g><g transform="translate(859.50,1423.09)" id="shape69"><path fill="none" stroke-width="1" d="M.0,.0L61.0,.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M61.0,-3.0L67.0,.0L61.0,3.0L61.0,-3.0" stroke="#191919"/><rect width="13.0" height="19.0" fill="#ffffff" y="-9.5" x="28.0"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="5.5" x="28.0">否</tspan></text></g><g transform="translate(980.50,1454.94)" id="shape70"><path fill="none" stroke-width="1" d="M.0,.0L.0,72.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M3.0,72.0L.0,78.0L-3.0,72.0L3.0,72.0" stroke="#191919"/></g><g transform="translate(687.50,1326.06)" id="shape71"><path fill="none" stroke-width="1" d="M.0,.0L68.0,.0L68.0,57.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M71.0,57.0L68.0,63.0L65.0,57.0L71.0,57.0" stroke="#191919"/><rect width="13.0" height="19.0" fill="#ffffff" y="-9.5" x="60.0"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="5.5" x="60.0">是</tspan></text></g><g transform="translate(1234.00,1185.36)" id="shape72"><path fill="none" stroke-width="1" d="M.0,.0L.0,54.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M3.0,54.0L.0,60.0L-3.0,54.0L3.0,54.0" stroke="#191919"/></g><g transform="translate(1123.20,1389.91)" id="shape73"><path fill-rule="nonzero" fill="#fff6e9" d="M222.8,68.2L222.8,.0L.0,.0L.0,68.2L222.8,68.2z"/><path fill="none" stroke-width="1" d="M222.8,68.2L222.8,.0L.0,.0L.0,68.2L222.8,68.2zM15.0,68.2L15.0,.0L15.0,68.2zM207.8,68.2L207.8,.0L207.8,68.2z" stroke="#101843"/><text xml:space="preserve" style="fill:#191919;font-family:微软雅黑;font-size:10.00pt"><tspan y="30.1" x="65.9">准备下一个请求</tspan><tspan y="49.1" x="26.4">（state = WaitingRequest）</tspan></text></g><g transform="translate(869.00,794.00)" id="shape74"><path fill="none" stroke-width="1" d="M.0,.0L.0,-198.0L-232.0,-198.0" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M-232.0,-195.0L-238.0,-198.0L-232.0,-201.0L-232.0,-195.0" stroke="#191919"/></g><g transform="translate(167.00,1555.00)" id="shape75"><path fill="none" stroke-width="1" d="M.0,.0L-124.0,.0L-124.0,-1093.1L64.8,-1093.1" stroke="#191919"/><path fill="#191919" stroke-linecap="round" stroke-width="1" d="M64.8,-1096.1L70.8,-1093.1L64.8,-1090.1L64.8,-1096.1" stroke="#191919"/></g></svg></div>
+      </div>
+      <div id="navBar">
+        <div id="nav-thumbs"/>
+      </div>
+    </div>
+    <script>
+        const svgs=document.getElementById("svg-container").children;
+        const UA=window.navigator.userAgent;
+        const ua=(UA.indexOf('rv:11')+UA.indexOf('Firefox'))>=0;
+        const svgcount=document.getElementById('svg-container').childElementCount;
+        var styleArr=[];
+        var heightArr=[];
+        var navBar=document.getElementById('navBar');
+        var conInfo=document.getElementById('content-info');
+        for(var i=0;i<svgcount;i++){
+            styleArr[i] = {width:svgs[i].getAttribute('width'),height:svgs[i].getAttribute('height')}
+        }
+        window.onresize=function () {
+            renavstyle();
+            resvgstyle();
+        };
+        window.onscroll=renavstyle;
+        window.onload=function () {
+            renavstyle();
+            var sideWidth=navBar.offsetWidth;
+            document.getElementById('content-info').style.marginRight=sideWidth+'px';
+            document.getElementById('main-content').style.marginRight=sideWidth+'px';
+            resvgstyle();
+            doscroll();
+        };
+        function recontainstyle() {
+            var topHeight=conInfo.clientHeight;
+            var svgHeight=0;
+            for(var i=0;i<svgcount;i++){
+                heightArr[i]=svgs[i].getBoundingClientRect().height+10;
+                svgHeight+=svgs[i].clientHeight ||svgs[i].getBoundingClientRect().height;
+            }
+            var fullHeight=svgHeight+Number(topHeight);
+            if(fullHeight<window.innerHeight){
+            document.getElementById('main-content').style.position='absolute';
+            document.getElementById('main-content').style.top=topHeight+'px';
+        }else{
+            document.getElementById('main-content').style.position='';
+        }
+        }
+        function resvgstyle() {
+            var sideWidth=navBar.offsetWidth+20;
+            for(var i=0;i<svgcount;i++){
+                var oriWidth = styleArr[i].width;
+                var oriHeight = styleArr[i].height;
+                var percent = oriHeight / oriWidth;
+                var innerWidth=document.body.offsetWidth-sideWidth;
+                if (innerWidth <= oriWidth) {
+                    svgs[i].removeAttribute('width');
+                    svgs[i].removeAttribute('height');
+                    if (ua) {
+                        svgs[i].setAttribute('height',innerWidth*percent);
+                    }
+                }else {
+                    svgs[i].setAttribute('width', oriWidth);
+                    svgs[i].setAttribute('height', oriHeight);
+                }
+            }
+            recontainstyle();
+        }
+        function renavstyle() {
+            var topHeight=conInfo.clientHeight;
+            var scrollTop=document.body.scrollTop||document.documentElement.scrollTop;
+            if(scrollTop>topHeight){
+                document.getElementById('navBar').style.top=0+'px';
+            }else{
+                document.getElementById('navBar').style.top=topHeight-scrollTop+'px';
+            }
+            doscroll();
+        }
+        function doscroll() {
+            var topHeight=conInfo.clientHeight;
+            var scrollTop=document.body.scrollTop||document.documentElement.scrollTop;
+            for(var i=0;i<svgcount;i++){
+                var sum=0;
+                for(var j=0;j<=i;j++){
+                    sum+=heightArr[j];
+                }
+                if(scrollTop+window.innerHeight/2-topHeight-sum<0){
+                    var sub=Number(i)+1;
+                    if(document.querySelector('#nav-thumbs .selected')){
+                        document.querySelector('#nav-thumbs .selected').classList.remove('selected');
+                    }
+                    if(document.querySelector('.nav-thumb:nth-of-type('+sub+')')){
+                        document.querySelector('.nav-thumb:nth-of-type('+sub+')').classList.add('selected');
+                    }
+                    break;
+                }
+            }
+        }
+        var navs=document.querySelectorAll('.nav-thumb');
+        for(i=0;i<navs.length;i++){
+            navs[i].children[0].onclick=function () {
+                document.querySelector('#nav-thumbs .selected').classList.remove('selected');
+                this.parentNode.classList.add('selected');
+            }
+        }
+</script>
+  </body>
+</html>

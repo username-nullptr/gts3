@@ -1,0 +1,8 @@
+# resource
+execute_process(COMMAND ${CMAKE_COMMAND} -E
+	make_directory ${output_dir_name}/resource)
+
+execute_process(COMMAND ${CMAKE_COMMAND} -E
+	copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/web_resource ${output_dir_name}/resource)
+
+add_subdirectory(web_business)
