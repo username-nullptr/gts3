@@ -1,6 +1,6 @@
 #include "global.h"
 
-namespace gts { namespace web
+namespace gts
 {
 
 asio::io_context &io_context()
@@ -9,4 +9,4 @@ asio::io_context &io_context()
 	return io;
 }
 
-}} //namespace gts::web
+} //namespace gts

@@ -7,7 +7,7 @@
 #include <chrono>
 #include <cstdio>
 
-namespace gts::log
+namespace gts { namespace log
 {
 
 class logger;
@@ -107,7 +107,7 @@ inline log_buffer &log_buffer::operator<<(T &&msg)
 	return write(std::forward<T>(msg));
 }
 
-} //namespace gts::log
+}} //namespace gts::log
 
 
 #endif //LOG_BUFFER_H

@@ -4,7 +4,7 @@
 #include <string>
 #include <map>
 
-namespace gts::cmdline
+namespace gts { namespace cmdline
 {
 
 enum argument
@@ -30,7 +30,7 @@ argument_hash argument_check(int argc, const char *argv[]);
 bool operator&(const argument_hash &args_hash, argument key);
 bool operator&(argument key, const argument_hash &args_hash);
 
-} //namespace gts::cmdline
+}} //namespace gts::cmdline
 
 
 #endif //ARGUMENTS_H

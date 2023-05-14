@@ -10,6 +10,22 @@
 namespace gts
 {
 
+#if __cplusplus < 201703L
+# define _GTS_PROCESS_NOT_STRING \
+	template <typename T> \
+	typename std::enable_if< \
+		not std::is_same<typename std::decay<T>::type, std::string>::value and \
+		not std::is_same<typename std::decay<T>::type, char*>::value \
+	>::type
+#else //c++2017
+# define _GTS_PROCESS_NOT_STRING \
+	template <typename T> \
+	std::enable_if_t< \
+		not std::is_same_v<std::decay_t<T>, std::string> and \
+		not std::is_same_v<std::decay_t<T>, char*> \
+	>
+#endif //c++2017
+
 class process_private;
 
 class GTSCORE_API process
@@ -27,12 +43,7 @@ public:
 public:
 	template <typename...Args>
 	void add_env(const std::string &key, fmt::format_string<Args...> fmt, Args&&...args);
-
-	template <typename T>
-	std::enable_if_t<
-		not std::is_same_v<std::decay_t<T>, std::string> and
-		not std::is_same_v<std::decay_t<T>, char*>
-	> add_env(const std::string &key, T &&value);
+	_GTS_PROCESS_NOT_STRING	add_env(const std::string &key, T &&value);
 
 public:
 	void add_env(const std::string &key, const std::string &value);
@@ -67,11 +78,7 @@ void process::add_env(const std::string &key, fmt::format_string<Args...> value_
 	add_env(key, fmt::format(value_fmt, std::forward<Args>(args)...));
 }
 
-template <typename T>
-inline std::enable_if_t<
-	not std::is_same_v<std::decay_t<T>, std::string> and
-	not std::is_same_v<std::decay_t<T>, char*>
-> process::add_env(const std::string &key, T &&value)
+_GTS_PROCESS_NOT_STRING process::add_env(const std::string &key, T &&value)
 {
 	add_env(key, fmt::format("{}", std::forward<T>(value)));
 }

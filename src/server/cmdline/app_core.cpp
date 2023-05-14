@@ -3,13 +3,11 @@
 #include "global.h"
 #include "log.h"
 
-#include <filesystem>
+#include <cppfilesystem>
 #include <iostream>
 #include <map>
 
-namespace fs = std::filesystem;
-
-namespace gts::cmdline
+namespace gts { namespace cmdline
 {
 
 static void start_check(const cmdline::argument_hash &args_hash);
@@ -129,4 +127,4 @@ static void start_check(const cmdline::argument_hash &args_hash)
 	exit(0);
 }
 
-} //namespace gts::cmdline
+}} //namespace gts::cmdline

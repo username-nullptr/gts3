@@ -1,7 +1,7 @@
 #include "request.h"
 #include "gts_algorithm.h"
 
-namespace gts::web::http
+namespace gts { namespace web { namespace http
 {
 
 request::request()
@@ -88,4 +88,4 @@ void request::finish()
 	}
 }
 
-} //namespace gts::web::http
+}}} //namespace gts::web::http

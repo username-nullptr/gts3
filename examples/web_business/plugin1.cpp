@@ -13,7 +13,7 @@
 
 using namespace asio::ip;
 
-namespace gts::web::business
+namespace gts { namespace web { namespace business
 {
 
 class DECL_EXPORT plugin1
@@ -123,7 +123,7 @@ inline void plugin1::call(tcp::socket::native_handle_type handle, int ipv)
 	socket->close();
 }
 
-} //namespace gts::web::business
+}}} //namespace gts::web::business
 
 using namespace gts::web::business;
 

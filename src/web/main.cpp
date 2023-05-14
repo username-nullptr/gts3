@@ -12,7 +12,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
-namespace gts::web::plugin_main
+namespace gts { namespace web { namespace plugin_main
 {
 
 static std::thread g_run_thread;
@@ -75,7 +75,7 @@ GTS_DECL_EXPORT std::string view_status()
 	return fmt::format("session count: {}\n", session::count());
 }
 
-} //namespace gts::web::plugin_main
+}}} //namespace gts::web::plugin_main
 
 using namespace gts::web;
 

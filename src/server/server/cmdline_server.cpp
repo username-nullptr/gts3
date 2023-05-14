@@ -47,6 +47,8 @@ void cmdline_server::start()
 {
 	m_interaction->async_read(m_buf, _BUF_SIZE, [this](int size)
 	{
+		log_debug("cmdline_server: read: {}", m_buf);
+
 		if( size == 0 )
 			return ;
 

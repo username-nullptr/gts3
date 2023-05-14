@@ -6,16 +6,14 @@
 #include "mime_type.h"
 #include "log.h"
 
-#include <filesystem>
+#include <cppfilesystem>
 #include <fstream>
 
 #define SEND_RESPONSE(_status)  SEND_NULL_RESPONSE(socket, request, response, _status)
 
-namespace fs = std::filesystem;
-
 using namespace std::chrono;
 
-namespace gts::web
+namespace gts { namespace web
 {
 
 class GTS_DECL_HIDDEN response_helper
@@ -365,4 +363,4 @@ inline std::size_t response_helper::tcp_ip_buffer_size() const
 	return attr.value();
 }
 
-} //namespace gts::web
+}} //namespace gts::web

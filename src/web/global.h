@@ -7,7 +7,7 @@
 
 using namespace asio::ip;
 
-namespace gts::web
+namespace gts { namespace web
 {
 
 GTS_DECL_HIDDEN asio::io_context &io_context();
@@ -20,7 +20,7 @@ void delete_later(T *obj)
 	});
 }
 
-} //namespace gts::web
+}} //namespace gts::web
 
 
 #endif //GLOBAL_H

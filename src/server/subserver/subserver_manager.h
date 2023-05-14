@@ -3,7 +3,7 @@
 
 #include "gts_global.h"
 
-namespace gts::subserver
+namespace gts { namespace subserver
 {
 
 #define gts_sm  gts::subserver::manager::instance()
@@ -28,7 +28,7 @@ public:
 	std::string view_running_server() const;
 };
 
-} //namespace gts::subserver
+}} //namespace gts::subserver
 
 
 #endif //SUBSERVER_MANAGER_H

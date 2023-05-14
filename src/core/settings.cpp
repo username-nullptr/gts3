@@ -1,5 +1,5 @@
 #include "settings.h"
-#include <filesystem>
+#include <cppfilesystem>
 
 namespace gts
 {
@@ -42,7 +42,7 @@ void settings::reload()
 
 void settings::flush()
 {
-	std::filesystem::remove(m_file_name);
+	fs::remove(m_file_name);
 	m_ini_map.save(m_file_name);
 }
 

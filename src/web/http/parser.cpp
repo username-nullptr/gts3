@@ -3,7 +3,7 @@
 #include "request.h"
 #include "log.h"
 
-namespace gts::web::http
+namespace gts { namespace web { namespace http
 {
 
 parser::parser(int buf_size) :
@@ -166,4 +166,4 @@ void parser::reset()
 	m_cache = nullptr;
 }
 
-} //namespace gts::web::http
+}}} //namespace gts::web::http

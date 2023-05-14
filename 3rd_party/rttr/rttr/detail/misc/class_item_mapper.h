@@ -54,20 +54,20 @@ class enumeration_wrapper_base;
 
 template<typename T>
 using class_item_to_wrapper_t = conditional_t< std::is_same<T, property>::value,
-                                               property_wrapper_base,
-                                               conditional_t< std::is_same<T, method>::value,
-                                                              method_wrapper_base,
-                                                              conditional_t< std::is_same<T, constructor>::value,
-                                                                             constructor_wrapper_base,
-                                                                             conditional_t< std::is_same<T, destructor>::value,
-                                                                                            destructor_wrapper_base,
-                                                                                            conditional_t< std::is_same<T, enumeration>::value,
-                                                                                                            enumeration_wrapper_base,
-                                                                                                            void>
-                                                                                            >
-                                                                            >
-                                                            >
-                                              >;
+											   property_wrapper_base,
+											   conditional_t< std::is_same<T, method>::value,
+															  method_wrapper_base,
+															  conditional_t< std::is_same<T, constructor>::value,
+																			 constructor_wrapper_base,
+																			 conditional_t< std::is_same<T, destructor>::value,
+																							destructor_wrapper_base,
+																							conditional_t< std::is_same<T, enumeration>::value,
+																											enumeration_wrapper_base,
+																											void>
+																							>
+																			>
+															>
+											  >;
 
 
 template<typename T>

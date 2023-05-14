@@ -3,7 +3,7 @@
 
 #include "global.h"
 
-namespace gts::web::http
+namespace gts { namespace web { namespace http
 {
 
 class request;
@@ -38,7 +38,7 @@ private:
 	request *m_cache = nullptr;
 };
 
-} //namespace gts::web::http
+}}} //namespace gts::web::http
 
 
 #endif //PARSER_H

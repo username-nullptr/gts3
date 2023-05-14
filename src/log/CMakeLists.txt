@@ -1,12 +1,14 @@
 set(log_sources
 	log.cpp
 	log_buffer.cpp
+	rw_lock.cpp
 )
 
 set(log_headers
 	log_global.h
 	log_operator.h
 	log_buffer.h
+	rw_lock.h
 	log.h
 )
 

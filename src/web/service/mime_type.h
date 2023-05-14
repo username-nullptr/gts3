@@ -3,7 +3,7 @@
 
 #include "gts_global.h"
 
-namespace gts::web
+namespace gts { namespace web
 {
 
 GTS_DECL_HIDDEN std::string get_mime_type(const std::string &file_name);
@@ -14,7 +14,7 @@ inline bool is_binary_file(const std::string &file_name) { return is_text_file(f
 
 GTS_DECL_HIDDEN std::string get_text_file_encoding(const std::string &file_name);
 
-} //namespace gts::web
+}} //namespace gts::web
 
 
 #endif //MIME_TYPE_H

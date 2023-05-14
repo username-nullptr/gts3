@@ -4,12 +4,12 @@
 #include "cmdline/app_core.h"
 #include "cmdline/arguments.h"
 
-namespace gts::cmdline
+namespace gts { namespace cmdline
 {
 
 void cmdline_handle(int argc, const char *argv[], argument_hash &args_hash);
 
-} //namespace gts::cmdline
+}} //namespace gts::cmdline
 
 
 #endif //APP_CORE_P_H

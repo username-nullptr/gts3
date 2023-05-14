@@ -4,7 +4,7 @@
 #include <iostream>
 #include <cstring>
 
-namespace gts::cmdline
+namespace gts { namespace cmdline
 {
 
 #define ERROR_EXIT(msg) \
@@ -169,4 +169,4 @@ bool operator&(argument key, const argument_hash &args_hash)
 	exit(0);
 }
 
-} //namespace gts::cmdline
+}} //namespace gts::cmdline

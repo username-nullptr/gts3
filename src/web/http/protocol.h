@@ -4,7 +4,7 @@
 #include "global.h"
 #include <unordered_map>
 
-namespace gts::web::http
+namespace gts { namespace web { namespace http
 {
 
 enum status
@@ -78,7 +78,7 @@ typedef std::unordered_map<std::string, std::string>  headers;
 typedef std::pair<std::string, std::string>           parameter;
 typedef std::unordered_map<std::string, std::string>  parameters;
 
-} //namespace gts::web::http
+}}} //namespace gts::web::http
 
 
 #endif //PROTOCOL_H

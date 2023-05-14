@@ -4,7 +4,7 @@
 #include "cmdline/interaction.h"
 #include "gts_global.h"
 
-namespace gts::cmdline
+namespace gts { namespace cmdline
 {
 
 class pipe_ope;
@@ -20,7 +20,7 @@ public:
 	pipe_ope *m_ope = nullptr;
 };
 
-} //namespace gts::cmdline
+}} //namespace gts::cmdline
 
 
 #endif //INTERACTION_P_H

@@ -3,10 +3,10 @@
 
 #include "gts_global.h"
 
-namespace gts::subserver
+namespace gts { namespace subserver
 {
 
-} //namespace gts::subserver
+}} //namespace gts::subserver
 
 
 #endif //SERVER_OPE_H

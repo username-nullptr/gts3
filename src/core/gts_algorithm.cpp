@@ -50,10 +50,10 @@ bool starts_with(const std::string &str, const std::string &prefix)
 
 bool ends_with(const std::string &str, const std::string &suffix)
 {
-	return str.ends_with(prefix);
+	return str.ends_with(suffix);
 }
 
-#else //cpp17
+#else //<c++20
 
 bool starts_with(const std::string &str, const std::string &prefix)
 {
@@ -81,7 +81,7 @@ bool ends_with(const std::string &str, const std::string &suffix)
 	return true;
 }
 
-#endif //cpp20
+#endif //c++20
 
 std::string to_lower(const std::string &str)
 {

@@ -1,11 +1,9 @@
+#include <cppfilesystem>
 #include <iostream>
-#include <filesystem>
 #include <fstream>
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
-
-namespace fs = std::filesystem;
 
 int main()
 {

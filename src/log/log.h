@@ -3,7 +3,7 @@
 
 #include "log_buffer.h"
 
-namespace gts::log
+namespace gts { namespace log
 {
 
 #define log_debug    gts::log::logger(__FILE__, __func__, __LINE__).debug
@@ -135,7 +135,7 @@ inline void logger::fatal(const std::string &msg)
 	_fatal(msg);
 }
 
-} //namespace gts::log
+}} //namespace gts::log
 
 
 #endif //LOG_H

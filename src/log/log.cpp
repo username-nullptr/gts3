@@ -1,4 +1,5 @@
 #include "log.h"
+#include "rw_lock.h"
 #include "gts_algorithm.h"
 
 #include <list>
@@ -7,27 +8,29 @@
 #include <chrono>
 #include <cassert>
 #include <iostream>
-#include <filesystem>
-#include <shared_mutex>
+#include <cppfilesystem>
 #include <fmt/chrono.h>
 
 #if __cplusplus <= 201703L
-namespace std::chrono {
+namespace std { namespace chrono {
 using days   = std::chrono::duration<int64_t, std::ratio<86400>>;
 using weeks  = std::chrono::duration<int64_t, std::ratio<604800>>;
 using years  = std::chrono::duration<int64_t, std::ratio<31556952>>;
 using months = std::chrono::duration<int64_t, std::ratio<2629746>>;
-} //namespace std::chrono
+}} //namespace std::chrono
 #endif //C++20
 
 namespace dt = std::chrono;
-namespace fs = std::filesystem;
 
 #ifdef _WINDOWS
 
 # include <Windows.h>
 
-namespace std::filesystem
+#ifdef CORE_USE_STD_FS
+namespace std { namespace filesystem
+#else
+namespace core { namespace filesystem
+#endif
 {
 
 static time_t create_time(const std::string &/*file*/)
@@ -36,7 +39,7 @@ static time_t create_time(const std::string &/*file*/)
 	return 0;
 }
 
-} //namespace std::filesystem
+}} //namespace std::filesystem
 
 #else //other os
 
@@ -44,7 +47,11 @@ static time_t create_time(const std::string &/*file*/)
 # include <sys/types.h>
 # include <sys/stat.h>
 
-namespace std::filesystem
+#ifdef CORE_USE_STD_FS
+namespace std { namespace filesystem
+#else
+namespace core { namespace filesystem
+#endif
 {
 
 static time_t create_time(const std::string &file)
@@ -54,13 +61,13 @@ static time_t create_time(const std::string &file)
 	return buf.st_ctime;
 }
 
-} //std::filesystem
+}} //namespace std::filesystem
 
 #endif //os
 
 /*---------------------------------------------------------------------------------------------------------------*/
 
-namespace gts::log
+namespace gts { namespace log
 {
 
 class GTS_DECL_HIDDEN logger_impl
@@ -80,16 +87,11 @@ logger_impl::logger_impl(const char *file, const char *func, int line)
 	m_runtime_context.line = line;
 }
 
-static logger::context g_context =
-{
-	"", "default",
-	10240, 10485760, 1073741824, 4,
-	true, true, false
-};
+static logger::context g_context;
 
 static std::atomic_bool g_header_breaks_aline {false};
 
-static std::shared_mutex g_context_rwlock;
+static rw_mutex g_context_rwlock;
 
 /*---------------------------------------------------------------------------------------------------------------*/
 
@@ -141,7 +143,7 @@ void logger::set_header_breaks_aline(bool enable)
 
 logger::context logger::get_context()
 {
-	std::shared_lock<std::shared_mutex> locker(g_context_rwlock); (void)(locker);
+	shared_lock locker(g_context_rwlock); (void)(locker);
 	return g_context;
 }
 
@@ -522,4 +524,4 @@ static void remove_if_too_big(const std::list<fs::directory_entry> &list, int64_
 	}
 }
 
-} //namespace gts::log
+}} //namespace gts::log

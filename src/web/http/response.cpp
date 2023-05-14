@@ -1,6 +1,6 @@
 #include "response.h"
 
-namespace gts::web::http
+namespace gts { namespace web { namespace http
 {
 
 response::response(status s) :
@@ -47,7 +47,7 @@ void response::set_header(const std::string &key, const std::string &value)
 std::string response::to_string(bool end) const
 {
 	auto result = fmt::format("HTTP/{} {} {}\r\n", m_version, static_cast<int>(m_status),
-                              status_description(m_status));
+							  status_description(m_status));
 
 	for(auto &header : m_headers)
 		result += header.first + ": " + header.second + "\r\n";
@@ -63,4 +63,4 @@ std::string response::to_string(bool end) const
 	return result;
 }
 
-} //namespace gts::web::http
+}}} //namespace gts::web::http

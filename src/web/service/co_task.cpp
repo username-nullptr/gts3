@@ -9,15 +9,13 @@
 #include "service.h"
 
 #include <asio/thread_pool.hpp>
-#include <filesystem>
+#include <cppfilesystem>
 #include <thread>
 #include <chrono>
 
-namespace fs = std::filesystem;
-
 using namespace std::chrono;
 
-namespace gts::web
+namespace gts { namespace web
 {
 
 co_task::co_task(std::shared_ptr<tcp::socket> socket, std::shared_ptr<http::request> request) :
@@ -34,8 +32,8 @@ co_task::~co_task()
 
 static asio::thread_pool *g_pool = nullptr;
 
-static std::atomic<std::size_t> g_counter = 0;
-static std::atomic<std::size_t> g_counter_max = 1100;
+static std::atomic<std::size_t> g_counter {0};
+static std::atomic<std::size_t> g_counter_max {1100};
 
 static std::string g_resource_path = _GTS_WEB_DEFAULT_RC_PATH;
 static std::string g_cgi_path      = _GTS_WEB_DEFAULT_CGI_PATH;
@@ -277,4 +275,4 @@ static void TRACH(http::request &request, http::response &response, tcp::socket 
 	SEND_RESPONSE(http::hs_service_unavailable);
 }
 
-} //namespace gts::web
+}} //namespace gts::web

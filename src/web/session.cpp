@@ -12,7 +12,7 @@
 
 using namespace std::chrono;
 
-namespace gts::web
+namespace gts { namespace web
 {
 
 static int g_recv_timeout = 10000;
@@ -116,4 +116,4 @@ void session::time_out(const asio::error_code &was_cancel)
 	m_socket->close();
 }
 
-} //namespace gts::web
+}} //namespace gts::web

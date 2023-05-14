@@ -1,12 +1,12 @@
 #include "protocol.h"
 #include <assert.h>
 
-namespace gts::web::http
+namespace gts { namespace web { namespace http
 {
 
 std::string status_description(int s)
 {
-	static std::unordered_map<status, std::string> hash
+	static std::unordered_map<int, std::string> hash
 	{
 		{ hs_continue                        , "Continue"                        },
 		{ hs_switching_protocols             , "Switching Protocols"             },
@@ -68,9 +68,9 @@ std::string status_description(int s)
 		{ hs_not_extended                    , "Not Extended"                    },
 		{ hs_network_authentication_required , "Network Authentication Required" },
 	};
-	auto it = hash.find(static_cast<status>(s));
+	auto it = hash.find(s);
 	assert(it != hash.end());
 	return it->second;
 }
 
-} //namespace gts::web::http
+}}} //namespace gts::web::http

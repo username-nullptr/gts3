@@ -1,7 +1,7 @@
 #include "subserver_manager.h"
 #include "log.h"
 
-namespace gts::subserver
+namespace gts { namespace subserver
 {
 
 static class GTS_DECL_HIDDEN manager_impl
@@ -49,4 +49,4 @@ manager &manager::instance()
 	return *g_instance;
 }
 
-} //namespace gts::subserver
+}} //namespace gts::subserver

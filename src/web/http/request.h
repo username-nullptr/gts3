@@ -6,7 +6,7 @@
 
 using namespace asio::ip;
 
-namespace gts::web::http
+namespace gts { namespace web { namespace http
 {
 
 class parser;
@@ -55,7 +55,7 @@ private:
 	bool m_gzip = false;
 };
 
-} //namespace gts::web::http
+}}} //namespace gts::web::http
 
 
 #endif //REQUEST_H

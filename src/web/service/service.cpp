@@ -1,6 +1,6 @@
 #include "service.h"
 
-namespace gts::web
+namespace gts { namespace web
 {
 
-} //namespace gts::web
+}} //namespace gts::web

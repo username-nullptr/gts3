@@ -4,7 +4,7 @@
 #include "global.h"
 #include <functional>
 
-namespace gts::web
+namespace gts { namespace web
 {
 
 namespace http {
@@ -39,7 +39,7 @@ private:
 	std::function<void()> m_call_back;
 };
 
-} //namespace gts::web
+}} //namespace gts::web
 
 
 #endif //CO_TASK_H

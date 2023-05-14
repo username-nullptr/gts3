@@ -1,7 +1,7 @@
 #include "private/interaction_p.h"
 #include <cstring>
 
-namespace gts::cmdline
+namespace gts { namespace cmdline
 {
 
 interaction::interaction(bool is_server) :
@@ -15,4 +15,4 @@ interaction::~interaction()
 	delete d_ptr;
 }
 
-} //namespace gts::cmdline
+}} //namespace gts::cmdline

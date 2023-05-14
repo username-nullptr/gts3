@@ -4,8 +4,24 @@
 #include "protocol.h"
 #include <fmt/format.h>
 
-namespace gts::web::http
+namespace gts { namespace web { namespace http
 {
+
+#if __cplusplus < 201703L
+# define _GTS_HTTP_RESPONSE_NOT_STRING \
+	template <typename T> \
+	typename std::enable_if< \
+		not std::is_same<typename std::decay<T>::type, std::string>::value and \
+		not std::is_same<typename std::decay<T>::type, char*>::value \
+	>::type
+#else //c++2017
+# define _GTS_HTTP_RESPONSE_NOT_STRING \
+	template <typename T> \
+	std::enable_if_t< \
+		not std::is_same_v<std::decay_t<T>, std::string> and \
+		not std::is_same_v<std::decay_t<T>, char*> \
+	>
+#endif //c++2017
 
 class GTS_DECL_HIDDEN response
 {
@@ -26,12 +42,7 @@ public:
 public:
 	template <typename...Args>
 	void set_header(const std::string &key, fmt::format_string<Args...> fmt, Args&&...args);
-
-	template <typename T>
-	std::enable_if_t<
-		not std::is_same_v<std::decay_t<T>, std::string> and
-		not std::is_same_v<std::decay_t<T>, char*>
-	> set_header(const std::string &key, T &&value);
+	_GTS_HTTP_RESPONSE_NOT_STRING set_header(const std::string &key, T &&value);
 
 public:
 	std::string to_string(bool end = false) const;
@@ -54,16 +65,12 @@ void response::set_header(const std::string &key, fmt::format_string<Args...> va
 	set_header(key, fmt::format(value_fmt, std::forward<Args>(args)...));
 }
 
-template <typename T> inline
-std::enable_if_t<
-	not std::is_same_v<std::decay_t<T>, std::string> and
-	not std::is_same_v<std::decay_t<T>, char*>
-> response::set_header(const std::string &key, T &&value)
+_GTS_HTTP_RESPONSE_NOT_STRING response::set_header(const std::string &key, T &&value)
 {
 	set_header(key, fmt::format("{}", std::forward<T>(value)));
 }
 
-} //namespace gts::web::http
+}}} //namespace gts::web::http
 
 
 #endif //RESPONSE_H

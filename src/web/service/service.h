@@ -3,7 +3,7 @@
 
 #include "global.h"
 
-namespace gts::web
+namespace gts { namespace web
 {
 
 namespace http{
@@ -36,7 +36,7 @@ GTS_DECL_HIDDEN void cgi_service_init();
 GTS_DECL_HIDDEN void cgi_service
 (tcp::socket &socket, http::request &request, http::response &response, const std::string &url_name);
 
-} //namespace gts::web
+}} //namespace gts::web
 
 
 #endif //SERVICE_H

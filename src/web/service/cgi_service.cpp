@@ -9,7 +9,7 @@
 #include "http/request.h"
 
 #include <condition_variable>
-#include <filesystem>
+#include <cppfilesystem>
 #include <iostream>
 #include <cstdio>
 #include <atomic>
@@ -18,9 +18,7 @@
 
 #define _BUF_SIZE  65535
 
-namespace fs = std::filesystem;
-
-namespace gts::web
+namespace gts { namespace web
 {
 
 static std::string g_resource_path = _GTS_WEB_DEFAULT_RC_PATH;
@@ -177,7 +175,7 @@ void cgi_session::join()
 	m_cgi.join();
 	if( m_counter > 0 )
 	{
-		std::unique_lock locker(m_mutex);
+		std::unique_lock<std::mutex> locker(m_mutex);
 		m_condition.wait(locker);
 	}
 	log_debug("cgi '{}' finished.", m_cgi.file());
@@ -257,4 +255,4 @@ void cgi_session::async_read_cgi()
 	});
 }
 
-} //namespace gts::web
+}} //namespace gts::web

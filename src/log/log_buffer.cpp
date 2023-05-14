@@ -1,7 +1,7 @@
 #include "log_buffer.h"
 #include <thread>
 
-namespace gts::log
+namespace gts { namespace log
 {
 
 extern void message_handler(log_buffer::type type, const log_buffer::context &runtime_context, const std::string &msg);
@@ -18,4 +18,4 @@ log_buffer::~log_buffer()
 	delete m_data;
 }
 
-} //namespace gts::log
+}} //namespace gts::log

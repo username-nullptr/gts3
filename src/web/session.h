@@ -3,12 +3,12 @@
 
 #include "global.h"
 
-namespace gts::web::http{
+namespace gts { namespace web
+{
+
+namespace http{
 class parser;
 }
-
-namespace gts::web
-{
 
 class co_task;
 
@@ -44,7 +44,7 @@ private:
 	co_task *m_task = nullptr;
 };
 
-} //namespace gts::web
+}} //namespace gts::web
 
 
 #endif //SESSION_H

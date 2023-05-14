@@ -10,12 +10,10 @@
 
 #include <rapidjson/document.h>
 #include <rttr/library.h>
-#include <filesystem>
+#include <cppfilesystem>
 #include <fstream>
 
-namespace fs = std::filesystem;
-
-namespace gts::web
+namespace gts { namespace web
 {
 
 static std::string g_resource_path = _GTS_WEB_DEFAULT_RC_PATH;
@@ -200,7 +198,8 @@ void plugin_service_init()
 			continue;
 		}
 
-		auto &library = g_library_list.emplace_back(file_name);
+		g_library_list.emplace_back(file_name);
+		auto &library = g_library_list.back();
 		if( library.load() == false )
 		{
 			log_error("gts.web.plugin load failed: {}.", library.get_error_string());
@@ -208,7 +207,8 @@ void plugin_service_init()
 		}
 
 		auto class_name = GTS_WEB_PLUGIN_INTERFACE + type_name;
-		auto &type = g_type_list.emplace_back(rttr::type::get_by_name(class_name));
+		g_type_list.emplace_back(rttr::type::get_by_name(class_name));
+		auto &type = g_type_list.back();
 
 		if( not type.is_valid() )
 		{
@@ -251,4 +251,4 @@ void plugin_service_exit()
 	g_library_list.clear();
 }
 
-} //namespace gts::web
+}} //namespace gts::web

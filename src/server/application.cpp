@@ -7,7 +7,7 @@
 #include "cmdline/app_core.h"
 #include <rttr/variant.h>
 
-#include <filesystem>
+#include <cppfilesystem>
 #include <iostream>
 #include <atomic>
 #include <cassert>
@@ -19,8 +19,6 @@
 #endif //__unix__ && debug
 
 #include <ctime>
-
-namespace fs = std::filesystem;
 
 namespace gts
 {
@@ -38,7 +36,6 @@ private:
 
 public:
 	std::list<std::string> m_args;
-	asio::io_context m_io;
 
 public:
 #ifdef __unix__
@@ -58,7 +55,7 @@ static void signal_hander(int signo);
 
 applictaion_impl::applictaion_impl(int argc, const char *argv[])
 #ifdef __unix__
-	: m_sigs(m_io, SIGINT, SIGTERM, SIGPIPE)
+	: m_sigs(gts::io_context(), SIGINT, SIGTERM, SIGPIPE)
 #endif //__unix__
 {
 	if( appinfo::set_current_directory(appinfo::dir_path()) == false )
@@ -100,7 +97,7 @@ applictaion_impl::applictaion_impl(int argc, const char *argv[])
 		if( signo == SIGINT or signo == SIGTERM )
 		{
 			m_exit = true;
-			m_io.stop();
+			gts::io_context().stop();
 		}
 
 		else if( signo == SIGPIPE )
@@ -201,7 +198,7 @@ applictaion &applictaion::instance()
 
 asio::io_context &applictaion::io_context()
 {
-	return g_impl->m_io;
+	return gts::io_context();
 }
 
 std::list<std::string> applictaion::args() const
@@ -214,16 +211,17 @@ int applictaion::exec()
 	if( g_impl->m_exit )
 		return g_impl->m_exit_code;
 
-	asio::io_context::work io_work(g_impl->m_io); (void)(io_work);
-	g_impl->m_io.run();
+	auto &io = gts::io_context();
+	asio::io_context::work io_work(io); (void)(io_work);
 
+	io.run();
 	return g_impl->m_exit_code;
 }
 
 void applictaion::exit(int code)
 {
 	g_impl->m_exit_code = code;
-	g_impl->m_io.stop();
+	gts::io_context().stop();
 }
 
 /*----------------------------------------------------------------------------------------------------------*/

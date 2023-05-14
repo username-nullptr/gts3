@@ -1,3 +1,7 @@
+if (${CMAKE_CXX_STANDARD} GREATER 17)
+	set(CMAKE_CXX_STANDARD 17)
+endif()
+
 set(rttr_headers
 	rttr/access_levels.h
 	rttr/argument.h

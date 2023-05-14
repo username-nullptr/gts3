@@ -5,7 +5,7 @@
 #include <functional>
 #include <string>
 
-namespace gts::cmdline
+namespace gts { namespace cmdline
 {
 
 class interaction_private;
@@ -24,8 +24,8 @@ public:
 	bool is_open() const;
 
 public:
-	int read(char *buf, int len);
-	int write(const char *buf, int len);
+	int read(char *buf, int len, int timeout = -1);
+	int write(const char *buf, int len, int timeout = -1);
 
 public:
 	void async_read(char *buf, int len, std::function<void(int len)> call_back);
@@ -37,7 +37,7 @@ private:
 	interaction_private *d_ptr;
 };
 
-} //namespace gts::cmdline
+}} //namespace gts::cmdline
 
 
 #endif //INTERACTION_H

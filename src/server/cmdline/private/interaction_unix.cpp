@@ -2,11 +2,11 @@
 
 #include "interaction_p.h"
 #include "application.h"
-#include "gts_global.h"
+#include "global.h"
 #include "log.h"
 
 #include <unordered_map>
-#include <filesystem>
+#include <cppfilesystem>
 #include <asio.hpp>
 #include <cassert>
 #include <memory>
@@ -18,9 +18,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-namespace fs = std::filesystem;
-
-namespace gts::cmdline
+namespace gts { namespace cmdline
 {
 
 class GTS_DECL_HIDDEN pipe_ope
@@ -37,8 +35,8 @@ public:
 	bool is_open() const;
 
 public:
-	int read(char *buf, int len);
-	int write(const char *buf, int len);
+	int read(char *buf, int len, int timeout);
+	int write(const char *buf, int len, int timeout);
 
 public:
 	void async_read(char *buf, int len, std::function<void(int len)> call_back);
@@ -108,13 +106,13 @@ bool pipe_ope::open()
 
 	else if( q_ptr->m_is_server )
 	{
-		m_write_pipe = new descriptor(gts_app.io_context(), m_pipe[1]);
-		m_read_pipe = new descriptor(gts_app.io_context(), m_pipe[0]);
+		m_write_pipe = new descriptor(gts::io_context(), m_pipe[1]);
+		m_read_pipe = new descriptor(gts::io_context(), m_pipe[0]);
 	}
 	else
 	{
-		m_write_pipe = new descriptor(gts_app.io_context(), m_pipe[0]);
-		m_read_pipe = new descriptor(gts_app.io_context(), m_pipe[1]);
+		m_write_pipe = new descriptor(gts::io_context(), m_pipe[0]);
+		m_read_pipe = new descriptor(gts::io_context(), m_pipe[1]);
 	}
 	return true;
 }
@@ -129,7 +127,7 @@ void pipe_ope::close()
 	{
 		std::error_code error;
 		m_read_pipe->non_blocking(false, error);
-		asio::write(*m_read_pipe, asio::buffer("__c", 3), error);
+		m_read_pipe->write_some(asio::buffer("__c", 3), error);
 	}
 
 	delete m_write_pipe; m_write_pipe = nullptr;
@@ -147,8 +145,9 @@ bool pipe_ope::is_open() const
 	return m_pipe[0] != -1;
 }
 
-int pipe_ope::read(char *buf, int len)
+int pipe_ope::read(char *buf, int len, int timeout)
 {
+	_UNUSED(timeout);
 	if( not is_open() )
 	{
 		log_error("pipe not open.");
@@ -165,7 +164,7 @@ int pipe_ope::read(char *buf, int len)
 	m_read_pipe->non_blocking(false);
 
 	std::error_code error;
-	int res = static_cast<int>(asio::read(*m_read_pipe, asio::buffer(buf, len), error));
+	int res = static_cast<int>(m_read_pipe->read_some(asio::buffer(buf, len), error));
 	m_reading = false;
 
 	if( res < 0 )
@@ -181,8 +180,9 @@ int pipe_ope::read(char *buf, int len)
 	return res;
 }
 
-int pipe_ope::write(const char *buf, int len)
+int pipe_ope::write(const char *buf, int len, int timeout)
 {
+	_UNUSED(timeout);
 	if( not is_open() )
 	{
 		log_error("pipe not open.");
@@ -197,7 +197,7 @@ int pipe_ope::write(const char *buf, int len)
 
 	std::error_code error;
 	m_write_pipe->non_blocking(false);
-	int res = static_cast<int>(asio::write(*m_write_pipe, asio::buffer(buf, len), error));
+	int res = static_cast<int>(m_write_pipe->write_some(asio::buffer(buf, len), error));
 
 	if( res < len )
 		log_error("write: {}.", error.value());
@@ -218,8 +218,8 @@ void pipe_ope::async_read(char *buf, int len, std::function<void(int)> call_back
 	else if( len == 0 )
 		return call_back(0);
 
-	asio::async_read(*m_read_pipe, asio::buffer(buf, len),
-					 [call_back](const asio::error_code &error, std::size_t size)
+	m_read_pipe->async_read_some
+			(asio::buffer(buf, len), [call_back](const asio::error_code &error, std::size_t size)
 	{
 		if( error )
 		{
@@ -250,8 +250,8 @@ void pipe_ope::async_write(char *buf, int len, std::function<void(int)> call_bac
 	else if( len == 0 )
 		return call_back(0);
 
-	asio::async_write(*m_write_pipe, asio::buffer(buf, len),
-					  [call_back](const asio::error_code &error, std::size_t size)
+	m_write_pipe->async_write_some
+			(asio::buffer(buf, len), [call_back](const asio::error_code &error, std::size_t size)
 	{
 		if( error )
 		{
@@ -259,7 +259,7 @@ void pipe_ope::async_write(char *buf, int len, std::function<void(int)> call_bac
 				call_back(0);
 			else
 			{
-				log_error("read: {}.", error.value());
+				log_error("write: {}.", error.value());
 				call_back(-1);
 			}
 		}
@@ -270,8 +270,9 @@ void pipe_ope::async_write(char *buf, int len, std::function<void(int)> call_bac
 
 void pipe_ope::cancel()
 {
-	m_read_pipe->cancel();
-	m_write_pipe->cancel();
+	asio::error_code error;
+	m_read_pipe->cancel(error);
+	m_write_pipe->cancel(error);
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -305,14 +306,14 @@ bool interaction::is_open() const
 	return d_ptr->m_ope->is_open();
 }
 
-int interaction::read(char *buf, int len)
+int interaction::read(char *buf, int len, int timeout)
 {
-	return d_ptr->m_ope->read(buf, len);
+	return d_ptr->m_ope->read(buf, len, timeout);
 }
 
-int interaction::write(const char *buf, int len)
+int interaction::write(const char *buf, int len, int timeout)
 {
-	return d_ptr->m_ope->write(buf, len);
+	return d_ptr->m_ope->write(buf, len, timeout);
 }
 
 void interaction::async_read(char *buf, int len, std::function<void(int)> call_back)
@@ -330,6 +331,6 @@ void interaction::cancel()
 	d_ptr->m_ope->cancel();
 }
 
-} //namespace gts::cmdline
+}} //namespace gts::cmdline
 
 #endif //__unix__

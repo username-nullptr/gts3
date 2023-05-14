@@ -3,7 +3,7 @@
 #include "app_core_p.h"
 #include "log.h"
 
-#include <filesystem>
+#include <cppfilesystem>
 #include <iostream>
 #include <fstream>
 #include <thread>
@@ -12,11 +12,7 @@
 #include <signal.h>
 #include <sys/file.h>
 
-namespace fs = std::filesystem;
-
-using namespace std::chrono;
-
-namespace gts::cmdline
+namespace gts { namespace cmdline
 {
 
 static int become_child_process();
@@ -128,7 +124,7 @@ void stop_app(bool noreturn)
 
 		for(int i=0; i<100; i++)
 		{
-			std::this_thread::sleep_for(100ms);
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 			if( kill(pid, 0) < 0 )
 			{
@@ -204,6 +200,6 @@ static void trimmed(std::string &str)
 	}
 }
 
-} //namespace gts::cmdline
+}} //namespace gts::cmdline
 
 #endif //__unix__

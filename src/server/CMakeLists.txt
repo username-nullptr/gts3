@@ -1,5 +1,6 @@
 set(server_sources
 	main.cpp
+	global.cpp
 	application.cpp
 	cmdline/arguments.cpp
 	cmdline/app_core.cpp

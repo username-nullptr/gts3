@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <fstream>
 
-namespace gts::web
+namespace gts { namespace web
 {
 
 #define APPLICATION  "application/"
@@ -1083,4 +1083,4 @@ std::string get_text_file_encoding(const std::string &file_name)
 	return result;
 }
 
-} //namespace gts::web
+}} //namespace gts::web
