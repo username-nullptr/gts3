@@ -1,6 +1,7 @@
 #include <rttr/registration>
 #include <asio.hpp>
 #include <iostream>
+#include <dlfcn.h>
 
 #ifdef _MSC_VER
 # define DECL_EXPORT  __declspec(dllexport)
@@ -87,13 +88,43 @@ inline void plugin0::call(tcp::socket::native_handle_type handle, int ipv)
 	socket->close();
 }
 
+void plugin0_dladdr_helper() {}
+
 }}} //namespace gts::web::business
 
 using namespace gts::web::business;
 
 RTTR_PLUGIN_REGISTRATION
 {
-	rttr::registration::class_<plugin0>("gts.web.plugin.plugin0")
+	Dl_info info;
+	dladdr(reinterpret_cast<void*>(plugin0_dladdr_helper), &info);
+
+	std::string file_name = info.dli_fname;
+	auto pos = file_name.rfind("/");
+
+	if( pos != std::string::npos )
+		file_name.erase(0, pos + 1);
+
+#ifdef __unix__
+
+	if( file_name[0] == 'l' and file_name[1] == 'i' and file_name[2] == 'b' )
+		file_name.erase(0,3);
+
+	pos = file_name.find(".so");
+	if( pos != std::string::npos )
+		file_name.erase(pos);
+
+#elif defined(_WINDOWS)
+
+	pos = file_name.find(".dll");
+	if( pos != std::string::npos )
+		file_name.erase(pos);
+
+#else //os
+	// ... ...
+#endif //os
+
+	rttr::registration::class_<plugin0>("gts.web.plugin." + file_name)
 			.constructor<>()
 			.method("set_version"  , &plugin0::set_version)
 			.method("set_method"   , &plugin0::set_method)

@@ -161,15 +161,30 @@ int pipe_ope::read(char *buf, int len, int timeout)
 		return 0;
 
 	m_reading = true;
-	m_read_pipe->non_blocking(false);
+	m_read_pipe->non_blocking(true);
 
-	std::error_code error;
-	int res = static_cast<int>(m_read_pipe->read_some(asio::buffer(buf, len), error));
+	struct pollfd fds;
+	fds.events = POLLIN;
+	fds.fd = m_read_pipe->native_handle();
+	int res = poll(&fds, 1, timeout);
+
+	if( res == 0 )
+		return 0;
+	else if( res < 0 )
+	{
+		if( errno == EINTR )
+			return 0;
+
+		log_error("read: poll error: {}", strerror(errno));
+		return res;
+	}
+
+	res = ::read(fds.fd, buf, len);
 	m_reading = false;
 
 	if( res < 0 )
 	{
-		log_error("read: {}.", error.value());
+		log_error("read: {}.", strerror(errno));
 		return -errno;
 	}
 	else if( buf[0] == '_' and buf[1] == '_' and buf[2] == 'c' )
@@ -195,12 +210,27 @@ int pipe_ope::write(const char *buf, int len, int timeout)
 	else if( len == 0 )
 		return 0;
 
-	std::error_code error;
-	m_write_pipe->non_blocking(false);
-	int res = static_cast<int>(m_write_pipe->write_some(asio::buffer(buf, len), error));
+	m_write_pipe->non_blocking(true);
 
+	struct pollfd fds;
+	fds.events = POLLOUT;
+	fds.fd = m_write_pipe->native_handle();
+	int res = poll(&fds, 1, timeout);
+
+	if( res == 0 )
+		return 0;
+	else if( res < 0 )
+	{
+		if( errno == EINTR )
+			return 0;
+
+		log_error("write: poll error: {}", strerror(errno));
+		return res;
+	}
+
+	res = ::write(fds.fd, buf, len);
 	if( res < len )
-		log_error("write: {}.", error.value());
+		log_error("write: {}.", strerror(errno));
 	return res;
 }
 

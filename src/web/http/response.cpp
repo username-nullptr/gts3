@@ -51,7 +51,6 @@ std::string response::to_string(bool end) const
 
 	for(auto &header : m_headers)
 		result += header.first + ": " + header.second + "\r\n";
-	result += "\r\n";
 
 	if( end )
 	{
@@ -59,6 +58,7 @@ std::string response::to_string(bool end) const
 			m_headers.find("CONTENT-LENGTH") == m_headers.end() and
 			m_headers.find("Content-Length") == m_headers.end() )
 			result += "context-length : 0\r\n";
+		result += "\r\n";
 	}
 	return result;
 }

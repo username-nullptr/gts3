@@ -45,7 +45,7 @@ public:
 	_GTS_HTTP_RESPONSE_NOT_STRING set_header(const std::string &key, T &&value);
 
 public:
-	std::string to_string(bool end = false) const;
+	std::string to_string(bool end = true) const;
 
 private:
 	std::string m_version = "1.1";

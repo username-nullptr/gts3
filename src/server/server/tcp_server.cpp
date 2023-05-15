@@ -84,24 +84,36 @@ tcp_server::tcp_server(int, const char**) :
 	if( m_plugin_lib->load() == false )
 		log_fatal("gts.plugin load failed: {}.\n", m_plugin_lib->get_error_string());
 
-	auto method = rttr::type::get_global_method(GTS_PLUGIN_INTERFACE_INIT);
+	auto method = rttr::type::get_global_method(GTS_PLUGIN_INTERFACE_INIT, {rttr::type::get<std::string>()});
 	if( method.is_valid() )
+		method.invoke({}, settings::global_instance().file_name());
+	else
 	{
-		auto para_infos = method.get_parameter_infos();
-
-		if( para_infos.size() == 0 )
+		method = rttr::type::get_global_method(GTS_PLUGIN_INTERFACE_INIT);
+		if( method.is_valid() )
 			method.invoke({});
-		else if( para_infos.size() == 1 )
-			method.invoke({}, settings::global_instance().file_name());
 	}
 
-	m_new_connect_method = rttr::type::get_global_method(GTS_PLUGIN_INTERFACE_NEW_CONNECT);
-	if( not m_new_connect_method.is_valid() )
-		log_fatal("gts.plugin error: strategy is null.\n");
+	m_new_connect_method = rttr::type::get_global_method
+						   (GTS_PLUGIN_INTERFACE_NEW_CONNECT, {
+								rttr::type::get<tcp::socket::native_handle_type>(),
+								rttr::type::get<int>()
+							});
 
-	m_ncma_count = m_new_connect_method.get_parameter_infos().size();
-	if( m_ncma_count != 1 and m_ncma_count != 2 )
-		log_fatal("gts.plugin error: strategy method args error.\n");
+	if( m_new_connect_method.is_valid() )
+		m_ncma_count = 2;
+	else
+	{
+		m_new_connect_method = rttr::type::get_global_method
+							   (GTS_PLUGIN_INTERFACE_NEW_CONNECT, {
+									rttr::type::get<tcp::socket::native_handle_type>()
+								});
+
+		if( m_new_connect_method.is_valid() )
+			m_ncma_count = 1;
+		else
+			log_fatal("gts.plugin error: strategy is null.\n");
+	}
 
 	m_buffer_size = READ_CONFIG(int, SINI_GTS_TCP_BUF_SIZE, 65535);
 	if( m_buffer_size < 1024 )

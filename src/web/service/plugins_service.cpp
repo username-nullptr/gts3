@@ -5,9 +5,6 @@
 #include "gts_algorithm.h"
 #include "log.h"
 
-#include "http/response.h"
-#include "http/request.h"
-
 #include <rapidjson/document.h>
 #include <rttr/library.h>
 #include <cppfilesystem>
@@ -22,9 +19,7 @@ static std::list<rttr::library> g_library_list;
 
 static std::list<rttr::type> g_type_list;
 
-#define SEND_RESPONSE(_status)  SEND_NULL_RESPONSE(socket, request, response, _status)
-
-void plugins_service(tcp::socket &socket, http::request &request, http::response &response, const std::string &url_name)
+void service::call_plugins(const std::string &url_name)
 {
 	std::string plugin_name;
 	std::string path;
@@ -50,43 +45,69 @@ void plugins_service(tcp::socket &socket, http::request &request, http::response
 		if( not var.is_valid() )
 		{
 			log_error("Web plugin class: object create failed.");
-			return SEND_RESPONSE(http::hs_internal_server_error);
+			return return_to_null(http::hs_internal_server_error);
 		}
 
-		auto call_method = type.get_method(GTS_PLUGIN_INTERFACE_CALL);
-		if( not call_method.is_valid() )
+		int call_method_para_count = 0;
+		auto call_method = type.get_method
+						   (GTS_PLUGIN_INTERFACE_CALL, {
+								rttr::type::get<tcp::socket::native_handle_type>(),
+								rttr::type::get<int>()
+							});
+		if( call_method.is_valid() )
+			call_method_para_count = 2;
+		else
 		{
-			log_error("Web plugin class::call is cannot be called.");
-			return SEND_RESPONSE(http::hs_internal_server_error);
+			call_method = type.get_method
+						  (GTS_PLUGIN_INTERFACE_CALL, {
+							   rttr::type::get<tcp::socket::native_handle_type>()
+						   });
+
+			if( call_method.is_valid() )
+				call_method_para_count = 1;
+			else
+			{
+				log_error("Web plugin class::call is cannot be called.");
+				return return_to_null(http::hs_internal_server_error);
+			}
 		}
 
-		auto method = type.get_method(GTS_PLUGIN_INTERFACE_SET_VERSION);
+		auto method = type.get_method(GTS_PLUGIN_INTERFACE_SET_VERSION, {rttr::type::get<std::string>()});
 		if( method.is_valid() )
 			method.invoke(var, request.version());
 
-		method = type.get_method(GTS_PLUGIN_INTERFACE_SET_METHOD);
+		method = type.get_method(GTS_PLUGIN_INTERFACE_SET_METHOD, {rttr::type::get<std::string>()});
 		if( method.is_valid() )
 			method.invoke(var, request.method());
 
-		method = type.get_method(GTS_PLUGIN_INTERFACE_SET_PATH);
+		method = type.get_method(GTS_PLUGIN_INTERFACE_SET_PATH, {rttr::type::get<std::string>()});
 		if( method.is_valid() )
 			method.invoke(var, path);
 
-		method = type.get_method(GTS_PLUGIN_INTERFACE_ADD_PARAMETER);
+		method = type.get_method(GTS_PLUGIN_INTERFACE_ADD_PARAMETER, {
+									 rttr::type::get<std::string>(),
+									 rttr::type::get<std::string>()
+								 });
 		if( method.is_valid() )
 		{
 			for(auto &header : request.parameters())
 				method.invoke(var, header.first, header.second);
 		}
 
-		method = type.get_method(GTS_PLUGIN_INTERFACE_ADD_HEADER);
+		method = type.get_method(GTS_PLUGIN_INTERFACE_ADD_HEADER, {
+									 rttr::type::get<std::string>(),
+									 rttr::type::get<std::string>()
+								 });
 		if( method.is_valid() )
 		{
 			for(auto &para : request.headers())
 				method.invoke(var, para.first, para.second);
 		}
 
-		method = type.get_method(GTS_PLUGIN_INTERFACE_ADD_ENV);
+		method = type.get_method(GTS_PLUGIN_INTERFACE_ADD_ENV, {
+									 rttr::type::get<std::string>(),
+									 rttr::type::get<std::string>()
+								 });
 		if( method.is_valid() )
 		{
 			auto parameter = request.parameters_string();
@@ -96,7 +117,7 @@ void plugins_service(tcp::socket &socket, http::request &request, http::response
 			method.invoke(var, std::string("REQUEST_METHOD")   , request.method());
 			method.invoke(var, std::string("QUERY_STRING")     , parameter);
 			method.invoke(var, std::string("REMOTE_ADDR")      , socket.remote_endpoint().address().to_string());
-			method.invoke(var, std::string("GATEWAY_INTERFACE"), std::string("CGI/1.1"));
+			method.invoke(var, std::string("GATEWAY_INTERFACE"), std::string("RTTR/" RTTR_VERSION_STR));
 			method.invoke(var, std::string("SERVER_NAME")      , socket.local_endpoint().address().to_string());
 			method.invoke(var, std::string("SERVER_PORT")      , fmt::format("{}", socket.local_endpoint().port()));
 			method.invoke(var, std::string("SERVER_PROTOCOL")  , "HTTP/" + request.version());
@@ -106,23 +127,21 @@ void plugins_service(tcp::socket &socket, http::request &request, http::response
 
 		if( not request.body().empty() )
 		{
-			method = type.get_method(GTS_PLUGIN_INTERFACE_SET_BODY);
+			method = type.get_method(GTS_PLUGIN_INTERFACE_SET_BODY, {rttr::type::get<std::string>()});
 			if( method.is_valid() )
 				method.invoke(var, request.body());
 		}
 
-		if( call_method.get_parameter_infos().size() == 2 )
-		{
-			if( socket.remote_endpoint().address().is_v4() )
-				call_method.invoke(var, socket.native_handle(), 4);
-			else
-				call_method.invoke(var, socket.native_handle(), 6);
-		}
-		else
+		if( call_method_para_count == 1 )
 			call_method.invoke(var, socket.native_handle());
+
+		else if( socket.remote_endpoint().address().is_v4() )
+			call_method.invoke(var, socket.native_handle(), 4);
+		else
+			call_method.invoke(var, socket.native_handle(), 6);
 		return ;
 	}
-	SEND_RESPONSE(http::hs_not_found);
+	return_to_null(http::hs_not_found);
 }
 
 void plugin_service_init()
@@ -222,12 +241,11 @@ void plugin_service_init()
 
 		auto method = rttr::type::get_global_method(class_name + ".init");
 		if( method.is_valid() )
+			method.invoke({});
+		else
 		{
-			auto para_infos = method.get_parameter_infos();
-
-			if( para_infos.size() == 0 )
-				method.invoke({});
-			else if( para_infos.size() == 1 )
+			method = rttr::type::get_global_method(class_name + ".init", {rttr::type::get<std::string>()});
+			if( method.is_valid() )
 				method.invoke({}, _settings.file_name());
 		}
 	}

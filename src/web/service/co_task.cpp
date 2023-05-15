@@ -2,11 +2,8 @@
 #include "gts_algorithm.h"
 #include "web_config_key.h"
 #include "settings.h"
-#include "log.h"
-
-#include "http/response.h"
-#include "http/request.h"
 #include "service.h"
+#include "log.h"
 
 #include <asio/thread_pool.hpp>
 #include <cppfilesystem>
@@ -75,13 +72,12 @@ void co_task::init()
 	READ_PATH_CONFIG(SINI_WEB_RC_PATH,  g_resource_path);
 	READ_PATH_CONFIG(SINI_WEB_CGI_PATH, g_cgi_path);
 
-	plugin_service_init();
-	cgi_service_init();
+	service::init();
 }
 
 void co_task::exit()
 {
-	plugin_service_exit();
+	service::exit();
 	if( g_pool == nullptr )
 		return ;
 
@@ -136,31 +132,30 @@ void co_task::cancel()
 	m_call_back = nullptr;
 }
 
-static void GET    (http::request &request, http::response &response, tcp::socket &socket);
-static void POST   (http::request &request, http::response &response, tcp::socket &socket);
-static void PUT    (http::request &request, http::response &response, tcp::socket &socket);
-static void HEAD   (http::request &request, http::response &response, tcp::socket &socket);
-static void DELETE (http::request &request, http::response &response, tcp::socket &socket);
-static void OPTIONS(http::request &request, http::response &response, tcp::socket &socket);
-static void CONNECT(http::request &request, http::response &response, tcp::socket &socket);
-static void TRACH  (http::request &request, http::response &response, tcp::socket &socket);
+static void GET    (service &s);
+static void POST   (service &s);
+static void PUT    (service &s);
+static void HEAD   (service &s);
+static void DELETE (service &s);
+static void OPTIONS(service &s);
+static void CONNECT(service &s);
+static void TRACH  (service &s);
 
 void co_task::run()
 {
 	auto method = m_request->method();
 	log_debug() << "URL:" << m_request->path() << method;
 
-	http::response response(m_request->version());
-	response.set_header("server", "gts3");
+	service _service(*m_socket, *m_request);
 
-	if(      method == "GET"     ) GET    (*m_request, response, *m_socket);
-	else if( method == "POST"    ) POST   (*m_request, response, *m_socket);
-	else if( method == "HEAD"    ) HEAD   (*m_request, response, *m_socket);
-	else if( method == "PUT"     ) PUT    (*m_request, response, *m_socket);
-	else if( method == "DELETE"  ) DELETE (*m_request, response, *m_socket);
-	else if( method == "OPTIONS" ) OPTIONS(*m_request, response, *m_socket);
-	else if( method == "CONNECT" ) CONNECT(*m_request, response, *m_socket);
-	else if( method == "TRACH"   ) TRACH  (*m_request, response, *m_socket);
+	if(      method == "GET"     ) GET    (_service);
+	else if( method == "POST"    ) POST   (_service);
+	else if( method == "HEAD"    ) HEAD   (_service);
+	else if( method == "PUT"     ) PUT    (_service);
+	else if( method == "DELETE"  ) DELETE (_service);
+	else if( method == "OPTIONS" ) OPTIONS(_service);
+	else if( method == "CONNECT" ) CONNECT(_service);
+	else if( method == "TRACH"   ) TRACH  (_service);
 
 	if( not m_request->keep_alive() )
 	{
@@ -171,9 +166,9 @@ void co_task::run()
 
 /*----------------------------------------------------------------------------------------------------*/
 
-#define _PARSING(request) \
+#define _PARSING(_s) \
 ({ \
-	auto url_name = request.path(); \
+	auto url_name = _s.request.path(); \
 	if( url_name.empty() ) \
 		url_name = "/index.html"; \
 	else { \
@@ -181,98 +176,86 @@ void co_task::run()
 		if( pos != std::string::npos ) { \
 			auto prefix = url_name.substr(0,pos); \
 			if( prefix == "/cgi-bin" ) { \
-				cgi_service(socket, request, response, g_cgi_path + url_name.substr(pos+1)); \
+				_s.call_cgi(g_cgi_path + url_name.substr(pos+1)); \
 				return ; \
 			} else if ( prefix == "/plugin-lib" ) { \
-				plugins_service(socket, request, response, url_name.substr(pos+1)); \
+				_s.call_plugins(url_name.substr(pos+1)); \
 				return ; \
 			} \
 		} \
 	} \
 	if( fs::is_directory(url_name) ) \
-		return SEND_RESPONSE(http::hs_not_found); \
+		return _s.return_to_null(http::hs_not_found); \
 	url_name; \
 })
 
-#define SEND_RESPONSE(_status)  SEND_NULL_RESPONSE(socket, request, response, _status)
-
-static void GET(http::request &request, http::response &response, tcp::socket &socket)
+static void GET(service &s)
 {
-	auto url_name = _PARSING(request);
-	static_resource_service(socket, request, response, g_resource_path + url_name);
+	auto url_name = _PARSING(s);
+	s.call_static_resource(g_resource_path + url_name);
 }
 
-static void POST(http::request &request, http::response &response, tcp::socket &socket)
+static void POST(service &s)
 {
-	_PARSING(request);
-	SEND_RESPONSE(http::hs_not_implemented);
+	_PARSING(s);
+	s.return_to_null(http::hs_not_implemented);
 }
 
-static void PUT(http::request &request, http::response &response, tcp::socket &socket)
+static void PUT(service &s)
 {
-	_PARSING(request);
-	SEND_RESPONSE(http::hs_not_implemented);
+	_PARSING(s);
+	s.return_to_null(http::hs_not_implemented);
 }
 
-#define HEAD_SEND_OK() \
-({ \
-	response.set_status(http::hs_ok); \
-	response.set_header("accept-ranges", "bytes"); \
-	response.set_header("connection", "close"); \
-	socket.write_some(asio::buffer(response.to_string())); \
-	socket.shutdown(tcp::socket::shutdown_both); \
-	socket.close(); \
-})
-
-static void HEAD(http::request &request, http::response &response, tcp::socket &socket)
+static void HEAD(service &s)
 {
-	std::string url_name = request.path();
+	std::string url_name = s.request.path();
 	if( url_name == "/" )
-		return HEAD_SEND_OK();
+		return s.return_to_null();
 
-	auto list = string_split(url_name, "/");
+	auto pos = url_name.find("/", 1);
 
-	if( list[0] == "plugin-lib" )
+	if( pos != std::string::npos )
 	{
-		list.pop_front();
-
-		if( fs::exists(g_cgi_path + string_list_join(list, "/")) )
-			return HEAD_SEND_OK();
-
-		return SEND_RESPONSE(http::hs_not_found);
-	}
-
-	else if( list[0] == "cgi-bin" )
-	{
-		list.pop_front();
-		plugins_service(socket, request, response, string_list_join(list, "/"));
+		auto prefix = url_name.substr(0,pos);
+		if( prefix == "/cgi-bin" )
+		{
+			if( fs::exists(g_cgi_path + url_name.substr(pos+1)) )
+				return s.return_to_null();
+			return s.return_to_null(http::hs_not_found);
+		}
+		else if ( prefix == "/plugin-lib" )
+		{
+			s.call_plugins(url_name.substr(pos+1));
+			return ;
+		}
 	}
 
 	else if( fs::exists(g_resource_path + url_name) )
-		SEND_RESPONSE(http::hs_not_found);
+		s.return_to_null(http::hs_not_found);
 	else
-		HEAD_SEND_OK();
+		s.return_to_null();
 }
 
-static void DELETE(http::request &request, http::response &response, tcp::socket &socket)
+static void DELETE(service &s)
 {
-	_PARSING(request);
-	SEND_RESPONSE(http::hs_not_implemented);
+	_PARSING(s);
+	s.return_to_null(http::hs_not_implemented);
 }
 
-static void OPTIONS(http::request &request, http::response &response, tcp::socket &socket)
+static void OPTIONS(service &s)
 {
-	SEND_RESPONSE(http::hs_service_unavailable);
+	s.return_to_null(http::hs_service_unavailable);
 }
 
-static void CONNECT(http::request &request, http::response &response, tcp::socket &socket)
+static void CONNECT(service &s)
 {
-	SEND_RESPONSE(http::hs_service_unavailable);
+	s.return_to_null(http::hs_service_unavailable);
 }
 
-static void TRACH(http::request &request, http::response &response, tcp::socket &socket)
+static void TRACH(service &s)
 {
-	SEND_RESPONSE(http::hs_service_unavailable);
+	s.return_to_null(http::hs_service_unavailable);
 }
 
 }} //namespace gts::web

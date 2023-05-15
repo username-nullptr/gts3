@@ -5,16 +5,11 @@
 #include "process.h"
 #include "log.h"
 
-#include "http/response.h"
-#include "http/request.h"
-
 #include <condition_variable>
 #include <cppfilesystem>
 #include <iostream>
 #include <cstdio>
 #include <atomic>
-
-#define SEND_RESPONSE(_status)  SEND_NULL_RESPONSE(socket, request, response, _status)
 
 #define _BUF_SIZE  65535
 
@@ -32,7 +27,7 @@ class GTS_DECL_HIDDEN cgi_session
 	DISABLE_COPY(cgi_session)
 
 public:
-	cgi_session(tcp::socket &socket, process &cgi, http::request &request);
+	cgi_session(service &_service, process &cgi);
 	~cgi_session();
 
 public:
@@ -47,7 +42,7 @@ private:
 	void async_read_cgi();
 
 private:
-	tcp::socket &m_socket;
+	service &m_service;
 	process &m_cgi;
 
 private:
@@ -63,7 +58,7 @@ private:
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
-void cgi_service(tcp::socket &socket, http::request &request, http::response &response, const std::string &file_name)
+void service::call_cgi(const std::string &file_name)
 {
 	if( not fs::exists(file_name) )
 	{
@@ -71,7 +66,7 @@ void cgi_service(tcp::socket &socket, http::request &request, http::response &re
 		file_name += ".exe";
 		if( not fs::exists(file_name) )
 #endif //windows
-			return SEND_RESPONSE(http::hs_not_found);
+			return return_to_null(http::hs_not_found);
 	}
 
 	auto parameter = request.parameters_string();
@@ -97,7 +92,7 @@ void cgi_service(tcp::socket &socket, http::request &request, http::response &re
 		cgi.add_env("HTTP_" + to_upper(replace_http_to_env(pair.first)), pair.second);
 
 	cgi.set_work_path(file_path);
-	cgi_session(socket, cgi, request).join();
+	cgi_session(*this, cgi).join();
 }
 
 void cgi_service_init()
@@ -141,23 +136,23 @@ static inline std::string replace_http_to_env(const std::string &str)
 	return result;
 }
 
-cgi_session::cgi_session(tcp::socket &socket, process &cgi, http::request &request) :
-	m_socket(socket), m_cgi(cgi)
+cgi_session::cgi_session(service &_service, process &cgi) :
+	m_service(_service), m_cgi(cgi)
 {
-	auto it = request.headers().find("content-length");
-	if( it != request.headers().end() )
+	auto it = m_service.request.headers().find("content-length");
+	if( it != m_service.request.headers().end() )
 		std::sscanf(it->second.c_str(), "%zu", &m_content_length);
 
 	m_cgi.start();
 	async_read_cgi();
 
-	m_socket.non_blocking(true);
+	m_service.socket.non_blocking(true);
 
-	if( request.body().size() > 0 )
+	if( m_service.request.body().size() > 0 )
 	{
-		log_error("test=== {} / {}", request.body().size(), m_content_length);
-		m_content_length -= request.body().size();
-		async_write_cgi(request.body().c_str(), request.body().size());
+		log_error("test=== {} / {}", m_service.request.body().size(), m_content_length);
+		m_content_length -= m_service.request.body().size();
+		async_write_cgi(m_service.request.body().c_str(), m_service.request.body().size());
 	}
 	else
 		async_read_socket();
@@ -166,8 +161,8 @@ cgi_session::cgi_session(tcp::socket &socket, process &cgi, http::request &reque
 cgi_session::~cgi_session()
 {
 	m_cgi.cancel();
-	m_socket.cancel();
-	m_socket.non_blocking(false);
+	m_service.socket.cancel();
+	m_service.socket.non_blocking(false);
 }
 
 void cgi_session::join()
@@ -183,8 +178,9 @@ void cgi_session::join()
 
 void cgi_session::async_write_socket(const char *buf, std::size_t buf_size)
 {
-	m_socket.async_write_some(asio::buffer(buf, buf_size),
-							  [this, buf, buf_size](const asio::error_code &error, std::size_t size)
+	m_service.socket.async_write_some
+			(asio::buffer(buf, buf_size),
+			 [this, buf, buf_size](const asio::error_code &error, std::size_t size)
 	{
 		if( error )
 		{
@@ -211,8 +207,9 @@ void cgi_session::async_read_socket()
 	else if( buf_size == 0 )
 		return ;
 
-	m_socket.async_read_some(asio::buffer(m_sock_read_buf, buf_size),
-							 [this](const asio::error_code &error, std::size_t size)
+	m_service.socket.async_read_some
+			(asio::buffer(m_sock_read_buf, buf_size),
+			 [this](const asio::error_code &error, std::size_t size)
 	{
 		if( error or size == 0 or not m_cgi.is_running() )
 			return ;

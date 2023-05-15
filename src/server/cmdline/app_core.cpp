@@ -115,13 +115,23 @@ static void start_check(const cmdline::argument_hash &args_hash)
 	if( _interaction.open() == false )
 		log_fatal("cmd line interaction open failed.");
 
-	_interaction.write(cmd_str.c_str(), cmd_str.size());
+	int res = _interaction.write(cmd_str.c_str(), cmd_str.size(), 5000);
+	if( res == 0 )
+	{
+		std::cerr << "Error: request operation timeout." << std::endl;
+		exit(-1);
+	}
 
 	char buf[_BUF_SIZE] = "";
-	int res = _interaction.read(buf, _BUF_SIZE);
+	res = _interaction.read(buf, _BUF_SIZE, 5000);
 
 	if( res < 0 )
 		exit(res);
+	else if( res == 0 )
+	{
+		std::cerr << "Error: wait for reply operation timeout." << std::endl;
+		exit(-1);
+	}
 
 	std::cout << buf << std::endl;
 	exit(0);
