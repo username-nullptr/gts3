@@ -50,7 +50,7 @@ void service::call_plugins(const std::string &url_name)
 
 		int call_method_para_count = 0;
 		auto call_method = type.get_method
-						   (GTS_PLUGIN_INTERFACE_CALL, {
+						   (GTS_WEB_PLUGIN_INTERFACE_CALL, {
 								rttr::type::get<tcp::socket::native_handle_type>(),
 								rttr::type::get<int>()
 							});
@@ -59,7 +59,7 @@ void service::call_plugins(const std::string &url_name)
 		else
 		{
 			call_method = type.get_method
-						  (GTS_PLUGIN_INTERFACE_CALL, {
+						  (GTS_WEB_PLUGIN_INTERFACE_CALL, {
 							   rttr::type::get<tcp::socket::native_handle_type>()
 						   });
 
@@ -72,19 +72,19 @@ void service::call_plugins(const std::string &url_name)
 			}
 		}
 
-		auto method = type.get_method(GTS_PLUGIN_INTERFACE_SET_VERSION, {rttr::type::get<std::string>()});
+		auto method = type.get_method(GTS_WEB_PLUGIN_INTERFACE_SET_VERSION, {rttr::type::get<std::string>()});
 		if( method.is_valid() )
 			method.invoke(var, request.version());
 
-		method = type.get_method(GTS_PLUGIN_INTERFACE_SET_METHOD, {rttr::type::get<std::string>()});
+		method = type.get_method(GTS_WEB_PLUGIN_INTERFACE_SET_METHOD, {rttr::type::get<std::string>()});
 		if( method.is_valid() )
 			method.invoke(var, request.method());
 
-		method = type.get_method(GTS_PLUGIN_INTERFACE_SET_PATH, {rttr::type::get<std::string>()});
+		method = type.get_method(GTS_WEB_PLUGIN_INTERFACE_SET_PATH, {rttr::type::get<std::string>()});
 		if( method.is_valid() )
 			method.invoke(var, path);
 
-		method = type.get_method(GTS_PLUGIN_INTERFACE_ADD_PARAMETER, {
+		method = type.get_method(GTS_WEB_PLUGIN_INTERFACE_ADD_PARAMETER, {
 									 rttr::type::get<std::string>(),
 									 rttr::type::get<std::string>()
 								 });
@@ -94,7 +94,7 @@ void service::call_plugins(const std::string &url_name)
 				method.invoke(var, header.first, header.second);
 		}
 
-		method = type.get_method(GTS_PLUGIN_INTERFACE_ADD_HEADER, {
+		method = type.get_method(GTS_WEB_PLUGIN_INTERFACE_ADD_HEADER, {
 									 rttr::type::get<std::string>(),
 									 rttr::type::get<std::string>()
 								 });
@@ -104,7 +104,7 @@ void service::call_plugins(const std::string &url_name)
 				method.invoke(var, para.first, para.second);
 		}
 
-		method = type.get_method(GTS_PLUGIN_INTERFACE_ADD_ENV, {
+		method = type.get_method(GTS_WEB_PLUGIN_INTERFACE_ADD_ENV, {
 									 rttr::type::get<std::string>(),
 									 rttr::type::get<std::string>()
 								 });
@@ -127,7 +127,7 @@ void service::call_plugins(const std::string &url_name)
 
 		if( not request.body().empty() )
 		{
-			method = type.get_method(GTS_PLUGIN_INTERFACE_SET_BODY, {rttr::type::get<std::string>()});
+			method = type.get_method(GTS_WEB_PLUGIN_INTERFACE_SET_BODY, {rttr::type::get<std::string>()});
 			if( method.is_valid() )
 				method.invoke(var, request.body());
 		}
@@ -239,12 +239,14 @@ void plugin_service_init()
 			continue;
 		}
 
-		auto method = rttr::type::get_global_method(class_name + ".init");
+        auto init_method_name = class_name + GTS_WEB_PLUGIN_INTERFACE_INIT;
+		auto method = rttr::type::get_global_method(init_method_name);
+
 		if( method.is_valid() )
 			method.invoke({});
 		else
 		{
-			method = rttr::type::get_global_method(class_name + ".init", {rttr::type::get<std::string>()});
+			method = rttr::type::get_global_method(init_method_name, {rttr::type::get<std::string>()});
 			if( method.is_valid() )
 				method.invoke({}, _settings.file_name());
 		}
@@ -258,7 +260,7 @@ void plugin_service_exit()
 
 	for(auto &type : g_type_list)
 	{
-		auto method = rttr::type::get_global_method(std::string(type.get_name()) + ".exit");
+		auto method = rttr::type::get_global_method(std::string(type.get_name()) + GTS_WEB_PLUGIN_INTERFACE_EXIT);
 		if( method.is_valid() )
 			method.invoke({});
 	}
