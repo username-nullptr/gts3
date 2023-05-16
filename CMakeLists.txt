@@ -9,6 +9,8 @@ get_latest_supported_cxx(CXX_STANDARD)
 set(CMAKE_CXX_STANDARD ${CXX_STANDARD})
 message("--")
 message("-- gts: using C++: " ${CMAKE_CXX_STANDARD})
+message("-- gts: build type: " ${CMAKE_BUILD_TYPE})
+message("-- gts: install prefix: " ${CMAKE_INSTALL_PREFIX})
 
 set(output_dir_name output)
 

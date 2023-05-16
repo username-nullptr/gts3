@@ -153,6 +153,7 @@ bool operator&(argument key, const argument_hash &args_hash)
 {
 	std::cout << "GTS version=" << GTS_VERSION_STR                                                                    << std::endl;
 	std::cout << "Description of command line parameters:"                                                            << std::endl;
+	std::cout << "  start                              : Start the server."                                           << std::endl;
 	std::cout << "  stop                               : Stop the server."                                            << std::endl;
 	std::cout << "  restart                            : Restart the server."                                         << std::endl;
 	std::cout << "  -d                                 : Start as a daemon process."                                  << std::endl;
