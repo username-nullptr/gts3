@@ -134,6 +134,10 @@ public:
 
     void set_load_count(int count) { m_load_count.store(count); }
 
+    static string_view get_file_name(const void *address) RTTR_NOEXCEPT;
+
+    static string_view get_library_name(const void *address) RTTR_NOEXCEPT;
+
 private:
     bool load_native();
     bool unload_native();

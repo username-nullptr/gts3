@@ -196,4 +196,14 @@ array_range<method> library::get_global_methods() const RTTR_NOEXCEPT
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
+string_view library::get_file_name(const void *address)
+{
+    return detail::library_private::get_file_name(address);
+}
+
+string_view library::get_library_name(const void *address)
+{
+    return detail::library_private::get_library_name(address);
+}
+
 } // end namespace rttr

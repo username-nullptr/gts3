@@ -210,6 +210,14 @@ public:
       */
      array_range<method> get_global_methods() const RTTR_NOEXCEPT;
 
+     /*!
+      */
+     static string_view get_file_name(const void *address) RTTR_NOEXCEPT;
+
+     /*!
+      */
+     static string_view get_library_name(const void *address) RTTR_NOEXCEPT;
+
 private:
     std::shared_ptr<detail::library_private> m_pimpl;
     bool                                     m_is_loaded;

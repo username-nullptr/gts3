@@ -103,6 +103,41 @@ namespace detail
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
+string_view library_private::get_file_name(const void *address) RTTR_NOEXCEPT
+{
+    Dl_info info;
+    dladdr(address, &info);
+    return info.dli_fname? string_view(info.dli_fname) : string_view();
+}
+
+string_view library_private::get_library_name(const void *address) RTTR_NOEXCEPT
+{
+    auto file_name = get_file_name(address).to_string();
+    const char *view = file_name.c_str();
+    auto len = file_name.size();
+
+    auto pos = file_name.rfind("/");
+    if( pos != std::string::npos )
+    {
+        if( file_name.size() - pos - 1 < 7 )
+            return string_view();
+        view += pos + 1;
+        len -= pos + 1;
+    }
+
+    if( view[0] == 'l' and view[1] == 'i' and view[2] == 'b' )
+    {
+        view += 3;
+        len -= 3;
+    }
+
+    pos = file_name.find(".so");
+    if( pos != std::string::npos )
+        len -= file_name.size() - pos;
+
+    return string_view(view, len);
+}
+
 bool library_private::load_native()
 {
 	std::vector<std::string> prefix_list = {"lib"};

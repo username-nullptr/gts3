@@ -1,4 +1,5 @@
 #include <rttr/registration>
+#include <rttr/library.h>
 #include <fmt/format.h>
 #include <asio.hpp>
 #include <iostream>
@@ -134,35 +135,9 @@ using namespace gts::web::business;
 
 RTTR_PLUGIN_REGISTRATION
 {
-	Dl_info info;
-	dladdr(reinterpret_cast<void*>(plugin1_dladdr_helper), &info);
+    auto lib_name = rttr::library::get_library_name(reinterpret_cast<void*>(plugin1_dladdr_helper)).to_string();
 
-	std::string file_name = info.dli_fname;
-	auto pos = file_name.rfind("/");
-
-	if( pos != std::string::npos )
-		file_name.erase(0, pos + 1);
-
-#ifdef __unix__
-
-	if( file_name[0] == 'l' and file_name[1] == 'i' and file_name[2] == 'b' )
-		file_name.erase(0,3);
-
-	pos = file_name.find(".so");
-	if( pos != std::string::npos )
-		file_name.erase(pos);
-
-#elif defined(_WINDOWS)
-
-	pos = file_name.find(".dll");
-	if( pos != std::string::npos )
-		file_name.erase(pos);
-
-#else //os
-	// ... ...
-#endif //os
-
-	rttr::registration::class_<plugin1>("gts.web.plugin.plugin1")
+	rttr::registration::class_<plugin1>("gts.web.plugin." + lib_name)
 			.constructor<>()
 			.method("set_version"  , &plugin1::set_version)
 			.method("set_method"   , &plugin1::set_method)
