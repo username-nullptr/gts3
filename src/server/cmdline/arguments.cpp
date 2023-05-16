@@ -156,7 +156,7 @@ bool operator&(argument key, const argument_hash &args_hash)
 	std::cout << "  stop                               : Stop the server."                                            << std::endl;
 	std::cout << "  restart                            : Restart the server."                                         << std::endl;
 	std::cout << "  -d                                 : Start as a daemon process."                                  << std::endl;
-	std::cout << "  -f file                            : Specify the configuration file (default is '/etc/gts.ini')." << std::endl;
+	std::cout << "  -f file                            : Specify the configuration file (default is './config.ini')." << std::endl;
 	std::cout << "  stat                               : Viewing server status."                                      << std::endl;
 	std::cout << "  --version                          : Viewing server version."                                     << std::endl;
 	std::cout << "  -h or --help                       : Viewing help."                                               << std::endl;
