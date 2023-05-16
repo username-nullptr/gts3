@@ -2,7 +2,7 @@
 #define INTERACTION_P_H
 
 #include "cmdline/interaction.h"
-#include "gts_global.h"
+#include "gts/gts_global.h"
 
 namespace gts { namespace cmdline
 {

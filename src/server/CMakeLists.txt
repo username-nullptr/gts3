@@ -14,16 +14,19 @@ set(server_sources
 set(server_headers
 	global.h
 	application.h
-	gts_plugin.h
 	cmdline/arguments.h
 	cmdline/app_core.h
 	cmdline/interaction.h
-	cmdline/private/app_core_p.h
-	cmdline/private/interaction_p.h
+	server/tcp_plugin_interface.h
 	server/tcp_server.h
 	server/cmdline_server.h
 	subserver/server_ope.h
 	subserver/subserver_manager.h
+)
+
+set(server_private_headers
+	cmdline/private/app_core_p.h
+	cmdline/private/interaction_p.h
 )
 
 if(WIN32)
@@ -38,7 +41,7 @@ elseif(UNIX)
 	)
 endif()
 
-add_executable(gts ${server_sources} ${server_headers})
+add_executable(gts ${server_sources} ${server_headers} ${server_private_headers})
 
 target_include_directories(gts PRIVATE .)
 target_include_directories(gts PRIVATE ../core)
@@ -50,3 +53,7 @@ target_link_libraries(gts PRIVATE gtslog)
 set_target_properties(gts PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY ../../${output_dir_name}/bin
 )
+
+install(TARGETS gts DESTINATION bin)
+install(FILES config.ini DESTINATION bin)
+install(FILES server/tcp_plugin_interface.h DESTINATION include/gts)

@@ -16,10 +16,7 @@ include_directories(
 	${gts_3rd_path}/fmt
 )
 
-link_libraries(
-	rttr_core
-	fmt
-)
+link_libraries(fmt)
 
 if(UNIX)
 	link_libraries(pthread)

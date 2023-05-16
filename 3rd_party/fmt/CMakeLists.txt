@@ -26,3 +26,6 @@ target_include_directories(fmt PRIVATE .)
 set_target_properties(fmt PROPERTIES
 	LIBRARY_OUTPUT_DIRECTORY ../../${output_dir_name}/bin
 )
+
+install(TARGETS fmt DESTINATION bin)
+install(FILES ${fmt_headers} DESTINATION include/fmt)

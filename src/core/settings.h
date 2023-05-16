@@ -1,7 +1,8 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#include "gts_global.h"
+#include "gts/gts_global.h"
+#include <rttr/variant.h>
 #include <inicpp.h>
 
 namespace gts
@@ -36,6 +37,10 @@ public:
 public:
 	void set_delete_on_flush(bool enable = true);
 	bool delete_on_flush() const;
+
+public:
+	typedef std::unordered_multimap<std::string, rttr::variant>  ini_hash;
+	static void ini_file_check(const std::string &group, const ini_hash &sample);
 
 public:
 	typedef ini::IniFile::iterator  iterator;

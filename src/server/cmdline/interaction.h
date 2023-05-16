@@ -1,7 +1,7 @@
 #ifndef INTERACTION_H
 #define INTERACTION_H
 
-#include "gts_global.h"
+#include "gts/gts_global.h"
 #include <functional>
 #include <string>
 

@@ -1,7 +1,7 @@
 #include "parser.h"
-#include "gts_algorithm.h"
+#include "gts/algorithm.h"
+#include "gts_log.h"
 #include "request.h"
-#include "log.h"
 
 namespace gts { namespace web { namespace http
 {

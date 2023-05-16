@@ -1,7 +1,7 @@
 #include "session.h"
 #include "settings.h"
-#include "web_config_key.h"
-#include "log.h"
+#include "gts/web_config_key.h"
+#include "gts_log.h"
 
 #include "http/parser.h"
 #include "http/request.h"

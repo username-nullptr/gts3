@@ -1,10 +1,10 @@
 #include "mime_type.h"
-#include "gts_algorithm.h"
+#include "algorithm.h"
 
 #include <unordered_map>
 #include <fstream>
 
-namespace gts { namespace web
+namespace gts
 {
 
 #define APPLICATION  "application/"
@@ -1084,4 +1084,4 @@ std::string get_text_file_encoding(const std::string &file_name)
 	return result;
 }
 
-}} //namespace gts::web
+} //namespace gts

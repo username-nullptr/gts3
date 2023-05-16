@@ -1,5 +1,5 @@
-#ifndef WEB_CONFIG_KEY_H
-#define WEB_CONFIG_KEY_H
+#ifndef GTS_WEB_CONFIG_KEY_H
+#define GTS_WEB_CONFIG_KEY_H
 
 #define SINI_GROUP_WEB  "web"
 
@@ -43,4 +43,4 @@
 #endif //os
 
 
-#endif //WEB_CONFIG_KEY_H
+#endif //GTS_WEB_CONFIG_KEY_H

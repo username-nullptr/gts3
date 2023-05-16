@@ -1,8 +1,9 @@
 #include "application.h"
-#include "gts_algorithm.h"
-#include "gts_config_key.h"
+#include "gts/algorithm.h"
+#include "gts/gts_config_key.h"
+#include "app_info.h"
+#include "gts_log.h"
 #include "global.h"
-#include "log.h"
 
 #include "cmdline/app_core.h"
 #include <rttr/variant.h>
@@ -142,7 +143,7 @@ void applictaion_impl::set_config_file(const cmdline::argument_hash &args_hash)
 	_settings.set_delete_on_flush(false);
 	_settings.set_file(file_name);
 
-	ini_hash sample_gts =
+	settings::ini_hash sample_gts =
 	{
 		{ SINI_GTS_ADDRESS      , "ipv4"               },
 		{ SINI_GTS_PORT         , 8080                 },
@@ -150,9 +151,9 @@ void applictaion_impl::set_config_file(const cmdline::argument_hash &args_hash)
 		{ SINI_GTS_STRATEGY     , _GTS_DEFULT_STRATEGY },
 		{ SINI_GTS_SSCFG        , "subserver.json"   }
 	};
-	ini_file_check(SINI_GROUP_GTS, sample_gts);
+	settings::ini_file_check(SINI_GROUP_GTS, sample_gts);
 
-	ini_hash sample_gtslog =
+	settings::ini_hash sample_gtslog =
 	{
 		{ SINI_GTS_LOG_DIR      , ""         },
 		{ SINI_GTS_LOG_LEVEL    , 3          },
@@ -162,7 +163,7 @@ void applictaion_impl::set_config_file(const cmdline::argument_hash &args_hash)
 		{ SINI_GTS_LOG_MAXOD    , 10485760   },
 		{ SINI_GTS_LOG_MAX      , 1073741824 },
 	};
-	ini_file_check(SINI_GROUP_GTSLOG, sample_gtslog);
+	settings::ini_file_check(SINI_GROUP_GTSLOG, sample_gtslog);
 }
 
 /*----------------------------------------------------------------------------------------------------------*/

@@ -34,3 +34,6 @@ if (BUILD_EXAMPLES)
 	message("-- gts: enable this to build the examples.")
 	add_subdirectory(examples)
 endif()
+
+install(FILES examples/web_business/business_plugins.json DESTINATION business_plugins)
+install(FILES examples/web_resource/favicon.ico DESTINATION resource)

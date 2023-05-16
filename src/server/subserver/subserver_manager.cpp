@@ -1,5 +1,8 @@
 #include "subserver_manager.h"
-#include "log.h"
+#include "gts_log.h"
+
+#include <cassert>
+#include <atomic>
 
 namespace gts { namespace subserver
 {

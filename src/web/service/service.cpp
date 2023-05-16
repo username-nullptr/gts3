@@ -1,5 +1,5 @@
 #include "service.h"
-#include "log.h"
+#include "gts_log.h"
 
 namespace gts { namespace web
 {

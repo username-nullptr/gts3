@@ -1,7 +1,7 @@
 #ifndef SUBSERVER_MANAGER_H
 #define SUBSERVER_MANAGER_H
 
-#include "gts_global.h"
+#include "gts/gts_global.h"
 
 namespace gts { namespace subserver
 {

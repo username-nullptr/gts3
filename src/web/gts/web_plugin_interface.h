@@ -1,5 +1,5 @@
-#ifndef GTS_WEB_PLUGIN_H
-#define GTS_WEB_PLUGIN_H
+#ifndef GTS_WEB_PLUGIN_INTERFACE_H
+#define GTS_WEB_PLUGIN_INTERFACE_H
 
 #include <rttr/registration>
 
@@ -58,4 +58,4 @@
 #define GTS_WEB_PLUGIN_INTERFACE_CALL  "call"
 
 
-#endif //GTS_WEB_PLUGIN_H
+#endif //GTS_WEB_PLUGIN_INTERFACE_H

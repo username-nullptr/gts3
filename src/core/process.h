@@ -1,7 +1,7 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
-#include "gts_global.h"
+#include "gts/gts_global.h"
 #include <fmt/format.h>
 #include <unordered_map>
 #include <functional>

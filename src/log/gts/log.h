@@ -1,7 +1,7 @@
 #ifndef LOG_H
 #define LOG_H
 
-#include "log_buffer.h"
+#include <gts/log_buffer.h>
 
 namespace gts { namespace log
 {

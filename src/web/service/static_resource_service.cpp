@@ -1,7 +1,7 @@
 #include "service.h"
-#include "gts_algorithm.h"
-#include "mime_type.h"
-#include "log.h"
+#include "gts/mime_type.h"
+#include "gts/algorithm.h"
+#include "gts_log.h"
 
 #include <cppfilesystem>
 #include <fstream>

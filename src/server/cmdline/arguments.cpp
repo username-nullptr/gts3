@@ -1,5 +1,5 @@
 #include "arguments.h"
-#include "log.h"
+#include "gts_log.h"
 
 #include <iostream>
 #include <cstring>

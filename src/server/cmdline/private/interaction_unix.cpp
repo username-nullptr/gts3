@@ -2,8 +2,9 @@
 
 #include "interaction_p.h"
 #include "application.h"
+#include "app_info.h"
+#include "gts_log.h"
 #include "global.h"
-#include "log.h"
 
 #include <unordered_map>
 #include <cppfilesystem>

@@ -1,9 +1,10 @@
 #include "service.h"
 #include "settings.h"
-#include "web_config_key.h"
-#include "gts_web_plugin.h"
-#include "gts_algorithm.h"
-#include "log.h"
+#include "app_info.h"
+#include "gts/algorithm.h"
+#include "gts/web_config_key.h"
+#include "gts/web_plugin_interface.h"
+#include "gts_log.h"
 
 #include <rapidjson/document.h>
 #include <rttr/library.h>
@@ -239,7 +240,7 @@ void plugin_service_init()
 			continue;
 		}
 
-        auto init_method_name = class_name + GTS_WEB_PLUGIN_INTERFACE_INIT;
+		auto init_method_name = class_name + GTS_WEB_PLUGIN_INTERFACE_INIT;
 		auto method = rttr::type::get_global_method(init_method_name);
 
 		if( method.is_valid() )

@@ -63,20 +63,6 @@ typedef uint32_t  address_bits_wide;
 # define _PS  "/"
 #endif
 
-namespace appinfo
-{
-
-GTSCORE_API std::string file_path();
-GTSCORE_API std::string dir_path();
-
-GTSCORE_API std::string tmp_dir_path();
-GTSCORE_API std::string lock_file_name();
-
-GTSCORE_API std::string current_directory();
-GTSCORE_API bool set_current_directory(const std::string &path);
-
-} //namespace appinfo
-
 #define DISABLE_COPY(_class) \
 	explicit _class(const _class&) = delete; \
 	explicit _class(_class&&) = delete; \

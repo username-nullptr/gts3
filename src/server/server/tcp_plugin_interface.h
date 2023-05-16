@@ -1,5 +1,5 @@
-#ifndef GTS_PLUGIN_H
-#define GTS_PLUGIN_H
+#ifndef GTS_TCP_PLUGIN_INTERFACE_H
+#define GTS_TCP_PLUGIN_INTERFACE_H
 
 #include <rttr/registration>
 
@@ -28,4 +28,4 @@
 #define GTS_PLUGIN_INTERFACE_VIEW_STATUS  GTS_PLUGIN_INTERFACE "view_status"
 
 
-#endif //GTS_PLUGIN_H
+#endif //GTS_TCP_PLUGIN_INTERFACE_H

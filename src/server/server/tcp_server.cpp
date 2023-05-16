@@ -1,12 +1,13 @@
 #include "tcp_server.h"
-#include "gts_algorithm.h"
-#include "gts_config_key.h"
-#include "gts_plugin.h"
+#include "gts/algorithm.h"
+#include "gts/gts_config_key.h"
+#include "tcp_plugin_interface.h"
+#include "app_info.h"
 #include "settings.h"
 #include "global.h"
 
 #include "application.h"
-#include "log.h"
+#include "gts_log.h"
 
 #include <algorithm>
 #include <iostream>

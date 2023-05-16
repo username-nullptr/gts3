@@ -67,7 +67,6 @@ set(rttr_headers
 	rttr/detail/impl/sequential_mapper_impl.h
 	rttr/detail/impl/string_view_impl.h
 	rttr/detail/impl/wrapper_mapper_impl.h
-	rttr/detail/library/library_p.h
 	rttr/detail/metadata/metadata.h
 	rttr/detail/metadata/metadata_handler.h
 	rttr/detail/method/method_accessor.h
@@ -121,7 +120,6 @@ set(rttr_headers
 	rttr/detail/type/type_register.h
 	rttr/detail/type/type_impl.h
 	rttr/detail/type/type_name.h
-	rttr/detail/type/type_register_p.h
 	rttr/detail/type/type_string_utils.h
 	rttr/detail/variant/variant_compare.h
 	rttr/detail/variant/variant_data.h
@@ -134,6 +132,11 @@ set(rttr_headers
 	rttr/detail/variant_sequential_view/variant_sequential_view_private.h
 	rttr/detail/variant_sequential_view/variant_sequential_view_creator_impl.h
 	rttr/detail/variant_sequential_view/variant_sequential_view_creator.h
+)
+
+set(rttr_private_headers
+	rttr/detail/library/library_p.h
+	rttr/detail/type/type_register_p.h
 )
 
 set(rttr_sources
@@ -178,7 +181,7 @@ elseif (UNIX)
 	)
 endif()
 
-add_library(rttr_core SHARED ${rttr_sources} ${rttr_headers})
+add_library(rttr_core SHARED ${rttr_sources} ${rttr_headers} ${rttr_private_headers})
 
 if (UNIX)
 	target_link_libraries(rttr_core PRIVATE dl)
@@ -188,4 +191,12 @@ target_include_directories(rttr_core PRIVATE .)
 
 set_target_properties(rttr_core PROPERTIES
 	LIBRARY_OUTPUT_DIRECTORY ../../${output_dir_name}/bin
+)
+
+install(TARGETS rttr_core DESTINATION bin)
+
+install(DIRECTORY rttr
+	DESTINATION include
+	FILES_MATCHING PATTERN "*.h"
+	PATTERN "*_p.h" EXCLUDE
 )

@@ -1,9 +1,9 @@
 #include "session.h"
-#include "gts_algorithm.h"
-#include "gts_config_key.h"
-#include "web_config_key.h"
+#include "gts/algorithm.h"
+#include "gts/gts_config_key.h"
+#include "gts/web_config_key.h"
 #include "settings.h"
-#include "log.h"
+#include "gts_log.h"
 
 #include <rttr/registration>
 #include <iostream>
@@ -23,7 +23,7 @@ GTS_DECL_EXPORT void init(const std::string &config_file)
 {
 	log_debug("gts web plugin init. (config file: {})", config_file);
 
-	ini_hash sample_gts =
+	settings::ini_hash sample_gts =
 	{
 		{ SINI_WEB_CGI_ENV          , ""                              },
 		{ SINI_WEB_CGI_PATH         , _GTS_WEB_DEFAULT_CGI_PATH       },
@@ -40,7 +40,7 @@ GTS_DECL_EXPORT void init(const std::string &config_file)
 		{ SINI_WEB_WSS_PORT         , ""                              },
 		{ SINI_WEB_WSS_STRATEGY     , ""                              },
 	};
-	ini_file_check(SINI_GROUP_WEB, sample_gts);
+	settings::ini_file_check(SINI_GROUP_WEB, sample_gts);
 
 	g_tcp_buf_size = settings::global_instance().read<int>(SINI_GROUP_GTS, SINI_GTS_TCP_BUF_SIZE, g_tcp_buf_size);
 	session::init();

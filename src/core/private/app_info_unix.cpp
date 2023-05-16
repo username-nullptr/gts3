@@ -1,17 +1,14 @@
 #ifdef __unix__
 
-#include "gts_global_p.h"
-#include "gts_algorithm.h"
+#include "app_info.h"
+#include "gts/algorithm.h"
 
 #include <fmt/format.h>
 #include <iostream>
 #include <cstring>
 #include <unistd.h>
 
-namespace gts
-{
-
-namespace appinfo
+namespace gts { namespace appinfo
 {
 
 std::string file_path()
@@ -64,8 +61,6 @@ bool set_current_directory(const std::string &path)
 	return true;
 }
 
-} //namespace appinfo
-
-} //namespace gts
+}} //namespace gts::appinfo
 
 #endif //__unix__

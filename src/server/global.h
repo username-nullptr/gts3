@@ -1,7 +1,7 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
-#include "gts_global.h"
+#include "gts/gts_global.h"
 #include <asio.hpp>
 
 namespace gts {

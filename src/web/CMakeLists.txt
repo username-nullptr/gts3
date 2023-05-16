@@ -6,7 +6,6 @@ set(web_sources
 	http/parser.cpp
 	http/request.cpp
 	http/response.cpp
-	service/mime_type.cpp
 	service/co_task.cpp
 	service/service.cpp
 	service/static_resource_service.cpp
@@ -17,13 +16,12 @@ set(web_sources
 set(web_headers
 	global.h
 	session.h
-	web_config_key.h
+	gts/web_config_key.h
+	gts/web_plugin_interface.h
 	http/protocol.h
 	http/parser.h
 	http/request.h
 	http/response.h
-	service/gts_web_plugin.h
-	service/mime_type.h
 	service/co_task.h
 	service/service.h
 )
@@ -39,4 +37,11 @@ target_link_libraries(gtsweb PRIVATE gtslog)
 
 set_target_properties(gtsweb PROPERTIES
 	LIBRARY_OUTPUT_DIRECTORY ../../${output_dir_name}/bin
+)
+
+install(TARGETS gtsweb DESTINATION bin)
+
+install(DIRECTORY gts
+	DESTINATION include
+	FILES_MATCHING PATTERN "*.h"
 )

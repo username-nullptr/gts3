@@ -1,7 +1,8 @@
 #ifdef __unix__
 
 #include "app_core_p.h"
-#include "log.h"
+#include "app_info.h"
+#include "gts_log.h"
 
 #include <cppfilesystem>
 #include <iostream>

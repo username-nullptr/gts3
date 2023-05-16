@@ -1,7 +1,7 @@
 #ifndef CMDLINE_SERVER_H
 #define CMDLINE_SERVER_H
 
-#include "gts_global.h"
+#include "gts/gts_global.h"
 
 namespace gts
 {

@@ -1,22 +1,33 @@
 set(log_sources
-	log.cpp
-	log_buffer.cpp
-	rw_lock.cpp
+	gts/log.cpp
+	gts/log_buffer.cpp
+	private/rw_lock.cpp
 )
 
 set(log_headers
-	log_global.h
-	log_operator.h
-	log_buffer.h
-	rw_lock.h
-	log.h
+	gts/log_global.h
+	gts/log_buffer.h
+	gts/log.h
 )
 
-add_library(gtslog SHARED ${log_sources} ${log_headers})
+set(log_private_headers
+	gts_log.h
+	log_operator.h
+	private/rw_lock.h
+)
+
+add_library(gtslog SHARED ${log_sources} ${log_headers} ${log_private_headers})
 
 target_include_directories(gtslog PRIVATE .)
 target_include_directories(gtslog PRIVATE ../core)
 
 set_target_properties(gtslog PROPERTIES
 	LIBRARY_OUTPUT_DIRECTORY ../../${output_dir_name}/bin
+)
+
+install(TARGETS gtslog DESTINATION bin)
+
+install(DIRECTORY gts
+	DESTINATION include
+	FILES_MATCHING PATTERN "*.h"
 )

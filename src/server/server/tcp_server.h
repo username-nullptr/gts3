@@ -4,7 +4,7 @@
 #include <thread>
 #include <asio.hpp>
 #include <rttr/type>
-#include "gts_global.h"
+#include "gts/gts_global.h"
 
 using namespace asio::ip;
 

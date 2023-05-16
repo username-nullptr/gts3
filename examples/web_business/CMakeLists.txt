@@ -13,7 +13,7 @@ set_target_properties(cgi0 PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY ../../${output_dir_name}/cgi
 )
 
- add_executable(login login.cpp)
+add_executable(login login.cpp)
 set_target_properties(login PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY ../../${output_dir_name}/cgi
 )
@@ -28,3 +28,10 @@ execute_process(COMMAND ${CMAKE_COMMAND} -E
 
 execute_process(COMMAND ${CMAKE_COMMAND} -E
 	copy ${CMAKE_CURRENT_SOURCE_DIR}/business_plugins.json ${output_dir_name}/business_plugins)
+
+install(TARGETS cgi0 DESTINATION cgi)
+install(TARGETS login DESTINATION cgi)
+install(TARGETS upload DESTINATION cgi)
+
+install(TARGETS plugin0 DESTINATION business_plugins)
+install(TARGETS plugin1 DESTINATION business_plugins)

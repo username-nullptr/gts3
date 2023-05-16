@@ -1,5 +1,5 @@
 #include "request.h"
-#include "gts_algorithm.h"
+#include "gts/algorithm.h"
 
 namespace gts { namespace web { namespace http
 {

@@ -1,28 +1,30 @@
 set(core_sources
-	gts_global.cpp
-	gts_algorithm.cpp
+	gts/gts_global.cpp
+	gts/algorithm.cpp
+	gts/mime_type.cpp
 	process.cpp
 	settings.cpp
 )
 
 set(core_headers
-	gts_global.h
-	gts_algorithm.h
-	gts_config_key.h
+	gts/gts_global.h
+	gts/algorithm.h
+	gts/mime_type.h
+	gts/gts_config_key.h
+	app_info.h
 	process.h
 	settings.h
-	private/gts_global_p.h
 	private/process_p.h
 )
 
 if (WIN32)
 	list(APPEND core_sources
-		private/gts_global_win.cpp
+		private/app_info_win.cpp
 		private/process_win.cpp
 	)
 elseif (UNIX)
 	list(APPEND core_sources
-		private/gts_global_unix.cpp
+		private/app_info_unix.cpp
 		private/process_unix.cpp
 	)
 endif()
@@ -31,6 +33,15 @@ add_library(gtscore SHARED ${core_sources} ${core_headers})
 
 target_include_directories(gtscore PRIVATE .)
 
+target_link_libraries(gtscore rttr_core)
+
 set_target_properties(gtscore PROPERTIES
 	LIBRARY_OUTPUT_DIRECTORY ../../${output_dir_name}/bin
+)
+
+install(TARGETS gtscore DESTINATION bin)
+
+install(DIRECTORY gts
+	DESTINATION include
+	FILES_MATCHING PATTERN "*.h"
 )

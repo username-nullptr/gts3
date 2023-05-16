@@ -1,9 +1,8 @@
 #ifndef LOG_BUFFER_H
 #define LOG_BUFFER_H
 
-#include "log_global.h"
-#include "log_operator.h"
-
+#include <gts/log_global.h>
+#include <fmt/format.h>
 #include <chrono>
 #include <cstdio>
 
