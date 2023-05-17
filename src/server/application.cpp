@@ -147,7 +147,7 @@ void applictaion_impl::set_config_file(const cmdline::argument_hash &args_hash)
 	{
 		{ SINI_GTS_ADDRESS      , "ipv4"               },
 		{ SINI_GTS_PORT         , 8080                 },
-		{ SINI_GTS_TCP_BUF_SIZE , 65535                },
+		{ SINI_GTS_TCP_BUF_SIZE , 65536                },
 		{ SINI_GTS_STRATEGY     , _GTS_DEFULT_STRATEGY },
 		{ SINI_GTS_SSCFG        , "subserver.json"   }
 	};

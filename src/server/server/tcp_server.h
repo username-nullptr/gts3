@@ -36,7 +36,7 @@ private:
 	int m_ncma_count = 1;
 	int m_protocol = 4;
 
-	int m_buffer_size = 65535;
+	int m_buffer_size = 65536;
 };
 
 } //namespace gts

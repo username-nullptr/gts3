@@ -13,7 +13,7 @@ class GTS_DECL_HIDDEN parser
 	DISABLE_COPY(parser)
 
 public:
-	explicit parser(int buf_size = 65535);
+	explicit parser(int buf_size = 65536);
 	~parser();
 
 public:

@@ -19,14 +19,19 @@ static int g_recv_timeout = 10000;
 
 static std::atomic<std::size_t> g_counter {0};
 
-session::session(std::shared_ptr<tcp::socket> socket, int buf_size) :
+session::session(std::shared_ptr<tcp::socket> socket) :
 	m_socket(socket),
-	m_timer(io_context(), g_recv_timeout),
-	m_asio_buffer(new char[buf_size]{0}),
-	m_ab_size(buf_size),
-	m_parsing(new http::parser(buf_size))
+	m_timer(io_context(), g_recv_timeout)
 {
 	g_counter++;
+
+	tcp::socket::send_buffer_size attr;
+	socket->get_option(attr);
+
+	m_ab_size = attr.value();
+	m_asio_buffer = new char[m_ab_size]{0};
+	m_parsing = new http::parser(m_ab_size);
+
 	do_recv();
 }
 

@@ -17,8 +17,6 @@ namespace gts { namespace web { namespace plugin_main
 
 static std::thread g_run_thread;
 
-static int g_tcp_buf_size = 65535;
-
 GTS_DECL_EXPORT void init(const std::string &config_file)
 {
 	log_debug("gts web plugin init. (config file: {})", config_file);
@@ -30,8 +28,8 @@ GTS_DECL_EXPORT void init(const std::string &config_file)
 		{ SINI_WEB_PLUGINS_CONFIG   , _GTS_WEB_DEFAULT_PLUGINS_CONFIG },
 		{ SINI_WEB_RC_PATH          , _GTS_WEB_DEFAULT_RC_PATH        },
 		{ SINI_WEB_NET_TIMEOUT      , 10000                           },
-		{ SINI_WEB_MAX_TASK_COUNT   , 100                             },
-		{ SINI_WEB_BLOCK_QUEUE_SIZE , 1000                            },
+		{ SINI_WEB_MAX_TASK_COUNT   , 255                             },
+		{ SINI_WEB_BLOCK_QUEUE_SIZE , 1024                            },
 		{ SINI_WEB_ENABLE_SSL       , false                           },
 		{ SINI_WEB_CRT_FILE         , ""                              },
 		{ SINI_WEB_KEY_FILE         , ""                              },
@@ -41,8 +39,6 @@ GTS_DECL_EXPORT void init(const std::string &config_file)
 		{ SINI_WEB_WSS_STRATEGY     , ""                              },
 	};
 	settings::ini_file_check(SINI_GROUP_WEB, sample_gts);
-
-	g_tcp_buf_size = settings::global_instance().read<int>(SINI_GROUP_GTS, SINI_GTS_TCP_BUF_SIZE, g_tcp_buf_size);
 	session::init();
 
 	g_run_thread = std::thread([]
@@ -65,9 +61,9 @@ GTS_DECL_EXPORT void new_connect(tcp::socket::native_handle_type handle, int pro
 {
 	auto &io = io_context();
 	if( protocol == 4 )
-		new session(std::make_shared<tcp::socket>(io, tcp::v4(), handle), g_tcp_buf_size);
+		new session(std::make_shared<tcp::socket>(io, tcp::v4(), handle));
 	else
-		new session(std::make_shared<tcp::socket>(io, tcp::v6(), handle), g_tcp_buf_size);
+		new session(std::make_shared<tcp::socket>(io, tcp::v6(), handle));
 }
 
 GTS_DECL_EXPORT std::string view_status()

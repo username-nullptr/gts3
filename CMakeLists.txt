@@ -38,4 +38,3 @@ if (BUILD_EXAMPLES)
 endif()
 
 install(FILES examples/web_business/business_plugins.json DESTINATION business_plugins)
-install(FILES examples/web_resource/favicon.ico DESTINATION resource)

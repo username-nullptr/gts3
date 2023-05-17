@@ -116,7 +116,7 @@ tcp_server::tcp_server(int, const char**) :
 			log_fatal("gts.plugin error: strategy is null.\n");
 	}
 
-	m_buffer_size = READ_CONFIG(int, SINI_GTS_TCP_BUF_SIZE, 65535);
+	m_buffer_size = READ_CONFIG(int, SINI_GTS_TCP_BUF_SIZE, m_buffer_size);
 	if( m_buffer_size < 1024 )
 		m_buffer_size = 1024;
 }

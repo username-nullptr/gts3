@@ -1,3 +1,5 @@
+# plugin service
+
 add_library(plugin0 SHARED plugin0.cpp)
 set_target_properties(plugin0 PROPERTIES
 	LIBRARY_OUTPUT_DIRECTORY ../../${output_dir_name}/business_plugins
@@ -7,6 +9,8 @@ add_library(plugin1 SHARED plugin1.cpp)
 set_target_properties(plugin1 PROPERTIES
 	LIBRARY_OUTPUT_DIRECTORY ../../${output_dir_name}/business_plugins
 )
+
+# cgi service
 
 add_executable(cgi0 cgi0.cpp)
 set_target_properties(cgi0 PROPERTIES

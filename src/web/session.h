@@ -17,7 +17,7 @@ class GTS_DECL_HIDDEN session
 	DISABLE_COPY(session)
 
 public:
-	session(std::shared_ptr<tcp::socket> socket, int buf_size);
+	session(std::shared_ptr<tcp::socket> socket);
 	~session();
 
 public:
@@ -37,7 +37,7 @@ private:
 private:
 	asio::steady_timer m_timer;
 	char *m_asio_buffer = nullptr;
-	std::size_t m_ab_size = 65535;
+	std::size_t m_ab_size = 65536;
 
 private:
 	http::parser *m_parsing = nullptr;

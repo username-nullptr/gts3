@@ -147,8 +147,8 @@ request *parser::next_request_ready()
 			std::sscanf(it->second.c_str(), "%zu", &size);
 			m_cache->m_body = m_buffer.substr(0, size);
 		}
+		m_buffer.clear();
 	}
-	m_buffer.clear();
 
 	auto request = m_cache;
 	m_cache = nullptr;

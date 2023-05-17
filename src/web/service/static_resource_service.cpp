@@ -352,8 +352,7 @@ void response_helper::send_range
 inline std::size_t response_helper::tcp_ip_buffer_size() const
 {
 	tcp::socket::send_buffer_size attr;
-	asio::error_code error;
-	m_service.socket.get_option(attr, error);
+	m_service.socket.get_option(attr);
 	return attr.value();
 }
 

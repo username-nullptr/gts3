@@ -6,3 +6,5 @@ execute_process(COMMAND ${CMAKE_COMMAND} -E
 	copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/web_resource ${output_dir_name}/resource)
 
 add_subdirectory(web_business)
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/web_resource/ DESTINATION resource)

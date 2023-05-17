@@ -12,7 +12,7 @@
 #include <cstdio>
 #include <atomic>
 
-#define _BUF_SIZE  65535
+#define _BUF_SIZE  65536
 
 namespace gts { namespace web
 {
