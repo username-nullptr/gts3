@@ -1,7 +1,7 @@
-#ifndef PROTOCOL_H
-#define PROTOCOL_H
+#ifndef GTS_WEB_HTTP_PROTOCOL_H
+#define GTS_WEB_HTTP_PROTOCOL_H
 
-#include "global.h"
+#include <gts/gts_global.h>
 #include <unordered_map>
 
 namespace gts { namespace web { namespace http
@@ -81,4 +81,4 @@ typedef std::unordered_map<std::string, std::string>  parameters;
 }}} //namespace gts::web::http
 
 
-#endif //PROTOCOL_H
+#endif //GTS_WEB_HTTP_PROTOCOL_H

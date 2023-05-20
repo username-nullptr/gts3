@@ -20,7 +20,7 @@
  * new_connect(socket handle/descriptor)
  * new_connect(socket handle/descriptor, int 4/6)
 */
-#define GTS_PLUGIN_INTERFACE_NEW_CONNECT  GTS_PLUGIN_INTERFACE "new_connect"
+#define GTS_PLUGIN_INTERFACE_NEW_CONNECT  GTS_PLUGIN_INTERFACE "new_connection"
 
 /*
  * std::string view_status(void)

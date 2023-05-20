@@ -21,6 +21,10 @@ namespace gts { namespace web { namespace business
 class DECL_EXPORT plugin1
 {
 public:
+	static void init();
+	static void exit();
+
+public:
 	void set_version(const std::string &version);
 	void set_method(const std::string &method);
 	void set_path(const std::string &path);
@@ -46,6 +50,16 @@ private:
 	std::unordered_map<std::string, std::string> m_headers;
 	std::unordered_map<std::string, std::string> m_envs;
 };
+
+void plugin1::init()
+{
+
+}
+
+void plugin1::exit()
+{
+
+}
 
 void plugin1::set_version(const std::string &version)
 {
@@ -127,17 +141,16 @@ inline void plugin1::call(tcp::socket::native_handle_type handle, int ipv)
 	socket->close();
 }
 
-void plugin1_dladdr_helper() {}
-
 }}} //namespace gts::web::business
 
 using namespace gts::web::business;
 
 RTTR_PLUGIN_REGISTRATION
 {
-    auto lib_name = rttr::library::get_library_name(reinterpret_cast<void*>(plugin1_dladdr_helper)).to_string();
+	using namespace rttr;
+	auto lib_name = library::get_library_name(reinterpret_cast<void*>(&plugin1::init)).to_string();
 
-	rttr::registration::class_<plugin1>("gts.web.plugin." + lib_name)
+	registration::class_<plugin1>("gts.web.plugin." + lib_name)
 			.constructor<>()
 			.method("set_version"  , &plugin1::set_version)
 			.method("set_method"   , &plugin1::set_method)
@@ -147,4 +160,8 @@ RTTR_PLUGIN_REGISTRATION
 			.method("add_env"      , &plugin1::add_env)
 			.method("set_body"     , &plugin1::set_body)
 			.method("call"         , &plugin1::call);
+
+	registration::
+			method("gts.web.plugin." + lib_name + ".init", &plugin1::init)
+			.method("gts.web.plugin." + lib_name + ".exit", &plugin1::exit);
 }

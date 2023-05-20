@@ -40,7 +40,7 @@ std::shared_ptr<request> parser::write(const std::string &data)
 				log_info("Header line too long.");
 				reset();
 			}
-			return {};
+			return std::make_shared<request>();
 		}
 
 		auto line_buf = m_buffer.substr(0, pos + 2);
@@ -70,7 +70,7 @@ static inline void remove_back_separator(std::string &str)
 	str = str.substr(0, i + 1);
 }
 
-void parser::state_handler_waiting_request(const std::string &line_buf)
+bool parser::state_handler_waiting_request(const std::string &line_buf)
 {
 	auto request_line_parts = string_split(line_buf, ' ');
 
@@ -78,7 +78,7 @@ void parser::state_handler_waiting_request(const std::string &line_buf)
 	{
 		log_info("Invalid request line.");
 		m_buffer.clear();
-		return ;
+		return false;
 	}
 
 	if( m_cache == nullptr )
@@ -111,6 +111,7 @@ void parser::state_handler_waiting_request(const std::string &line_buf)
 
 	remove_back_separator(m_cache->m_path);
 	m_state = reading_headers;
+	return true;
 }
 
 request *parser::state_handler_reading_headers(const std::string &line_buf)
@@ -124,7 +125,7 @@ request *parser::state_handler_reading_headers(const std::string &line_buf)
 	{
 		log_info("Invalid header line.");
 		reset();
-		return nullptr;
+		return new request();
 	}
 
 	auto header_key = to_lower(trimmed(line_buf.substr(0, colon_index)));

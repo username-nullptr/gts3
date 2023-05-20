@@ -41,6 +41,8 @@ set_target_properties(gtsweb PROPERTIES
 
 install(TARGETS gtsweb DESTINATION bin)
 
+install(FILES http/protocol.h RENAME http_protocol.h DESTINATION include/gts)
+
 install(DIRECTORY gts
 	DESTINATION include
 	FILES_MATCHING PATTERN "*.h"

@@ -240,6 +240,9 @@ void pipe_ope::async_read(char *buf, int len, std::function<void(int)> call_back
 	if( not is_open() )
 	{
 		log_error("pipe not open.");
+		gts::io_context().post([call_back]{
+			call_back(0);
+		});
 		return ;
 	}
 
@@ -272,6 +275,9 @@ void pipe_ope::async_write(char *buf, int len, std::function<void(int)> call_bac
 	if( not is_open() )
 	{
 		log_error("pipe not open.");
+		gts::io_context().post([call_back]{
+			call_back(0);
+		});
 		return ;
 	}
 

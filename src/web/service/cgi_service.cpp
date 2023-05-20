@@ -5,6 +5,7 @@
 #include "settings.h"
 #include "gts_log.h"
 #include "process.h"
+#include "global.h"
 
 #include <condition_variable>
 #include <cppfilesystem>
@@ -151,7 +152,6 @@ cgi_session::cgi_session(service &_service, process &cgi) :
 
 	if( m_service.request.body().size() > 0 )
 	{
-		log_error("test=== {} / {}", m_service.request.body().size(), m_content_length);
 		m_content_length -= m_service.request.body().size();
 		async_write_cgi(m_service.request.body().c_str(), m_service.request.body().size());
 	}
@@ -179,17 +179,19 @@ void cgi_session::join()
 
 void cgi_session::async_write_socket(const char *buf, std::size_t buf_size)
 {
+	++m_counter;
 	m_service.socket.async_write_some
 			(asio::buffer(buf, buf_size),
 			 [this, buf, buf_size](const asio::error_code &error, std::size_t size)
 	{
+		--m_counter;
 		if( error )
 		{
 			m_cgi.terminate();
+			if( m_counter == 0 )
+				m_condition.notify_one();
 			return ;
 		}
-		else if( not m_cgi.is_running() )
-			return ;
 
 		if( size < buf_size )
 			async_write_socket(buf + size, buf_size - size);
@@ -208,12 +210,18 @@ void cgi_session::async_read_socket()
 	else if( buf_size == 0 )
 		return ;
 
+	++m_counter;
 	m_service.socket.async_read_some
 			(asio::buffer(m_sock_read_buf, buf_size),
 			 [this](const asio::error_code &error, std::size_t size)
 	{
+		--m_counter;
 		if( error or size == 0 or not m_cgi.is_running() )
+		{
+			if( m_counter == 0 )
+				m_condition.notify_one();
 			return ;
+		}
 
 		m_content_length -= size;
 		async_write_cgi(m_sock_read_buf, size);
@@ -225,17 +233,22 @@ void cgi_session::async_write_cgi(const char *buf, std::size_t buf_size)
 	++m_counter;
 	m_cgi.async_write(buf, buf_size, [this, buf, buf_size](const asio::error_code &error, std::size_t size)
 	{
-		if( --m_counter == 0 )
-			m_condition.notify_one();
-
+		--m_counter;
 		if( error )
+		{
+			if( m_counter == 0 )
+				m_condition.notify_one();
 			return ;
+		}
 
 		else if( size < buf_size )
 			async_write_cgi(buf + size, buf_size - size);
 
 		else if( m_content_length > 0 )
 			async_read_socket();
+
+		else if( m_counter == 0 )
+			m_condition.notify_one();
 	});
 }
 
@@ -245,11 +258,11 @@ void cgi_session::async_read_cgi()
 	m_cgi.async_read(m_cgi_read_buf, _BUF_SIZE,
 					 [this](const asio::error_code&, std::size_t size)
 	{
-		if( --m_counter == 0 )
-			m_condition.notify_one();
-
+		--m_counter;
 		if( size > 0 )
 			async_write_socket(m_cgi_read_buf, size);
+		else if( m_counter == 0 )
+			m_condition.notify_one();
 	});
 }
 

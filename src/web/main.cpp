@@ -23,20 +23,21 @@ GTS_DECL_EXPORT void init(const std::string &config_file)
 
 	settings::ini_hash sample_gts =
 	{
-		{ SINI_WEB_CGI_ENV          , ""                              },
-		{ SINI_WEB_CGI_PATH         , _GTS_WEB_DEFAULT_CGI_PATH       },
-		{ SINI_WEB_PLUGINS_CONFIG   , _GTS_WEB_DEFAULT_PLUGINS_CONFIG },
-		{ SINI_WEB_RC_PATH          , _GTS_WEB_DEFAULT_RC_PATH        },
-		{ SINI_WEB_NET_TIMEOUT      , 10000                           },
-		{ SINI_WEB_MAX_TASK_COUNT   , 255                             },
-		{ SINI_WEB_BLOCK_QUEUE_SIZE , 1024                            },
-		{ SINI_WEB_ENABLE_SSL       , false                           },
-		{ SINI_WEB_CRT_FILE         , ""                              },
-		{ SINI_WEB_KEY_FILE         , ""                              },
-		{ SINI_WEB_ENABLE_WSS       , false                           },
-		{ SINI_WEB_WSS_NAME         , ""                              },
-		{ SINI_WEB_WSS_PORT         , ""                              },
-		{ SINI_WEB_WSS_STRATEGY     , ""                              },
+		{ SINI_WEB_CGI_ENV           , ""                              },
+		{ SINI_WEB_CGI_PATH          , _GTS_WEB_DEFAULT_CGI_PATH       },
+		{ SINI_WEB_PLUGINS_CONFIG    , _GTS_WEB_DEFAULT_PLUGINS_CONFIG },
+		{ SINI_WEB_RC_PATH           , _GTS_WEB_DEFAULT_RC_PATH        },
+		{ SINI_WEB_IDLE_TIME_TV      , 2048                            },
+		{ SINI_WEB_MAX_IDLE_TIME     , 65536                           },
+		{ SINI_WEB_MAX_SESSION_COUNT , 4096                            },
+		{ SINI_WEB_THREAD_POOL_TC    , 255                             },
+		{ SINI_WEB_ENABLE_SSL        , false                           },
+		{ SINI_WEB_CRT_FILE          , ""                              },
+		{ SINI_WEB_KEY_FILE          , ""                              },
+		{ SINI_WEB_ENABLE_WSS        , false                           },
+		{ SINI_WEB_WSS_NAME          , ""                              },
+		{ SINI_WEB_WSS_PORT          , ""                              },
+		{ SINI_WEB_WSS_STRATEGY      , ""                              },
 	};
 	settings::ini_file_check(SINI_GROUP_WEB, sample_gts);
 	session::init();
@@ -57,18 +58,18 @@ GTS_DECL_EXPORT void exit()
 	session::exit();
 }
 
-GTS_DECL_EXPORT void new_connect(tcp::socket::native_handle_type handle, int protocol)
+GTS_DECL_EXPORT void new_connection(tcp::socket::native_handle_type handle, int protocol)
 {
 	auto &io = io_context();
 	if( protocol == 4 )
-		new session(std::make_shared<tcp::socket>(io, tcp::v4(), handle));
+		session::new_connection(std::make_shared<tcp::socket>(io, tcp::v4(), handle));
 	else
-		new session(std::make_shared<tcp::socket>(io, tcp::v6(), handle));
+		session::new_connection(std::make_shared<tcp::socket>(io, tcp::v6(), handle));
 }
 
 GTS_DECL_EXPORT std::string view_status()
 {
-	return fmt::format("session count: {}\n", session::count());
+	return session::view_status();
 }
 
 }}} //namespace gts::web::plugin_main
@@ -82,6 +83,6 @@ RTTR_PLUGIN_REGISTRATION
 	rttr::registration::
 			method(GTS_PLUGIN "init", plugin_main::init)
 			.method(GTS_PLUGIN "exit", plugin_main::exit)
-			.method(GTS_PLUGIN "new_connect", plugin_main::new_connect)
+			.method(GTS_PLUGIN "new_connection", plugin_main::new_connection)
 			.method(GTS_PLUGIN "view_status", plugin_main::view_status);
 }

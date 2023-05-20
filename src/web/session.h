@@ -16,26 +16,33 @@ class GTS_DECL_HIDDEN session
 {
 	DISABLE_COPY(session)
 
-public:
+private:
 	session(std::shared_ptr<tcp::socket> socket);
-	~session();
 
 public:
+	~session();
 	static void init();
 	static void exit();
 
 public:
-	static std::size_t count();
+	static void new_connection(std::shared_ptr<tcp::socket> socket);
+	static std::string view_status();
 
 private:
 	void do_recv();
 	void time_out(const asio::error_code &was_cancel);
 
 private:
-	std::shared_ptr<tcp::socket> m_socket;
+	void reuse(std::shared_ptr<tcp::socket> socket);
+	void set();
 
 private:
+	std::shared_ptr<tcp::socket> m_socket;
 	asio::steady_timer m_timer;
+	bool m_etv = false;
+	bool m_reuse = false;
+
+private:
 	char *m_asio_buffer = nullptr;
 	std::size_t m_ab_size = 65536;
 

@@ -55,5 +55,4 @@ set_target_properties(gts PROPERTIES
 )
 
 install(TARGETS gts DESTINATION bin)
-install(FILES config.ini DESTINATION bin)
 install(FILES server/tcp_plugin_interface.h DESTINATION include/gts)

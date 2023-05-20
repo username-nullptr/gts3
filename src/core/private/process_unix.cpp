@@ -21,6 +21,24 @@ process_private::~process_private()
 		g_process_map.erase(m_pid);
 }
 
+void process_private::reset_writer(pid_t pid)
+{
+	g_process_map.erase(pid);
+	m_read_fd->cancel();
+
+	m_write_fd->cancel();
+	m_write_fd.reset();
+
+	close(m_pwcr_fd[1]);
+}
+
+void process_private::reset_reader()
+{
+	m_read_fd->cancel();
+	m_read_fd.reset();
+	close(m_cwpr_fd[0]);
+}
+
 /*---------------------------------------------------------------------------------------------------------------*/
 
 bool process::start(const string_list &args)
@@ -33,6 +51,9 @@ bool process::start(const string_list &args)
 		std::cerr << "***Error: process::start: file name is empty." << std::endl;
 		return false;
 	}
+
+	if( d_ptr->m_read_fd )
+		d_ptr->reset_reader();
 
 	if( pipe2(d_ptr->m_cwpr_fd, O_NONBLOCK) < 0 )
 	{
@@ -57,11 +78,12 @@ bool process::start(const string_list &args)
 
 	else if( d_ptr->m_pid == 0 ) //child
 	{
+		fcntl(d_ptr->m_cwpr_fd[1], F_SETFL, fcntl(d_ptr->m_cwpr_fd[1], F_GETFL) & ~O_NONBLOCK);
 		dup2(d_ptr->m_pwcr_fd[0], STDIN_FILENO);
 		dup2(d_ptr->m_cwpr_fd[1], STDOUT_FILENO);
 
 		int res = chdir(d_ptr->m_work_path.c_str());
-        _UNUSED(res);
+		_UNUSED(res);
 
 		for(auto &env : d_ptr->m_env)
 			setenv(env.first.c_str(), env.second.c_str(), 1);
@@ -120,13 +142,69 @@ int process::read(const char *buf, int size, int timeout)
 void process::async_write(const char *buf, int size, std::function<void(asio::error_code,std::size_t)> call_back)
 {
 	if( d_ptr->m_pid > 0 )
-		asio::async_write(*d_ptr->m_write_fd, asio::buffer(buf, size), std::move(call_back));
+	{
+		d_ptr->m_write_fd->non_blocking(true);
+		d_ptr->m_write_fd->async_write_some(asio::buffer(buf, size), std::move(call_back));
+	}
+	else
+	{
+		d_ptr->m_io.post([call_back]{
+			call_back(std::make_error_code(std::errc::operation_canceled), 0);
+		});
+	}
 }
 
 void process::async_read(char *buf, int size, std::function<void(asio::error_code,std::size_t)> call_back)
 {
-	if( d_ptr->m_pid > 0 )
-		asio::async_read(*d_ptr->m_read_fd, asio::buffer(buf, size), std::move(call_back));
+	// fuck ?!?
+	if( d_ptr->m_read_fd == nullptr )
+	{
+		d_ptr->m_io.post([call_back]{
+			call_back(std::make_error_code(std::errc::operation_canceled), 0);
+		});
+		return ;
+	}
+
+	d_ptr->m_read_fd->non_blocking(true);
+
+	int res = ::read(d_ptr->m_read_fd->native_handle(), buf, size);
+	if( res > 0 )
+	{
+		d_ptr->m_io.post([call_back, res]{
+			call_back({}, static_cast<std::size_t>(res));
+		});
+		return ;
+	}
+	else if( res == 0 )
+	{
+		if( d_ptr->m_pid < 0 )
+		{
+			d_ptr->m_io.post([call_back]{
+				call_back(std::make_error_code(std::errc::operation_canceled), 0);
+			});
+			return d_ptr->reset_reader();
+		}
+	}
+	else if( errno != EAGAIN and errno != EWOULDBLOCK )
+	{
+		d_ptr->m_io.post([call_back]{
+			call_back(std::make_error_code(static_cast<std::errc>(errno)), 0);
+		});
+		if( d_ptr->m_pid < 0 )
+			d_ptr->reset_reader();
+		return ;
+	}
+
+	// If the peer is closed, the callback function should theoretically be fired immediately
+	// ith size equal to 0, but in practice the callback function is never called.
+	d_ptr->m_read_fd->async_read_some
+			(asio::buffer(buf, size),
+			 [this, call_back](const asio::error_code &error, std::size_t size)
+	{
+		call_back(error, size);
+		if( size == 0 )
+			d_ptr->reset_reader();
+	});
 }
 
 void process::cancel()
@@ -180,19 +258,8 @@ void process::join()
 	pid_t pid = waitpid(d_ptr->m_pid, nullptr, 0);
 	d_ptr->m_pid = -1;
 
-	if( pid <= 0 )
-		return ;
-
-	g_process_map.erase(pid);
-
-	d_ptr->m_write_fd->cancel();
-	d_ptr->m_read_fd->cancel();
-
-	d_ptr->m_write_fd.reset();
-	d_ptr->m_read_fd.reset();
-
-	close(d_ptr->m_cwpr_fd[1]);
-	close(d_ptr->m_pwcr_fd[0]);
+	if( pid > 0 )
+		d_ptr->reset_writer(pid);
 }
 
 /*---------------------------------------------------------------------------------------------------------------*/
@@ -210,17 +277,7 @@ void process_private::signal_hander(int signo)
 		if( it != g_process_map.end() )
 		{
 			it->second->d_ptr->m_pid = -1;
-
-			it->second->d_ptr->m_write_fd->cancel();
-			it->second->d_ptr->m_read_fd->cancel();
-
-			it->second->d_ptr->m_write_fd.reset();
-			it->second->d_ptr->m_read_fd.reset();
-
-			close(it->second->d_ptr->m_cwpr_fd[1]);
-			close(it->second->d_ptr->m_pwcr_fd[0]);
-
-			g_process_map.erase(it);
+			it->second->d_ptr->reset_writer(pid);
 		}
 //		g_mutex.unlock();
 	}

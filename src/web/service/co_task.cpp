@@ -30,9 +30,6 @@ co_task::~co_task()
 
 static asio::thread_pool *g_pool = nullptr;
 
-static std::atomic<std::size_t> g_counter {0};
-static std::atomic<std::size_t> g_counter_max {1100};
-
 static std::string g_resource_path = _GTS_WEB_DEFAULT_RC_PATH;
 static std::string g_cgi_path      = _GTS_WEB_DEFAULT_CGI_PATH;
 
@@ -50,25 +47,16 @@ static std::string g_cgi_path      = _GTS_WEB_DEFAULT_CGI_PATH;
 void co_task::init()
 {
 	auto &_settings = settings::global_instance();
-	int max_task_count = _settings.read<int>(SINI_GROUP_WEB, SINI_WEB_MAX_TASK_COUNT, 100);
-	int block_queue_size = _settings.read<int>(SINI_GROUP_WEB, SINI_WEB_BLOCK_QUEUE_SIZE, 1000);
+	int max_thread_count = _settings.read<int>(SINI_GROUP_WEB, SINI_WEB_THREAD_POOL_TC, 100);
 
-	if( max_task_count < 2 )
+	if( max_thread_count < 1 )
 	{
-		log_warning("Config: Max task count setting error.");
-		max_task_count = 2;
-	}
-	if( block_queue_size < 0 )
-	{
-		log_warning("Config: Block queue size setting error.");
-		block_queue_size = 0;
+		log_warning("Config: max thread count setting error.");
+		max_thread_count = 1;
 	}
 
-	log_debug("Web: max task count: {}", max_task_count);
-	log_debug("Web: block queue size: {}", block_queue_size);
-	g_counter_max = max_task_count + block_queue_size;
-
-	g_pool = new asio::thread_pool(max_task_count);
+	log_debug("Web: max thread count: {}", max_thread_count);
+	g_pool = new asio::thread_pool(max_thread_count);
 
 	READ_PATH_CONFIG(SINI_WEB_RC_PATH,  g_resource_path);
 	READ_PATH_CONFIG(SINI_WEB_CGI_PATH, g_cgi_path);
@@ -89,33 +77,13 @@ void co_task::exit()
 
 void co_task::start()
 {
-	if( g_counter >= g_counter_max )
-	{
-		asio::error_code error;
-		m_socket->write_some(asio::buffer(fmt::format("HTTP/{} 413 Payload Too Large\r\n"
-													  "content-length: 0\r\n"
-													  "\r\n",
-													  m_request->version())), error);
-		if( m_request->version() == "1.0" )
-		{
-			m_socket->shutdown(tcp::socket::shutdown_both);
-			m_socket->close();
-		}
-		if( m_call_back )
-			m_call_back();
-
-		return delete_later(this);
-	}
-
-	g_counter++;
 	m_socket->non_blocking(false);
 
 	asio::post(*g_pool, [this]
 	{
 		run();
-		asio::post(io_context(), [this]
+		io_context().post([this]
 		{
-			g_counter--;
 			if( m_call_back )
 				m_call_back();
 		});

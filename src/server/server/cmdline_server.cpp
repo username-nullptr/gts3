@@ -47,8 +47,6 @@ void cmdline_server::start()
 {
 	m_interaction->async_read(m_buf, _BUF_SIZE, [this](int size)
 	{
-		log_debug("cmdline_server: read: {}", m_buf);
-
 		if( size == 0 )
 			return ;
 
@@ -56,6 +54,7 @@ void cmdline_server::start()
 			log_fatal("cmd line iteraction read error.");
 
 		std::string str(m_buf, size);
+		log_debug("cmdline_server: read: {}", str);
 
 		if( str == CCMD_VSS )
 			str = view_pid() + m_tcp_server.view_status();

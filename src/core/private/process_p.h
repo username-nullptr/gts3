@@ -51,6 +51,8 @@ public:
 	int m_cwpr_fd[2] {-1,-1};
 
 	std::atomic<pid_t> m_pid {-1};
+	void reset_writer(pid_t pid);
+	void reset_reader();
 	static void signal_hander(int);
 
 #endif //os

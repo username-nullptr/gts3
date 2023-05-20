@@ -20,7 +20,7 @@ public:
 	std::shared_ptr<request> write(const std::string &data);
 
 private:
-	void state_handler_waiting_request(const std::string &line_buf);
+	bool state_handler_waiting_request(const std::string &line_buf);
 	request *state_handler_reading_headers(const std::string &line_buf);
 	request *next_request_ready();
 	void reset();

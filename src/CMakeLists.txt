@@ -5,3 +5,5 @@ add_subdirectory(core)
 add_subdirectory(log)
 add_subdirectory(server)
 add_subdirectory(web)
+
+install(FILES config.ini DESTINATION bin)
