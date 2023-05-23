@@ -30,20 +30,6 @@ public:
 	http::response response;
 };
 
-//GTS_DECL_HIDDEN void static_resource_service
-//(tcp::socket &socket, http::request &request, http::response &response, const std::string &url_name);
-
-//GTS_DECL_HIDDEN void plugin_service_init();
-//GTS_DECL_HIDDEN void plugin_service_exit();
-
-//GTS_DECL_HIDDEN void plugins_service
-//(tcp::socket &socket, http::request &request, http::response &response, const std::string &url_name);
-
-//GTS_DECL_HIDDEN void cgi_service_init();
-
-//GTS_DECL_HIDDEN void cgi_service
-//(tcp::socket &socket, http::request &request, http::response &response, const std::string &url_name);
-
 }} //namespace gts::web
 
 
