@@ -15,6 +15,7 @@ set(web_sources
 
 set(web_headers
 	global.h
+	socket.h
 	session.h
 	gts/web_config_key.h
 	gts/web_plugin_interface.h
@@ -34,6 +35,11 @@ target_include_directories(gtsweb PRIVATE ../log)
 
 target_link_libraries(gtsweb PRIVATE gtscore)
 target_link_libraries(gtsweb PRIVATE gtslog)
+
+if (ENABLE_SSL)
+	target_link_libraries(gtsweb PUBLIC ssl)
+	target_link_libraries(gtsweb PUBLIC crypto)
+endif()
 
 set_target_properties(gtsweb PROPERTIES
 	LIBRARY_OUTPUT_DIRECTORY ../../${output_dir_name}/bin

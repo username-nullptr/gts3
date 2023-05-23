@@ -145,18 +145,18 @@ void applictaion_impl::set_config_file(const cmdline::argument_hash &args_hash)
 
 	settings::ini_hash sample_gts =
 	{
-		{ SINI_GTS_ADDRESS      , "ipv4"               },
-		{ SINI_GTS_PORT         , 8080                 },
-		{ SINI_GTS_TCP_BUF_SIZE , 65536                },
-		{ SINI_GTS_STRATEGY     , _GTS_DEFULT_STRATEGY },
-		{ SINI_GTS_SSCFG        , "subserver.json"   }
+		{ SINI_GTS_ADDRESS      , "ipv4"                    },
+		{ SINI_GTS_PORT         , 8080                      },
+		{ SINI_GTS_TCP_BUF_SIZE , 65536                     },
+		{ SINI_GTS_STRATEGY     , _GTS_DEFULT_STRATEGY      },
+		{ SINI_GTS_SSCFG        , "subserver.json"          }
 	};
 	settings::ini_file_check(SINI_GROUP_GTS, sample_gts);
 
 	settings::ini_hash sample_gtslog =
 	{
 		{ SINI_GTS_LOG_DIR      , ""         },
-		{ SINI_GTS_LOG_LEVEL    , 3          },
+		{ SINI_GTS_LOG_LEVEL    , 4          },
 		{ SINI_GTS_LOG_CATEGORY , "gts"      },
 		{ SINI_GTS_LOG_ASYNC    , true       },
 		{ SINI_GTS_LOG_MAXOF    , 10240      },

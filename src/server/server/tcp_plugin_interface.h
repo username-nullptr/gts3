@@ -18,7 +18,8 @@
 
 /*
  * new_connect(socket handle/descriptor)
- * new_connect(socket handle/descriptor, int 4/6)
+ * new_connect(socket handle/descriptor, bool is_ssl)
+ * new_connect(socket handle/descriptor, int 4/6, bool is_ssl)
 */
 #define GTS_PLUGIN_INTERFACE_NEW_CONNECT  GTS_PLUGIN_INTERFACE "new_connection"
 

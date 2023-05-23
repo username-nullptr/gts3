@@ -27,6 +27,14 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	endif()
 endif()
 
+option(ENABLE_SSL "-- gts: enable link libssl" ON)
+
+if (ENABLE_SSL)
+	find_package(OpenSSL REQUIRED)
+	add_definitions(-DGTS_ENABLE_SSL)
+	message("-- gts: enable open ssl.")
+endif()
+
 add_compile_options(-Wall)
 add_subdirectory(src)
 

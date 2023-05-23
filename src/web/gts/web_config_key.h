@@ -3,6 +3,12 @@
 
 #define SINI_GROUP_WEB  "web"
 
+#define SINI_WEB_ENABLE_SSL         "enable_ssl"
+
+#define SINI_WEB_SSL_CRT_FILE       "ssl_crt_file"
+
+#define SINI_WEB_SSL_KEY_FILE       "ssl_key_file"
+
 #define SINI_WEB_CGI_ENV            "cgi_env"
 
 #define SINI_WEB_CGI_PATH           "cgi_path"
@@ -18,12 +24,6 @@
 #define SINI_WEB_MAX_SESSION_COUNT  "max_session_count"
 
 #define SINI_WEB_THREAD_POOL_TC     "thread_pool_tc"
-
-#define SINI_WEB_ENABLE_SSL         "enable_ssl"
-
-#define SINI_WEB_CRT_FILE           "ssl_crt_file"
-
-#define SINI_WEB_KEY_FILE           "ssl_key_file"
 
 #define SINI_WEB_ENABLE_WSS         "enable_websocket_server"
 
@@ -42,6 +42,17 @@
 # define _GTS_WEB_DEFAULT_CGI_PATH        "../cgi/"
 # define _GTS_WEB_DEFAULT_RC_PATH         "../resource/"
 # define _GTS_WEB_DEFAULT_PLUGINS_CONFIG  "../business_plugins/business_plugins.json"
+#endif //os
+
+#ifdef _WINDOWS
+# define _GTS_SSL_CRT_DEFAULT_FILE  ""
+# define _GTS_SSL_KEY_DEFAULT_FILE  ""
+#elif defined(__unix__)
+# define _GTS_SSL_CRT_DEFAULT_FILE  "~/.ssl/ssl.crt"
+# define _GTS_SSL_KEY_DEFAULT_FILE  "~/.ssl/ssl.key"
+#else //other os
+# define _GTS_SSL_CRT_DEFAULT_FILE  ""
+# define _GTS_SSL_KEY_DEFAULT_FILE  ""
 #endif //os
 
 

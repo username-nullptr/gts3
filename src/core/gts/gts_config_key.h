@@ -30,13 +30,12 @@
 
 #define SINI_GTS_LOG_MAX       "max_size"
 
-
 #ifdef _MSC_VER
-#define _GTS_DEFULT_STRATEGY  "gtsweb.dll"
+# define _GTS_DEFULT_STRATEGY       "gtsweb.dll"
 #elif defined(__GNUC__)
-#define _GTS_DEFULT_STRATEGY  "libgtsweb.so"
-#else
-#define _GTS_DEFULT_STRATEGY  "???"
+# define _GTS_DEFULT_STRATEGY       "libgtsweb.so"
+#else //
+# define _GTS_DEFULT_STRATEGY  "???"
 #endif
 
 
