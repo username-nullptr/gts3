@@ -98,8 +98,8 @@ GTS_DECL_EXPORT void new_connection(tcp::socket::native_handle_type handle, int 
 	if( g_ssl_context )
 	{
 //		ssl_stream.async_handshake
-		auto  _socket = std::make_shared<socket<ssl_stream>>(tcp::socket(io, tcp::v4(), handle), *g_ssl_context);
-		_socket->async_handshake(ssl_stream::server, [_socket](const asio::error_code &error)
+		auto _socket = std::make_shared<socket<ssl_stream>>(tcp::socket(io, tcp::v4(), handle), *g_ssl_context);
+		_socket->async_handshake(ssl_stream::server, [_socket, handle, protocol](const asio::error_code &error)
 		{
 			if( error )
 			{

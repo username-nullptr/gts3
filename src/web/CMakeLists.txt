@@ -1,6 +1,7 @@
 set(web_sources
 	main.cpp
 	global.cpp
+	socket.cpp
 	session.cpp
 	http/protocol.cpp
 	http/parser.cpp
@@ -8,9 +9,10 @@ set(web_sources
 	http/response.cpp
 	service/co_task.cpp
 	service/service.cpp
+	service/service_io.cpp
 	service/static_resource_service.cpp
-	service/cgi_service.cpp
 	service/plugins_service.cpp
+	service/cgi_service.cpp
 )
 
 set(web_headers
@@ -25,6 +27,10 @@ set(web_headers
 	http/response.h
 	service/co_task.h
 	service/service.h
+	service/service_io.h
+	service/static_resource_service.h
+	service/plugins_service.h
+	service/cgi_service.h
 )
 
 add_library(gtsweb SHARED ${web_sources} ${web_headers})

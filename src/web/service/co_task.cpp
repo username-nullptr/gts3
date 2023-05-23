@@ -30,8 +30,7 @@ co_task::~co_task()
 
 static asio::thread_pool *g_pool = nullptr;
 
-static std::string g_resource_path = _GTS_WEB_DEFAULT_RC_PATH;
-static std::string g_cgi_path      = _GTS_WEB_DEFAULT_CGI_PATH;
+static std::string g_cgi_path = _GTS_WEB_DEFAULT_CGI_PATH;
 
 #define READ_PATH_CONFIG(_key, _arg) \
 ({ \
@@ -58,9 +57,7 @@ void co_task::init()
 	log_debug("Web: max thread count: {}", max_thread_count);
 	g_pool = new asio::thread_pool(max_thread_count);
 
-	READ_PATH_CONFIG(SINI_WEB_RC_PATH,  g_resource_path);
 	READ_PATH_CONFIG(SINI_WEB_CGI_PATH, g_cgi_path);
-
 	service::init();
 }
 
@@ -101,30 +98,30 @@ void co_task::cancel()
 	m_call_back = nullptr;
 }
 
-static void GET    (service &s);
-static void POST   (service &s);
-static void PUT    (service &s);
-static void HEAD   (service &s);
-static void DELETE (service &s);
-static void OPTIONS(service &s);
-static void CONNECT(service &s);
-static void TRACH  (service &s);
+template <class asio_socket> static void GET    (service_io<asio_socket> &sio);
+template <class asio_socket> static void POST   (service_io<asio_socket> &sio);
+template <class asio_socket> static void PUT    (service_io<asio_socket> &sio);
+template <class asio_socket> static void HEAD   (service_io<asio_socket> &sio);
+template <class asio_socket> static void DELETE (service_io<asio_socket> &sio);
+template <class asio_socket> static void OPTIONS(service_io<asio_socket> &sio);
+template <class asio_socket> static void CONNECT(service_io<asio_socket> &sio);
+template <class asio_socket> static void TRACH  (service_io<asio_socket> &sio);
 
 void co_task::run()
 {
 	auto method = m_request->method();
 	log_debug() << "URL:" << m_request->path() << method;
 
-	service _service(*m_socket, *m_request);
+	service_io<tcp::socket> sio(*m_socket, *m_request);
 
-	if(      method == "GET"     ) GET    (_service);
-	else if( method == "POST"    ) POST   (_service);
-	else if( method == "HEAD"    ) HEAD   (_service);
-	else if( method == "PUT"     ) PUT    (_service);
-	else if( method == "DELETE"  ) DELETE (_service);
-	else if( method == "OPTIONS" ) OPTIONS(_service);
-	else if( method == "CONNECT" ) CONNECT(_service);
-	else if( method == "TRACH"   ) TRACH  (_service);
+	if(      method == "GET"     ) GET    (sio);
+	else if( method == "POST"    ) POST   (sio);
+	else if( method == "HEAD"    ) HEAD   (sio);
+	else if( method == "PUT"     ) PUT    (sio);
+	else if( method == "DELETE"  ) DELETE (sio);
+	else if( method == "OPTIONS" ) OPTIONS(sio);
+	else if( method == "CONNECT" ) CONNECT(sio);
+	else if( method == "TRACH"   ) TRACH  (sio);
 
 	if( not m_request->keep_alive() )
 	{
@@ -135,96 +132,104 @@ void co_task::run()
 
 /*----------------------------------------------------------------------------------------------------*/
 
-#define _PARSING(_s) \
+#define _PARSING(_sio) \
 ({ \
-	auto url_name = _s.request.path(); \
-	if( url_name.empty() ) \
-		url_name = "/index.html"; \
+	sio.url_name = _sio.request.path(); \
+	if( sio.url_name.empty() ) \
+		sio.url_name = "/index.html"; \
 	else { \
-		auto pos = url_name.find("/", 1); \
+		auto pos = sio.url_name.find("/", 1); \
 		if( pos != std::string::npos ) { \
-			auto prefix = url_name.substr(0,pos); \
+			auto prefix = sio.url_name.substr(0,pos); \
 			if( prefix == "/cgi-bin" ) { \
-				_s.call_cgi(g_cgi_path + url_name.substr(pos+1)); \
-				return ; \
+				sio.url_name = g_cgi_path + sio.url_name.substr(pos+1); \
+				return service::call_cgi_service(sio); \
 			} else if ( prefix == "/plugin-lib" ) { \
-				_s.call_plugins(url_name.substr(pos+1)); \
-				return ; \
+				sio.url_name.erase(0, pos+1); \
+				return service::call_plugin_service(sio); \
 			} \
 		} \
 	} \
-	if( fs::is_directory(url_name) ) \
-		return _s.return_to_null(http::hs_not_found); \
-	url_name; \
+	if( fs::is_directory(sio.url_name) ) \
+		return _sio.return_to_null(http::hs_not_found); \
+	sio.url_name; \
 })
 
-static void GET(service &s)
+template <class asio_socket>
+static void GET(service_io<asio_socket> &sio)
 {
-	auto url_name = _PARSING(s);
-	s.call_static_resource(g_resource_path + url_name);
+	sio.url_name = service_io_config::resource_path + _PARSING(sio);
+	service::call_static_resource_service(sio);
 }
 
-static void POST(service &s)
+template <class asio_socket>
+static void POST(service_io<asio_socket> &sio)
 {
-	_PARSING(s);
-	s.return_to_null(http::hs_not_implemented);
+	_PARSING(sio);
+	sio.return_to_null(http::hs_not_implemented);
 }
 
-static void PUT(service &s)
+template <class asio_socket>
+static void PUT(service_io<asio_socket> &sio)
 {
-	_PARSING(s);
-	s.return_to_null(http::hs_not_implemented);
+	_PARSING(sio);
+	sio.return_to_null(http::hs_not_implemented);
 }
 
-static void HEAD(service &s)
+template <class asio_socket>
+static void HEAD(service_io<asio_socket> &sio)
 {
-	std::string url_name = s.request.path();
-	if( url_name == "/" )
-		return s.return_to_null();
+	sio.url_name = sio.request.path();
+	if( sio.url_name == "/" )
+		return sio.return_to_null();
 
-	auto pos = url_name.find("/", 1);
+	auto pos = sio.url_name.find("/", 1);
 
 	if( pos != std::string::npos )
 	{
-		auto prefix = url_name.substr(0,pos);
+		auto prefix = sio.url_name.substr(0,pos);
 		if( prefix == "/cgi-bin" )
 		{
-			if( fs::exists(g_cgi_path + url_name.substr(pos+1)) )
-				return s.return_to_null();
-			return s.return_to_null(http::hs_not_found);
+			if( fs::exists(g_cgi_path + sio.url_name.substr(pos+1)) )
+				return sio.return_to_null();
+			return sio.return_to_null(http::hs_not_found);
 		}
 		else if ( prefix == "/plugin-lib" )
 		{
-			s.call_plugins(url_name.substr(pos+1));
-			return ;
+			sio.url_name.erase(0, pos+1);
+			return service::call_plugin_service(sio);
 		}
 	}
 
-	else if( fs::exists(g_resource_path + url_name) )
-		s.return_to_null(http::hs_not_found);
+	else if( fs::exists(service_io_config::resource_path + sio.url_name) )
+		sio.return_to_null(http::hs_not_found);
 	else
-		s.return_to_null();
+		sio.return_to_null();
 }
 
-static void DELETE(service &s)
+template <class asio_socket>
+static void DELETE(service_io<asio_socket> &sio)
 {
-	_PARSING(s);
-	s.return_to_null(http::hs_not_implemented);
+	_PARSING(sio);
+	sio.return_to_null(http::hs_not_implemented);
 }
 
-static void OPTIONS(service &s)
+template <class asio_socket>
+static void OPTIONS(service_io<asio_socket> &sio)
 {
-	s.return_to_null(http::hs_service_unavailable);
+	sio.return_to_null(http::hs_service_unavailable);
 }
 
-static void CONNECT(service &s)
+template <class asio_socket>
+static void CONNECT(service_io<asio_socket> &sio)
 {
-	s.return_to_null(http::hs_service_unavailable);
+	sio.return_to_null(http::hs_service_unavailable);
 }
 
-static void TRACH(service &s)
+template <class asio_socket>
+static void TRACH(service_io<asio_socket> &sio)
 {
-	s.return_to_null(http::hs_service_unavailable);
+	sio.return_to_null(http::hs_service_unavailable);
 }
 
 }} //namespace gts::web
