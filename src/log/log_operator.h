@@ -9,7 +9,7 @@
 namespace fmt
 {
 
-template<>
+template <>
 class formatter<std::thread::id>
 {
 public:
@@ -23,7 +23,7 @@ public:
 	}
 };
 
-template<>
+template <>
 class formatter<asio::ip::tcp::endpoint>
 {
 public:
@@ -37,7 +37,7 @@ public:
 	}
 };
 
-template<typename CharT>
+template <typename CharT>
 class formatter<rttr::basic_string_view<CharT>>
 {
 public:

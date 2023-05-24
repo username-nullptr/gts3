@@ -166,12 +166,12 @@ void plugin_service<asio_socket>::call()
 		}
 
 		if( call_method_para_count == 2 )
-			call_method.invoke(var, m_sio.socket.native_handle(), service_io<asio_socket>::tcp_socket::is_ssl);
+			call_method.invoke(var, m_sio.socket.native_handle(), service_io<asio_socket>::tcp_socket::is_ssl::value);
 
 		else if( m_sio.socket.remote_endpoint().address().is_v4() )
-			call_method.invoke(var, m_sio.socket.native_handle(), service_io<asio_socket>::tcp_socket::is_ssl, 4);
+			call_method.invoke(var, m_sio.socket.native_handle(), service_io<asio_socket>::tcp_socket::is_ssl::value, 4);
 		else
-			call_method.invoke(var, m_sio.socket.native_handle(), service_io<asio_socket>::tcp_socket::is_ssl, 6);
+			call_method.invoke(var, m_sio.socket.native_handle(), service_io<asio_socket>::tcp_socket::is_ssl::value, 6);
 		return ;
 	}
 	m_sio.return_to_null(http::hs_not_found);

@@ -71,7 +71,7 @@ private:
 	bool m_delete_on_flush = true;
 };
 
-template<typename T> inline
+template <typename T> inline
 T settings::read(const std::string &group, const std::string &key, const T &default_value) const
 {
 	auto group_it = m_ini_map.find(group);
@@ -89,7 +89,7 @@ T settings::read(const std::string &group, const std::string &key, const T &defa
 	return default_value;
 }
 
-template<typename T> inline
+template <typename T> inline
 void settings::write(const std::string &group, const std::string &key, T &&value)
 {
 	m_ini_map[group][key] = std::forward<T>(value);

@@ -52,7 +52,7 @@ static_resource_service<asio_socket>::static_resource_service(service_io<asio_so
 
 }
 
-template<class asio_socket>
+template <class asio_socket>
 void static_resource_service<asio_socket>::call()
 {
 	if( not fs::exists(m_sio.url_name) )
@@ -120,7 +120,7 @@ void static_resource_service<asio_socket>::default_transfer()
 	delete[] fr_buf;
 }
 
-template<class asio_socket>
+template <class asio_socket>
 void static_resource_service<asio_socket>::range_transfer(const std::string &range_str)
 {
 	using namespace std::chrono;
@@ -206,7 +206,7 @@ void static_resource_service<asio_socket>::range_transfer(const std::string &ran
 	send_range(boundary, ct_line, range_value_queue);
 }
 
-template<class asio_socket>
+template <class asio_socket>
 bool static_resource_service<asio_socket>::range_parsing
 (const std::string &range_str, std::size_t &begin, std::size_t &end, std::size_t &size)
 {
@@ -275,7 +275,7 @@ bool static_resource_service<asio_socket>::range_parsing
 	return true;
 }
 
-template<class asio_socket>
+template <class asio_socket>
 void static_resource_service<asio_socket>::send_range
 (const std::string &boundary, const std::string &ct_line, std::list<range_value> &range_value_queue)
 {
@@ -354,7 +354,7 @@ void static_resource_service<asio_socket>::send_range
 	m_sio.socket.write_some(asio::buffer("--" + boundary + "--\r\n"), error);
 }
 
-template<class asio_socket>
+template <class asio_socket>
 inline std::size_t static_resource_service<asio_socket>::tcp_ip_buffer_size() const
 {
 	tcp::socket::send_buffer_size attr;

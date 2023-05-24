@@ -1,16 +1,24 @@
 #include "socket.h"
 
-namespace gts { namespace web
+namespace gts
 {
 
 #ifdef GTS_ENABLE_SSL
 
-inline tcp::endpoint socket<ssl_stream>::remote_endpoint(asio::error_code &error) {
+tcp::endpoint socket<ssl_stream>::remote_endpoint(asio::error_code &error) {
 	return this->next_layer().remote_endpoint(error);
 }
 
-inline tcp::endpoint socket<ssl_stream>::remote_endpoint() {
+tcp::endpoint socket<ssl_stream>::remote_endpoint() {
 	return this->next_layer().remote_endpoint();
+}
+
+tcp::endpoint socket<ssl_stream>::local_endpoint(asio::error_code &error) {
+	return this->next_layer().local_endpoint(error);
+}
+
+tcp::endpoint socket<ssl_stream>::local_endpoint() {
+	return this->next_layer().local_endpoint();
 }
 
 void socket<ssl_stream>::shutdown(tcp::socket::shutdown_type what, asio::error_code &error) {
@@ -41,6 +49,10 @@ bool socket<ssl_stream>::non_blocking() const {
 	return this->next_layer().non_blocking();
 }
 
+bool socket<ssl_stream>::is_open() const {
+	return this->next_layer().is_open();
+}
+
 void socket<ssl_stream>::close(asio::error_code &error) {
 	this->next_layer().close(error);
 }
@@ -51,4 +63,4 @@ void socket<ssl_stream>::close() {
 
 #endif //ssl
 
-}} //namespace gts::web
+} //namespace gts

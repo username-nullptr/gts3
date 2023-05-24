@@ -4,7 +4,6 @@
 #include "gts/web_config_key.h"
 #include "settings.h"
 #include "gts_log.h"
-#include "socket.h"
 
 #include <rttr/registration>
 #include <iostream>
@@ -18,7 +17,9 @@ namespace gts { namespace web { namespace plugin_main
 
 static std::thread g_run_thread;
 
+#ifdef GTS_ENABLE_SSL
 static ssl::context *g_ssl_context = nullptr;
+#endif //ssl
 
 GTS_DECL_EXPORT void init(const std::string &config_file)
 {
@@ -26,9 +27,6 @@ GTS_DECL_EXPORT void init(const std::string &config_file)
 
 	settings::ini_hash sample_gts =
 	{
-		{ SINI_WEB_ENABLE_SSL        , false                           },
-		{ SINI_WEB_SSL_CRT_FILE      , _GTS_SSL_CRT_DEFAULT_FILE       },
-		{ SINI_WEB_SSL_KEY_FILE      , _GTS_SSL_KEY_DEFAULT_FILE       },
 		{ SINI_WEB_CGI_ENV           , ""                              },
 		{ SINI_WEB_CGI_PATH          , _GTS_WEB_DEFAULT_CGI_PATH       },
 		{ SINI_WEB_PLUGINS_CONFIG    , _GTS_WEB_DEFAULT_PLUGINS_CONFIG },
@@ -43,9 +41,10 @@ GTS_DECL_EXPORT void init(const std::string &config_file)
 		{ SINI_WEB_WSS_STRATEGY      , ""                              },
 	};
 	settings::ini_file_check(SINI_GROUP_WEB, sample_gts);
-	session::init();
+	session_config::init();
 
-	if( settings::global_instance().read<bool>(SINI_GROUP_WEB, SINI_WEB_ENABLE_SSL) )
+#ifdef GTS_ENABLE_SSL
+	if( settings::global_instance().read<bool>(SINI_GROUP_GTS, SINI_GTS_ENABLE_SSL) )
 	{
 		log_info("gts: enable ssl.");
 		g_ssl_context = new ssl::context(ssl::context::sslv23);
@@ -61,14 +60,15 @@ GTS_DECL_EXPORT void init(const std::string &config_file)
 		if( error )
 			log_fatal("asio: ssl password failed: {}. ({})\n", error.message(), error.value());
 
-		g_ssl_context->use_certificate_chain_file("/root/.ssl/gts.crt", error);
+		g_ssl_context->use_certificate_chain_file("/root/.ssl/server.crt", error);
 		if( error )
 			log_fatal("asio: ssl certificate file load failed: {}. ({})\n", error.message(), error.value());
 
-		g_ssl_context->use_private_key_file("/root/.ssl/gts.key", ssl::context::pem, error);
+		g_ssl_context->use_private_key_file("/root/.ssl/server.key", ssl::context::pem, error);
 		if( error )
 			log_fatal("asio: ssl private file file load failed: {}. ({})\n", error.message(), error.value());
 	}
+#endif //ssl
 
 	g_run_thread = std::thread([]
 	{
@@ -88,49 +88,25 @@ GTS_DECL_EXPORT void exit()
 	if( g_ssl_context )
 		delete g_ssl_context;
 
-	session::exit();
+	session_config::exit();
 }
 
-GTS_DECL_EXPORT void new_connection(tcp::socket::native_handle_type handle, int protocol)
+GTS_DECL_EXPORT void new_connection(tcp::socket::native_handle_type handle, bool ssl, int protocol)
 {
 #ifdef GTS_ENABLE_SSL
 	static auto &io = io_context();
-	if( g_ssl_context )
-	{
-//		ssl_stream.async_handshake
-		auto _socket = std::make_shared<socket<ssl_stream>>(tcp::socket(io, tcp::v4(), handle), *g_ssl_context);
-		_socket->async_handshake(ssl_stream::server, [_socket, handle, protocol](const asio::error_code &error)
-		{
-			if( error )
-			{
-				log_error("asio: ssl_stream handshake error: {}. ({})", error.message(), error.value());
-				return _socket->close();
-			}
-
-			if( protocol == 4 )
-				session::new_connection(std::make_shared<tcp::socket>(io, tcp::v4(), handle));
-			else
-				session::new_connection(std::make_shared<tcp::socket>(io, tcp::v6(), handle));
-		});
-	}
+	if( ssl and g_ssl_context )
+		session<ssl_stream>::new_connection
+				(std::make_shared<socket<ssl_stream>>(tcp::socket(io, protocol==4? tcp::v4():tcp::v6(), handle), *g_ssl_context));
 	else
-	{
-		if( protocol == 4 )
-			session::new_connection(std::make_shared<tcp::socket>(io, tcp::v4(), handle));
-		else
-			session::new_connection(std::make_shared<tcp::socket>(io, tcp::v6(), handle));
-	}
-#else //no ssl
-	if( protocol == 4 )
-		session::new_connection(std::make_shared<tcp::socket>(io, tcp::v4(), handle));
-	else
-		session::new_connection(std::make_shared<tcp::socket>(io, tcp::v6(), handle));
 #endif //ssl
+		session<tcp::socket>::new_connection
+				(std::make_shared<socket<tcp::socket>>(io, protocol==4? tcp::v4():tcp::v6(), handle));
 }
 
 GTS_DECL_EXPORT std::string view_status()
 {
-	return session::view_status();
+	return session_config::view_status();
 }
 
 }}} //namespace gts::web::plugin_main

@@ -9,6 +9,12 @@
 
 #define SINI_GTS_TCP_BUF_SIZE  "tcp_buffer_size"
 
+#define SINI_GTS_ENABLE_SSL    "enable_ssl"
+
+#define SINI_GTS_SSL_CRT_FILE  "ssl_crt_file"
+
+#define SINI_GTS_SSL_KEY_FILE  "ssl_key_file"
+
 #define SINI_GTS_STRATEGY      "service_strategy"
 
 #define SINI_GTS_SSCFG         "subserver_config"
@@ -37,6 +43,17 @@
 #else //
 # define _GTS_DEFULT_STRATEGY  "???"
 #endif
+
+#ifdef _WINDOWS
+# define _GTS_SSL_CRT_DEFAULT_FILE  ""
+# define _GTS_SSL_KEY_DEFAULT_FILE  ""
+#elif defined(__unix__)
+# define _GTS_SSL_CRT_DEFAULT_FILE  "~/.ssl/ssl.crt"
+# define _GTS_SSL_KEY_DEFAULT_FILE  "~/.ssl/ssl.key"
+#else //other os
+# define _GTS_SSL_CRT_DEFAULT_FILE  ""
+# define _GTS_SSL_KEY_DEFAULT_FILE  ""
+#endif //os
 
 
 #endif //GTS_CONFIG_KEY_H

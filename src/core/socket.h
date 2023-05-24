@@ -1,30 +1,31 @@
 #ifndef SOCKET_H
 #define SOCKET_H
 
-#include "global.h"
+#include "gts/gts_global.h"
+#include <asio.hpp>
 
 #ifdef GTS_ENABLE_SSL
 # include <asio/ssl.hpp>
+namespace ssl = asio::ssl;
 #endif //ssl
 
-namespace gts { namespace web
+using namespace asio::ip;
+
+namespace gts
 {
 
 template <class asio_socket>
-class socket {
-	enum { is_ssl = false };
-};
+class socket {};
 
 template <>
 class socket<tcp::socket> : public tcp::socket
 {
 public:
 	using tcp::socket::basic_stream_socket;
-	enum { is_ssl = false };
+	typedef std::false_type  is_ssl;
 };
 
 #ifdef GTS_ENABLE_SSL
-namespace ssl = asio::ssl;
 using ssl_stream = ssl::stream<tcp::socket>;
 
 template <>
@@ -32,24 +33,28 @@ class socket<ssl_stream> : public ssl_stream
 {
 public:
 	using ssl_stream::stream;
-	enum { is_ssl = true };
+	typedef std::true_type  is_ssl;
 
 public:
 	tcp::endpoint remote_endpoint(asio::error_code &error);
 	tcp::endpoint remote_endpoint();
 
 public:
-	template <typename SettableSocketOption>
-	void set_option(const SettableSocketOption& option);
+	tcp::endpoint local_endpoint(asio::error_code &error);
+	tcp::endpoint local_endpoint();
 
+public:
 	template <typename SettableSocketOption>
 	void set_option(const SettableSocketOption& option, asio::error_code &error);
 
-	template <typename GettableSocketOption>
-	void get_option(GettableSocketOption& option) const;
+	template <typename SettableSocketOption>
+	void set_option(const SettableSocketOption& option);
 
 	template <typename GettableSocketOption>
 	void get_option(GettableSocketOption& option, asio::error_code &error) const;
+
+	template <typename GettableSocketOption>
+	void get_option(GettableSocketOption& option) const;
 
 public:
 	void shutdown(tcp::socket::shutdown_type what, asio::error_code &error);
@@ -65,32 +70,33 @@ public:
 	bool non_blocking() const;
 
 public:
+	bool is_open() const;
 	void close(asio::error_code &error);
 	void close();
 };
-
-template <typename SettableSocketOption>
-void socket<ssl_stream>::set_option(const SettableSocketOption& option) {
-	this->next_layer().set_option(option);
-}
 
 template <typename SettableSocketOption>
 void socket<ssl_stream>::set_option(const SettableSocketOption& option, asio::error_code &error) {
 	this->next_layer().set_option(option, error);
 }
 
-template <typename GettableSocketOption>
-void socket<ssl_stream>::get_option(GettableSocketOption& option) const {
-	this->next_layer().get_option(option);
+template <typename SettableSocketOption>
+void socket<ssl_stream>::set_option(const SettableSocketOption& option) {
+	this->next_layer().set_option(option);
 }
 
 template <typename GettableSocketOption>
 void socket<ssl_stream>::get_option(GettableSocketOption& option, asio::error_code &error) const {
 	this->next_layer().get_option(option, error);
 }
+
+template <typename GettableSocketOption>
+void socket<ssl_stream>::get_option(GettableSocketOption& option) const {
+	this->next_layer().get_option(option);
+}
 #endif //ssl
 
-}} //namespace gts::web
+} //namespace gts
 
 
 #endif //SOCKET_H

@@ -38,7 +38,7 @@ public:
 	void set_body(const std::string &body);
 
 public:
-	void call(tcp::socket::native_handle_type handle, int ipv);
+	void call(tcp::socket::native_handle_type handle, bool /*ssl*/, int ipv);
 
 private:
 	std::string m_version;
@@ -100,7 +100,7 @@ inline void plugin1::set_body(const std::string&)
 
 }
 
-inline void plugin1::call(tcp::socket::native_handle_type handle, int ipv)
+inline void plugin1::call(tcp::socket::native_handle_type handle, bool /*ssl*/, int ipv)
 {
 	std::cerr << std::endl;
 

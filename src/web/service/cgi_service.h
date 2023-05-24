@@ -64,7 +64,7 @@ public:
 	static void init();
 };
 
-template<class asio_socket>
+template <class asio_socket>
 cgi_service<asio_socket>::cgi_service(s_io &sio) :
 	m_sio(sio), m_cgi(io_context(), sio.url_name)
 {

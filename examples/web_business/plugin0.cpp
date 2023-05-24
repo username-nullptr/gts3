@@ -32,7 +32,7 @@ public:
 	void add_header(const std::string &key, const std::string &value);
 
 public:
-	void call(tcp::socket::native_handle_type handle, int ipv);
+	void call(tcp::socket::native_handle_type handle, bool /*ssl*/, int ipv);
 
 private:
 	std::string m_version;
@@ -79,7 +79,7 @@ inline void plugin0::add_header(const std::string &key, const std::string &value
 	m_headers.emplace(key, value);
 }
 
-inline void plugin0::call(tcp::socket::native_handle_type handle, int ipv)
+inline void plugin0::call(tcp::socket::native_handle_type handle, bool /*ssl*/, int ipv)
 {
 	asio::io_context io;
 	std::shared_ptr<tcp::socket> socket;

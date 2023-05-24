@@ -2,12 +2,10 @@
 #include "gts/algorithm.h"
 #include "gts/gts_config_key.h"
 #include "tcp_plugin_interface.h"
+#include "application.h"
 #include "app_info.h"
 #include "settings.h"
 #include "global.h"
-
-#include "application.h"
-#include "gts_log.h"
 
 #include <algorithm>
 #include <iostream>
@@ -98,20 +96,22 @@ tcp_server::tcp_server(int, const char**) :
 	m_new_connect_method = rttr::type::get_global_method
 						   (GTS_PLUGIN_INTERFACE_NEW_CONNECT, {
 								rttr::type::get<tcp::socket::native_handle_type>(),
+								rttr::type::get<bool>(),
 								rttr::type::get<int>()
 							});
 
 	if( m_new_connect_method.is_valid() )
-		m_ncma_count = 2;
+		m_ncma_count = 3;
 	else
 	{
 		m_new_connect_method = rttr::type::get_global_method
 							   (GTS_PLUGIN_INTERFACE_NEW_CONNECT, {
-									rttr::type::get<tcp::socket::native_handle_type>()
+									rttr::type::get<tcp::socket::native_handle_type>(),
+									rttr::type::get<bool>()
 								});
 
 		if( m_new_connect_method.is_valid() )
-			m_ncma_count = 1;
+			m_ncma_count = 2;
 		else
 			log_fatal("gts.plugin error: strategy is null.\n");
 	}
@@ -126,36 +126,43 @@ tcp_server::~tcp_server()
 	stop();
 }
 
+#ifdef GTS_ENABLE_SSL
+static ssl::context *g_ssl_context = nullptr;
+#endif //ssl
+
 void tcp_server::start()
 {
-	auto socket = std::make_shared<tcp::socket>(gts_app.io_context());
-	m_acceptor.async_accept(*socket, [socket, this](asio::error_code error)
-	{
-		if( error )
-		{
-			if( error.value() == asio::error::operation_aborted )
-				return ;
+#ifdef GTS_ENABLE_SSL
+	auto &_settings = settings::global_instance();
+	if( _settings.read<bool>(SINI_GROUP_GTS, SINI_GTS_ENABLE_SSL) == false )
+		return start_tcp();
 
-			else if ERR_VAL(error)
-				log_fatal("asio: accept error: {}. ({})\n", error.message(), error.value());
-		}
+	log_info("gts: enable ssl.");
+	g_ssl_context = new ssl::context(ssl::context::sslv23);
 
-		socket->set_option(tcp::socket::send_buffer_size(m_buffer_size), error);
-		if( error )
-			log_error("asio: set socket send buffer error: {}. ({})\n", error.message(), error.value());
+	g_ssl_context->set_options(ssl::context::default_workarounds |
+							   ssl::context::single_dh_use |
+							   ssl::context::no_sslv2);
+	asio::error_code error;
 
-		socket->set_option(tcp::socket::receive_buffer_size(m_buffer_size), error);
-		if( error )
-			log_error("asio: set socket receive buffer error: {}. ({})\n", error.message(), error.value());
+	g_ssl_context->set_password_callback([](std::size_t, ssl::context::password_purpose){
+		return std::string("seri");
+	}, error);
+	if( error )
+		log_fatal("asio: ssl password failed: {}. ({})\n", error.message(), error.value());
 
-		if( m_ncma_count == 1 )
-			m_new_connect_method.invoke({}, socket->release());
+	g_ssl_context->use_certificate_chain_file("/root/.ssl/server.crt", error);
+	if( error )
+		log_fatal("asio: ssl certificate file load failed: {}. ({})\n", error.message(), error.value());
 
-		else if( m_ncma_count == 2 )
-			m_new_connect_method.invoke({}, socket->release(), m_protocol);
+	g_ssl_context->use_private_key_file("/root/.ssl/server.key", ssl::context::pem, error);
+	if( error )
+		log_fatal("asio: ssl private file file load failed: {}. ({})\n", error.message(), error.value());
 
-		start();
-	});
+	start_ssl();
+#else //no ssl
+	start_tcp();
+#endif //ssl
 }
 
 void tcp_server::stop()
@@ -191,5 +198,48 @@ std::string tcp_server::view_status() const
 	}
 	return status;
 }
+
+#define ERROR_CHECK(_error) \
+({ \
+	if( error ) { \
+		if( error.value() == asio::error::operation_aborted ) \
+			return ; \
+		else if ERR_VAL(error) \
+			log_fatal("asio: accept error: {}. ({})\n", error.message(), error.value()); \
+	} \
+})
+
+void tcp_server::start_tcp()
+{
+	auto _socket = std::make_shared<socket<tcp::socket>>(gts_app.io_context());
+	m_acceptor.async_accept(*_socket, [_socket, this](asio::error_code error)
+	{
+		ERROR_CHECK(error);
+		service(std::move(_socket));
+		start_tcp();
+	});
+}
+
+#ifdef GTS_ENABLE_SSL
+void tcp_server::start_ssl()
+{
+	auto _socket = std::make_shared<socket<ssl_stream>>(tcp::socket(gts_app.io_context()), *g_ssl_context);
+	m_acceptor.async_accept(_socket->next_layer(), [_socket, this](asio::error_code error)
+	{
+		ERROR_CHECK(error);
+		_socket->async_handshake(ssl_stream::server, [_socket, this](const asio::error_code &error)
+		{
+			if( error and error.value() != 336151574 )
+			{
+				log_error("asio: ssl_stream handshake error: {}. ({})", error.message(), error.value());
+				_socket->close();
+			}
+			else
+				service(std::move(_socket));
+			start_ssl();
+		});
+	});
+}
+#endif //ssl
 
 } //namespace gts

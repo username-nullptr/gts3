@@ -80,7 +80,7 @@ private:
 	logger_impl *m_impl;
 };
 
-template<typename...Args> inline
+template <typename...Args> inline
 void logger::debug(fmt::format_string<Args...> fmt, Args&&...args)
 {
 	debug() << fmt::format(fmt, std::forward<Args>(args)...);
@@ -102,7 +102,7 @@ inline void logger::info(const std::string &msg)
 	info() << msg;
 }
 
-template<typename...Args> inline
+template <typename...Args> inline
 void logger::warning(fmt::format_string<Args...> fmt, Args&&...args)
 {
 	warning() << fmt::format(fmt, std::forward<Args>(args)...);
@@ -113,7 +113,7 @@ inline void logger::warning(const std::string &msg)
 	warning() << msg;
 }
 
-template<typename...Args> inline
+template <typename...Args> inline
 void logger::error(fmt::format_string<Args...> fmt, Args&&...args)
 {
 	error() << fmt::format(fmt, std::forward<Args>(args)...);
@@ -124,7 +124,7 @@ inline void logger::error(const std::string &msg)
 	error() << msg;
 }
 
-template<typename...Args> inline
+template <typename...Args> inline
 void logger::fatal(fmt::format_string<Args...> fmt, Args&&...args)
 {
 	_fatal(fmt::format(fmt, std::forward<Args>(args)...));

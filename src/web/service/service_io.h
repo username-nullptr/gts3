@@ -12,15 +12,14 @@ template <class asio_socket>
 class GTS_DECL_HIDDEN service_io
 {
 public:
-	typedef web::socket<asio_socket>  tcp_socket;
+	typedef gts::socket<asio_socket>  tcp_socket;
 
 public:
-	service_io(tcp::socket &socket, http::request &request);
+	service_io(tcp_socket &socket, http::request &request);
 	void return_to_null(http::status status = http::hs_ok);
 
 public:
-//	tcp_socket &socket;
-	tcp::socket &socket;
+	tcp_socket &socket;
 	http::request &request;
 	http::response response;
 	std::string url_name;
@@ -34,7 +33,7 @@ public:
 };
 
 template <class asio_socket>
-service_io<asio_socket>::service_io(tcp::socket &socket, http::request &request) :
+service_io<asio_socket>::service_io(tcp_socket &socket, http::request &request) :
 	socket(socket), request(request), response(request.version())
 {
 	response.set_header("server", "gts3");

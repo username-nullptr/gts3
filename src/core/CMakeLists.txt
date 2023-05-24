@@ -2,6 +2,7 @@ set(core_sources
 	gts/gts_global.cpp
 	gts/algorithm.cpp
 	gts/mime_type.cpp
+	socket.cpp
 	process.cpp
 	settings.cpp
 )
@@ -12,6 +13,7 @@ set(core_headers
 	gts/mime_type.h
 	gts/gts_config_key.h
 	app_info.h
+	socket.h
 	process.h
 	settings.h
 	private/process_p.h
