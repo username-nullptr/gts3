@@ -18,8 +18,7 @@ set(log_private_headers
 
 add_library(gtslog SHARED ${log_sources} ${log_headers} ${log_private_headers})
 
-target_include_directories(gtslog PRIVATE .)
-target_include_directories(gtslog PRIVATE ../core)
+target_include_directories(gtslog PRIVATE . ../core)
 
 set_target_properties(gtslog PROPERTIES
 	LIBRARY_OUTPUT_DIRECTORY ../../${output_dir_name}/bin

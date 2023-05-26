@@ -15,6 +15,8 @@
 
 #define SINI_GTS_SSL_KEY_FILE  "ssl_key_file"
 
+#define SINI_GTS_SSL_KEY       "ssl_key"
+
 #define SINI_GTS_STRATEGY      "service_strategy"
 
 #define SINI_GTS_SSCFG         "subserver_config"

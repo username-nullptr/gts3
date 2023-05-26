@@ -24,8 +24,8 @@ GTSCORE_API std::string from_percent_encoding(const std::string &str);
 inline string_list string_split(const std::string &str, char splits, bool ignore_empty = true)
 { return string_split(str, std::string(1,splits), ignore_empty); }
 
-GTSCORE_API std::string file_name(const std::string file_name);
-GTSCORE_API std::string file_path(const std::string file_name);
+GTSCORE_API std::string file_name(const std::string &file_name);
+GTSCORE_API std::string file_path(const std::string &file_name);
 
 } //namespace gts
 

@@ -57,12 +57,6 @@ typedef uint64_t  address_bits_wide;
 typedef uint32_t  address_bits_wide;
 #endif // 32bit & 64bit
 
-#ifdef _WINDOWS
-# define _PS  "\\"
-#else // other os
-# define _PS  "/"
-#endif
-
 #define DISABLE_COPY(_class) \
 	explicit _class(const _class&) = delete; \
 	explicit _class(_class&&) = delete; \

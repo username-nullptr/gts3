@@ -17,9 +17,8 @@
 #define GTS_PLUGIN_INTERFACE_EXIT  GTS_PLUGIN_INTERFACE "exit"
 
 /*
- * new_connect(socket handle/descriptor)
- * new_connect(socket handle/descriptor, bool is_ssl)
- * new_connect(socket handle/descriptor, int 4/6, bool is_ssl)
+ * new_connect(socket handle, void *ssl)
+ * new_connect(socket hanlde, void *ssl, int 4/6)
 */
 #define GTS_PLUGIN_INTERFACE_NEW_CONNECT  GTS_PLUGIN_INTERFACE "new_connection"
 

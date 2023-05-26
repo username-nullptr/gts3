@@ -43,17 +43,8 @@ endif()
 
 add_executable(gts ${server_sources} ${server_headers} ${server_private_headers})
 
-target_include_directories(gts PRIVATE .)
-target_include_directories(gts PRIVATE ../core)
-target_include_directories(gts PRIVATE ../log)
-
-target_link_libraries(gts PRIVATE gtscore)
-target_link_libraries(gts PRIVATE gtslog)
-
-if (ENABLE_SSL)
-	target_link_libraries(gts PUBLIC ssl)
-	target_link_libraries(gts PUBLIC crypto)
-endif()
+target_include_directories(gts PRIVATE . ../core ../log)
+target_link_libraries(gts PRIVATE gtscore gtslog)
 
 set_target_properties(gts PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY ../../${output_dir_name}/bin

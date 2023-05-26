@@ -1,6 +1,8 @@
 #include "tcp_server.h"
-#include "gts/algorithm.h"
 #include "gts/gts_config_key.h"
+#include "gts/algorithm.h"
+#include "gts/ssl.h"
+
 #include "tcp_plugin_interface.h"
 #include "application.h"
 #include "app_info.h"
@@ -92,29 +94,7 @@ tcp_server::tcp_server(int, const char**) :
 		if( method.is_valid() )
 			method.invoke({});
 	}
-
-	m_new_connect_method = rttr::type::get_global_method
-						   (GTS_PLUGIN_INTERFACE_NEW_CONNECT, {
-								rttr::type::get<tcp::socket::native_handle_type>(),
-								rttr::type::get<bool>(),
-								rttr::type::get<int>()
-							});
-
-	if( m_new_connect_method.is_valid() )
-		m_ncma_count = 3;
-	else
-	{
-		m_new_connect_method = rttr::type::get_global_method
-							   (GTS_PLUGIN_INTERFACE_NEW_CONNECT, {
-									rttr::type::get<tcp::socket::native_handle_type>(),
-									rttr::type::get<bool>()
-								});
-
-		if( m_new_connect_method.is_valid() )
-			m_ncma_count = 2;
-		else
-			log_fatal("gts.plugin error: strategy is null.\n");
-	}
+	new_connect_method_init();
 
 	m_buffer_size = READ_CONFIG(int, SINI_GTS_TCP_BUF_SIZE, m_buffer_size);
 	if( m_buffer_size < 1024 )
@@ -127,7 +107,13 @@ tcp_server::~tcp_server()
 }
 
 #ifdef GTS_ENABLE_SSL
-static ssl::context *g_ssl_context = nullptr;
+static bool verify_callback(bool, ssl::verify_context& ctx)
+{
+	char subject_name[256];
+	X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
+	X509_NAME_oneline(X509_get_subject_name(cert), subject_name, 256);
+	return true;
+}
 #endif //ssl
 
 void tcp_server::start()
@@ -138,26 +124,46 @@ void tcp_server::start()
 		return start_tcp();
 
 	log_info("gts: enable ssl.");
-	g_ssl_context = new ssl::context(ssl::context::sslv23);
+	auto &ssl_context = asio_ssl_context();
 
-	g_ssl_context->set_options(ssl::context::default_workarounds |
-							   ssl::context::single_dh_use |
-							   ssl::context::no_sslv2);
+	ssl_context.set_default_verify_paths();
+	ssl_context.set_verify_callback(verify_callback);
+	ssl_context.set_verify_mode(ssl::context::verify_client_once);
+
+	ssl_context.set_options(ssl::context::default_workarounds |
+							ssl::context::single_dh_use |
+							ssl::context::no_sslv2);
 	asio::error_code error;
 
-	g_ssl_context->set_password_callback([](std::size_t, ssl::context::password_purpose){
-		return std::string("seri");
+	ssl_context.set_password_callback([](std::size_t, ssl::context::password_purpose){
+		return settings::global_instance().read<std::string>(SINI_GROUP_GTS, SINI_GTS_SSL_KEY);
 	}, error);
 	if( error )
 		log_fatal("asio: ssl password failed: {}. ({})\n", error.message(), error.value());
 
-	g_ssl_context->use_certificate_chain_file("/root/.ssl/server.crt", error);
-	if( error )
-		log_fatal("asio: ssl certificate file load failed: {}. ({})\n", error.message(), error.value());
+	auto crt_file = _settings.read<std::string>(SINI_GROUP_GTS, SINI_GTS_SSL_CRT_FILE, _GTS_SSL_CRT_DEFAULT_FILE);
+	if( not crt_file.empty() )
+	{
+		if( not starts_with(crt_file, "/") )
+			crt_file = appinfo::current_directory() + crt_file;
+		log_debug("ssl crt file: {}", crt_file);
 
-	g_ssl_context->use_private_key_file("/root/.ssl/server.key", ssl::context::pem, error);
-	if( error )
-		log_fatal("asio: ssl private file file load failed: {}. ({})\n", error.message(), error.value());
+		ssl_context.use_certificate_chain_file(crt_file, error);
+		if( error )
+			log_fatal("asio: ssl certificate file load failed: {}. ({})\n", error.message(), error.value());
+	}
+
+	auto key_file = _settings.read<std::string>(SINI_GROUP_GTS, SINI_GTS_SSL_KEY_FILE, _GTS_SSL_KEY_DEFAULT_FILE);
+	if( not key_file.empty() )
+	{
+		if( not starts_with(key_file, "/") )
+			key_file = appinfo::current_directory() + key_file;
+		log_debug("ssl key file: {}", key_file);
+
+		ssl_context.use_private_key_file(key_file, ssl::context::pem, error);
+		if( error )
+			log_fatal("asio: ssl private key file file load failed: {}. ({})\n", error.message(), error.value());
+	}
 
 	start_ssl();
 #else //no ssl
@@ -223,15 +229,15 @@ void tcp_server::start_tcp()
 #ifdef GTS_ENABLE_SSL
 void tcp_server::start_ssl()
 {
-	auto _socket = std::make_shared<socket<ssl_stream>>(tcp::socket(gts_app.io_context()), *g_ssl_context);
+	auto _socket = std::make_shared<socket<ssl_stream>>(tcp::socket(gts_app.io_context()), asio_ssl_context());
 	m_acceptor.async_accept(_socket->next_layer(), [_socket, this](asio::error_code error)
 	{
 		ERROR_CHECK(error);
 		_socket->async_handshake(ssl_stream::server, [_socket, this](const asio::error_code &error)
 		{
-			if( error and error.value() != 336151574 )
+			if( error /*and error.value() != 336151574*/ )
 			{
-				log_error("asio: ssl_stream handshake error: {}. ({})", error.message(), error.value());
+				log_warning("asio: ssl_stream handshake error: {}. ({})", error.message(), error.value());
 				_socket->close();
 			}
 			else
@@ -241,5 +247,35 @@ void tcp_server::start_ssl()
 	});
 }
 #endif //ssl
+
+void tcp_server::new_connect_method_init()
+{
+	m_new_connect_method = rttr::type::get_global_method
+						   (GTS_PLUGIN_INTERFACE_NEW_CONNECT, {
+								rttr::type::get<tcp::socket::native_handle_type>(),
+								rttr::type::get<void*>(),
+								rttr::type::get<int>()
+							});
+
+	if( m_new_connect_method.is_valid() )
+	{
+		m_ncma_count = 3;
+		return ;
+	}
+
+	m_new_connect_method = rttr::type::get_global_method
+						   (GTS_PLUGIN_INTERFACE_NEW_CONNECT, {
+								rttr::type::get<tcp::socket::native_handle_type>(),
+								rttr::type::get<void*>()
+							});
+
+	if( m_new_connect_method.is_valid() )
+	{
+		m_ncma_count = 2;
+		return ;
+	}
+
+	log_fatal("gts.plugin error: strategy is null.\n");
+}
 
 } //namespace gts

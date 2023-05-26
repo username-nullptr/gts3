@@ -122,7 +122,7 @@ void applictaion_impl::set_config_file(const cmdline::argument_hash &args_hash)
 	else
 	{
 		file_name = it->second;
-		if( not starts_with(file_name, _PS) )
+		if( not starts_with(file_name, "/") )
 			file_name = appinfo::dir_path() + file_name;
 	}
 
@@ -148,9 +148,10 @@ void applictaion_impl::set_config_file(const cmdline::argument_hash &args_hash)
 		{ SINI_GTS_ADDRESS      , "ipv4"                    },
 		{ SINI_GTS_PORT         , 8080                      },
 		{ SINI_GTS_TCP_BUF_SIZE , 65536                     },
-		{ SINI_GTS_ENABLE_SSL   , false                           },
-		{ SINI_GTS_SSL_CRT_FILE , _GTS_SSL_CRT_DEFAULT_FILE       },
-		{ SINI_GTS_SSL_KEY_FILE , _GTS_SSL_KEY_DEFAULT_FILE       },
+		{ SINI_GTS_ENABLE_SSL   , false                     },
+		{ SINI_GTS_SSL_CRT_FILE , _GTS_SSL_CRT_DEFAULT_FILE },
+		{ SINI_GTS_SSL_KEY_FILE , _GTS_SSL_KEY_DEFAULT_FILE },
+		{ SINI_GTS_SSL_KEY      , ""                        },
 		{ SINI_GTS_STRATEGY     , _GTS_DEFULT_STRATEGY      },
 		{ SINI_GTS_SSCFG        , "subserver.json"          }
 	};

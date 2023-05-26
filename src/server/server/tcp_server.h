@@ -32,9 +32,10 @@ private:
 	void start_ssl();
 #endif //ssl
 
-public:
+private:
 	template <class asio_socket>
 	void service(std::shared_ptr<socket<asio_socket>> _socket);
+	void new_connect_method_init();
 
 private:
 	tcp::acceptor m_acceptor;
@@ -61,10 +62,10 @@ void tcp_server::service(std::shared_ptr<socket<asio_socket>> _socket)
 		log_error("asio: set socket receive buffer error: {}. ({})\n", error.message(), error.value());
 
 	else if( m_ncma_count == 3 )
-		m_new_connect_method.invoke({}, _socket->release(), socket<asio_socket>::is_ssl::value, m_protocol);
+		m_new_connect_method.invoke({}, _socket->release(), reinterpret_cast<void*>(_socket->release_ssl()), m_protocol);
 
 	else if( m_ncma_count == 2 )
-		m_new_connect_method.invoke({}, _socket->release(), socket<asio_socket>::is_ssl::value);
+		m_new_connect_method.invoke({}, _socket->release(), reinterpret_cast<void*>(_socket->release_ssl()));
 }
 
 } //namespace gts

@@ -83,7 +83,7 @@ void plugin_service<asio_socket>::call()
 		auto call_method = type.get_method
 						   (GTS_WEB_PLUGIN_INTERFACE_CALL, {
 								rttr::type::get<tcp::socket::native_handle_type>(),
-								rttr::type::get<bool>(),
+								rttr::type::get<void*>(),
 								rttr::type::get<int>()
 							});
 		if( call_method.is_valid() )
@@ -93,7 +93,7 @@ void plugin_service<asio_socket>::call()
 			call_method = type.get_method
 						  (GTS_WEB_PLUGIN_INTERFACE_CALL, {
 							   rttr::type::get<tcp::socket::native_handle_type>(),
-							   rttr::type::get<bool>()
+							   rttr::type::get<void*>()
 						   });
 
 			if( call_method.is_valid() )
@@ -166,12 +166,12 @@ void plugin_service<asio_socket>::call()
 		}
 
 		if( call_method_para_count == 2 )
-			call_method.invoke(var, m_sio.socket.native_handle(), service_io<asio_socket>::tcp_socket::is_ssl::value);
+			call_method.invoke(var, m_sio.socket.native_handle(), reinterpret_cast<void*>(m_sio.socket.ssl()));
 
 		else if( m_sio.socket.remote_endpoint().address().is_v4() )
-			call_method.invoke(var, m_sio.socket.native_handle(), service_io<asio_socket>::tcp_socket::is_ssl::value, 4);
+			call_method.invoke(var, m_sio.socket.native_handle(), reinterpret_cast<void*>(m_sio.socket.ssl()), 4);
 		else
-			call_method.invoke(var, m_sio.socket.native_handle(), service_io<asio_socket>::tcp_socket::is_ssl::value, 6);
+			call_method.invoke(var, m_sio.socket.native_handle(), reinterpret_cast<void*>(m_sio.socket.ssl()), 6);
 		return ;
 	}
 	m_sio.return_to_null(http::hs_not_found);

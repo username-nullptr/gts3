@@ -33,17 +33,8 @@ set(web_headers
 
 add_library(gtsweb SHARED ${web_sources} ${web_headers})
 
-target_include_directories(gtsweb PRIVATE .)
-target_include_directories(gtsweb PRIVATE ../core)
-target_include_directories(gtsweb PRIVATE ../log)
-
-target_link_libraries(gtsweb PRIVATE gtscore)
-target_link_libraries(gtsweb PRIVATE gtslog)
-
-if (ENABLE_SSL)
-	target_link_libraries(gtsweb PUBLIC ssl)
-	target_link_libraries(gtsweb PUBLIC crypto)
-endif()
+target_include_directories(gtsweb PRIVATE . ../core ../log)
+target_link_libraries(gtsweb PRIVATE gtscore gtslog)
 
 set_target_properties(gtsweb PROPERTIES
 	LIBRARY_OUTPUT_DIRECTORY ../../${output_dir_name}/bin

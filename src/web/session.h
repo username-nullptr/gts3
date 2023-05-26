@@ -155,7 +155,10 @@ void session<asio_socket>::do_recv()
 		sc::timeout_set.erase(this);
 
 		if( error or size == 0 )
+		{
+			log_error("test ============== {}. ({})", error.message(), error.value());
 			return delete_later(this);
+		}
 
 		auto request = m_parser->write(std::string(m_asio_buffer, size));
 		if( request == nullptr )

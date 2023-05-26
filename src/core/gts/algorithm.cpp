@@ -183,17 +183,17 @@ std::string from_percent_encoding(const std::string &str)
 	return result;
 }
 
-std::string file_name(const std::string file_name)
+std::string file_name(const std::string &file_name)
 {
-	auto pos = file_name.rfind(_PS);
+	auto pos = file_name.rfind("/");
 	if( pos == std::string::npos )
 		return file_name;
 	return file_name.substr(pos + 1);
 }
 
-std::string file_path(const std::string file_name)
+std::string file_path(const std::string &file_name)
 {
-	auto pos = file_name.rfind(_PS);
+	auto pos = file_name.rfind("/");
 	if( pos == std::string::npos )
 		return ".";
 	return file_name.substr(0, pos + 1);

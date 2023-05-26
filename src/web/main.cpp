@@ -1,9 +1,11 @@
 #include "session.h"
-#include "gts/algorithm.h"
-#include "gts/gts_config_key.h"
-#include "gts/web_config_key.h"
 #include "settings.h"
 #include "gts_log.h"
+
+#include "gts/gts_config_key.h"
+#include "gts/web_config_key.h"
+#include "gts/algorithm.h"
+#include "gts/ssl.h"
 
 #include <rttr/registration>
 #include <iostream>
@@ -16,10 +18,6 @@ namespace gts { namespace web { namespace plugin_main
 {
 
 static std::thread g_run_thread;
-
-#ifdef GTS_ENABLE_SSL
-static ssl::context *g_ssl_context = nullptr;
-#endif //ssl
 
 GTS_DECL_EXPORT void init(const std::string &config_file)
 {
@@ -43,33 +41,6 @@ GTS_DECL_EXPORT void init(const std::string &config_file)
 	settings::ini_file_check(SINI_GROUP_WEB, sample_gts);
 	session_config::init();
 
-#ifdef GTS_ENABLE_SSL
-	if( settings::global_instance().read<bool>(SINI_GROUP_GTS, SINI_GTS_ENABLE_SSL) )
-	{
-		log_info("gts: enable ssl.");
-		g_ssl_context = new ssl::context(ssl::context::sslv23);
-
-		g_ssl_context->set_options(ssl::context::default_workarounds |
-								   ssl::context::single_dh_use |
-								   ssl::context::no_sslv2);
-		asio::error_code error;
-
-		g_ssl_context->set_password_callback([](std::size_t, ssl::context::password_purpose) -> std::string {
-			return "seri";
-		}, error);
-		if( error )
-			log_fatal("asio: ssl password failed: {}. ({})\n", error.message(), error.value());
-
-		g_ssl_context->use_certificate_chain_file("/root/.ssl/server.crt", error);
-		if( error )
-			log_fatal("asio: ssl certificate file load failed: {}. ({})\n", error.message(), error.value());
-
-		g_ssl_context->use_private_key_file("/root/.ssl/server.key", ssl::context::pem, error);
-		if( error )
-			log_fatal("asio: ssl private file file load failed: {}. ({})\n", error.message(), error.value());
-	}
-#endif //ssl
-
 	g_run_thread = std::thread([]
 	{
 		auto &io = io_context();
@@ -85,23 +56,21 @@ GTS_DECL_EXPORT void exit()
 	if( g_run_thread.joinable() )
 		g_run_thread.join();
 
-	if( g_ssl_context )
-		delete g_ssl_context;
-
 	session_config::exit();
 }
 
-GTS_DECL_EXPORT void new_connection(tcp::socket::native_handle_type handle, bool ssl, int protocol)
+GTS_DECL_EXPORT void new_connection(tcp::socket::native_handle_type handle, void* ssl, int protocol)
 {
 #ifdef GTS_ENABLE_SSL
 	static auto &io = io_context();
-	if( ssl and g_ssl_context )
-		session<ssl_stream>::new_connection
-				(std::make_shared<socket<ssl_stream>>(tcp::socket(io, protocol==4? tcp::v4():tcp::v6(), handle), *g_ssl_context));
+	if( ssl )
+		session<ssl_stream>::new_connection(std::make_shared<socket<ssl_stream>>
+											(tcp::socket(io, protocol == 4? tcp::v4() : tcp::v6(), handle),
+											 reinterpret_cast<ssl_stream::native_handle_type>(ssl)));
 	else
 #endif //ssl
-		session<tcp::socket>::new_connection
-				(std::make_shared<socket<tcp::socket>>(io, protocol==4? tcp::v4():tcp::v6(), handle));
+		session<tcp::socket>::new_connection(std::make_shared<socket<tcp::socket>>
+											 (io, protocol == 4? tcp::v4() : tcp::v6(), handle));
 }
 
 GTS_DECL_EXPORT std::string view_status()
@@ -117,6 +86,8 @@ using namespace gts::web;
 
 RTTR_PLUGIN_REGISTRATION
 {
+	SSL_library_init();
+
 	rttr::registration::
 			method(GTS_PLUGIN "init", plugin_main::init)
 			.method(GTS_PLUGIN "exit", plugin_main::exit)

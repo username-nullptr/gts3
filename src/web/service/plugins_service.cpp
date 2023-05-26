@@ -52,8 +52,8 @@ void plugin_service_config::init()
 
 		try {
 			std::string file_path = it->value.GetString();
-			if( not ends_with(file_path, _PS) )
-				file_path += _PS;
+			if( not ends_with(file_path, "/") )
+				file_path += "/";
 
 			if( not starts_with(file_path, "/") )
 				file_path = json_file_path + file_path;

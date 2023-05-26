@@ -133,7 +133,7 @@ void logger::set_context(const context &con)
 	__spp(g_context.category, "\\", "/");
 #endif //os
 
-	if( not g_context.dir.empty() and not starts_with(g_context.dir, _PS) )
+	if( not g_context.dir.empty() and not starts_with(g_context.dir, "/") )
 		g_context.dir = appinfo::dir_path() + g_context.dir;
 	g_context_rwlock.unlock();
 }
@@ -394,23 +394,23 @@ static bool open_log_output_device
 	}
 
 	std::string dir_name = context.dir;
-	if( not ends_with(dir_name, _PS) )
-		dir_name += _PS;
+	if( not ends_with(dir_name, "/") )
+		dir_name += "/";
 
 	if( not context.category.empty() )
 	{
 		if( context.time_category )
 		{
-			dir_name += fmt::format("{:%Y-%m-%d}", time) + _PS + context.category;
-			if( not ends_with(dir_name, _PS) )
-				dir_name += _PS;
+			dir_name += fmt::format("{:%Y-%m-%d}", time) + "/" + context.category;
+			if( not ends_with(dir_name, "/") )
+				dir_name += "/";
 		}
 		else
 		{
 			dir_name += context.category;
-			if( not ends_with(dir_name, _PS) )
-				dir_name += _PS;
-			dir_name += fmt::format("{:%Y-%m-%d}", time) + _PS;
+			if( not ends_with(dir_name, "/") )
+				dir_name += "/";
+			dir_name += fmt::format("{:%Y-%m-%d}", time) + "/";
 		}
 	}
 

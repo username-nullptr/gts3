@@ -17,23 +17,31 @@ namespace gts
 template <class asio_socket>
 class socket {};
 
+#ifdef GTS_ENABLE_SSL
+using ssl_stream = ssl::stream<tcp::socket>;
+#endif //ssl
+
 template <>
 class socket<tcp::socket> : public tcp::socket
 {
 public:
 	using tcp::socket::basic_stream_socket;
-	typedef std::false_type  is_ssl;
+
+#ifdef GTS_ENABLE_SSL
+	ssl_stream::native_handle_type ssl() { return nullptr; }
+	ssl_stream::native_handle_type release_ssl() { return nullptr; }
+#else
+	void *ssl() { return nullptr; }
+	void *release_ssl() { return nullptr; }
+#endif //ssl
 };
 
 #ifdef GTS_ENABLE_SSL
-using ssl_stream = ssl::stream<tcp::socket>;
-
 template <>
 class socket<ssl_stream> : public ssl_stream
 {
 public:
 	using ssl_stream::stream;
-	typedef std::true_type  is_ssl;
 
 public:
 	tcp::endpoint remote_endpoint(asio::error_code &error);
@@ -64,6 +72,10 @@ public:
 	tcp::socket::native_handle_type release();
 	tcp::socket::native_handle_type release(asio::error_code &error);
 	tcp::socket::native_handle_type native_handle();
+
+public:
+	ssl_stream::native_handle_type release_ssl();
+	ssl_stream::native_handle_type ssl();
 
 public:
 	void non_blocking(bool mode);

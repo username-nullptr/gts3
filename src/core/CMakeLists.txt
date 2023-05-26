@@ -31,11 +31,23 @@ elseif (UNIX)
 	)
 endif()
 
+if (ENABLE_SSL)
+	list(APPEND core_sources gts/ssl.cpp)
+	list(APPEND core_headers gts/ssl.h)
+endif()
+
 add_library(gtscore SHARED ${core_sources} ${core_headers})
 
 target_include_directories(gtscore PRIVATE .)
 
-target_link_libraries(gtscore rttr_core)
+if (ENABLE_SSL)
+	if (SSL_DIR)
+		target_link_directories(gtscore PRIVATE ${SSL_DIR}/lib${lib_dir_suffix})
+	endif()
+	target_link_libraries(gtscore PUBLIC ssl crypto)
+endif()
+
+target_link_libraries(gtscore PUBLIC rttr_core)
 
 set_target_properties(gtscore PROPERTIES
 	LIBRARY_OUTPUT_DIRECTORY ../../${output_dir_name}/bin
