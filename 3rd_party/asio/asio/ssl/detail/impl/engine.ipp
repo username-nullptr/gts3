@@ -214,6 +214,8 @@ engine::want engine::read(const asio::mutable_buffer& data,
 
 SSL* engine::release()
 {
+	::BIO_free(ext_bio_);
+	ext_bio_ = nullptr;
 	auto ssl = ssl_;
 	ssl_ = nullptr;
 	return ssl;

@@ -96,14 +96,13 @@ void static_resource_service<asio_socket>::default_transfer()
 	m_sio.response.set_header("content-type",   mime_type);
 	m_sio.response.set_header("access-control-allow-origin", "*");
 
-	asio::error_code error;
 	if( file_size == 0 )
 	{
-		m_sio.socket.write_some(asio::buffer(m_sio.response.to_string()), error);
+		m_sio.write_some(m_sio.response.to_string());
 		return ;
 	}
 
-	m_sio.socket.write_some(asio::buffer(m_sio.response.to_string()), error);
+	m_sio.write_some(m_sio.response.to_string());
 	auto buf_size = tcp_ip_buffer_size();
 	char *fr_buf = new char[buf_size] {0};
 
@@ -113,7 +112,7 @@ void static_resource_service<asio_socket>::default_transfer()
 		if( size == 0 )
 			break;
 
-		m_sio.socket.write_some(asio::buffer(fr_buf, size), error);
+		m_sio.write_some(fr_buf, size);
 		if( size < buf_size )
 			break;
 	}
@@ -280,9 +279,7 @@ void static_resource_service<asio_socket>::send_range
 (const std::string &boundary, const std::string &ct_line, std::list<range_value> &range_value_queue)
 {
 	assert(not range_value_queue.empty());
-
-	asio::error_code error;
-	m_sio.socket.write_some(asio::buffer(m_sio.response.to_string()), error);
+	m_sio.write_some(m_sio.response.to_string());
 
 	auto buf_size = tcp_ip_buffer_size();
 	bool flag = true;
@@ -298,7 +295,7 @@ void static_resource_service<asio_socket>::send_range
 				auto buf = new char[value.size] {0};
 				auto s = m_file.readsome(buf, value.size);
 
-				m_sio.socket.write_some(asio::buffer(buf, s), error);
+				m_sio.write_some(buf, s);
 				delete[] buf;
 				flag = false;
 			}
@@ -307,7 +304,7 @@ void static_resource_service<asio_socket>::send_range
 				auto buf = new char[buf_size] {0};
 				auto s = m_file.readsome(buf, buf_size);
 
-				m_sio.socket.write_some(asio::buffer(buf, s), error);
+				m_sio.write_some(buf, s);
 				value.size -= buf_size;
 				delete[] buf;
 			}
@@ -318,12 +315,10 @@ void static_resource_service<asio_socket>::send_range
 
 	for(auto &value : range_value_queue)
 	{
-		m_sio.socket.write_some(asio::buffer(
-										  "--" + boundary + "\r\n" +
-										  ct_line + "\r\n" +
-										  value.cr_line + "\r\n" +
-										  "\r\n"),
-									  error);
+		m_sio.write_some("--" + boundary + "\r\n" +
+						 ct_line + "\r\n" +
+						 value.cr_line + "\r\n" +
+						 "\r\n");
 
 		m_file.seekg(value.begin, std::ios_base::beg);
 		do {
@@ -335,7 +330,7 @@ void static_resource_service<asio_socket>::send_range
 				buf[s + 0] = '\r';
 				buf[s + 1] = '\n';
 
-				m_sio.socket.write_some(asio::buffer(buf, s + 2), error);
+				m_sio.write_some(buf, s + 2);
 				delete[] buf;
 				flag = false;
 			}
@@ -344,18 +339,18 @@ void static_resource_service<asio_socket>::send_range
 				auto buf = new char[buf_size] {0};
 				auto s = m_file.readsome(buf, buf_size);
 
-				m_sio.socket.write_some(asio::buffer(buf, s), error);
+				m_sio.write_some(buf, s);
 				value.size -= buf_size;
 				delete[] buf;
 			}
 		}
 		while(flag);
 	}
-	m_sio.socket.write_some(asio::buffer("--" + boundary + "--\r\n"), error);
+	m_sio.write_some("--" + boundary + "--\r\n");
 }
 
 template <class asio_socket>
-inline std::size_t static_resource_service<asio_socket>::tcp_ip_buffer_size() const
+std::size_t static_resource_service<asio_socket>::tcp_ip_buffer_size() const
 {
 	tcp::socket::send_buffer_size attr;
 	m_sio.socket.get_option(attr);

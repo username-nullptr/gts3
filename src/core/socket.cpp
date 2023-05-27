@@ -51,8 +51,6 @@ ssl_stream::native_handle_type socket<ssl_stream>::ssl() {
 }
 
 void socket<ssl_stream>::non_blocking(bool mode) {
-	std::cerr << "------------------------------ " << next_layer().native_handle() << std::endl;
-	std::cerr << "============================== " << ::SSL_get_fd(ssl()) << std::endl;
 	next_layer().non_blocking(mode);
 }
 

@@ -16,6 +16,13 @@ public:
 
 public:
 	service_io(tcp_socket &socket, http::request &request);
+
+public:
+	void write_some(const char *buf);
+	void write_some(const char *buf, std::size_t size);
+	void write_some(const std::string &buf);
+
+public:
 	void return_to_null(http::status status = http::hs_ok);
 
 public:
@@ -45,12 +52,44 @@ service_io<asio_socket>::service_io(tcp_socket &socket, http::request &request) 
 	}
 }
 
+template<class asio_socket>
+inline void service_io<asio_socket>::write_some(const char *buf) {
+	write_some(buf, std::strlen(buf));
+}
+
+template<class asio_socket>
+void service_io<asio_socket>::write_some(const char *buf, std::size_t size)
+{
+	asio::error_code error;
+	while( size > 0 )
+	{
+		auto rs = socket.write_some(asio::buffer(buf, size), error);
+		size -= rs;
+		buf += rs;
+	}
+}
+
+template<class asio_socket>
+void service_io<asio_socket>::write_some(const std::string &buf)
+{
+	asio::error_code error;
+	const char *view = buf.c_str();
+	auto size = buf.size();
+
+	while( size > 0 )
+	{
+		auto rs = socket.write_some(asio::buffer(view, size), error);
+		size -= rs;
+		view += rs;
+	}
+}
+
 template <class asio_socket>
 void service_io<asio_socket>::return_to_null(http::status status)
 {
 	response.set_status(status);
 	response.set_header("content-length", "0");
-	socket.write_some(asio::buffer(response.to_string()));
+	write_some(response.to_string());
 
 	if( not request.keep_alive() )
 	{

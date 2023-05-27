@@ -24,6 +24,20 @@ public:
 };
 
 template <>
+class formatter<asio::error_code>
+{
+public:
+	template <typename Context>
+	inline constexpr auto parse(Context &&context) -> decltype(context.begin()) {
+		return context.begin();
+	}
+	template <typename Context>
+	inline auto format(const asio::error_code &error, Context &&context) -> decltype(context.out()) {
+		return format_to(context.out(), "{} ({})", error.message(), error.value());
+	}
+};
+
+template <>
 class formatter<asio::ip::tcp::endpoint>
 {
 public:

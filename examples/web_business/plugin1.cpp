@@ -1,6 +1,7 @@
 #include <rttr/registration>
 #include <rttr/library.h>
 #include <fmt/format.h>
+#include <asio/ssl.hpp>
 #include <asio.hpp>
 #include <iostream>
 #include <dlfcn.h>
@@ -38,7 +39,7 @@ public:
 	void set_body(const std::string &body);
 
 public:
-	void call(tcp::socket::native_handle_type handle, bool /*ssl*/, int ipv);
+	void call(tcp::socket::native_handle_type handle, void *ssl, int ipv);
 
 private:
 	std::string m_version;
@@ -100,17 +101,12 @@ inline void plugin1::set_body(const std::string&)
 
 }
 
-inline void plugin1::call(tcp::socket::native_handle_type handle, bool /*ssl*/, int ipv)
+inline void plugin1::call(tcp::socket::native_handle_type handle, void *ssl, int ipv)
 {
 	std::cerr << std::endl;
 
 	asio::io_context io;
-	std::shared_ptr<tcp::socket> socket;
-
-	if( ipv == 4 )
-		socket = std::make_shared<tcp::socket>(io, tcp::v4(), handle);
-	else
-		socket = std::make_shared<tcp::socket>(io, tcp::v6(), handle);
+	tcp::socket tcp_socket(io, ipv == 4? tcp::v4() : tcp::v6(), handle);
 
 	auto content = fmt::format("Ok!!!\npath = {}\n\n", m_path);
 
@@ -127,18 +123,28 @@ inline void plugin1::call(tcp::socket::native_handle_type handle, bool /*ssl*/, 
 	content += "\n";
 
 	content.erase(content.size() - 2);
+	content = fmt::format("HTTP/1.1 200 OK\r\n"
+						  "content-length: {}\r\n"
+						  "content-type: text/plain; charset=utf-8\r\n"
+						  "keep-alive: close\r\n"
+						  "\r\n", content.size()) + content;
 
 	asio::error_code error;
-	socket->write_some(asio::buffer(fmt::format(
-						   "HTTP/1.1 200 OK\r\n"
-						   "content-length: {}\r\n"
-						   "keep-alive: close\r\n"
-						   "\r\n", content.size()) +
-						   content
-						   ), error);
+	if( ssl )
+	{
+		typedef asio::ssl::stream<tcp::socket>  ssl_stream;
+		ssl_stream ssl_socket(std::move(tcp_socket), reinterpret_cast<ssl_stream::native_handle_type>(ssl));
 
-	socket->shutdown(tcp::socket::shutdown_both);
-	socket->close();
+		ssl_socket.write_some(asio::buffer(content), error);
+		ssl_socket.next_layer().shutdown(tcp::socket::shutdown_both);
+		ssl_socket.next_layer().close();
+	}
+	else
+	{
+		tcp_socket.write_some(asio::buffer(content), error);
+		tcp_socket.shutdown(tcp::socket::shutdown_both);
+		tcp_socket.close();
+	}
 }
 
 }}} //namespace gts::web::business
