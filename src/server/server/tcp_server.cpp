@@ -68,6 +68,8 @@ tcp_server::tcp_server(int, const char**) :
 	if( error )
 		log_fatal("asio: ssl password failed: {}. ({})\n", error.message(), error.value());
 
+	auto &_settings = settings::global_instance();
+
 	auto crt_file = _settings.read<std::string>(SINI_GROUP_GTS, SINI_GTS_SSL_CRT_FILE, _GTS_SSL_CRT_DEFAULT_FILE);
 	if( not crt_file.empty() )
 	{
