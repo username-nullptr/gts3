@@ -161,6 +161,13 @@ void tcp_server::start()
 			continue;
 		}
 
+		auto sit = m_sites.find(name);
+		if( sit != m_sites.end() )
+		{
+			log_error("Site '{}' exists.", name);
+			continue;
+		}
+
 		site_ptr site;
 #ifdef GTS_ENABLE_SSL
 		if( ssl )
