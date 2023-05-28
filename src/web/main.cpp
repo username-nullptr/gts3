@@ -5,7 +5,6 @@
 #include "gts/gts_config_key.h"
 #include "gts/web_config_key.h"
 #include "gts/algorithm.h"
-#include "gts/ssl.h"
 
 #include <rttr/registration>
 #include <iostream>
@@ -87,8 +86,6 @@ using namespace gts::web;
 
 RTTR_PLUGIN_REGISTRATION
 {
-	SSL_library_init();
-
 	rttr::registration::
 			method(GTS_PLUGIN "init", plugin_main::init)
 			.method(GTS_PLUGIN "exit", plugin_main::exit)

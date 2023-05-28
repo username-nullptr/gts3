@@ -1,10 +1,13 @@
 #include <rttr/registration>
 #include <rttr/library.h>
 #include <fmt/format.h>
-#include <asio/ssl.hpp>
 #include <asio.hpp>
 #include <iostream>
 #include <dlfcn.h>
+
+#ifdef GTS_ENABLE_SSL
+# include <asio/ssl.hpp>
+#endif //ssl
 
 #ifdef _MSC_VER
 # define DECL_EXPORT  __declspec(dllexport)
@@ -130,6 +133,7 @@ inline void plugin1::call(tcp::socket::native_handle_type handle, void *ssl, boo
 						  "\r\n", content.size()) + content;
 
 	asio::error_code error;
+#ifdef GTS_ENABLE_SSL
 	if( ssl )
 	{
 		typedef asio::ssl::stream<tcp::socket>  ssl_stream;
@@ -140,6 +144,9 @@ inline void plugin1::call(tcp::socket::native_handle_type handle, void *ssl, boo
 		ssl_socket.next_layer().close();
 	}
 	else
+#else
+	(void)(ssl);
+#endif //ssl
 	{
 		tcp_socket.write_some(asio::buffer(content), error);
 		tcp_socket.shutdown(tcp::socket::shutdown_both);

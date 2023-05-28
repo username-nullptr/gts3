@@ -1,7 +1,6 @@
 #include "tcp_server.h"
 #include "gts/gts_config_key.h"
 #include "gts/algorithm.h"
-#include "gts/ssl.h"
 
 #include "tcp_plugin_interface.h"
 #include "application.h"
@@ -15,6 +14,10 @@
 #include <iostream>
 #include <cctype>
 
+#ifdef GTS_ENABLE_SSL
+# include "gts/ssl.h"
+#endif //ssl
+
 namespace gts
 {
 
@@ -26,7 +29,6 @@ namespace ip = asio::ip;
 tcp_server::tcp_server(int, const char**) :
 	m_new_connect_method(rttr::type::get_global_method(""))
 {
-	auto &_settings = settings::global_instance();
 	auto plugin_file_name = READ_CONFIG(std::string, SINI_GTS_STRATEGY, _GTS_DEFULT_STRATEGY);
 	plugin_file_name = appinfo::absolute_path(plugin_file_name);
 
@@ -138,10 +140,18 @@ void tcp_server::start()
 				throw;
 			port = it2->value.GetInt();
 
-#ifdef GTS_ENABLE_SSL
 			it2 = obj.FindMember("ssl");
 			if( it2 != obj.MemberEnd() )
+#ifdef GTS_ENABLE_SSL
 				ssl = it2->value.GetBool();
+#else //no ssl
+			{
+				if( it2->value.GetBool() )
+				{
+					log_warning("Site '{}': ssl is disabled, if necessary, please recompile GTS server"
+								" (cmake -DENABLE_SSL -DSSL_DIR)", name);
+				}
+			}
 #endif //ssl
 		}
 		catch(...) {
