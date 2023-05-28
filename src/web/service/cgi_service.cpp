@@ -1,5 +1,8 @@
 #include "service.h"
-#include "gts/gts_config_key.h"
+
+#ifdef GTS_ENABLE_SSL
+# include "gts/gts_config_key.h"
+#endif //ssl
 
 namespace gts { namespace web
 {
@@ -24,24 +27,21 @@ void cgi_service_config::init()
 		}
 	}
 
-	if( _settings.read<bool>(SINI_GROUP_GTS, SINI_GTS_ENABLE_SSL) == false )
-		return ;
-
+#ifdef GTS_ENABLE_SSL
 	auto crt_file = _settings.read<std::string>(SINI_GROUP_GTS, SINI_GTS_SSL_CRT_FILE, _GTS_SSL_CRT_DEFAULT_FILE);
 	if( not crt_file.empty() )
 	{
-		if( not starts_with(crt_file, "/") )
-			crt_file = appinfo::current_directory() + crt_file;
+		crt_file = appinfo::absolute_path(crt_file);
 		cgi_env.emplace("SSL_CRT_FILE", crt_file);
 	}
 
 	auto key_file = _settings.read<std::string>(SINI_GROUP_GTS, SINI_GTS_SSL_KEY_FILE, _GTS_SSL_KEY_DEFAULT_FILE);
 	if( not key_file.empty() )
 	{
-		if( not starts_with(key_file, "/") )
-			key_file = appinfo::current_directory() + key_file;
+		key_file = appinfo::absolute_path(key_file);
 		cgi_env.emplace("SSL_KEY_FILE", key_file);
 	}
+#endif //ssl
 }
 
 }} //namespace gts::web

@@ -133,8 +133,8 @@ void logger::set_context(const context &con)
 	__spp(g_context.category, "\\", "/");
 #endif //os
 
-	if( not g_context.dir.empty() and not starts_with(g_context.dir, "/") )
-		g_context.dir = appinfo::dir_path() + g_context.dir;
+	if( not g_context.dir.empty() )
+		g_context.dir = appinfo::absolute_path(g_context.dir);
 	g_context_rwlock.unlock();
 }
 

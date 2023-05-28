@@ -14,9 +14,7 @@ void service_io_config::init()
 	auto &_settings = settings::global_instance();
 	resource_path = _settings.read<std::string>(SINI_GROUP_WEB, SINI_WEB_RC_PATH, resource_path);
 
-	if( not starts_with(resource_path, "/") )
-		resource_path = appinfo::dir_path() + resource_path;
-
+	resource_path = appinfo::absolute_path(resource_path);
 	if( not ends_with(resource_path, "/") )
 		resource_path += "/";
 }

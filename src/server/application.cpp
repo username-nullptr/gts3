@@ -120,11 +120,7 @@ void applictaion_impl::set_config_file(const cmdline::argument_hash &args_hash)
 	if( it == args_hash.end() )
 		file_name = appinfo::dir_path() + "config.ini";
 	else
-	{
-		file_name = it->second;
-		if( not starts_with(file_name, "/") )
-			file_name = appinfo::dir_path() + file_name;
-	}
+		file_name = appinfo::absolute_path(it->second);
 
 	log_debug("Using config file '{}' ...", file_name);
 
@@ -145,10 +141,8 @@ void applictaion_impl::set_config_file(const cmdline::argument_hash &args_hash)
 
 	settings::ini_hash sample_gts =
 	{
-		{ SINI_GTS_ADDRESS      , "ipv4"                    },
-		{ SINI_GTS_PORT         , 8080                      },
+		{ SINI_GTS_SITES_CONFIG , "sites.json"              },
 		{ SINI_GTS_TCP_BUF_SIZE , 65536                     },
-		{ SINI_GTS_ENABLE_SSL   , false                     },
 		{ SINI_GTS_SSL_CRT_FILE , _GTS_SSL_CRT_DEFAULT_FILE },
 		{ SINI_GTS_SSL_KEY_FILE , _GTS_SSL_KEY_DEFAULT_FILE },
 		{ SINI_GTS_SSL_KEY      , ""                        },

@@ -18,7 +18,7 @@
 
 /*
  * new_connect(socket handle, void *ssl)
- * new_connect(socket hanlde, void *ssl, int 4/6)
+ * new_connect(socket hanlde, void *ssl, bool is_ipv6)
 */
 #define GTS_PLUGIN_INTERFACE_NEW_CONNECT  GTS_PLUGIN_INTERFACE "new_connection"
 

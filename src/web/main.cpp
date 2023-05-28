@@ -51,6 +51,7 @@ GTS_DECL_EXPORT void init(const std::string &config_file)
 
 GTS_DECL_EXPORT void exit()
 {
+	log_debug("web plugin exit.");
 	io_context().stop();
 
 	if( g_run_thread.joinable() )
@@ -59,10 +60,10 @@ GTS_DECL_EXPORT void exit()
 	session_config::exit();
 }
 
-GTS_DECL_EXPORT void new_connection(tcp::socket::native_handle_type handle, void* ssl, int protocol)
+GTS_DECL_EXPORT void new_connection(tcp::socket::native_handle_type handle, void* ssl, bool ipv6)
 {
 	static auto &io = io_context();
-	tcp::socket tcp_socket(io, protocol == 4? tcp::v4() : tcp::v6(), handle);
+	tcp::socket tcp_socket(io, ipv6? tcp::v6() : tcp::v4(), handle);
 
 #ifdef GTS_ENABLE_SSL
 	if( ssl )

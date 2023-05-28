@@ -1,4 +1,5 @@
 #include "plugins_service.h"
+#include "json.h"
 
 namespace gts { namespace web
 {
@@ -13,36 +14,18 @@ void plugin_service_config::init()
 	auto json_file = _settings.read<std::string>
 					 (SINI_GROUP_WEB, SINI_WEB_PLUGINS_CONFIG, _GTS_WEB_DEFAULT_PLUGINS_CONFIG);
 
-	if( not starts_with(json_file, "/") )
-		json_file = appinfo::dir_path() + json_file;
-
-	if( not fs::exists(json_file) )
-	{
-		log_debug("No have plugins service.");
+	if( json_file.empty() )
 		return ;
-	}
-
-	std::fstream file(json_file);
-	if( not file.is_open() )
-	{
-		log_error("'{}' open failed.", json_file);
-		return ;
-	}
-
-	auto file_size = fs::file_size(json_file);
-	char *buf = new char[file_size + 1] {0};
-	file_size = file.readsome(buf, file_size);
+	json_file = appinfo::absolute_path(json_file);
 
 	rapidjson::Document json_object;
-	bool has_error = json_object.Parse(buf).HasParseError();
-	delete[] buf;
+	auto errstr = rapidjson::from_file(json_file, json_object);
 
-	if( has_error )
+	if( not errstr.empty() )
 	{
-		log_error("'{}': json parsing failed.", json_file);
+		log_error("Json file read failed: {}.", errstr);
 		return ;
 	}
-
 	auto json_file_path = file_path(json_file);
 
 	for(auto it=json_object.MemberBegin(); it!=json_object.MemberEnd(); ++it)
@@ -55,7 +38,7 @@ void plugin_service_config::init()
 			if( not ends_with(file_path, "/") )
 				file_path += "/";
 
-			if( not starts_with(file_path, "/") )
+			if( not appinfo::is_absolute_path(file_path) )
 				file_path = json_file_path + file_path;
 
 			type_name = it->name.GetString();

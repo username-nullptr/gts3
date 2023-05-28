@@ -3,13 +3,9 @@
 
 #define SINI_GROUP_GTS  "gts"
 
-#define SINI_GTS_ADDRESS       "address"
-
-#define SINI_GTS_PORT          "port"
+#define SINI_GTS_SITES_CONFIG  "sites_config_file"
 
 #define SINI_GTS_TCP_BUF_SIZE  "tcp_buffer_size"
-
-#define SINI_GTS_ENABLE_SSL    "enable_ssl"
 
 #define SINI_GTS_SSL_CRT_FILE  "ssl_crt_file"
 

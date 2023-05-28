@@ -9,7 +9,6 @@
 #include "app_info.h"
 #include "gts_log.h"
 
-#include <rapidjson/document.h>
 #include <rttr/library.h>
 #include <cppfilesystem>
 #include <fstream>

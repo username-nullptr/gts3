@@ -53,7 +53,7 @@
 
 /*
  * new_request(socket handle/descriptor)
- * new_request(socket handle/descriptor, int 4/6)
+ * new_request(socket handle/descriptor, bool is_ipv6)
 */
 #define GTS_WEB_PLUGIN_INTERFACE_CALL  "call"
 

@@ -39,7 +39,7 @@ public:
 	void set_body(const std::string &body);
 
 public:
-	void call(tcp::socket::native_handle_type handle, void *ssl, int ipv);
+	void call(tcp::socket::native_handle_type handle, void *ssl, bool ipv6);
 
 private:
 	std::string m_version;
@@ -101,12 +101,12 @@ inline void plugin1::set_body(const std::string&)
 
 }
 
-inline void plugin1::call(tcp::socket::native_handle_type handle, void *ssl, int ipv)
+inline void plugin1::call(tcp::socket::native_handle_type handle, void *ssl, bool ipv6)
 {
 	std::cerr << std::endl;
 
 	asio::io_context io;
-	tcp::socket tcp_socket(io, ipv == 4? tcp::v4() : tcp::v6(), handle);
+	tcp::socket tcp_socket(io, ipv6? tcp::v6() : tcp::v4(), handle);
 
 	auto content = fmt::format("Ok!!!\npath = {}\n\n", m_path);
 

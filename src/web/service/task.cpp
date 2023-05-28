@@ -22,9 +22,7 @@ void scheduler::init()
 	pool = new asio::thread_pool(max_thread_count);
 	cgi_path = _settings.read<std::string>(SINI_GROUP_WEB, SINI_WEB_CGI_PATH, cgi_path);
 
-	if( not starts_with(cgi_path, "/") )
-		cgi_path = appinfo::dir_path() + cgi_path;
-
+	cgi_path = appinfo::absolute_path(cgi_path);
 	if( not ends_with(cgi_path, "/") )
 		cgi_path += "/";
 

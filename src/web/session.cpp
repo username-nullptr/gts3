@@ -52,7 +52,8 @@ void session_config::exit()
 
 std::string session_config::view_status()
 {
-	return fmt::format("session count: {} / {}\n", counter, max_count);
+	return fmt::format("web plugin:\n"
+					   "  session count: {} / {}\n", counter, max_count);
 }
 
 }} //namespace gts::web

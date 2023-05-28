@@ -15,6 +15,9 @@ GTSCORE_API std::string lock_file_name();
 GTSCORE_API std::string current_directory();
 GTSCORE_API bool set_current_directory(const std::string &path);
 
+GTSCORE_API std::string absolute_path(const std::string &path);
+GTSCORE_API bool is_absolute_path(const std::string &path);
+
 }} //namespace gts::appinfo
 
 

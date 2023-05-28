@@ -57,7 +57,7 @@ void cmdline_server::start()
 		log_debug("cmdline_server: read: {}", str);
 
 		if( str == CCMD_VSS )
-			str = view_pid() + m_tcp_server.view_status();
+			str = "\n" + view_pid() + m_tcp_server.view_status();
 
 		else if( starts_with(str, CCMD_STSS) )
 		{
