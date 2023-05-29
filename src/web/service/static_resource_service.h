@@ -68,8 +68,8 @@ void static_resource_service<asio_socket>::call()
 		return m_sio.return_to_null(http::hs_internal_server_error);
 	}
 
-	auto it = m_sio.request.headers().find("range");
-	if( it == m_sio.request.headers().end() )
+	auto it = m_sio.request.headers.find("range");
+	if( it == m_sio.request.headers.end() )
 		default_transfer();
 
 	else if( not it->second.empty() ) // Range: bytes=x-y, m-n, i-j ...

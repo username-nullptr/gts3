@@ -86,32 +86,32 @@ bool http_parser::state_handler_waiting_request(const std::string &line_buf)
 	if( m_cache == nullptr )
 		m_cache = new request();
 
-	m_cache->m_method  = request_line_parts[0];
-	m_cache->m_version = request_line_parts[2].substr(5,3);
+	m_cache->method  = request_line_parts[0];
+	m_cache->version = request_line_parts[2].substr(5,3);
 
 	auto resource_line = from_percent_encoding(request_line_parts[1]);
 	auto pos = resource_line.find("?");
 
 	if( pos == std::string::npos )
-		m_cache->m_path = resource_line;
+		m_cache->path = resource_line;
 
 	else
 	{
-		m_cache->m_path = resource_line.substr(0, pos);
-		m_cache->m_parameters_string = resource_line.substr(pos + 1);
-		remove_back_separator(m_cache->m_parameters_string);
+		m_cache->path = resource_line.substr(0, pos);
+		m_cache->parameters_string = resource_line.substr(pos + 1);
+		remove_back_separator(m_cache->parameters_string);
 
-		for(auto &para_str : string_split(m_cache->m_parameters_string, ";"))
+		for(auto &para_str : string_split(m_cache->parameters_string, ";"))
 		{
 			auto pos = para_str.find("=");
 			if( pos == std::string::npos )
-				m_cache->m_parameters.emplace(para_str, "");
+				m_cache->parameters.emplace(para_str, "");
 			else
-				m_cache->m_parameters.emplace(para_str.substr(0, pos), para_str.substr(pos+1));
+				m_cache->parameters.emplace(para_str.substr(0, pos), para_str.substr(pos+1));
 		}
 	}
 
-	remove_back_separator(m_cache->m_path);
+	remove_back_separator(m_cache->path);
 	m_state = reading_headers;
 	return true;
 }
@@ -133,7 +133,7 @@ request *http_parser::state_handler_reading_headers(const std::string &line_buf)
 	auto header_key = to_lower(trimmed(line_buf.substr(0, colon_index)));
 	auto header_value = from_percent_encoding(trimmed(line_buf.substr(colon_index + 1)));
 
-	m_cache->m_headers[header_key] = header_value;
+	m_cache->headers[header_key] = header_value;
 	return nullptr;
 }
 
@@ -143,12 +143,12 @@ request *http_parser::next_request_ready()
 
 	if( not m_buffer.empty() )
 	{
-		auto it = m_cache->m_headers.find("content-length");
-		if( it != m_cache->m_headers.end() and not it->second.empty() )
+		auto it = m_cache->headers.find("content-length");
+		if( it != m_cache->headers.end() and not it->second.empty() )
 		{
 			std::size_t size = 0;
 			std::sscanf(it->second.c_str(), "%zu", &size);
-			m_cache->m_body = m_buffer.substr(0, size);
+			m_cache->body = m_buffer.substr(0, size);
 		}
 		m_buffer.clear();
 	}

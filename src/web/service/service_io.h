@@ -15,7 +15,7 @@ public:
 	typedef gts::socket<asio_socket>  tcp_socket;
 
 public:
-	service_io(tcp_socket &socket, http::request &request);
+	service_io(tcp_socket &socket, const http::request &request);
 
 public:
 	void write_some(const char *buf);
@@ -27,7 +27,7 @@ public:
 
 public:
 	tcp_socket &socket;
-	http::request &request;
+	const http::request &request;
 	http::response response;
 	std::string url_name;
 };
@@ -40,14 +40,14 @@ public:
 };
 
 template <class asio_socket>
-service_io<asio_socket>::service_io(tcp_socket &socket, http::request &request) :
-	socket(socket), request(request), response(request.version())
+service_io<asio_socket>::service_io(tcp_socket &socket, const http::request &request) :
+	socket(socket), request(request), response(request.version)
 {
 	response.set_header("server", "gts3");
 
-	if( request.version() == "1.1" )
+	if( request.version == "1.1" )
 	{
-		if( not request.keep_alive() )
+		if( not request.keep_alive )
 			response.set_header("connection", "close");
 	}
 }
@@ -91,7 +91,7 @@ void service_io<asio_socket>::return_to_null(http::status status)
 	response.set_header("content-length", "0");
 	write_some(response.to_string());
 
-	if( not request.keep_alive() )
+	if( not request.keep_alive )
 	{
 		socket.shutdown(tcp::socket::shutdown_both);
 		socket.close();

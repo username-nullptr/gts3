@@ -106,11 +106,11 @@ void plugin_service<asio_socket>::call()
 
 		auto method = type.get_method(GTS_WEB_PLUGIN_INTERFACE_SET_VERSION, {rttr::type::get<std::string>()});
 		if( method.is_valid() )
-			method.invoke(var, m_sio.request.version());
+			method.invoke(var, m_sio.request.version);
 
 		method = type.get_method(GTS_WEB_PLUGIN_INTERFACE_SET_METHOD, {rttr::type::get<std::string>()});
 		if( method.is_valid() )
-			method.invoke(var, m_sio.request.method());
+			method.invoke(var, m_sio.request.method);
 
 		method = type.get_method(GTS_WEB_PLUGIN_INTERFACE_SET_PATH, {rttr::type::get<std::string>()});
 		if( method.is_valid() )
@@ -122,7 +122,7 @@ void plugin_service<asio_socket>::call()
 								 });
 		if( method.is_valid() )
 		{
-			for(auto &header : m_sio.request.parameters())
+			for(auto &header : m_sio.request.parameters)
 				method.invoke(var, header.first, header.second);
 		}
 
@@ -132,7 +132,7 @@ void plugin_service<asio_socket>::call()
 								 });
 		if( method.is_valid() )
 		{
-			for(auto &para : m_sio.request.headers())
+			for(auto &para : m_sio.request.headers)
 				method.invoke(var, para.first, para.second);
 		}
 
@@ -142,26 +142,26 @@ void plugin_service<asio_socket>::call()
 								 });
 		if( method.is_valid() )
 		{
-			auto parameter = m_sio.request.parameters_string();
+			auto parameter = m_sio.request.parameters_string;
 			if( parameter.empty() )
 				parameter = "/";
 
-			method.invoke(var, std::string("REQUEST_METHOD")   , m_sio.request.method());
+			method.invoke(var, std::string("REQUEST_METHOD")   , m_sio.request.method);
 			method.invoke(var, std::string("QUERY_STRING")     , parameter);
 			method.invoke(var, std::string("REMOTE_ADDR")      , m_sio.socket.remote_endpoint().address().to_string());
 			method.invoke(var, std::string("GATEWAY_INTERFACE"), std::string("RTTR/" RTTR_VERSION_STR));
 			method.invoke(var, std::string("SERVER_NAME")      , m_sio.socket.local_endpoint().address().to_string());
 			method.invoke(var, std::string("SERVER_PORT")      , fmt::format("{}", m_sio.socket.local_endpoint().port()));
-			method.invoke(var, std::string("SERVER_PROTOCOL")  , "HTTP/" + m_sio.request.version());
+			method.invoke(var, std::string("SERVER_PROTOCOL")  , "HTTP/" + m_sio.request.version);
 			method.invoke(var, std::string("DOCUMENT_ROOT")    , service_io_config::resource_path);
 			method.invoke(var, std::string("SERVER_SOFTWARE")  , std::string("GTS/1.0(GTS/" GTS_VERSION_STR ")"));
 		}
 
-		if( not m_sio.request.body().empty() )
+		if( not m_sio.request.body.empty() )
 		{
 			method = type.get_method(GTS_WEB_PLUGIN_INTERFACE_SET_BODY, {rttr::type::get<std::string>()});
 			if( method.is_valid() )
-				method.invoke(var, m_sio.request.body());
+				method.invoke(var, m_sio.request.body);
 		}
 
 		if( call_method_para_count == 2 )

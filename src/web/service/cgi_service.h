@@ -83,13 +83,13 @@ void cgi_service<asio_socket>::call()
 			return m_sio.return_to_null(http::hs_not_found);
 	}
 
-	auto parameter = m_sio.request.parameters_string();
+	auto parameter = m_sio.request.parameters_string;
 	if( parameter.empty() )
 		parameter = "/";
 
 	auto file_path = gts::file_path(m_sio.url_name);
 
-	m_cgi.add_env("REQUEST_METHOD"   , m_sio.request.method());
+	m_cgi.add_env("REQUEST_METHOD"   , m_sio.request.method);
 	m_cgi.add_env("QUERY_STRING"     , parameter);
 	m_cgi.add_env("SCRIPT_NAME"      , m_sio.url_name);
 	m_cgi.add_env("SCRIPT_FILENAME"  , file_path);
@@ -97,17 +97,17 @@ void cgi_service<asio_socket>::call()
 	m_cgi.add_env("GATEWAY_INTERFACE", "CGI/1.1");
 	m_cgi.add_env("SERVER_NAME"      , m_sio.socket.local_endpoint().address().to_string());
 	m_cgi.add_env("SERVER_PORT"      , m_sio.socket.local_endpoint().port());
-	m_cgi.add_env("SERVER_PROTOCOL"  , "HTTP/" + m_sio.request.version());
+	m_cgi.add_env("SERVER_PROTOCOL"  , "HTTP/" + m_sio.request.version);
 	m_cgi.add_env("DOCUMENT_ROOT"    , service_io_config::resource_path);
 	m_cgi.add_env("SERVER_SOFTWARE"  , "GTS/1.0(GTS/" GTS_VERSION_STR ")");
 
-	for(auto &pair : m_sio.request.headers())
+	for(auto &pair : m_sio.request.headers)
 		m_cgi.add_env("HTTP_" + to_upper(replace_http_to_env(pair.first)), pair.second);
 
 	m_cgi.set_work_path(file_path);
 
-	auto it = m_sio.request.headers().find("content-length");
-	if( it != m_sio.request.headers().end() )
+	auto it = m_sio.request.headers.find("content-length");
+	if( it != m_sio.request.headers.end() )
 		std::sscanf(it->second.c_str(), "%zu", &m_content_length);
 
 	m_cgi.start();
@@ -115,10 +115,10 @@ void cgi_service<asio_socket>::call()
 
 	m_sio.socket.non_blocking(true);
 
-	if( m_sio.request.body().size() > 0 )
+	if( m_sio.request.body.size() > 0 )
 	{
-		m_content_length -= m_sio.request.body().size();
-		async_write_cgi(m_sio.request.body().c_str(), m_sio.request.body().size());
+		m_content_length -= m_sio.request.body.size();
+		async_write_cgi(m_sio.request.body.c_str(), m_sio.request.body.size());
 	}
 	else
 		async_read_socket();

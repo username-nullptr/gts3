@@ -15,9 +15,9 @@ template <class asio_socket>
 class GTS_DECL_HIDDEN task
 {
 	DISABLE_COPY(task)
-	typedef gts::socket<asio_socket>        tcp_socket;
-	typedef std::shared_ptr<tcp_socket>     tcp_socket_ptr;
-	typedef std::shared_ptr<http::request>  http_request_ptr;
+	typedef gts::socket<asio_socket>              tcp_socket;
+	typedef std::shared_ptr<tcp_socket>           tcp_socket_ptr;
+	typedef std::shared_ptr<const http::request>  http_request_ptr;
 
 public:
 	explicit task(tcp_socket_ptr socket);
@@ -100,8 +100,8 @@ void task<asio_socket>::cancel()
 template <class asio_socket>
 void task<asio_socket>::run()
 {
-	auto method = m_request->method();
-	log_debug() << "URL:" << m_request->path() << method;
+	auto method = m_request->method;
+	log_debug() << "URL:" << m_request->path << method;
 
 	service_io<asio_socket> sio(*m_socket, *m_request);
 
@@ -114,7 +114,7 @@ void task<asio_socket>::run()
 	else if( method == "CONNECT" ) CONNECT(sio);
 	else if( method == "TRACH"   ) TRACH  (sio);
 
-	if( not m_request->keep_alive() )
+	if( not m_request->keep_alive )
 	{
 		m_socket->shutdown(tcp::socket::shutdown_both);
 		m_socket->close();
@@ -123,7 +123,7 @@ void task<asio_socket>::run()
 
 #define _TASK_DO_PARSING(_sio) \
 ({ \
-	sio.url_name = _sio.request.path(); \
+	sio.url_name = _sio.request.path; \
 	if( sio.url_name.empty() ) \
 		sio.url_name = "/index.html"; \
 	else { \
@@ -168,7 +168,7 @@ void task<asio_socket>::PUT(service_io<asio_socket> &sio)
 template <class asio_socket>
 void task<asio_socket>::HEAD(service_io<asio_socket> &sio)
 {
-	sio.url_name = sio.request.path();
+	sio.url_name = sio.request.path;
 	if( sio.url_name == "/" )
 		return sio.return_to_null();
 

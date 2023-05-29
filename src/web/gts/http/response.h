@@ -1,5 +1,5 @@
-#ifndef RESPONSE_H
-#define RESPONSE_H
+#ifndef GTS_HTTP_RESPONSE_H
+#define GTS_HTTP_RESPONSE_H
 
 #include <gts/http/global.h>
 #include <fmt/format.h>
@@ -23,7 +23,7 @@ namespace gts { namespace http
 	>
 #endif //c++2017
 
-class GTSWEB_API response
+class GTSHTTP_API response
 {
 	DISABLE_COPY(response)
 
@@ -73,4 +73,4 @@ _GTS_HTTP_RESPONSE_NOT_STRING response::set_header(const std::string &key, T &&v
 }} //namespace gts::http
 
 
-#endif //RESPONSE_H
+#endif //GTS_HTTP_RESPONSE_H

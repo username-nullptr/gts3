@@ -1,9 +1,30 @@
-set(web_sources
-	main.cpp
-	web_global.cpp
+set(http_sources
 	gts/http/global.cpp
 	gts/http/request.cpp
 	gts/http/response.cpp
+)
+
+set(http_headers
+	gts/http/global.h
+	gts/http/request.h
+	gts/http/response.h
+)
+
+add_library(gtshttp SHARED ${http_sources} ${http_headers})
+
+target_include_directories(gtshttp PRIVATE . ../core)
+
+set_target_properties(gtshttp PROPERTIES
+	LIBRARY_OUTPUT_DIRECTORY ../../${output_dir_name}/bin
+)
+
+install(TARGETS gtshttp DESTINATION bin)
+
+#--------------------------------------------------------------------------------------------------
+
+set(web_sources
+	main.cpp
+	web_global.cpp
 	session/http_parser.cpp
 	session/session.cpp
 	service/task.cpp
@@ -18,9 +39,6 @@ set(web_headers
 	web_global.h
 	gts/web_config_key.h
 	gts/web_plugin_interface.h
-	gts/http/global.h
-	gts/http/request.h
-	gts/http/response.h
 	session/http_parser.h
 	session/session.h
 	service/task.h
@@ -34,15 +52,13 @@ set(web_headers
 add_library(gtsweb SHARED ${web_sources} ${web_headers})
 
 target_include_directories(gtsweb PRIVATE . ../core ../log)
-target_link_libraries(gtsweb PRIVATE gtscore gtslog)
+target_link_libraries(gtsweb PRIVATE gtscore gtslog gtshttp)
 
 set_target_properties(gtsweb PROPERTIES
 	LIBRARY_OUTPUT_DIRECTORY ../../${output_dir_name}/bin
 )
 
 install(TARGETS gtsweb DESTINATION bin)
-
-install(FILES http/protocol.h RENAME http_protocol.h DESTINATION include/gts)
 
 install(DIRECTORY gts
 	DESTINATION include
