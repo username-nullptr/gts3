@@ -222,7 +222,7 @@ public:
 				m_message_qeueue.pop_front();
 
 				locker.unlock();
-				_output(_node->type, *_node->context, _node->runtime_context, _node->msg);
+				_output(_node->type, *_node->context, _node->runtime_context, _node->msg, true);
 			}
 
 			m_mutex.lock();
@@ -337,13 +337,28 @@ static void _output(log_buffer::type type, const logger::context &context,
 	need_close = open_log_output_device(context, runtime_context.time, log_text.size(), stdfp, &fp); \
 })
 
+	static std::mutex g_file_mutex;
 	switch( type )
 	{
 		case log_buffer::debug  : SET_LOG(4, "Debug"  , context.no_stdout ? stderr : stdout); break;
 		case log_buffer::info   : SET_LOG(3, "Info"   , context.no_stdout ? stderr : stdout); break;
 		case log_buffer::warning: SET_LOG(2, "Warning", stderr); break;
 		case log_buffer::error  : SET_LOG(1, "Error"  , stderr); break;
-		case log_buffer::fetal  : SET_LOG(0, "Fetal"  , stderr); break;
+
+		case log_buffer::fetal:
+		{
+			SET_LOG(0, "Fetal", stderr);
+			log_text += "\n\n";
+			g_file_mutex.lock();
+
+			std::fwrite(log_text.c_str(), 1, log_text.size(), stderr);
+			std::fflush(stderr);
+
+			std::fwrite(log_text.c_str(), 1, log_text.size(), fp);
+			std::fflush(fp);
+			abort();
+
+		} break;
 
 		default:
 			std::cerr << "Error: Log: _output: Invalid message type" << std::endl;
@@ -354,9 +369,7 @@ static void _output(log_buffer::type type, const logger::context &context,
 	int res = 0;
 	if( not async )
 	{
-		static std::mutex g_file_mutex;
 		g_file_mutex.lock();
-
 		res = std::fwrite(log_text.c_str(), 1, log_text.size(), fp);
 		std::fflush(fp);
 		g_file_mutex.unlock();
@@ -372,9 +385,6 @@ static void _output(log_buffer::type type, const logger::context &context,
 
 	if( need_close )
 		std::fclose(fp);
-
-	if( type == log_buffer::fetal )
-		abort();
 }
 
 static void size_check(const logger::context &context, const std::string &dir_name, int log_size);
