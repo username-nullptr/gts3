@@ -44,9 +44,6 @@ add_library(gtscore SHARED ${core_sources} ${core_headers})
 target_include_directories(gtscore PRIVATE .)
 
 if (ENABLE_SSL)
-	if (SSL_DIR)
-		target_link_directories(gtscore PRIVATE ${SSL_DIR}/lib${lib_dir_suffix})
-	endif()
 	target_link_libraries(gtscore PUBLIC ssl crypto)
 endif()
 
