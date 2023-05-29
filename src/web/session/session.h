@@ -1,8 +1,8 @@
 #ifndef SESSION_H
 #define SESSION_H
 
+#include "session/http_parser.h"
 #include "service/task.h"
-#include "http/parser.h"
 
 namespace gts { namespace web
 {
@@ -43,7 +43,7 @@ private:
 	std::size_t m_ab_size = 65536;
 
 private:
-	http::parser *m_parser = nullptr;
+	http_parser *m_parser = nullptr;
 	task<asio_socket> m_task;
 };
 
@@ -77,7 +77,7 @@ session<asio_socket>::session(tcp_socket_ptr socket) :
 	m_ab_size = attr.value();
 
 	m_asio_buffer = new char[m_ab_size]{0};
-	m_parser = new http::parser(m_ab_size);
+	m_parser = new http_parser(m_ab_size);
 
 	do_recv();
 }

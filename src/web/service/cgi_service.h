@@ -4,11 +4,11 @@
 #include "service/service_io.h"
 #include "gts/web_config_key.h"
 #include "gts/algorithm.h"
+#include "web_global.h"
 #include "app_info.h"
 #include "settings.h"
 #include "gts_log.h"
 #include "process.h"
-#include "global.h"
 
 #include <condition_variable>
 #include <cppfilesystem>

@@ -4,12 +4,12 @@
 #include "service.h"
 #include <functional>
 
+namespace gts { namespace http {
+class request;
+}} //namespace gts::http
+
 namespace gts { namespace web
 {
-
-namespace http {
-class request;
-}
 
 template <class asio_socket>
 class GTS_DECL_HIDDEN task

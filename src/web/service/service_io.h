@@ -2,8 +2,8 @@
 #define SERVICE_IO_H
 
 #include "socket.h"
-#include "http/response.h"
-#include "http/request.h"
+#include "gts/http/response.h"
+#include "gts/http/request.h"
 
 namespace gts { namespace web
 {

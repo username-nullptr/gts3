@@ -1,10 +1,16 @@
-#ifndef GTS_WEB_HTTP_PROTOCOL_H
-#define GTS_WEB_HTTP_PROTOCOL_H
+#ifndef GTS_HTTP_GLOBAL_H
+#define GTS_HTTP_GLOBAL_H
 
 #include <gts/gts_global.h>
 #include <unordered_map>
 
-namespace gts { namespace web { namespace http
+#ifdef gtsweb_EXPORTS
+# define GTSWEB_API  GTS_DECL_EXPORT
+#else //gtsweb_EXPORTS
+# define GTSWEB_API  GTS_DECL_IMPORT
+#endif //gtscore_EXPORTS
+
+namespace gts { namespace http
 {
 
 enum status
@@ -70,7 +76,7 @@ enum status
 	hs_network_authentication_required = 511, // Network Authentication Required
 };
 
-GTS_DECL_HIDDEN std::string status_description(int s);
+GTSWEB_API std::string status_description(int s);
 
 typedef std::pair<std::string, std::string>           header;
 typedef std::unordered_map<std::string, std::string>  headers;
@@ -78,7 +84,7 @@ typedef std::unordered_map<std::string, std::string>  headers;
 typedef std::pair<std::string, std::string>           parameter;
 typedef std::unordered_map<std::string, std::string>  parameters;
 
-}}} //namespace gts::web::http
+}} //namespace gts::http
 
 
-#endif //GTS_WEB_HTTP_PROTOCOL_H
+#endif //GTS_HTTP_GLOBAL_H

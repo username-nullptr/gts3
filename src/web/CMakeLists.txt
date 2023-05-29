@@ -1,11 +1,11 @@
 set(web_sources
 	main.cpp
-	global.cpp
-	session.cpp
-	http/protocol.cpp
-	http/parser.cpp
-	http/request.cpp
-	http/response.cpp
+	web_global.cpp
+	gts/http/global.cpp
+	gts/http/request.cpp
+	gts/http/response.cpp
+	session/http_parser.cpp
+	session/session.cpp
 	service/task.cpp
 	service/service.cpp
 	service/service_io.cpp
@@ -15,14 +15,14 @@ set(web_sources
 )
 
 set(web_headers
-	global.h
-	session.h
+	web_global.h
 	gts/web_config_key.h
 	gts/web_plugin_interface.h
-	http/protocol.h
-	http/parser.h
-	http/request.h
-	http/response.h
+	gts/http/global.h
+	gts/http/request.h
+	gts/http/response.h
+	session/http_parser.h
+	session/session.h
 	service/task.h
 	service/service.h
 	service/service_io.h

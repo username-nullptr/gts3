@@ -1,6 +1,6 @@
 #include "response.h"
 
-namespace gts { namespace web { namespace http
+namespace gts { namespace http
 {
 
 response::response(status s) :
@@ -63,4 +63,4 @@ std::string response::to_string(bool end) const
 	return result;
 }
 
-}}} //namespace gts::web::http
+}} //namespace gts::http

@@ -1,7 +1,7 @@
-#include "protocol.h"
+#include "global.h"
 #include <assert.h>
 
-namespace gts { namespace web { namespace http
+namespace gts { namespace http
 {
 
 std::string status_description(int s)
@@ -73,4 +73,4 @@ std::string status_description(int s)
 	return it->second;
 }
 
-}}} //namespace gts::web::http
+}} //namespace gts::http

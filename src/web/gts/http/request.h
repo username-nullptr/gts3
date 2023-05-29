@@ -1,20 +1,19 @@
-#ifndef REQUEST_H
-#define REQUEST_H
+#ifndef GTS_HTTP_REQUEST_H
+#define GTS_HTTP_REQUEST_H
 
-#include "protocol.h"
-#include <asio.hpp>
+#include <gts/http/global.h>
 
-using namespace asio::ip;
+namespace gts { namespace web {
+class http_parser;
+}}
 
-namespace gts { namespace web { namespace http
+namespace gts { namespace http
 {
 
-class parser;
-
-class GTS_DECL_HIDDEN request
+class GTSWEB_API request
 {
 	DISABLE_COPY(request)
-	friend class parser;
+	friend class web::http_parser;
 
 public:
 	request();
@@ -55,7 +54,7 @@ private:
 	bool m_gzip = false;
 };
 
-}}} //namespace gts::web::http
+}} //namespace gts::http
 
 
-#endif //REQUEST_H
+#endif //GTS_HTTP_REQUEST_H

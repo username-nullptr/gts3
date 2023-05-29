@@ -1,5 +1,5 @@
-#ifndef GLOBAL_H
-#define GLOBAL_H
+#ifndef WEB_GLOBAL_H
+#define WEB_GLOBAL_H
 
 #include "gts/gts_global.h"
 #include <asio.hpp>
@@ -23,4 +23,4 @@ void delete_later(T *obj)
 }} //namespace gts::web
 
 
-#endif //GLOBAL_H
+#endif //WEB_GLOBAL_H

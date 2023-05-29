@@ -1,10 +1,10 @@
 #ifndef RESPONSE_H
 #define RESPONSE_H
 
-#include "protocol.h"
+#include <gts/http/global.h>
 #include <fmt/format.h>
 
-namespace gts { namespace web { namespace http
+namespace gts { namespace http
 {
 
 #if __cplusplus < 201703L
@@ -23,7 +23,7 @@ namespace gts { namespace web { namespace http
 	>
 #endif //c++2017
 
-class GTS_DECL_HIDDEN response
+class GTSWEB_API response
 {
 	DISABLE_COPY(response)
 
@@ -70,7 +70,7 @@ _GTS_HTTP_RESPONSE_NOT_STRING response::set_header(const std::string &key, T &&v
 	set_header(key, fmt::format("{}", std::forward<T>(value)));
 }
 
-}}} //namespace gts::web::http
+}} //namespace gts::http
 
 
 #endif //RESPONSE_H

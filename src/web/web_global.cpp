@@ -1,4 +1,4 @@
-#include "global.h"
+#include "web_global.h"
 
 namespace gts { namespace web
 {

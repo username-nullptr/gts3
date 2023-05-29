@@ -1,7 +1,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "global.h"
+#include "web_global.h"
 
 namespace gts { namespace web { namespace http
 {
