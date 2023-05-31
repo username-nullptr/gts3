@@ -87,6 +87,9 @@ tcp_server::tcp_server(int, const char**) :
 		if( error )
 			log_fatal("asio: ssl private key file file load failed: {}. ({})\n", error.message(), error.value());
 	}
+
+	if( not crt_file.empty() and not key_file.empty() )
+		m_no_ck_file = false;
 #endif //ssl
 }
 
@@ -177,6 +180,8 @@ void tcp_server::start()
 			log_info("Site '{}' start ...", name);
 			m_sites.emplace(std::move(name), std::move(site));
 		}
+		else
+			log_error("Site '{}' start failed.", name);
 	}
 	if( m_sites.empty() )
 		log_fatal("No site is available.");
@@ -359,6 +364,12 @@ void tcp_server::tcp_site::do_accept()
 
 #ifdef GTS_ENABLE_SSL
 
+tcp_server::ssl_site::ssl_site(tcp_server *q_ptr, asio::io_context &io, const std::string &addr, uint16_t port) :
+	basic_site(q_ptr, io, addr, port)
+{
+
+}
+
 std::string tcp_server::ssl_site::view_status() const
 {
 	return basic_site::view_status() +
@@ -367,7 +378,12 @@ std::string tcp_server::ssl_site::view_status() const
 
 bool tcp_server::ssl_site::start()
 {
-	if( basic_site::start() )
+	if( q_ptr->m_no_ck_file )
+	{
+		log_error("SSL: certificate or private-key is not configured.");
+		return false;
+	}
+	else if( basic_site::start() )
 	{
 		do_accept();
 		return true;

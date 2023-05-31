@@ -66,13 +66,14 @@ private:
 	class ssl_site : public basic_site
 	{
 	public:
-		using basic_site::basic_site;
+		ssl_site(tcp_server *q_ptr, asio::io_context &io, const std::string &addr, uint16_t port);
 		std::string view_status() const override;
 		bool start() override;
 
 	private:
 		void do_accept();
 	};
+	bool m_no_ck_file = true;
 #endif //ssl
 
 private:
