@@ -54,6 +54,10 @@
 /*
  * new_request(socket handle/descriptor)
  * new_request(socket handle/descriptor, bool is_ipv6)
+ * new_request(const gts::http::request &request socket handle/descriptor)
+ * new_request(const gts::http::request &request socket handle/descriptor, bool is_ipv6)
+ *----------------------------------------------------------------------------------------------
+ * If xxx from the GTS library is used, no request passing interface other than env is required.
 */
 #define GTS_WEB_PLUGIN_INTERFACE_CALL  "call"
 
