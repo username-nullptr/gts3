@@ -7,12 +7,11 @@ set(log_sources
 set(log_headers
 	gts/log_global.h
 	gts/log_buffer.h
+	gts/log_operator.h
 	gts/log.h
 )
 
 set(log_private_headers
-	gts_log.h
-	log_operator.h
 	private/rw_lock.h
 )
 
@@ -25,8 +24,4 @@ set_target_properties(gtslog PROPERTIES
 )
 
 install(TARGETS gtslog DESTINATION bin)
-
-install(DIRECTORY gts
-	DESTINATION include
-	FILES_MATCHING PATTERN "*.h"
-)
+install(FILES ${log_headers} DESTINATION include/gts)

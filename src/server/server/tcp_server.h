@@ -3,8 +3,8 @@
 
 #include <thread>
 #include <rttr/type>
-#include "gts_log.h"
-#include "socket.h"
+#include "gts/socket.h"
+#include "gts/log.h"
 
 namespace gts
 {

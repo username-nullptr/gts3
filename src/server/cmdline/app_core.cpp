@@ -1,7 +1,8 @@
 #include "private/app_core_p.h"
+#include "gts/log.h"
+
 #include "interaction.h"
 #include "app_info.h"
-#include "gts_log.h"
 #include "global.h"
 
 #include <cppfilesystem>

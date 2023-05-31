@@ -6,6 +6,12 @@ namespace gts
 
 #ifdef GTS_ENABLE_SSL
 
+ssl::context &asio_ssl_context()
+{
+	static ssl::context ssl_context { ssl::context::sslv23_server };
+	return ssl_context;
+}
+
 tcp::endpoint socket<ssl_stream>::remote_endpoint(asio::error_code &error) {
 	return next_layer().remote_endpoint(error);
 }

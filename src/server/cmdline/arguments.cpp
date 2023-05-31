@@ -1,5 +1,5 @@
 #include "arguments.h"
-#include "gts_log.h"
+#include "gts/log.h"
 
 #include <iostream>
 #include <cstring>
@@ -42,9 +42,18 @@ namespace gts { namespace cmdline
 [[noreturn]] static void printVersion();
 [[noreturn]] static void printHelp();
 
+__attribute_weak__ std::string other_args_check(const char *arg);
+
 // Modify or extend this function
-static void __argumentCheck(int argc, const char *argv[], argument_hash &args_hash)
+argument_hash argument_check(int argc, const char *argv[])
 {
+	argument_hash args_hash;
+	if( argc <= 1 )
+		return args_hash;
+
+	argc -= 1;
+	argv += 1;
+
 	for(int i=0 ;i<argc; i++)
 	{
 		if( strcmp(argv[i], "stop") == 0 )
@@ -103,18 +112,13 @@ static void __argumentCheck(int argc, const char *argv[], argument_hash &args_ha
 			ARGC_EQ_2(args_hash.emplace(sa_spss, argv[++i]));
 
 		///////////////////////////////////////////////////////////////////////////////////////
-		else ERROR_EXIT("Invalid arguments.");
+		else {
+			auto str = other_args_check(argv[i]);
+			if( not str.empty() )
+				ERROR_EXIT(str);
+		}
 	}
-}
-
-argument_hash argument_check(int argc, const char *argv[])
-{
-	argument_hash sa;
-	if( argc <= 1 )
-		return sa;
-
-	__argumentCheck(argc - 1, argv + 1, sa);
-	return sa;
+	return args_hash;
 }
 
 bool operator&(const argument_hash &args_hash, argument key)
@@ -168,6 +172,11 @@ bool operator&(argument key, const argument_hash &args_hash)
 	std::cout << "  --stop-subserver-all               : Stop all subservers."                                        << std::endl;
 	std::cout << "  --stop-subserver <name0,name1...>  : Stop subservices in the list."                               << std::endl;
 	exit(0);
+}
+
+__attribute_weak__ std::string other_args_check(const char*)
+{
+	return "Invalid arguments.";
 }
 
 }} //namespace gts::cmdline

@@ -16,6 +16,9 @@ namespace gts
 # define __attribute_used__    __declspec(used)
 # define __attribute_unused__  __declspec(unused)
 
+# define __attribute_weak__              __declspec(weak)
+# define __attribute_weakref__(_symbol)  __declspec(weakref(_symbol))
+
 #elif defined(__GNUC__)
 
 # define GTS_DECL_EXPORT  __attribute__((visibility("default")))
@@ -30,6 +33,9 @@ namespace gts
 #  define __attribute_unused__  __attribute__((unused))
 # endif //__attribute_used__
 
+# define __attribute_weak__              __attribute__((weak))
+# define __attribute_weakref__(_symbol)  __attribute__((weakref(_symbol)))
+
 #else // other compiler
 
 # define GTS_DECL_EXPORT
@@ -38,6 +44,9 @@ namespace gts
 
 # define __attribute_used__
 # define __attribute_unused__
+
+# define __attribute_weak__
+# define __attribute_weakref__(_symbol)
 
 #endif //compiler
 

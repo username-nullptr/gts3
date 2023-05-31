@@ -1,3 +1,6 @@
+add_subdirectory(filesystem)
+add_subdirectory(rapidjson)
+add_subdirectory(inifile)
 add_subdirectory(asio)
 add_subdirectory(rttr)
 add_subdirectory(fmt)

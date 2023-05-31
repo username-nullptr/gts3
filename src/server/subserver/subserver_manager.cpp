@@ -1,5 +1,5 @@
 #include "subserver_manager.h"
-#include "gts_log.h"
+#include "gts/log.h"
 
 #include <cassert>
 #include <atomic>

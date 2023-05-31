@@ -1,7 +1,7 @@
 #ifndef LOADER_H
 #define LOADER_H
 
-#include "settings.h"
+#include "gts/settings.h"
 #include <asio.hpp>
 #include <list>
 

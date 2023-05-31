@@ -2,11 +2,11 @@ set(core_sources
 	gts/gts_global.cpp
 	gts/algorithm.cpp
 	gts/mime_type.cpp
-	json.cpp
+	gts/settings.cpp
+	gts/socket.cpp
 	app_info.cpp
-	socket.cpp
 	process.cpp
-	settings.cpp
+	json.cpp
 )
 
 set(core_headers
@@ -14,11 +14,11 @@ set(core_headers
 	gts/algorithm.h
 	gts/mime_type.h
 	gts/gts_config_key.h
-	json.h
+	gts/settings.h
+	gts/socket.h
 	app_info.h
-	socket.h
 	process.h
-	settings.h
+	json.h
 	private/process_p.h
 )
 
@@ -32,11 +32,6 @@ elseif (UNIX)
 		private/app_info_unix.cpp
 		private/process_unix.cpp
 	)
-endif()
-
-if (ENABLE_SSL)
-	list(APPEND core_sources gts/ssl.cpp)
-	list(APPEND core_headers gts/ssl.h)
 endif()
 
 add_library(gtscore SHARED ${core_sources} ${core_headers})

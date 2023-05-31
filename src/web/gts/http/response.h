@@ -23,21 +23,24 @@ namespace gts { namespace http
 	>
 #endif //c++2017
 
+class response_private;
+
 class GTSHTTP_API response
 {
-	DISABLE_COPY(response)
+public:
+	explicit response(http::status status = hs_ok);
+	explicit response(const http::headers &headers, http::status status = hs_ok);
+	explicit response(const std::string &v, http::status status = hs_ok);
+	response(const std::string &v, const http::headers &headers, http::status status = hs_ok);
 
 public:
-	explicit response(status s = hs_ok);
-	explicit response(const headers &h, status s = hs_ok);
-	explicit response(const std::string &v, status s = hs_ok);
-	explicit response(const std::string &v, const headers &h, status s = hs_ok);
+	response(response &&other);
 	~response();
 
 public:
-	void set_status(status s);
+	void set_status(http::status status);
 	void set_header(const std::string &key, const std::string &value);
-	void set_headers(const headers &h);
+	void set_headers(const http::headers &headers);
 
 public:
 	template <typename...Args>
@@ -45,17 +48,23 @@ public:
 	_GTS_HTTP_RESPONSE_NOT_STRING set_header(const std::string &key, T &&value);
 
 public:
+	const std::string &version() const;
+	const http::headers &headers() const;
+	http::status status() const;
+
+public:
 	std::string to_string(bool end = true) const;
+	response &operator=(response &&other);
 
 private:
-	std::string m_version = "1.1";
-	status m_status = hs_ok;
-	headers m_headers;
+	response(const response&) = delete;
+	void operator=(const response&) = delete;
+	response_private *d_ptr;
 };
 
-inline void response::set_headers(const headers &h)
+inline void response::set_headers(const http::headers &headers)
 {
-	for(auto &p : h)
+	for(auto &p : headers)
 		set_header(p.first, p.second);
 }
 

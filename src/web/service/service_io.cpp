@@ -1,7 +1,7 @@
 #include "service_io.h"
 #include "gts/web_config_key.h"
 #include "gts/algorithm.h"
-#include "settings.h"
+#include "gts/settings.h"
 #include "app_info.h"
 
 namespace gts { namespace web

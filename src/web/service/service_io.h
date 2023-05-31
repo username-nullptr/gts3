@@ -1,7 +1,7 @@
 #ifndef SERVICE_IO_H
 #define SERVICE_IO_H
 
-#include "socket.h"
+#include "gts/socket.h"
 #include "gts/http/response.h"
 #include "gts/http/request.h"
 

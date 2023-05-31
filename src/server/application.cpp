@@ -1,9 +1,10 @@
 #include "application.h"
-#include "gts/algorithm.h"
-#include "gts/gts_config_key.h"
 #include "app_info.h"
-#include "gts_log.h"
 #include "global.h"
+
+#include "gts/gts_config_key.h"
+#include "gts/algorithm.h"
+#include "gts/log.h"
 
 #include "cmdline/app_core.h"
 #include <rttr/variant.h>

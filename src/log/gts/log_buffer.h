@@ -1,5 +1,5 @@
-#ifndef LOG_BUFFER_H
-#define LOG_BUFFER_H
+#ifndef GTS_LOG_BUFFER_H
+#define GTS_LOG_BUFFER_H
 
 #include <gts/log_global.h>
 #include <fmt/format.h>
@@ -109,4 +109,4 @@ inline log_buffer &log_buffer::operator<<(T &&msg)
 }} //namespace gts::log
 
 
-#endif //LOG_BUFFER_H
+#endif //GTS_LOG_BUFFER_H

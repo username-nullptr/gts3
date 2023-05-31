@@ -1,5 +1,5 @@
-#ifndef LOG_GLOBAL_H
-#define LOG_GLOBAL_H
+#ifndef GTS_LOG_GLOBAL_H
+#define GTS_LOG_GLOBAL_H
 
 #include <gts/gts_global.h>
 
@@ -10,4 +10,4 @@
 #endif //gtslog_EXPORTS
 
 
-#endif //LOG_GLOBAL_H
+#endif //GTS_LOG_GLOBAL_H

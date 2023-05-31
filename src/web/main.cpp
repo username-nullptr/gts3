@@ -1,6 +1,6 @@
 #include "session/session.h"
-#include "settings.h"
-#include "gts_log.h"
+#include "gts/settings.h"
+#include "gts/log.h"
 
 #include "gts/gts_config_key.h"
 #include "gts/web_config_key.h"

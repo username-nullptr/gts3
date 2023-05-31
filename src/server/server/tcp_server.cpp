@@ -1,11 +1,11 @@
 #include "tcp_server.h"
 #include "gts/gts_config_key.h"
 #include "gts/algorithm.h"
+#include "gts/settings.h"
 
 #include "tcp_plugin_interface.h"
 #include "application.h"
 #include "app_info.h"
-#include "settings.h"
 #include "global.h"
 #include "json.h"
 
@@ -13,10 +13,6 @@
 #include <algorithm>
 #include <iostream>
 #include <cctype>
-
-#ifdef GTS_ENABLE_SSL
-# include "gts/ssl.h"
-#endif //ssl
 
 namespace gts
 {

@@ -1,7 +1,7 @@
-#ifndef SOCKET_H
-#define SOCKET_H
+#ifndef GTS_SOCKET_H
+#define GTS_SOCKET_H
 
-#include "gts/gts_global.h"
+#include <gts/gts_global.h>
 #include <asio.hpp>
 
 #ifdef GTS_ENABLE_SSL
@@ -37,6 +37,8 @@ public:
 };
 
 #ifdef GTS_ENABLE_SSL
+GTSCORE_API ssl::context &asio_ssl_context();
+
 template <>
 class socket<ssl_stream> : public ssl_stream
 {
@@ -111,4 +113,4 @@ void socket<ssl_stream>::get_option(GettableSocketOption& option) const {
 } //namespace gts
 
 
-#endif //SOCKET_H
+#endif //GTS_SOCKET_H

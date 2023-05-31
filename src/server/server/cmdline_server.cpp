@@ -1,8 +1,9 @@
 #include "cmdline_server.h"
 #include "cmdline/interaction.h"
 #include "gts/algorithm.h"
+#include "gts/log.h"
+
 #include "tcp_server.h"
-#include "gts_log.h"
 #include "global.h"
 
 #ifdef _WINDOWS

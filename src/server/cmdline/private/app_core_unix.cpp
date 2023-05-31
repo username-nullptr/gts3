@@ -2,7 +2,7 @@
 
 #include "app_core_p.h"
 #include "app_info.h"
-#include "gts_log.h"
+#include "gts/log.h"
 
 #include <cppfilesystem>
 #include <iostream>

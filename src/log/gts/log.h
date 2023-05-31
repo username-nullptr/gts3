@@ -1,7 +1,8 @@
-#ifndef LOG_H
-#define LOG_H
+#ifndef GTS_LOG_H
+#define GTS_LOG_H
 
 #include <gts/log_buffer.h>
+#include <gts/log_operator.h>
 
 namespace gts { namespace log
 {
@@ -138,4 +139,4 @@ inline void logger::fatal(const std::string &msg)
 }} //namespace gts::log
 
 
-#endif //LOG_H
+#endif //GTS_LOG_H

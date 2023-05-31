@@ -1,7 +1,7 @@
-#ifndef SETTINGS_H
-#define SETTINGS_H
+#ifndef GTS_SETTINGS_H
+#define GTS_SETTINGS_H
 
-#include "gts/gts_global.h"
+#include <gts/gts_global.h>
 #include <rttr/variant.h>
 #include <inicpp.h>
 
@@ -153,4 +153,4 @@ inline ini::IniSectionBase<std::less<std::string>> &settings::operator[](const s
 } //namespace gts
 
 
-#endif //SETTINGS_H
+#endif //GTS_SETTINGS_H
