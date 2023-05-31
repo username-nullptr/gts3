@@ -147,7 +147,7 @@ void tcp_server::start()
 				if( it2->value.GetBool() )
 				{
 					log_warning("Site '{}': ssl is disabled, if necessary, please recompile GTS server"
-								" (cmake -DENABLE_SSL -DSSL_DIR)", name);
+								" (cmake -DENABLE_SSL -DOpenSSL_DIR)", name);
 				}
 			}
 #endif //ssl
