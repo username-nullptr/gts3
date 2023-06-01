@@ -15,7 +15,7 @@ public:
 	typedef gts::socket<asio_socket>  tcp_socket;
 
 public:
-	service_io(tcp_socket &socket, const http::request &request);
+	service_io(tcp_socket &socket, http::request &request);
 
 public:
 	void write_some(const char *buf);
@@ -27,7 +27,7 @@ public:
 
 public:
 	tcp_socket &socket;
-	const http::request &request;
+	http::request &request;
 	http::response response;
 	std::string url_name;
 };
@@ -40,7 +40,7 @@ public:
 };
 
 template <class asio_socket>
-service_io<asio_socket>::service_io(tcp_socket &socket, const http::request &request) :
+service_io<asio_socket>::service_io(tcp_socket &socket, http::request &request) :
 	socket(socket), request(request), response(request.version)
 {
 	response.set_header("server", "gts3");

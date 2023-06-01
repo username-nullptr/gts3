@@ -15,9 +15,9 @@ template <class asio_socket>
 class GTS_DECL_HIDDEN task
 {
 	DISABLE_COPY(task)
-	typedef gts::socket<asio_socket>              tcp_socket;
-	typedef std::shared_ptr<tcp_socket>           tcp_socket_ptr;
-	typedef std::shared_ptr<const http::request>  http_request_ptr;
+	typedef gts::socket<asio_socket>        tcp_socket;
+	typedef std::shared_ptr<tcp_socket>     tcp_socket_ptr;
+	typedef std::shared_ptr<http::request>  http_request_ptr;
 
 public:
 	explicit task(tcp_socket_ptr socket);

@@ -57,18 +57,17 @@ template <class asio_socket>
 void plugin_service<asio_socket>::call()
 {
 	std::string plugin_name;
-	std::string path;
-
 	auto pos = m_sio.url_name.find("/");
+
 	if( pos == std::string::npos )
 	{
 		plugin_name = m_sio.url_name;
-		path = "/";
+		m_sio.request.path = "/";
 	}
 	else
 	{
 		plugin_name = m_sio.url_name.substr(0, pos);
-		path = m_sio.url_name.substr(pos);
+		m_sio.request.path = m_sio.url_name.substr(pos);
 	}
 
 	for(auto &type : plugin_service_config::type_list)
@@ -117,9 +116,9 @@ void plugin_service<asio_socket>::call()
 			}
 			else
 			{
+				bool is_v6 = m_sio.socket.remote_endpoint().address().is_v6();
 				call_method.invoke(var, m_sio.request, m_sio.socket.release(),
-								   reinterpret_cast<void*>(m_sio.socket.release_ssl()),
-								   m_sio.socket.remote_endpoint().address().is_v6());
+								   reinterpret_cast<void*>(m_sio.socket.release_ssl()), is_v6);
 			}
 		}
 		else
@@ -134,7 +133,7 @@ void plugin_service<asio_socket>::call()
 
 			method = type.get_method(GTS_WEB_PLUGIN_INTERFACE_SET_PATH, {rttr::type::get<std::string>()});
 			if( method.is_valid() )
-				method.invoke(var, path);
+				method.invoke(var, m_sio.request.path);
 
 			method = type.get_method(GTS_WEB_PLUGIN_INTERFACE_ADD_PARAMETER, {
 										 rttr::type::get<std::string>(),
@@ -167,8 +166,8 @@ void plugin_service<asio_socket>::call()
 				call_method.invoke(var, m_sio.socket.release(), reinterpret_cast<void*>(m_sio.socket.release_ssl()));
 			else
 			{
-				call_method.invoke(var, m_sio.socket.release(), reinterpret_cast<void*>(m_sio.socket.release_ssl()),
-								   m_sio.socket.remote_endpoint().address().is_v6());
+				bool is_v6 = m_sio.socket.remote_endpoint().address().is_v6();
+				call_method.invoke(var, m_sio.socket.release(), reinterpret_cast<void*>(m_sio.socket.release_ssl()), is_v6);
 			}
 		}
 		return ;
