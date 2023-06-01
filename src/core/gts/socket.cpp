@@ -4,6 +4,12 @@
 namespace gts
 {
 
+socket<tcp::socket>::socket(tcp::socket &&other) :
+	tcp::socket(std::move(other))
+{
+
+}
+
 #ifdef GTS_ENABLE_SSL
 
 ssl::context &asio_ssl_context()

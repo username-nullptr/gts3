@@ -4,7 +4,7 @@
 #include "web_global.h"
 
 namespace gts { namespace http {
-class request;
+struct request;
 }} //namespace gts::http
 
 namespace gts { namespace web

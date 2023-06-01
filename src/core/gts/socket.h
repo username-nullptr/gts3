@@ -25,7 +25,8 @@ template <>
 class socket<tcp::socket> : public tcp::socket
 {
 public:
-	using tcp::socket::basic_stream_socket;
+	using tcp::socket::socket;
+	socket(tcp::socket &&other);
 
 #ifdef GTS_ENABLE_SSL
 	ssl_stream::native_handle_type ssl() { return nullptr; }

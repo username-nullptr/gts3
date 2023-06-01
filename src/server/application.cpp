@@ -142,13 +142,13 @@ void applictaion_impl::set_config_file(const cmdline::argument_hash &args_hash)
 
 	settings::ini_hash sample_gts =
 	{
-		{ SINI_GTS_SITES_CONFIG , "sites.json"              },
-		{ SINI_GTS_TCP_BUF_SIZE , 65536                     },
-		{ SINI_GTS_SSL_CRT_FILE , _GTS_SSL_CRT_DEFAULT_FILE },
-		{ SINI_GTS_SSL_KEY_FILE , _GTS_SSL_KEY_DEFAULT_FILE },
-		{ SINI_GTS_SSL_KEY      , ""                        },
-		{ SINI_GTS_STRATEGY     , _GTS_DEFULT_STRATEGY      },
-		{ SINI_GTS_SSCFG        , "subserver.json"          }
+		{ SINI_GTS_SITES_CONFIG , "sites.json"         },
+		{ SINI_GTS_TCP_BUF_SIZE , 65536                },
+		{ SINI_GTS_SSL_CRT_FILE , ""                   },
+		{ SINI_GTS_SSL_KEY_FILE , ""                   },
+		{ SINI_GTS_SSL_KEY      , ""                   },
+		{ SINI_GTS_STRATEGY     , _GTS_DEFULT_STRATEGY },
+		{ SINI_GTS_SSCFG        , "subserver.json"     }
 	};
 	settings::ini_file_check(SINI_GROUP_GTS, sample_gts);
 
