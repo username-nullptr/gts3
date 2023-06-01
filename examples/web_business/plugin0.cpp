@@ -36,7 +36,7 @@ public:
 	void add_header(const std::string &key, const std::string &value);
 
 public:
-	void call(tcp::socket::native_handle_type handle, void *ssl, bool ipv6);
+	void call(tcp::socket &socket, void *ssl);
 
 private:
 	std::string m_version;
@@ -83,11 +83,8 @@ inline void plugin0::add_header(const std::string &key, const std::string &value
 	m_headers.emplace(key, value);
 }
 
-inline void plugin0::call(tcp::socket::native_handle_type handle, void *ssl, bool ipv6)
+inline void plugin0::call(tcp::socket &tcp_socket, void *ssl)
 {
-	asio::io_context io;
-	tcp::socket tcp_socket(io, ipv6? tcp::v6() : tcp::v4(), handle);
-
 	std::string buf = "HTTP/1.1 200 OK\r\n"
 					  "content-length: 11\r\n"
 					  "content-type: text/plain; charset=utf-8\r\n"

@@ -10,6 +10,14 @@ socket<tcp::socket>::socket(tcp::socket &&other) :
 
 }
 
+const tcp::socket &socket<tcp::socket>::next_layer() const {
+	return *this;
+}
+
+tcp::socket &socket<tcp::socket>::next_layer() {
+	return *this;
+}
+
 #ifdef GTS_ENABLE_SSL
 
 ssl::context &asio_ssl_context()

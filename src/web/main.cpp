@@ -13,10 +13,14 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
-namespace gts { namespace web { namespace plugin_main
+namespace gts { namespace web
 {
 
-static std::thread g_run_thread;
+extern GTS_DECL_HIDDEN void global_init();
+extern GTS_DECL_HIDDEN void global_exit();
+
+namespace plugin_main
+{
 
 GTS_DECL_EXPORT void init(const std::string &config_file)
 {
@@ -38,28 +42,19 @@ GTS_DECL_EXPORT void init(const std::string &config_file)
 		{ SINI_WEB_WSS_STRATEGY      , ""                              },
 	};
 	settings::ini_file_check(SINI_GROUP_WEB, sample_gts);
-	session_config::init();
 
-	g_run_thread = std::thread([]
-	{
-		auto &io = io_context();
-		asio::io_context::work io_work(io); (void)(io_work);
-		io.run();
-	});
+	global_init();
+	session_config::init();
 }
 
 GTS_DECL_EXPORT void exit()
 {
 	log_debug("web plugin exit.");
-	io_context().stop();
-
-	if( g_run_thread.joinable() )
-		g_run_thread.join();
-
 	session_config::exit();
+	global_exit();
 }
 
-GTS_DECL_EXPORT void new_connection(tcp::socket::native_handle_type handle, void* ssl, bool ipv6)
+GTS_DECL_EXPORT void new_connection(tcp::socket::native_handle_type handle, void *ssl, bool ipv6)
 {
 	static auto &io = io_context();
 	tcp::socket tcp_socket(io, ipv6? tcp::v6() : tcp::v4(), handle);

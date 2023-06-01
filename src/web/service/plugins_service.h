@@ -32,7 +32,7 @@ private:
 private:
 	s_io &m_sio;
 	bool m_direct_pass_request = true;
-	int m_call_method_para_count = 0;
+	int m_call_method_id = 0;
 };
 
 class GTS_DECL_HIDDEN plugin_service_config
@@ -109,16 +109,21 @@ void plugin_service<asio_socket>::call()
 
 		if( m_direct_pass_request )
 		{
-			if( m_call_method_para_count == 3 )
+			if( m_call_method_id == 0 )
 			{
-				call_method.invoke(var, m_sio.request, m_sio.socket.release(),
+				call_method.invoke(var, m_sio.request, std::move(m_sio.socket.next_layer()),
 								   reinterpret_cast<void*>(m_sio.socket.release_ssl()));
 			}
-			else
+			else if( m_call_method_id == 1 )
 			{
 				bool is_v6 = m_sio.socket.remote_endpoint().address().is_v6();
 				call_method.invoke(var, m_sio.request, m_sio.socket.release(),
 								   reinterpret_cast<void*>(m_sio.socket.release_ssl()), is_v6);
+			}
+			else
+			{
+				call_method.invoke(var, m_sio.request, m_sio.socket.release(),
+								   reinterpret_cast<void*>(m_sio.socket.release_ssl()));
 			}
 		}
 		else
@@ -162,12 +167,21 @@ void plugin_service<asio_socket>::call()
 					method.invoke(var, m_sio.request.body);
 			}
 
-			if( m_call_method_para_count == 2 )
-				call_method.invoke(var, m_sio.socket.release(), reinterpret_cast<void*>(m_sio.socket.release_ssl()));
-			else
+			if( m_call_method_id == 0 )
+			{
+				call_method.invoke(var, std::move(m_sio.socket.next_layer()),
+								   reinterpret_cast<void*>(m_sio.socket.release_ssl()));
+			}
+			else if( m_call_method_id == 1 )
 			{
 				bool is_v6 = m_sio.socket.remote_endpoint().address().is_v6();
-				call_method.invoke(var, m_sio.socket.release(), reinterpret_cast<void*>(m_sio.socket.release_ssl()), is_v6);
+				call_method.invoke(var, m_sio.socket.release(),
+								   reinterpret_cast<void*>(m_sio.socket.release_ssl()), is_v6);
+			}
+			else
+			{
+				call_method.invoke(var, m_sio.socket.release(),
+								   reinterpret_cast<void*>(m_sio.socket.release_ssl()));
 			}
 		}
 		return ;
@@ -181,14 +195,27 @@ rttr::method plugin_service<asio_socket>::call_method_check(rttr::type &type)
 	auto method = type.get_method
 				  (GTS_WEB_PLUGIN_INTERFACE_CALL, {
 					   rttr::type::get<http::request>(),
-					   rttr::type::get<tcp::socket::native_handle_type>(),
-					   rttr::type::get<void*>(),
-					   rttr::type::get<bool>()
+					   rttr::type::get<tcp::socket>(),
+					   rttr::type::get<void*>()
 				   });
 	if( method.is_valid() )
 	{
 		m_direct_pass_request = true;
-		m_call_method_para_count = 4;
+		m_call_method_id = 0;
+		return method;
+	}
+
+	method = type.get_method
+			 (GTS_WEB_PLUGIN_INTERFACE_CALL, {
+				  rttr::type::get<http::request>(),
+				  rttr::type::get<tcp::socket::native_handle_type>(),
+				  rttr::type::get<void*>(),
+				  rttr::type::get<bool>()
+			  });
+	if( method.is_valid() )
+	{
+		m_direct_pass_request = true;
+		m_call_method_id = 1;
 		return method;
 	}
 
@@ -201,7 +228,19 @@ rttr::method plugin_service<asio_socket>::call_method_check(rttr::type &type)
 	if( method.is_valid() )
 	{
 		m_direct_pass_request = true;
-		m_call_method_para_count = 3;
+		m_call_method_id = 2;
+		return method;
+	}
+
+	method = type.get_method
+			 (GTS_WEB_PLUGIN_INTERFACE_CALL, {
+				  rttr::type::get<tcp::socket>(),
+				  rttr::type::get<void*>()
+			  });
+	if( method.is_valid() )
+	{
+		m_direct_pass_request = false;
+		m_call_method_id = 0;
 		return method;
 	}
 
@@ -214,7 +253,7 @@ rttr::method plugin_service<asio_socket>::call_method_check(rttr::type &type)
 	if( method.is_valid() )
 	{
 		m_direct_pass_request = false;
-		m_call_method_para_count = 3;
+		m_call_method_id = 1;
 		return method;
 	}
 
@@ -226,7 +265,7 @@ rttr::method plugin_service<asio_socket>::call_method_check(rttr::type &type)
 	if( method.is_valid() )
 	{
 		m_direct_pass_request = false;
-		m_call_method_para_count = 2;
+		m_call_method_id = 2;
 		return method;
 	}
 

@@ -1,5 +1,5 @@
-#ifndef LOADER_H
-#define LOADER_H
+#ifndef APPLICATION_H
+#define APPLICATION_H
 
 #include "gts/settings.h"
 #include <asio.hpp>
@@ -33,4 +33,4 @@ public:
 } //namespace gts
 
 
-#endif //LOADER_H
+#endif //APPLICATION_H

@@ -1,5 +1,6 @@
 set(core_sources
 	gts/gts_global.cpp
+	gts/application.cpp
 	gts/algorithm.cpp
 	gts/mime_type.cpp
 	gts/settings.cpp
@@ -11,6 +12,7 @@ set(core_sources
 
 set(core_headers
 	gts/gts_global.h
+	gts/application.h
 	gts/algorithm.h
 	gts/mime_type.h
 	gts/gts_config_key.h

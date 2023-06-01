@@ -26,7 +26,7 @@ public:
 
 private:
 	template <class asio_socket>
-	void service(std::shared_ptr<socket<asio_socket>> _socket, bool ipv6);
+	void service(std::shared_ptr<socket<asio_socket>> _socket);
 	void new_connect_method_init();
 
 private:
@@ -48,7 +48,6 @@ private:
 		tcp::acceptor m_acceptor;
 		tcp::endpoint m_endpoint;
 		std::string m_addr;
-		bool m_ipv6;
 	};
 
 	class tcp_site : public basic_site
@@ -84,12 +83,12 @@ private:
 	std::shared_ptr<rttr::library> m_plugin_lib;
 	rttr::method m_new_connect_method;
 
-	int m_ncma_count = 1;
+	int m_method_id = 1;
 	int m_buffer_size = 65536;
 };
 
 template <class asio_socket>
-void tcp_server::service(std::shared_ptr<socket<asio_socket>> _socket, bool ipv6)
+void tcp_server::service(std::shared_ptr<socket<asio_socket>> _socket)
 {
 	asio::error_code error;
 	_socket->set_option(tcp::socket::send_buffer_size(m_buffer_size), error);
@@ -100,11 +99,22 @@ void tcp_server::service(std::shared_ptr<socket<asio_socket>> _socket, bool ipv6
 	if( error )
 		log_error("asio: set socket receive buffer error: {}. ({})\n", error.message(), error.value());
 
-	else if( m_ncma_count == 3 )
-		m_new_connect_method.invoke({}, _socket->release(), reinterpret_cast<void*>(_socket->release_ssl()), ipv6);
-
-	else if( m_ncma_count == 2 )
-		m_new_connect_method.invoke({}, _socket->release(), reinterpret_cast<void*>(_socket->release_ssl()));
+	else if( m_method_id == 0 )
+	{
+		m_new_connect_method.invoke({}, std::move(_socket->next_layer()),
+									reinterpret_cast<void*>(_socket->release_ssl()));
+	}
+	else if( m_method_id == 1 )
+	{
+		bool is_v6 = _socket->remote_endpoint().address().is_v6();
+		m_new_connect_method.invoke({}, _socket->release(),
+									reinterpret_cast<void*>(_socket->release_ssl()), is_v6);
+	}
+	else if( m_method_id == 2 )
+	{
+		m_new_connect_method.invoke({}, _socket->release(),
+									reinterpret_cast<void*>(_socket->release_ssl()));
+	}
 }
 
 } //namespace gts

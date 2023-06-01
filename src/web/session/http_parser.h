@@ -1,7 +1,7 @@
 #ifndef HTTP_PARSER_H
 #define HTTP_PARSER_H
 
-#include "web_global.h"
+#include "gts/web_global.h"
 
 namespace gts { namespace http {
 struct request;

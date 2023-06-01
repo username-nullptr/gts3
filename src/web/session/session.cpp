@@ -42,12 +42,12 @@ void session_config::init()
 	log_debug("Web: idle time threshold value: {}", idle_time_tv);
 	log_debug("Web: max idle time: {}", max_idle_time);
 	log_debug("Web: max connetion count: {}", max_count);
-	scheduler::init();
+	task_config::init();
 }
 
 void session_config::exit()
 {
-	scheduler::exit();
+	task_config::exit();
 }
 
 std::string session_config::view_status()

@@ -354,8 +354,11 @@ static void _output(log_buffer::type type, const logger::context &context,
 			std::fwrite(log_text.c_str(), 1, log_text.size(), stderr);
 			std::fflush(stderr);
 
-			std::fwrite(log_text.c_str(), 1, log_text.size(), fp);
-			std::fflush(fp);
+			if( fp != stderr )
+			{
+				std::fwrite(log_text.c_str(), 1, log_text.size(), fp);
+				std::fflush(fp);
+			}
 			abort();
 
 		} break;

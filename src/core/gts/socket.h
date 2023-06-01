@@ -2,7 +2,6 @@
 #define GTS_SOCKET_H
 
 #include <gts/gts_global.h>
-#include <asio.hpp>
 
 #ifdef GTS_ENABLE_SSL
 # include <asio/ssl.hpp>
@@ -35,6 +34,10 @@ public:
 	void *ssl() { return nullptr; }
 	void *release_ssl() { return nullptr; }
 #endif //ssl
+
+public:
+	const tcp::socket &next_layer() const;
+	tcp::socket &next_layer();
 };
 
 #ifdef GTS_ENABLE_SSL

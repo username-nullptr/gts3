@@ -4,10 +4,6 @@
 #include "gts/gts_global.h"
 #include <asio.hpp>
 
-namespace gts {
-asio::io_context &io_context();
-} //namespace gts
-
 #define ERR_VAL(err)  (err.value() != EINTR)
 
 #define CCMD_VSS    "view server status"

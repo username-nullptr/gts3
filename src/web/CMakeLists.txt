@@ -24,7 +24,7 @@ install(TARGETS gtshttp DESTINATION bin)
 
 set(web_sources
 	main.cpp
-	web_global.cpp
+	gts/web_global.cpp
 	session/http_parser.cpp
 	session/session.cpp
 	service/task.cpp
@@ -36,7 +36,7 @@ set(web_sources
 )
 
 set(web_headers
-	web_global.h
+	gts/web_global.h
 	gts/web_config_key.h
 	gts/web_plugin_interface.h
 	session/http_parser.h

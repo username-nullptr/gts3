@@ -1,5 +1,5 @@
-#ifndef task_H
-#define task_H
+#ifndef TASK_H
+#define TASK_H
 
 #include "service.h"
 #include <functional>
@@ -46,13 +46,10 @@ private:
 	std::function<void()> m_call_back;
 };
 
-class GTS_DECL_HIDDEN scheduler
+class GTS_DECL_HIDDEN task_config
 {
 public:
-	static asio::thread_pool *pool;
 	static std::string cgi_path;
-
-public:
 	static void init();
 	static void exit();
 };
@@ -70,7 +67,7 @@ void task<asio_socket>::start(http_request_ptr request)
 	m_request = std::move(request);
 	m_socket->non_blocking(false);
 
-	asio::post(*scheduler::pool, [this]
+	asio::post(thread_pool(), [this]
 	{
 		run();
 		io_context().post([this]
@@ -131,7 +128,7 @@ void task<asio_socket>::run()
 		if( pos != std::string::npos ) { \
 			auto prefix = sio.url_name.substr(0,pos); \
 			if( prefix == "/cgi-bin" ) { \
-				sio.url_name = scheduler::cgi_path + sio.url_name.substr(pos+1); \
+				sio.url_name = task_config::cgi_path + sio.url_name.substr(pos+1); \
 				return service::call_cgi_service(sio); \
 			} else if ( prefix == "/plugin-lib" ) { \
 				sio.url_name.erase(0, pos+1); \
@@ -179,7 +176,7 @@ void task<asio_socket>::HEAD(service_io<asio_socket> &sio)
 		auto prefix = sio.url_name.substr(0,pos);
 		if( prefix == "/cgi-bin" )
 		{
-			if( fs::exists(scheduler::cgi_path + sio.url_name.substr(pos+1)) )
+			if( fs::exists(task_config::cgi_path + sio.url_name.substr(pos+1)) )
 				return sio.return_to_null();
 			return sio.return_to_null(http::hs_not_found);
 		}
@@ -221,4 +218,4 @@ void task<asio_socket>::TRACH(service_io<asio_socket> &sio) {
 }} //namespace gts::web
 
 
-#endif //task_H
+#endif //TASK_H

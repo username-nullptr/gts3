@@ -3,26 +3,13 @@
 namespace gts { namespace web
 {
 
-asio::thread_pool *scheduler::pool = nullptr;
+std::string task_config::cgi_path = _GTS_WEB_DEFAULT_CGI_PATH;
 
-std::string scheduler::cgi_path = _GTS_WEB_DEFAULT_CGI_PATH;
-
-void scheduler::init()
+void task_config::init()
 {
-	auto &_settings = settings::global_instance();
-	int max_thread_count = _settings.read<int>(SINI_GROUP_WEB, SINI_WEB_THREAD_POOL_TC, 100);
-
-	if( max_thread_count < 1 )
-	{
-		log_warning("Config: max thread count setting error.");
-		max_thread_count = 1;
-	}
-	log_debug("Web: max thread count: {}", max_thread_count);
-
-	pool = new asio::thread_pool(max_thread_count);
-	cgi_path = _settings.read<std::string>(SINI_GROUP_WEB, SINI_WEB_CGI_PATH, cgi_path);
-
+	cgi_path = settings::global_instance().read<std::string>(SINI_GROUP_WEB, SINI_WEB_CGI_PATH, cgi_path);
 	cgi_path = appinfo::absolute_path(cgi_path);
+
 	if( not ends_with(cgi_path, "/") )
 		cgi_path += "/";
 
@@ -32,15 +19,9 @@ void scheduler::init()
 	service::init();
 }
 
-void scheduler::exit()
+void task_config::exit()
 {
 	service::exit();
-	if( pool == nullptr )
-		return ;
-
-	pool->join();
-	delete pool;
-	pool = nullptr;
 }
 
 }} //namespace gts::web

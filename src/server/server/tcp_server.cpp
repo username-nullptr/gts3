@@ -233,14 +233,24 @@ void tcp_server::new_connect_method_init()
 {
 	m_new_connect_method = rttr::type::get_global_method
 						   (GTS_PLUGIN_INTERFACE_NEW_CONNECT, {
+								rttr::type::get<tcp::socket>(),
+								rttr::type::get<void*>()
+							});
+	if( m_new_connect_method.is_valid() )
+	{
+		m_method_id = 0;
+		return ;
+	}
+
+	m_new_connect_method = rttr::type::get_global_method
+						   (GTS_PLUGIN_INTERFACE_NEW_CONNECT, {
 								rttr::type::get<tcp::socket::native_handle_type>(),
 								rttr::type::get<void*>(),
 								rttr::type::get<bool>()
 							});
-
 	if( m_new_connect_method.is_valid() )
 	{
-		m_ncma_count = 3;
+		m_method_id = 1;
 		return ;
 	}
 
@@ -249,10 +259,9 @@ void tcp_server::new_connect_method_init()
 								rttr::type::get<tcp::socket::native_handle_type>(),
 								rttr::type::get<void*>()
 							});
-
 	if( m_new_connect_method.is_valid() )
 	{
-		m_ncma_count = 2;
+		m_method_id = 2;
 		return ;
 	}
 
@@ -262,23 +271,17 @@ void tcp_server::new_connect_method_init()
 /*-----------------------------------------------------------------------------------------------------------------*/
 
 tcp_server::basic_site::basic_site(tcp_server *q_ptr, asio::io_context &io, const std::string &addr, uint16_t port) :
-	q_ptr(q_ptr), m_acceptor(io), m_endpoint(tcp::v4(), 8080), m_addr(addr), m_ipv6(false)
+	q_ptr(q_ptr), m_acceptor(io), m_endpoint(tcp::v4(), 8080), m_addr(addr)
 {
 	asio::error_code error;
 	if( addr == "localhost" )
 		m_endpoint = tcp::endpoint(ip::make_address_v4("127.0.0.1"), port);
 
 	else if( addr == "localhostipv6" or addr == "localhost_ipv6" )
-	{
 		m_endpoint = tcp::endpoint(ip::make_address_v6("::1"), port);
-		m_ipv6 = true;
-	}
 
 	else if( addr == "ipv6" or addr == "anyipv6" )
-	{
 		m_endpoint = tcp::endpoint(tcp::v6(), port);
-		m_ipv6 = true;
-	}
 
 	else if( addr == "ipv4" or addr == "anyipv4" or addr == "any" or addr == "auto" )
 		m_endpoint = tcp::endpoint(tcp::v4(), port);
@@ -357,7 +360,7 @@ void tcp_server::tcp_site::do_accept()
 	m_acceptor.async_accept(*_socket, [_socket, this](asio::error_code error)
 	{
 		ERROR_CHECK(error);
-		q_ptr->service(std::move(_socket), m_ipv6);
+		q_ptr->service(std::move(_socket));
 		do_accept();
 	});
 }
@@ -405,7 +408,7 @@ void tcp_server::ssl_site::do_accept()
 				_socket->close();
 			}
 			else
-				q_ptr->service(std::move(_socket), m_ipv6);
+				q_ptr->service(std::move(_socket));
 			do_accept();
 		});
 	});

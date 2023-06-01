@@ -1,6 +1,7 @@
 #ifndef GTS_GLOBAL_H
 #define GTS_GLOBAL_H
 
+#include <asio.hpp>
 #include <string>
 #include <deque>
 
@@ -73,6 +74,16 @@ typedef uint32_t  address_bits_wide;
 	void operator=(_class&&) = delete;
 
 typedef std::deque<std::string>  string_list;
+
+GTSCORE_API asio::io_context &io_context();
+
+template <typename T> inline
+void delete_later(T *obj)
+{
+	io_context().post([obj]{
+		delete obj;
+	});
+}
 
 } //namespace gts
 
