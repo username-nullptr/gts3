@@ -212,7 +212,7 @@ int applictaion::exec()
 		return g_impl->m_exit_code;
 
 	auto &io = gts::io_context();
-	asio::io_context::work io_work(io); (void)(io_work);
+	asio::io_context::work io_work(io); _UNUSED(io_work);
 
 	io.run();
 	return g_impl->m_exit_code;

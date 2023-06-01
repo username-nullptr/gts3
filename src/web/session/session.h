@@ -108,33 +108,30 @@ template <class asio_socket>
 void session<asio_socket>::new_connection(tcp_socket_ptr socket)
 {
 	typedef session_config  sc;
-	asio::post(io_context(), [socket]
+	if( sc::counter < sc::max_count )
 	{
-		if( sc::counter < sc::max_count )
-		{
-			new session(std::move(socket));
-			return ;
-		}
-		log_info("Connection resource exhaustion, attempts to reclaim idle connection resources.");
+		new session(std::move(socket));
+		return ;
+	}
+	log_info("Connection resource exhaustion, attempts to reclaim idle connection resources.");
 
-		auto it = sc::timeout_set.begin();
-		if( it != sc::timeout_set.end() )
-		{
-			(*it)->cancel();
-			sc::timeout_set.erase(it);
-			new session<asio_socket>(std::move(socket));
-			return ;
-		}
-		log_warning("No connection resources are available and the server is overloaded.");
+	auto it = sc::timeout_set.begin();
+	if( it != sc::timeout_set.end() )
+	{
+		(*it)->cancel();
+		sc::timeout_set.erase(it);
+		new session<asio_socket>(std::move(socket));
+		return ;
+	}
+	log_warning("No connection resources are available and the server is overloaded.");
 
-		asio::error_code error;
-		socket->write_some(asio::buffer("HTTP/1.0 413 Payload Too Large\r\n"
-										"content-length: 0\r\n"
-										"\r\n"
-										), error);
-		socket->shutdown(tcp::socket::shutdown_both);
-		socket->close();
-	});
+	asio::error_code error;
+	socket->write_some(asio::buffer("HTTP/1.0 413 Payload Too Large\r\n"
+									"content-length: 0\r\n"
+									"\r\n"
+									), error);
+	socket->shutdown(tcp::socket::shutdown_both);
+	socket->close();
 }
 
 template <class asio_socket>
