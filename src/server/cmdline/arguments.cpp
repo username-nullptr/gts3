@@ -4,6 +4,10 @@
 #include <iostream>
 #include <cstring>
 
+#if GTS_ENABLE_SSL
+# include <openssl/ssl.h>
+#endif //ssl
+
 namespace gts { namespace cmdline
 {
 
@@ -39,7 +43,7 @@ namespace gts { namespace cmdline
 	} \
 })
 
-[[noreturn]] static void printVersion();
+[[noreturn]] static void printVersion(bool all = false);
 [[noreturn]] static void printHelp();
 
 __attribute_weak__ std::string other_args_check(const char *arg);
@@ -99,7 +103,10 @@ argument_hash argument_check(int argc, const char *argv[])
 			ARGC_EQ_1(args_hash.emplace(sa_vrsus, std::string()));
 
 		else if( strcmp(argv[i], "--version") == 0 )
-			ARGC_EQ_1(printVersion());
+			ARGC_EQ_1(printVersion(false));
+
+		else if( strcmp(argv[i], "-v") == 0 )
+			ARGC_EQ_1(printVersion(true));
 
 		else if( strcmp(argv[i], "-h") == 0 or strcmp(argv[i], "--help") == 0 )
 			ARGC_EQ_1(printHelp());
@@ -134,14 +141,20 @@ bool operator&(argument key, const argument_hash &args_hash)
 /*----------------------------------------------------------------------------------------------------------------------*/
 
 #ifdef __llvm__
-# define IS_CLANG  "LLVM-"
+# define IS_CLANG  "Clang-"
 #else //no llvm
 # define IS_CLANG  ""
 #endif //Clang
 
-[[noreturn]] static void printVersion()
+[[noreturn]] static void printVersion(bool all)
 {
-	std::cout << "Version=" << GTS_VERSION_STR << std::endl;
+	std::cout << "GTS " << GTS_VERSION_STR << std::endl;
+	if( not all )
+		::exit(0);
+
+#if GTS_ENABLE_SSL
+	std::cout << OPENSSL_VERSION_TEXT << std::endl;
+#endif //ssl
 
 #ifdef __GNUC__
 	std::cout << "Compiler: " IS_CLANG "GCC " << __VERSION__ << std::endl;
@@ -155,7 +168,7 @@ bool operator&(argument key, const argument_hash &args_hash)
 
 [[noreturn]] static void printHelp()
 {
-	std::cout << "GTS version=" << GTS_VERSION_STR                                                                    << std::endl;
+	std::cout << "GTS " << GTS_VERSION_STR                                                                    << std::endl;
 	std::cout << "Description of command line parameters:"                                                            << std::endl;
 	std::cout << "  start                              : Start the server."                                           << std::endl;
 	std::cout << "  stop                               : Stop the server."                                            << std::endl;
@@ -164,6 +177,7 @@ bool operator&(argument key, const argument_hash &args_hash)
 	std::cout << "  -f file                            : Specify the configuration file (default is './config.ini')." << std::endl;
 	std::cout << "  stat                               : Viewing server status."                                      << std::endl;
 	std::cout << "  --version                          : Viewing server version."                                     << std::endl;
+	std::cout << "  -v                                 : Viewing the detailed version information."                   << std::endl;
 	std::cout << "  -h or --help                       : Viewing help."                                               << std::endl;
 	std::cout << "  --view-subserver-all               : Viewing all subservers."                                     << std::endl;
 	std::cout << "  --view-subserver                   : Viewing running subservers."                                 << std::endl;
