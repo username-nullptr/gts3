@@ -32,7 +32,9 @@ tcp_server::tcp_server(int, const char**) :
 	if( m_plugin_lib->load() == false )
 		log_fatal("gts.plugin load failed: {}.\n", m_plugin_lib->get_error_string());
 
+	new_connect_method_init();
 	auto method = rttr::type::get_global_method(GTS_PLUGIN_INTERFACE_INIT, {rttr::type::get<std::string>()});
+
 	if( method.is_valid() )
 		method.invoke({}, settings::global_instance().file_name());
 	else
@@ -41,7 +43,6 @@ tcp_server::tcp_server(int, const char**) :
 		if( method.is_valid() )
 			method.invoke({});
 	}
-	new_connect_method_init();
 
 	m_buffer_size = READ_CONFIG(int, SINI_GTS_TCP_BUF_SIZE, m_buffer_size);
 	if( m_buffer_size < 1024 )

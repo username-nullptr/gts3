@@ -1,9 +1,12 @@
 #ifndef GTS_GLOBAL_H
 #define GTS_GLOBAL_H
 
-#include <asio.hpp>
 #include <string>
 #include <deque>
+
+#ifdef USING_ASIO
+# include <asio.hpp>
+#endif //using asio
 
 namespace gts
 {
@@ -75,6 +78,7 @@ typedef uint32_t  address_bits_wide;
 
 typedef std::deque<std::string>  string_list;
 
+#ifdef USING_ASIO
 GTSCORE_API asio::io_context &io_context();
 
 template <typename T> inline
@@ -84,6 +88,7 @@ void delete_later(T *obj)
 		delete obj;
 	});
 }
+#endif //using asio
 
 } //namespace gts
 

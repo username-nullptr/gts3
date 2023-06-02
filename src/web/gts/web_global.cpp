@@ -21,6 +21,11 @@ std::size_t thread_pool_count()
 	return g_count;
 }
 
+void thread_pool_post(std::function<void()> func)
+{
+	asio::post(*g_pool, std::move(func));
+}
+
 void global_init()
 {
 	auto &_settings = settings::global_instance();

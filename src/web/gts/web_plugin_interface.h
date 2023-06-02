@@ -52,10 +52,12 @@
 #define GTS_WEB_PLUGIN_INTERFACE_SET_BODY  "set_body"
 
 /*
- * new_request(socket handle/descriptor)
+ * new_request(asio::ip::tcp::socket &sock)
  * new_request(socket handle/descriptor, bool is_ipv6)
- * new_request(const gts::http::request &request socket handle/descriptor)
- * new_request(const gts::http::request &request socket handle/descriptor, bool is_ipv6)
+ * new_request(socket handle/descriptor)
+ * new_request(const gts::http::request &request, asio::ip::tcp::socket &sock)
+ * new_request(const gts::http::request &request, socket handle/descriptor, bool is_ipv6)
+ * new_request(const gts::http::request &request, socket handle/descriptor)
  *----------------------------------------------------------------------------------------------
  * If xxx from the GTS library is used, no request passing interface other than env is required.
 */

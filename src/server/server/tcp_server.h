@@ -99,7 +99,7 @@ void tcp_server::service(std::shared_ptr<socket<asio_socket>> _socket)
 	if( error )
 		log_error("asio: set socket receive buffer error: {}. ({})\n", error.message(), error.value());
 
-	else if( m_method_id == 0 )
+	if( m_method_id == 0 )
 	{
 		m_new_connect_method.invoke({}, std::move(_socket->next_layer()),
 									reinterpret_cast<void*>(_socket->release_ssl()));

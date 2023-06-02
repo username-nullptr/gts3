@@ -37,8 +37,8 @@ namespace detail
 
 static class_data& get_invalid_type_class_data() RTTR_NOEXCEPT
 {
-    static std::unique_ptr<class_data> info = ::rttr::detail::make_unique<class_data>(nullptr, std::vector<type>());
-    return (*info.get());
+	static std::unique_ptr<class_data> info = ::rttr::detail::make_unique<class_data>(nullptr, std::vector<type>());
+	return (*info.get());
 }
 
 
@@ -46,32 +46,32 @@ static class_data& get_invalid_type_class_data() RTTR_NOEXCEPT
 
 static type_data& get_invalid_type_data_impl() RTTR_NOEXCEPT
 {
-    static type_data instance{ nullptr, nullptr,
-                               nullptr,
-                               std::string(""), string_view(),
-                               0, 0,
-                               &create_invalid_variant_policy::create_variant,
-                               &base_classes<void>::get_types,
-                               nullptr,
-                               nullptr,
-                               get_create_wrapper_func<void>(),
-                               &get_invalid_type_class_data,
-                               false,
-                               type_trait_value{0}};
+	static type_data instance{ nullptr, nullptr,
+							   nullptr,
+							   std::string(""), std::string(""),
+							   0, 0,
+							   &create_invalid_variant_policy::create_variant,
+							   &base_classes<void>::get_types,
+							   nullptr,
+							   nullptr,
+							   get_create_wrapper_func<void>(),
+							   &get_invalid_type_class_data,
+							   false,
+							   type_trait_value{0}};
 
-    instance.raw_type_data  = &instance;
-    instance.wrapped_type   = &instance;
-    instance.array_raw_type = &instance;
+	instance.raw_type_data  = &instance;
+	instance.wrapped_type   = &instance;
+	instance.array_raw_type = &instance;
 
-    return instance;
+	return instance;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
 type_data* get_invalid_type_data() RTTR_NOEXCEPT
 {
-    static auto instance = &get_invalid_type_data_impl();
-    return instance;
+	static auto instance = &get_invalid_type_data_impl();
+	return instance;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

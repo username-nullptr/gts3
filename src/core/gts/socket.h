@@ -2,6 +2,7 @@
 #define GTS_SOCKET_H
 
 #include <gts/gts_global.h>
+#ifdef USING_ASIO
 
 #ifdef GTS_ENABLE_SSL
 # include <asio/ssl.hpp>
@@ -116,5 +117,6 @@ void socket<ssl_stream>::get_option(GettableSocketOption& option) const {
 
 } //namespace gts
 
+#endif //using asio
 
 #endif //GTS_SOCKET_H

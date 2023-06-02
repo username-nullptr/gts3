@@ -54,11 +54,8 @@ GTS_DECL_EXPORT void exit()
 	global_exit();
 }
 
-GTS_DECL_EXPORT void new_connection(tcp::socket::native_handle_type handle, void *ssl, bool ipv6)
+GTS_DECL_EXPORT void new_connection(tcp::socket &tcp_socket, void *ssl)
 {
-	static auto &io = io_context();
-	tcp::socket tcp_socket(io, ipv6? tcp::v6() : tcp::v4(), handle);
-
 #ifdef GTS_ENABLE_SSL
 	if( ssl )
 		session<ssl_stream>::new_connection(std::make_shared<socket<ssl_stream>>(std::move(tcp_socket),

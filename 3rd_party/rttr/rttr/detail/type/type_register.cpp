@@ -483,7 +483,7 @@ type_data* type_register_private::register_name_if_neccessary(type_data* info)
 
 	std::lock_guard<std::mutex> lock(m_mutex);
 
-	m_orig_name_to_id.insert(std::make_pair(info->type_name.to_string(), type(info)));
+	m_orig_name_to_id.insert(std::make_pair(info->type_name, type(info)));
 	info->name = derive_name(type(info));
 	m_custom_name_to_id.insert(std::make_pair(info->name, type(info)));
 
@@ -584,7 +584,7 @@ void type_register_private::unregister_type(type_data* info) RTTR_NOEXCEPT
 		type obj_t(info);
 		remove_container_item(m_type_list, obj_t);
 
-		m_orig_name_to_id.erase(info->type_name.to_string());
+		m_orig_name_to_id.erase(info->type_name);
 		m_custom_name_to_id.erase(info->name);
 	}
 }

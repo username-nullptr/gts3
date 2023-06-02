@@ -41,6 +41,7 @@ if (ENABLE_SSL)
 	endif()
 endif()
 
+add_definitions(-DUSING_ASIO)
 add_compile_options(-Wall)
 add_subdirectory(src)
 
