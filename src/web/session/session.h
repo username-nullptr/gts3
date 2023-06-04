@@ -126,10 +126,12 @@ void session<asio_socket>::new_connection(tcp_socket_ptr socket)
 	log_warning("No connection resources are available and the server is overloaded.");
 
 	asio::error_code error;
-	socket->write_some(asio::buffer("HTTP/1.0 413 Payload Too Large\r\n"
-									"content-length: 0\r\n"
-									"\r\n"
-									), error);
+	socket->non_blocking(false, error);
+	socket->write_some(asio::buffer(
+						   "HTTP/1.0 503 Service Unavailable\r\n"
+						   "content-length: 0\r\n"
+						   "connection: close\r\n"
+						   "\r\n"), error);
 	socket->shutdown(tcp::socket::shutdown_both);
 	socket->close();
 }

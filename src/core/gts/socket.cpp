@@ -70,6 +70,10 @@ ssl_stream::native_handle_type socket<ssl_stream>::ssl() {
 	return ssl_stream::native_handle();
 }
 
+void socket<ssl_stream>::non_blocking(bool mode, asio::error_code& error) {
+	next_layer().non_blocking(mode, error);
+}
+
 void socket<ssl_stream>::non_blocking(bool mode) {
 	next_layer().non_blocking(mode);
 }

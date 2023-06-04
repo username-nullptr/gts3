@@ -88,9 +88,11 @@ template <class asio_socket>
 void service_io<asio_socket>::return_to_null(http::status status)
 {
 	response.set_status(status);
-	response.set_header("content-length", "0");
-	write_some(response.to_string());
 
+	auto body = fmt::format("{} ({})", http::status_description(status), status);
+	response.set_header("content-length", body.size());
+
+	write_some(response.to_string() + body);
 	if( not request.keep_alive )
 	{
 		socket.shutdown(tcp::socket::shutdown_both);

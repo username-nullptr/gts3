@@ -111,6 +111,13 @@ void task<asio_socket>::run()
 	else if( method == "CONNECT" ) CONNECT(sio);
 	else if( method == "TRACH"   ) TRACH  (sio);
 
+	else {
+		m_socket->write_some(asio::buffer("HTTP/1.1 400 Bad Request\r\n"
+										  "content-length: 11\r\n"
+										  "connection: close\r\n"
+										  "\r\n"
+										  "Bad Request"));
+	}
 	if( not m_request->keep_alive )
 	{
 		m_socket->shutdown(tcp::socket::shutdown_both);

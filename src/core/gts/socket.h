@@ -85,6 +85,7 @@ public:
 	ssl_stream::native_handle_type ssl();
 
 public:
+	void non_blocking(bool mode, asio::error_code& error);
 	void non_blocking(bool mode);
 	bool non_blocking() const;
 

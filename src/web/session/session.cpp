@@ -28,10 +28,10 @@ void session_config::init()
 		log_warning("Config: idle time threshold value setting error.");
 		idle_time_tv = 1;
 	}
-	if( max_idle_time < 1 )
+	if( max_idle_time <= idle_time_tv )
 	{
 		log_warning("Config: max idle time setting error.");
-		max_idle_time = 1;
+		max_idle_time = idle_time_tv + 1;
 	}
 	if( max_count < 1 )
 	{
