@@ -3,8 +3,11 @@
 
 #include <fmt/format.h>
 #include <rttr/string_view.h>
-#include <asio.hpp>
 #include <thread>
+
+#ifdef USING_ASIO
+# include <asio.hpp>
+#endif //asio
 
 namespace fmt
 {
@@ -23,6 +26,21 @@ public:
 	}
 };
 
+template <typename CharT>
+class formatter<rttr::basic_string_view<CharT>>
+{
+public:
+	template <typename Context>
+	inline constexpr auto parse(Context &&context) -> decltype(context.begin()) {
+		return context.begin();
+	}
+	template <typename Context>
+	inline auto format(const rttr::basic_string_view<CharT> &str, Context &&context) -> decltype(context.out()) {
+		return format_to(context.out(), "{}", std::basic_string<CharT>(str));
+	}
+};
+
+#ifdef USING_ASIO
 template <>
 class formatter<asio::error_code>
 {
@@ -50,20 +68,7 @@ public:
 		return format_to(context.out(), "{}:{}", endpoint.address().to_string(), endpoint.port());
 	}
 };
-
-template <typename CharT>
-class formatter<rttr::basic_string_view<CharT>>
-{
-public:
-	template <typename Context>
-	inline constexpr auto parse(Context &&context) -> decltype(context.begin()) {
-		return context.begin();
-	}
-	template <typename Context>
-	inline auto format(const rttr::basic_string_view<CharT> &str, Context &&context) -> decltype(context.out()) {
-		return format_to(context.out(), "{}", std::basic_string<CharT>(str));
-	}
-};
+#endif //asio
 
 } //namespace fmt
 
