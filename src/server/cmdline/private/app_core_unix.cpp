@@ -31,7 +31,7 @@ argument_hash startup(int argc, const char *argv[])
 	cmdline_handle(argc, argv, args_hash);
 
 	int pipefd = -1;
-	if( args_hash & sa_daemon )
+	if( args_hash & GC_SA_DAEMON )
 		pipefd = become_child_process();
 
 	auto lock_file = appinfo::lock_file_name();

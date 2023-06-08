@@ -12,7 +12,8 @@
 namespace gts { namespace cmdline
 {
 
-static void start_check(const cmdline::argument_hash &args_hash);
+static void server_is_running_check();
+
 [[noreturn]] static void short_cmd_check(const cmdline::argument_hash &args_hash);
 
 void cmdline_handle(int argc, const char *argv[], argument_hash &args_hash)
@@ -24,9 +25,8 @@ void cmdline_handle(int argc, const char *argv[], argument_hash &args_hash)
 
 	args_hash = argument_check(argc, argv);
 
-	if( args_hash & sa_start )
+	if( args_hash & GC_SA_START )
 	{
-		start_check(args_hash);
 		if( not fs::exists(appinfo::tmp_dir_path()) )
 		{
 			if( fs::create_directories(appinfo::tmp_dir_path()) == false )
@@ -34,26 +34,21 @@ void cmdline_handle(int argc, const char *argv[], argument_hash &args_hash)
 		}
 		return ;
 	}
-	else if( args_hash.empty() or args_hash & sa_daemon )
+	else if( args_hash.empty() or args_hash & GC_SA_DAEMON )
 	{
 		std::cout << "If you want to start the server, add the argument 'start'." << std::endl;
 		exit(-1);
 	}
-
-	if( not fs::exists(appinfo::lock_file_name()) )
+	else if( args_hash & GC_SA_STOP )
 	{
-		std::cout << "The server is not running." << std::endl;
-		exit(-1);
-	}
-	else if( args_hash & sa_stop )
-	{
+		server_is_running_check();
 		if( args_hash.size() > 1 )
 			log_fatal("Too many arguments.");
 		stop_app(true); //exit
 	}
-	else if( args_hash & sa_restart )
+	else if( args_hash & GC_SA_RESTART )
 	{
-		start_check(args_hash);
+		server_is_running_check();
 		return stop_app(false);
 	}
 	short_cmd_check(args_hash);
@@ -61,22 +56,13 @@ void cmdline_handle(int argc, const char *argv[], argument_hash &args_hash)
 
 /*----------------------------------------------------------------------------------------------------------------------*/
 
-static void start_check(const cmdline::argument_hash &args_hash)
+static void server_is_running_check()
 {
-	if( args_hash.size() == 3 )
-	{
-		if( (args_hash & sa_cfpath) == false or
-			(args_hash & sa_daemon) == false )
-		{
-			std::cerr << "Invalid arguments." << std::endl;
-			exit(-1);
-		}
-	}
-	else if( args_hash.size() > 3 )
-	{
-		std::cerr << "Too many arguments." << std::endl;
-		exit(-1);
-	}
+	if( fs::exists(appinfo::lock_file_name()) )
+		return ;
+
+	std::cout << "The server is not running." << std::endl;
+	exit(-1);
 }
 
 #ifdef _WINDOWS
@@ -89,29 +75,33 @@ static void start_check(const cmdline::argument_hash &args_hash)
 
 [[noreturn]] static void short_cmd_check(const cmdline::argument_hash &args_hash)
 {
+	std::string cmd_str;
+
+	if( args_hash & GC_SA_STATUS )
+		cmd_str = CCMD_VSS;
+	else if( args_hash & GC_SA_VASUS )
+		cmd_str = CCMD_VASS;
+	else if( args_hash & GC_SA_VRSUS )
+		cmd_str = CCMD_VRSS;
+	else if( args_hash & GC_SA_STSSA )
+		cmd_str = CCMD_STSSA;
+	else if( args_hash & GC_SA_SPSSA )
+		cmd_str = CCMD_SPSSA;
+	else if( args_hash & GC_SA_STSS )
+		cmd_str = CCMD_STSS + args_hash.at(GC_SA_STSS);
+	else if( args_hash & GC_SA_SPSS )
+		cmd_str = CCMD_SPSS + args_hash.at(GC_SA_SPSS);
+	else
+	{
+		std::cerr << "Invalid arguments." << std::endl;
+		exit(-1);
+	}
 	if( args_hash.size() > 1 )
 	{
 		std::cerr << "Too many arguments." << std::endl;
 		exit(-1);
 	}
-	std::string cmd_str;
-
-	if( args_hash & sa_status )
-		cmd_str = CCMD_VSS;
-	else if( args_hash & sa_vasus )
-		cmd_str = CCMD_VASS;
-	else if( args_hash & sa_vrsus )
-		cmd_str = CCMD_VRSS;
-	else if( args_hash & sa_stssa )
-		cmd_str = CCMD_STSSA;
-	else if( args_hash & sa_spssa )
-		cmd_str = CCMD_SPSSA;
-	else if( args_hash & sa_stss )
-		cmd_str = CCMD_STSS + args_hash.at(sa_stss);
-	else if( args_hash & sa_spss )
-		cmd_str = CCMD_SPSS + args_hash.at(sa_spss);
-	else
-		log_fatal("code bug.");
+	server_is_running_check();
 
 	interaction _interaction(false);
 	if( _interaction.open() == false )

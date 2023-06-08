@@ -1,4 +1,5 @@
 #include "session.h"
+#include "service/task.h"
 
 using namespace std::chrono;
 
@@ -17,7 +18,7 @@ std::atomic_long session_config::counter {0};
 
 std::set<basic_session*> session_config::timeout_set;
 
-void session_config::init()
+void session_config::init(const basic_string_list &args)
 {
 	idle_time_tv = settings::global_instance().read<long>(SINI_GROUP_WEB, SINI_WEB_IDLE_TIME_TV, idle_time_tv);
 	max_idle_time = settings::global_instance().read<long>(SINI_GROUP_WEB, SINI_WEB_MAX_IDLE_TIME, max_idle_time);
@@ -42,7 +43,7 @@ void session_config::init()
 	log_debug("Web: idle time threshold value: {}", idle_time_tv);
 	log_debug("Web: max idle time: {}", max_idle_time);
 	log_debug("Web: max connetion count: {}", max_count);
-	task_config::init();
+	task_config::init(args);
 }
 
 void session_config::exit()
@@ -52,8 +53,17 @@ void session_config::exit()
 
 std::string session_config::view_status()
 {
-	return fmt::format("web plugin:\n"
-					   "  session count: {} / {}\n", counter, max_count);
+	auto result = fmt::format("web plugin:\n"
+							  "  session count: {} / {}\n", counter, max_count);
+	auto tmp = task_config::view_status();
+
+	if( not tmp.empty() )
+	{
+		if( tmp[0] != '\n' )
+			tmp = "\n" + tmp;
+		result += tmp;
+	}
+	return result;
 }
 
 }} //namespace gts::web

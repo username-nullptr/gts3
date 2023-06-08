@@ -8,6 +8,10 @@
 /*
  * init(void)
  * init(const std::string &config_file)
+ * init(int argc, const char *argv[])
+ * init(const std::deque<std::string> &args)
+ * init(const std::string &config_file, int argc, const char *argv[])
+ * init(const std::string &config_file, const std::deque<std::string> &args)
 */
 #define GTS_WEB_PLUGIN_INTERFACE_INIT  ".init"
 
@@ -15,6 +19,11 @@
  * exit(void)
 */
 #define GTS_WEB_PLUGIN_INTERFACE_EXIT  ".exit"
+
+/*
+ * std::string view_status(void)
+*/
+#define GTS_WEB_PLUGIN_INTERFACE_VIEW_STATUS  ".view_status"
 
 /*
  * plugin_class::set_version(const std::string &version)

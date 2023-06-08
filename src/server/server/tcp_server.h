@@ -14,7 +14,7 @@ class tcp_server
 	DISABLE_COPY(tcp_server)
 
 public:
-	tcp_server(int argc, const char *argv[]);
+	tcp_server();
 	~tcp_server();
 
 public:
@@ -28,6 +28,7 @@ private:
 	template <class asio_socket>
 	void service(std::shared_ptr<socket<asio_socket>> _socket);
 	void new_connect_method_init();
+	void call_init();
 
 private:
 	class basic_site

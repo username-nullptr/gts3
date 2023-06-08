@@ -42,8 +42,9 @@ public:
 	static std::list<rttr::type> type_list;
 
 public:
-	static void init();
+	static void init(const basic_string_list &args);
 	static void exit();
+	static std::string view_status();
 };
 
 template <class asio_socket>

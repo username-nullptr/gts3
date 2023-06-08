@@ -6,7 +6,7 @@ int main(int argc, const char *argv[])
 {
 	gts::applictaion app(argc, argv);
 
-	gts::tcp_server tcp_server(argc, argv);
+	gts::tcp_server tcp_server;
 	tcp_server.start();
 
 	gts::cmdline_server cmdline_server(tcp_server);

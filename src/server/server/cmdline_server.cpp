@@ -108,8 +108,10 @@ void cmdline_server::start()
 		str = str.substr(0, i + 1);
 
 		if( not str.empty() )
+		{
+			str += "\n";
 			m_interaction->write(str.c_str(), str.size());
-
+		}
 		start();
 	});
 }

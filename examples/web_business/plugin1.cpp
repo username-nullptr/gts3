@@ -25,8 +25,9 @@ namespace gts { namespace web { namespace business
 class DECL_EXPORT plugin1
 {
 public:
-	static void init();
+	static void init(int argc, const char *argv[]);
 	static void exit();
+	static std::string view_status();
 
 public:
 	void set_version(const std::string &version);
@@ -55,14 +56,34 @@ private:
 	std::unordered_map<std::string, std::string> m_envs;
 };
 
-void plugin1::init()
+void plugin1::init(int argc, const char *argv[])
 {
+#if 0
+	if( argc <= 0 )
+		return ;
 
+	std::string str;
+	for(int i=0; i<argc; i++)
+	{
+		str += argv[i];
+		str += ", ";
+	}
+	str = str.substr(0, str.size() - 2);
+	std::cerr << "web plugin: examples-plugin1: init: args: " << str << std::endl;
+#else
+	(void)(argc);
+	(void)(argv);
+#endif
 }
 
 void plugin1::exit()
 {
 
+}
+
+std::string plugin1::view_status()
+{
+	return "web plugin: examples-plugin1: hello1\n";
 }
 
 void plugin1::set_version(const std::string &version)
@@ -176,5 +197,6 @@ RTTR_PLUGIN_REGISTRATION
 
 	registration::
 			method("gts.web.plugin." + lib_name + ".init", &plugin1::init)
-			.method("gts.web.plugin." + lib_name + ".exit", &plugin1::exit);
+			.method("gts.web.plugin." + lib_name + ".exit", &plugin1::exit)
+			.method("gts.web.plugin." + lib_name + ".view_status", &plugin1::view_status);
 }

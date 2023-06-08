@@ -18,7 +18,7 @@ public:
 	static void call_cgi_service(service_io<asio_socket> &sio);
 
 public:
-	static void init();
+	static void init(const basic_string_list &args);
 	static void exit();
 };
 

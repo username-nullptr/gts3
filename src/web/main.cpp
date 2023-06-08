@@ -22,7 +22,7 @@ extern GTS_DECL_HIDDEN void global_exit();
 namespace plugin_main
 {
 
-GTS_DECL_EXPORT void init(const std::string &config_file)
+GTS_DECL_EXPORT void init(const std::string &config_file, const basic_string_list &args)
 {
 	log_debug("gts web plugin init. (config file: {})", config_file);
 
@@ -43,8 +43,8 @@ GTS_DECL_EXPORT void init(const std::string &config_file)
 	};
 	settings::ini_file_check(SINI_GROUP_WEB, sample_gts);
 
+	session_config::init(args);
 	global_init();
-	session_config::init();
 }
 
 GTS_DECL_EXPORT void exit()

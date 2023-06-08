@@ -50,8 +50,9 @@ class GTS_DECL_HIDDEN task_config
 {
 public:
 	static std::string cgi_path;
-	static void init();
+	static void init(const basic_string_list &args);
 	static void exit();
+	static std::string view_status();
 };
 
 template <class asio_socket>

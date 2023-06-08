@@ -1,5 +1,6 @@
 #include "plugins_service.h"
 #include "json.h"
+#include <iostream>
 
 namespace gts { namespace web
 {
@@ -8,7 +9,59 @@ std::list<rttr::library> plugin_service_config::library_list;
 
 std::list<rttr::type> plugin_service_config::type_list;
 
-void plugin_service_config::init()
+static void call_init(const std::string &class_name, const string_list &args)
+{
+	auto init_method_name = class_name + GTS_WEB_PLUGIN_INTERFACE_INIT;
+
+	auto method = rttr::type::get_global_method(init_method_name);
+	if( method.is_valid() and method.get_parameter_infos().size() == 0 )
+	{
+		method.invoke({});
+		return ;
+	}
+
+	method = rttr::type::get_global_method(init_method_name, {rttr::type::get<std::string>()});
+	if( method.is_valid() )
+	{
+		method.invoke({}, settings::global_instance().file_name());
+		return ;
+	}
+
+	method = rttr::type::get_global_method(init_method_name,
+										   {rttr::type::get<int>(), rttr::type::get<const char**>()});
+	if( method.is_valid() )
+	{
+		auto vector = args.c_str_vector();
+		method.invoke({}, static_cast<int>(vector.size()), vector.data());
+		return ;
+	}
+
+	method = rttr::type::get_global_method(init_method_name,
+										   {rttr::type::get<std::deque<std::string>>()});
+	if( method.is_valid() )
+	{
+		method.invoke({}, static_cast<std::deque<std::string>>(args));
+		return ;
+	}
+
+	method = rttr::type::get_global_method(init_method_name,
+										   {rttr::type::get<std::string>(), rttr::type::get<int>(),
+											rttr::type::get<const char**>()});
+	if( method.is_valid() )
+	{
+		auto vector = args.c_str_vector();
+		method.invoke({}, settings::global_instance().file_name(), static_cast<int>(vector.size()), vector.data());
+		return ;
+	}
+
+	method = rttr::type::get_global_method(init_method_name,
+										   {rttr::type::get<std::string>(),
+											rttr::type::get<std::deque<std::string>>()});
+	if( method.is_valid() )
+		method.invoke({}, settings::global_instance().file_name(), static_cast<std::deque<std::string>>(args));
+}
+
+void plugin_service_config::init(const basic_string_list &args)
 {
 	auto &_settings = settings::global_instance();
 	auto json_file = _settings.read<std::string>
@@ -78,18 +131,7 @@ void plugin_service_config::init()
 			library_list.pop_back();
 			continue;
 		}
-
-		auto init_method_name = class_name + GTS_WEB_PLUGIN_INTERFACE_INIT;
-		auto method = rttr::type::get_global_method(init_method_name);
-
-		if( method.is_valid() )
-			method.invoke({});
-		else
-		{
-			method = rttr::type::get_global_method(init_method_name, {rttr::type::get<std::string>()});
-			if( method.is_valid() )
-				method.invoke({}, _settings.file_name());
-		}
+		call_init(class_name, args);
 	}
 }
 
@@ -109,6 +151,20 @@ void plugin_service_config::exit()
 	for(auto &library : library_list)
 		library.unload();
 	library_list.clear();
+}
+
+std::string plugin_service_config::view_status()
+{
+	std::string result;
+	for(auto &type : plugin_service_config::type_list)
+	{
+		auto method = rttr::type::get_global_method(std::string(type.get_name()) + GTS_WEB_PLUGIN_INTERFACE_VIEW_STATUS);
+		if( method.is_valid() and method.get_return_type() == rttr::type::get<std::string>() )
+			result += method.invoke({}).get_value<std::string>();
+	}
+	if( not result.empty() and result[0] != '\n' )
+		result = "\n" + result;
+	return result;
 }
 
 }} //namespace gts::web

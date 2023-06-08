@@ -25,6 +25,7 @@ class DECL_EXPORT plugin0
 public:
 	static void init();
 	static void exit();
+	static std::string view_status();
 
 public:
 	void set_version(const std::string &version);
@@ -56,6 +57,11 @@ void plugin0::init()
 void plugin0::exit()
 {
 
+}
+
+std::string plugin0::view_status()
+{
+	return "web plugin: examples-plugin0: hello0\n";
 }
 
 void plugin0::set_version(const std::string &version)
@@ -134,5 +140,6 @@ RTTR_PLUGIN_REGISTRATION
 
 	registration::
 			method("gts.web.plugin." + lib_name + ".init", &plugin0::init)
-			.method("gts.web.plugin." + lib_name + ".exit", &plugin0::exit);
+			.method("gts.web.plugin." + lib_name + ".exit", &plugin0::exit)
+			.method("gts.web.plugin." + lib_name + ".view_status", &plugin0::view_status);
 }

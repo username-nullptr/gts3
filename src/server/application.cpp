@@ -37,7 +37,8 @@ private:
 	void set_config_file(const cmdline::argument_hash &args_hash);
 
 public:
-	std::list<std::string> m_args;
+	string_list m_args;
+	string_list m_other_args;
 
 public:
 #ifdef __unix__
@@ -116,7 +117,7 @@ applictaion_impl::~applictaion_impl()
 void applictaion_impl::set_config_file(const cmdline::argument_hash &args_hash)
 {
 	std::string file_name;
-	auto it = args_hash.find(cmdline::sa_cfpath);
+	auto it = args_hash.find(GC_SA_CFPATH);
 
 	if( it == args_hash.end() )
 		file_name = appinfo::dir_path() + "config.ini";
@@ -163,6 +164,12 @@ void applictaion_impl::set_config_file(const cmdline::argument_hash &args_hash)
 		{ SINI_GTS_LOG_MAX      , 1073741824 },
 	};
 	settings::ini_file_check(SINI_GROUP_GTSLOG, sample_gtslog);
+
+	for(auto &pair : args_hash)
+	{
+		if( pair.first[0] == '@' )
+			m_other_args.emplace_back(pair.second);
+	}
 }
 
 /*----------------------------------------------------------------------------------------------------------*/
@@ -201,9 +208,14 @@ asio::io_context &applictaion::io_context()
 	return gts::io_context();
 }
 
-std::list<std::string> applictaion::args() const
+string_list applictaion::args() const
 {
 	return g_impl->m_args;
+}
+
+string_list applictaion::other_args() const
+{
+	return g_impl->m_other_args;
 }
 
 int applictaion::exec()

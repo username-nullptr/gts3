@@ -22,7 +22,7 @@ namespace ip = asio::ip;
 #define READ_CONFIG(_type, _key, _default) \
 	gts::settings::global_instance().read<_type>(SINI_GROUP_GTS, _key, _default)
 
-tcp_server::tcp_server(int, const char**) :
+tcp_server::tcp_server() :
 	m_new_connect_method(rttr::type::get_global_method(""))
 {
 	auto plugin_file_name = READ_CONFIG(std::string, SINI_GTS_STRATEGY, _GTS_DEFULT_STRATEGY);
@@ -33,16 +33,7 @@ tcp_server::tcp_server(int, const char**) :
 		log_fatal("gts.plugin load failed: {}.\n", m_plugin_lib->get_error_string());
 
 	new_connect_method_init();
-	auto method = rttr::type::get_global_method(GTS_PLUGIN_INTERFACE_INIT, {rttr::type::get<std::string>()});
-
-	if( method.is_valid() )
-		method.invoke({}, settings::global_instance().file_name());
-	else
-	{
-		method = rttr::type::get_global_method(GTS_PLUGIN_INTERFACE_INIT);
-		if( method.is_valid() )
-			method.invoke({});
-	}
+	call_init();
 
 	m_buffer_size = READ_CONFIG(int, SINI_GTS_TCP_BUF_SIZE, m_buffer_size);
 	if( m_buffer_size < 1024 )
@@ -212,11 +203,8 @@ std::string tcp_server::view_status() const
 	}
 
 	auto method = rttr::type::get_global_method(GTS_PLUGIN_INTERFACE_VIEW_STATUS);
-	if( method.is_valid() )
-	{
-		if( method.get_return_type() == rttr::type::get<std::string>() )
-			status += method.invoke({}).get_value<std::string>();
-	}
+	if( method.is_valid() and method.get_return_type() == rttr::type::get<std::string>() )
+		status += method.invoke({}).get_value<std::string>();
 	return status;
 }
 
@@ -267,6 +255,61 @@ void tcp_server::new_connect_method_init()
 	}
 
 	log_fatal("gts.plugin error: strategy is null.\n");
+}
+
+void tcp_server::call_init()
+{
+	auto method = rttr::type::get_global_method(GTS_PLUGIN_INTERFACE_INIT);
+	if( method.is_valid() and method.get_parameter_infos().size() == 0 )
+	{
+		method.invoke({});
+		return ;
+	}
+
+	method = rttr::type::get_global_method(GTS_PLUGIN_INTERFACE_INIT, {rttr::type::get<std::string>()});
+	if( method.is_valid() )
+	{
+		method.invoke({}, settings::global_instance().file_name());
+		return ;
+	}
+
+	method = rttr::type::get_global_method(GTS_PLUGIN_INTERFACE_INIT,
+										   {rttr::type::get<int>(), rttr::type::get<const char**>()});
+	if( method.is_valid() )
+	{
+		auto args = gts_app.other_args();
+		auto vector = args.c_str_vector();
+		method.invoke({}, static_cast<int>(vector.size()), vector.data());
+		return ;
+	}
+
+	method = rttr::type::get_global_method(GTS_PLUGIN_INTERFACE_INIT,
+										   {rttr::type::get<std::deque<std::string>>()});
+	if( method.is_valid() )
+	{
+		method.invoke({}, static_cast<std::deque<std::string>>(gts_app.other_args()));
+		return ;
+	}
+
+	method = rttr::type::get_global_method(GTS_PLUGIN_INTERFACE_INIT,
+										   {rttr::type::get<std::string>(), rttr::type::get<int>(),
+											rttr::type::get<const char**>()});
+	if( method.is_valid() )
+	{
+		auto args = gts_app.other_args();
+		auto vector = args.c_str_vector();
+		method.invoke({}, settings::global_instance().file_name(), static_cast<int>(vector.size()), vector.data());
+		return ;
+	}
+
+	method = rttr::type::get_global_method(GTS_PLUGIN_INTERFACE_INIT,
+										   {rttr::type::get<std::string>(),
+											rttr::type::get<std::deque<std::string>>()});
+	if( method.is_valid() )
+	{
+		method.invoke({}, settings::global_instance().file_name(),
+					  static_cast<std::deque<std::string>>(gts_app.other_args()));
+	}
 }
 
 /*-----------------------------------------------------------------------------------------------------------------*/

@@ -1,7 +1,7 @@
 #ifndef GTS_ALGORITHM_H
 #define GTS_ALGORITHM_H
 
-#include <gts/gts_global.h>
+#include <gts/string_list.h>
 #include <rttr/variant.h>
 #include <unordered_map>
 

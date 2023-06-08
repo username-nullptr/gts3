@@ -1,9 +1,6 @@
 #ifndef GTS_GLOBAL_H
 #define GTS_GLOBAL_H
 
-#include <string>
-#include <deque>
-
 #ifdef USING_ASIO
 # include <asio.hpp>
 #endif //using asio
@@ -75,8 +72,6 @@ typedef uint32_t  address_bits_wide;
 	explicit _class(_class&&) = delete; \
 	void operator=(const _class&) = delete; \
 	void operator=(_class&&) = delete;
-
-typedef std::deque<std::string>  string_list;
 
 #ifdef USING_ASIO
 GTSCORE_API asio::io_context &io_context();

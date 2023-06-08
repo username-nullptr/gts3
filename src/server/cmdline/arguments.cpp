@@ -46,8 +46,6 @@ namespace gts { namespace cmdline
 [[noreturn]] static void printVersion(bool all = false);
 [[noreturn]] static void printHelp();
 
-__attribute_weak__ std::string other_args_check(const char *arg);
-
 // Modify or extend this function
 argument_hash argument_check(int argc, const char *argv[])
 {
@@ -61,46 +59,51 @@ argument_hash argument_check(int argc, const char *argv[])
 	for(int i=0 ;i<argc; i++)
 	{
 		if( strcmp(argv[i], "stop") == 0 )
-			args_hash.emplace(sa_stop, std::string());
+			args_hash.emplace(GC_SA_STOP, std::string());
 
 		else if( strcmp(argv[i], "start") == 0 )
-			args_hash.emplace(sa_start, std::string());
+			args_hash.emplace(GC_SA_START, std::string());
 
 		else if( strcmp(argv[i], "restart") == 0 )
-			args_hash.emplace(sa_restart, std::string());
+			args_hash.emplace(GC_SA_RESTART, std::string());
 
 		else if( strcmp(argv[i], "-d") == 0 )
-			args_hash.emplace(sa_daemon, std::string());
+			args_hash.emplace(GC_SA_DAEMON, std::string());
 
 		else if( strcmp(argv[i], "-f") == 0 )
 		{
 			if( i + 1 >= argc )
 				ERROR_EXIT("Invalid arguments.");
-			args_hash.emplace(sa_cfpath, argv[++i]);
+			args_hash.emplace(GC_SA_CFPATH, argv[++i]);
 		}
 		else if( strcmp(argv[i], "-df") == 0 )
 		{
 			if( i + 1 >= argc )
 				ERROR_EXIT("Invalid arguments.");
-			args_hash.emplace(sa_cfpath, argv[++i]);
-			args_hash.emplace(sa_daemon, std::string());
+			args_hash.emplace(GC_SA_CFPATH, argv[++i]);
+			args_hash.emplace(GC_SA_DAEMON, std::string());
 		}
 
 		///////////////////////////////////////////////////////////////////////////////////////
-		else if( strcmp(argv[i], "stat") == 0 )
-			ARGC_EQ_1(args_hash.emplace(sa_status, std::string()));
+		else if( strcmp(argv[i], "stat") == 0 or
+				 strcmp(argv[i], "-stat") == 0 or
+				 strcmp(argv[i], "--stat") == 0 or
+				 strcmp(argv[i], "status") == 0 or
+				 strcmp(argv[i], "-status") == 0 or
+				 strcmp(argv[i], "--status") == 0 )
+			ARGC_EQ_1(args_hash.emplace(GC_SA_STATUS, std::string()));
 
 		else if( strcmp(argv[i], "--start-subserver-all") == 0 )
-			ARGC_EQ_1(args_hash.emplace(sa_stssa, std::string()));
+			ARGC_EQ_1(args_hash.emplace(GC_SA_STSSA, std::string()));
 
 		else if( strcmp(argv[i], "--stop-subserver-all") == 0 )
-			ARGC_EQ_1(args_hash.emplace(sa_spssa, std::string()));
+			ARGC_EQ_1(args_hash.emplace(GC_SA_SPSSA, std::string()));
 
 		else if( strcmp(argv[i], "--view-subserver-all") == 0 )
-			ARGC_EQ_1(args_hash.emplace(sa_vasus, std::string()));
+			ARGC_EQ_1(args_hash.emplace(GC_SA_VASUS, std::string()));
 
 		else if( strcmp(argv[i], "--view-subserver") == 0 )
-			ARGC_EQ_1(args_hash.emplace(sa_vrsus, std::string()));
+			ARGC_EQ_1(args_hash.emplace(GC_SA_VRSUS, std::string()));
 
 		else if( strcmp(argv[i], "--version") == 0 )
 			ARGC_EQ_1(printVersion(false));
@@ -113,27 +116,23 @@ argument_hash argument_check(int argc, const char *argv[])
 
 		///////////////////////////////////////////////////////////////////////////////////////
 		else if( strcmp(argv[i], "--start-subserver") == 0 )
-			ARGC_EQ_2(args_hash.emplace(sa_stss, argv[++i]));
+			ARGC_EQ_2(args_hash.emplace(GC_SA_STSS, argv[++i]));
 
 		else if( strcmp(argv[i], "--stop-subserver") == 0 )
-			ARGC_EQ_2(args_hash.emplace(sa_spss, argv[++i]));
+			ARGC_EQ_2(args_hash.emplace(GC_SA_SPSS, argv[++i]));
 
 		///////////////////////////////////////////////////////////////////////////////////////
-		else {
-			auto str = other_args_check(argv[i]);
-			if( not str.empty() )
-				ERROR_EXIT(str);
-		}
+		else args_hash.emplace("@" + std::string(argv[i]), argv[i]);
 	}
 	return args_hash;
 }
 
-bool operator&(const argument_hash &args_hash, argument key)
+bool operator&(const argument_hash &args_hash, const std::string &key)
 {
 	return args_hash.find(key) != args_hash.end();
 }
 
-bool operator&(argument key, const argument_hash &args_hash)
+bool operator&(const std::string &key, const argument_hash &args_hash)
 {
 	return args_hash.find(key) != args_hash.end();
 }
@@ -186,11 +185,6 @@ bool operator&(argument key, const argument_hash &args_hash)
 	std::cout << "  --stop-subserver-all               : Stop all subservers."                                        << std::endl;
 	std::cout << "  --stop-subserver <name0,name1...>  : Stop subservices in the list."                               << std::endl;
 	exit(0);
-}
-
-__attribute_weak__ std::string other_args_check(const char*)
-{
-	return "Invalid arguments.";
 }
 
 }} //namespace gts::cmdline

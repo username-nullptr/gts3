@@ -1,6 +1,7 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
+#include "gts/string_list.h"
 #include "gts/settings.h"
 #include <asio.hpp>
 #include <list>
@@ -23,7 +24,8 @@ public:
 	asio::io_context &io_context();
 
 public:
-	std::list<std::string> args() const;
+	string_list args() const;
+	string_list other_args() const;
 
 public:
 	int exec();
