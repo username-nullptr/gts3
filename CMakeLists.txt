@@ -29,18 +29,6 @@ endif()
 
 option(ENABLE_SSL "-- gts: enable link libssl" ON)
 
-if (ENABLE_SSL)
-	message("-- gts: enable open ssl. (the version must be greater than or equal to 1.0.2)")
-	add_definitions(-DGTS_ENABLE_SSL)
-	if (OpenSSL_DIR)
-		message("-- gts: manually specify the path of openssl: ${OpenSSL_DIR}")
-		include_directories(${OpenSSL_DIR}/include)
-		link_directories(${OpenSSL_DIR}/lib)
-	else()
-		find_package(OpenSSL 1.0.2 REQUIRED)
-	endif()
-endif()
-
 add_definitions(-DUSING_ASIO)
 add_compile_options(-Wall)
 add_subdirectory(src)
