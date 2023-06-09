@@ -2,6 +2,7 @@
 #include "app_info.h"
 #include "global.h"
 
+#include "startup_plugin_interface.h"
 #include "gts/gts_config_key.h"
 #include "gts/algorithm.h"
 #include "gts/log.h"
@@ -38,7 +39,6 @@ private:
 
 public:
 	string_list m_args;
-	string_list m_other_args;
 
 public:
 #ifdef __unix__
@@ -66,16 +66,16 @@ applictaion_impl::applictaion_impl(int argc, const char *argv[])
 	set_config_file(cmdline::startup(argc, argv));
 
 	log::logger::context context;
-	auto &settings = gts::settings::global_instance();
+	auto &_settings = gts::settings::global_instance();
 
-	context.dir      = settings.read<std::string>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_DIR);
-	context.category = settings.read<std::string>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_CATEGORY);
-	context.mask     = settings.read<int>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_LEVEL);
-	context.async    = settings.read<bool>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_ASYNC);
+	context.dir      = _settings.read<std::string>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_DIR);
+	context.category = _settings.read<std::string>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_CATEGORY);
+	context.mask     = _settings.read<int>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_LEVEL);
+	context.async    = _settings.read<bool>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_ASYNC);
 
-	context.max_size_one_file = settings.read<int>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_MAXOF);
-	context.max_size_one_day  = settings.read<int>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_MAXOD);
-	context.max_size          = settings.read<int>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_MAX);
+	context.max_size_one_file = _settings.read<int>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_MAXOF);
+	context.max_size_one_day  = _settings.read<int>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_MAXOD);
+	context.max_size          = _settings.read<int>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_MAX);
 
 	log::logger::set_context(context);
 	log::logger::set_header_breaks_aline(true);
@@ -107,6 +107,16 @@ applictaion_impl::applictaion_impl(int argc, const char *argv[])
 			log_info("pipe rupture. (ignore)");
 	});
 #endif //__unix__
+
+	auto method = rttr::type::get_global_method(GTS_STARTUP_PLUGIN_INTERFACE_INIT);
+	if( method.is_valid() and method.get_parameter_infos().size() == 0 )
+	{
+		method.invoke({});
+		return ;
+	}
+	method = rttr::type::get_global_method(GTS_STARTUP_PLUGIN_INTERFACE_INIT, {rttr::type::get<std::string>()});
+	if( method.is_valid() )
+		method.invoke({}, _settings.file_name());
 }
 
 applictaion_impl::~applictaion_impl()
@@ -164,12 +174,6 @@ void applictaion_impl::set_config_file(const cmdline::argument_hash &args_hash)
 		{ SINI_GTS_LOG_MAX      , 1073741824 },
 	};
 	settings::ini_file_check(SINI_GROUP_GTSLOG, sample_gtslog);
-
-	for(auto &pair : args_hash)
-	{
-		if( pair.first[0] == '@' )
-			m_other_args.emplace_back(pair.second);
-	}
 }
 
 /*----------------------------------------------------------------------------------------------------------*/
@@ -211,11 +215,6 @@ asio::io_context &applictaion::io_context()
 string_list applictaion::args() const
 {
 	return g_impl->m_args;
-}
-
-string_list applictaion::other_args() const
-{
-	return g_impl->m_other_args;
 }
 
 int applictaion::exec()

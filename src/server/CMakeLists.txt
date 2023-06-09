@@ -14,6 +14,7 @@ set(server_sources
 set(server_headers
 	global.h
 	application.h
+	startup_plugin_interface.h
 	cmdline/arguments.h
 	cmdline/app_core.h
 	cmdline/interaction.h
@@ -51,4 +52,9 @@ set_target_properties(gts PROPERTIES
 )
 
 install(TARGETS gts DESTINATION bin)
-install(FILES server/tcp_plugin_interface.h DESTINATION include/gts)
+
+install(FILES
+	startup_plugin_interface.h
+	server/tcp_plugin_interface.h
+	DESTINATION include/gts
+)

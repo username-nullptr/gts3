@@ -8,10 +8,6 @@
 /*
  * init(void)
  * init(const std::string &config_file)
- * init(int argc, const char *argv[])
- * init(const std::deque<std::string> &args)
- * init(const std::string &config_file, int argc, const char *argv[])
- * init(const std::string &config_file, const std::deque<std::string> &args)
 */
 #define GTS_PLUGIN_INTERFACE_INIT  GTS_PLUGIN_INTERFACE "init"
 

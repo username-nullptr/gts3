@@ -3,10 +3,10 @@
 namespace gts { namespace web
 {
 
-void service::init(const basic_string_list &args)
+void service::init()
 {
 	service_io_config::init();
-	plugin_service_config::init(args);
+	plugin_service_config::init();
 	cgi_service_config::init();
 }
 

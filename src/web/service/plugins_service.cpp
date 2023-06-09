@@ -9,7 +9,7 @@ std::list<rttr::library> plugin_service_config::library_list;
 
 std::list<rttr::type> plugin_service_config::type_list;
 
-static void call_init(const std::string &class_name, const string_list &args)
+static void call_init(const std::string &class_name)
 {
 	auto init_method_name = class_name + GTS_WEB_PLUGIN_INTERFACE_INIT;
 
@@ -22,46 +22,10 @@ static void call_init(const std::string &class_name, const string_list &args)
 
 	method = rttr::type::get_global_method(init_method_name, {rttr::type::get<std::string>()});
 	if( method.is_valid() )
-	{
 		method.invoke({}, settings::global_instance().file_name());
-		return ;
-	}
-
-	method = rttr::type::get_global_method(init_method_name,
-										   {rttr::type::get<int>(), rttr::type::get<const char**>()});
-	if( method.is_valid() )
-	{
-		auto vector = args.c_str_vector();
-		method.invoke({}, static_cast<int>(vector.size()), vector.data());
-		return ;
-	}
-
-	method = rttr::type::get_global_method(init_method_name,
-										   {rttr::type::get<std::deque<std::string>>()});
-	if( method.is_valid() )
-	{
-		method.invoke({}, static_cast<std::deque<std::string>>(args));
-		return ;
-	}
-
-	method = rttr::type::get_global_method(init_method_name,
-										   {rttr::type::get<std::string>(), rttr::type::get<int>(),
-											rttr::type::get<const char**>()});
-	if( method.is_valid() )
-	{
-		auto vector = args.c_str_vector();
-		method.invoke({}, settings::global_instance().file_name(), static_cast<int>(vector.size()), vector.data());
-		return ;
-	}
-
-	method = rttr::type::get_global_method(init_method_name,
-										   {rttr::type::get<std::string>(),
-											rttr::type::get<std::deque<std::string>>()});
-	if( method.is_valid() )
-		method.invoke({}, settings::global_instance().file_name(), static_cast<std::deque<std::string>>(args));
 }
 
-void plugin_service_config::init(const basic_string_list &args)
+void plugin_service_config::init()
 {
 	auto &_settings = settings::global_instance();
 	auto json_file = _settings.read<std::string>
@@ -131,7 +95,7 @@ void plugin_service_config::init(const basic_string_list &args)
 			library_list.pop_back();
 			continue;
 		}
-		call_init(class_name, args);
+		call_init(class_name);
 	}
 }
 

@@ -41,9 +41,9 @@ void cmdline_handle(int argc, const char *argv[], argument_hash &args_hash)
 	}
 	else if( args_hash & GC_SA_STOP )
 	{
-		server_is_running_check();
 		if( args_hash.size() > 1 )
 			log_fatal("Too many arguments.");
+		server_is_running_check();
 		stop_app(true); //exit
 	}
 	else if( args_hash & GC_SA_RESTART )

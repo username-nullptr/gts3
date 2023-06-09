@@ -268,48 +268,7 @@ void tcp_server::call_init()
 
 	method = rttr::type::get_global_method(GTS_PLUGIN_INTERFACE_INIT, {rttr::type::get<std::string>()});
 	if( method.is_valid() )
-	{
 		method.invoke({}, settings::global_instance().file_name());
-		return ;
-	}
-
-	method = rttr::type::get_global_method(GTS_PLUGIN_INTERFACE_INIT,
-										   {rttr::type::get<int>(), rttr::type::get<const char**>()});
-	if( method.is_valid() )
-	{
-		auto args = gts_app.other_args();
-		auto vector = args.c_str_vector();
-		method.invoke({}, static_cast<int>(vector.size()), vector.data());
-		return ;
-	}
-
-	method = rttr::type::get_global_method(GTS_PLUGIN_INTERFACE_INIT,
-										   {rttr::type::get<std::deque<std::string>>()});
-	if( method.is_valid() )
-	{
-		method.invoke({}, static_cast<std::deque<std::string>>(gts_app.other_args()));
-		return ;
-	}
-
-	method = rttr::type::get_global_method(GTS_PLUGIN_INTERFACE_INIT,
-										   {rttr::type::get<std::string>(), rttr::type::get<int>(),
-											rttr::type::get<const char**>()});
-	if( method.is_valid() )
-	{
-		auto args = gts_app.other_args();
-		auto vector = args.c_str_vector();
-		method.invoke({}, settings::global_instance().file_name(), static_cast<int>(vector.size()), vector.data());
-		return ;
-	}
-
-	method = rttr::type::get_global_method(GTS_PLUGIN_INTERFACE_INIT,
-										   {rttr::type::get<std::string>(),
-											rttr::type::get<std::deque<std::string>>()});
-	if( method.is_valid() )
-	{
-		method.invoke({}, settings::global_instance().file_name(),
-					  static_cast<std::deque<std::string>>(gts_app.other_args()));
-	}
 }
 
 /*-----------------------------------------------------------------------------------------------------------------*/

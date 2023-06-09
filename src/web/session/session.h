@@ -59,7 +59,7 @@ public:
 	static std::set<basic_session*> timeout_set;
 
 public:
-	static void init(const basic_string_list &args);
+	static void init();
 	static void exit();
 	static std::string view_status();
 };

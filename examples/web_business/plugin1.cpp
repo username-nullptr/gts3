@@ -25,7 +25,7 @@ namespace gts { namespace web { namespace business
 class DECL_EXPORT plugin1
 {
 public:
-	static void init(int argc, const char *argv[]);
+	static void init();
 	static void exit();
 	static std::string view_status();
 
@@ -56,24 +56,9 @@ private:
 	std::unordered_map<std::string, std::string> m_envs;
 };
 
-void plugin1::init(int argc, const char *argv[])
+void plugin1::init()
 {
-#if 0
-	if( argc <= 0 )
-		return ;
 
-	std::string str;
-	for(int i=0; i<argc; i++)
-	{
-		str += argv[i];
-		str += ", ";
-	}
-	str = str.substr(0, str.size() - 2);
-	std::cerr << "web plugin: examples-plugin1: init: args: " << str << std::endl;
-#else
-	(void)(argc);
-	(void)(argv);
-#endif
 }
 
 void plugin1::exit()

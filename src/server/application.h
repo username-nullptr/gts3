@@ -25,7 +25,6 @@ public:
 
 public:
 	string_list args() const;
-	string_list other_args() const;
 
 public:
 	int exec();

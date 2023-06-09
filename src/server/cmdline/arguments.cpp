@@ -1,6 +1,9 @@
 #include "arguments.h"
+#include "startup_plugin_interface.h"
+#include "gts/string_list.h"
 #include "gts/log.h"
 
+#include <rttr/library.h>
 #include <iostream>
 #include <cstring>
 
@@ -43,6 +46,7 @@ namespace gts { namespace cmdline
 	} \
 })
 
+static void extern_args_parsing(const string_list &args);
 [[noreturn]] static void printVersion(bool all = false);
 [[noreturn]] static void printHelp();
 
@@ -53,6 +57,7 @@ argument_hash argument_check(int argc, const char *argv[])
 	if( argc <= 1 )
 		return args_hash;
 
+	string_list other_args;
 	argc -= 1;
 	argv += 1;
 
@@ -122,8 +127,12 @@ argument_hash argument_check(int argc, const char *argv[])
 			ARGC_EQ_2(args_hash.emplace(GC_SA_SPSS, argv[++i]));
 
 		///////////////////////////////////////////////////////////////////////////////////////
-		else args_hash.emplace("@" + std::string(argv[i]), argv[i]);
+		else {
+			args_hash.emplace("@" + std::string(argv[i]), argv[i]);
+			other_args.emplace_back(argv[i]);
+		}
 	}
+	extern_args_parsing(other_args);
 	return args_hash;
 }
 
@@ -139,6 +148,32 @@ bool operator&(const std::string &key, const argument_hash &args_hash)
 
 /*----------------------------------------------------------------------------------------------------------------------*/
 
+static inline bool load_cmdline_extern_library()
+{
+	static rttr::library library("gtsstartupextern");
+	return library.load();
+}
+
+static void extern_args_parsing(const string_list &args)
+{
+	if( load_cmdline_extern_library() == false )
+		return ;
+
+	auto method = rttr::type::get_global_method(GTS_STARTUP_PLUGIN_INTERFACE_ARGS_PARSING,
+												{rttr::type::get<int>(), rttr::type::get<const char**>()});
+	if( method.is_valid() )
+	{
+		static auto other_args_vector = args.c_str_vector();
+		method.invoke({}, static_cast<int>(other_args_vector.size()), other_args_vector.data());
+		return ;
+	}
+
+	method = rttr::type::get_global_method(GTS_STARTUP_PLUGIN_INTERFACE_ARGS_PARSING,
+										   {rttr::type::get<std::deque<std::string>>()});
+	if( method.is_valid() )
+		method.invoke({}, static_cast<std::deque<std::string>>(args));
+}
+
 #ifdef __llvm__
 # define IS_CLANG  "Clang-"
 #else //no llvm
@@ -147,27 +182,52 @@ bool operator&(const std::string &key, const argument_hash &args_hash)
 
 [[noreturn]] static void printVersion(bool all)
 {
+	if( all ) std::cout << "\n";
+
 	std::cout << "GTS " << GTS_VERSION_STR << std::endl;
 	if( not all )
 		::exit(0);
 
 #if GTS_ENABLE_SSL
-	std::cout << OPENSSL_VERSION_TEXT << std::endl;
+	std::cout << OPENSSL_VERSION_TEXT "\n";
 #endif //ssl
 
 #ifdef __GNUC__
-	std::cout << "Compiler: " IS_CLANG "GCC " << __VERSION__ << std::endl;
+	std::cout << "Compiler: " IS_CLANG "GCC " << __VERSION__ "\n";
 #elif defined(_MSC_VER)
 	std::cout << "Compiler: " IS_CLANG "MSVC " << _MSC_VER << std::endl;
 #endif //GCC
 
 	std::cout << "Compilation time: " << __DATE__ << " " << __TIME__ << std::endl;
+
+	if( load_cmdline_extern_library() == false )
+		::exit(0);
+	auto method = rttr::type::get_global_method(GTS_STARTUP_PLUGIN_INTERFACE_VERSION);
+
+	if( method.is_valid() and method.get_parameter_infos().size() == 0 and
+		method.get_return_type() == rttr::type::get<std::string>() )
+	{
+		auto str = method.invoke({}).to_string();
+		if( str.empty() )
+			::exit(0);
+
+		int i = str.size() - 1;
+		for(; i>=0; i--)
+		{
+			if( str[i] != '\n' )
+				break;
+		}
+		str = str.substr(0, i + 1);
+
+		if( not str.empty() )
+			std::cout << "\nExtern:\n" << str << "\n" << std::endl;
+	}
 	::exit(0);
 }
 
 [[noreturn]] static void printHelp()
 {
-	std::cout << "GTS " << GTS_VERSION_STR                                                                    << std::endl;
+	std::cout << "GTS " << GTS_VERSION_STR                                                                            << std::endl;
 	std::cout << "Description of command line parameters:"                                                            << std::endl;
 	std::cout << "  start                              : Start the server."                                           << std::endl;
 	std::cout << "  stop                               : Stop the server."                                            << std::endl;

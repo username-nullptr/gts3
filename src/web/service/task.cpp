@@ -5,7 +5,7 @@ namespace gts { namespace web
 
 std::string task_config::cgi_path = _GTS_WEB_DEFAULT_CGI_PATH;
 
-void task_config::init(const basic_string_list &args)
+void task_config::init()
 {
 	cgi_path = settings::global_instance().read<std::string>(SINI_GROUP_WEB, SINI_WEB_CGI_PATH, cgi_path);
 	cgi_path = appinfo::absolute_path(cgi_path);
@@ -16,7 +16,7 @@ void task_config::init(const basic_string_list &args)
 	if( not fs::exists(cgi_path) )
 		fs::create_directories(cgi_path);
 
-	service::init(args);
+	service::init();
 }
 
 void task_config::exit()
