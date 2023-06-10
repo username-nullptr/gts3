@@ -17,6 +17,7 @@ GTSCORE_API bool ends_with(const std::string &str, const std::string &suffix);
 GTSCORE_API std::string to_lower(const std::string &str);
 GTSCORE_API std::string to_upper(const std::string &str);
 
+GTSCORE_API std::size_t replace(std::string &str, const std::string &_old, const std::string &_new);
 GTSCORE_API std::string trimmed(const std::string &str);
 
 GTSCORE_API std::string from_percent_encoding(const std::string &str);

@@ -2,6 +2,7 @@
 #define SERVICE_IO_H
 
 #include "gts/socket.h"
+#include "gts/web_global.h"
 #include "gts/http/response.h"
 #include "gts/http/request.h"
 

@@ -108,29 +108,17 @@ logger::~logger()
 	delete m_impl;
 }
 
-static std::string __spp(std::string _str, const std::string &_old, const std::string &_new)
-{
-	std::size_t old_pos = 0;
-	while( _str.find(_old, old_pos) != std::string::npos )
-	{
-		int start = _str.find(_old, old_pos);
-		_str.replace(start, _old.size(), _new);
-		old_pos = start + _new.size();
-	}
-	return _str;
-}
-
 void logger::set_context(const context &con)
 {
 	g_context_rwlock.lock();
 	g_context = con;
 
 #ifdef _WINDOWS
-	__spp(g_context.dir, "/", "\\");
-	__spp(g_context.category, "/", "\\");
+	replace(g_context.dir, "/", "\\");
+	replace(g_context.category, "/", "\\");
 #else //other os
-	__spp(g_context.dir, "\\", "/");
-	__spp(g_context.category, "\\", "/");
+	replace(g_context.dir, "\\", "/");
+	replace(g_context.category, "\\", "/");
 #endif //os
 
 	if( not g_context.dir.empty() )

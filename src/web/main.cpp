@@ -28,9 +28,12 @@ GTS_DECL_EXPORT void init(const std::string &config_file)
 
 	settings::ini_hash sample_gts =
 	{
+		{ SINI_WEB_DEFAULT_RESOURCE  , "/index.html"                   },
 		{ SINI_WEB_CGI_ENV           , ""                              },
+		{ SINI_WEB_CGI_ACCESS        , "/cgi-bin"                      },
 		{ SINI_WEB_CGI_PATH          , _GTS_WEB_DEFAULT_CGI_PATH       },
 		{ SINI_WEB_PLUGINS_CONFIG    , _GTS_WEB_DEFAULT_PLUGINS_CONFIG },
+		{ SINI_WEB_PLUGINS_ACCESS    , "/plugin-lib"                   },
 		{ SINI_WEB_RC_PATH           , _GTS_WEB_DEFAULT_RC_PATH        },
 		{ SINI_WEB_IDLE_TIME_TV      , 2048                            },
 		{ SINI_WEB_MAX_IDLE_TIME     , 65536                           },

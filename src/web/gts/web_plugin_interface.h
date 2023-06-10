@@ -71,5 +71,10 @@
 */
 #define GTS_WEB_PLUGIN_INTERFACE_CALL  "call"
 
+/*
+ * std::string default_content(int status)
+*/
+#define GTS_WEB_PLUGIN_INTERFACE_DEFAULT_CONTENT  GTS_WEB_PLUGIN_INTERFACE "default_content"
+
 
 #endif //GTS_WEB_PLUGIN_INTERFACE_H

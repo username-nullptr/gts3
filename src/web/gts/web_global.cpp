@@ -1,5 +1,8 @@
 #include "web_global.h"
+#include "http/global.h"
 #include "web_config_key.h"
+
+#include "gts/web_plugin_interface.h"
 #include "gts/settings.h"
 #include "gts/log.h"
 

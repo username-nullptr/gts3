@@ -96,6 +96,19 @@ std::string to_upper(const std::string &str)
 	return tmp;
 }
 
+std::size_t replace(std::string &str, const std::string &_old, const std::string &_new)
+{
+	std::size_t sum = 0;
+	std::size_t old_pos = 0;
+	while( str.find(_old, old_pos) != std::string::npos )
+	{
+		int start = str.find(_old, old_pos);
+		str.replace(start, _old.size(), _new);
+		old_pos = start + _new.size();
+	}
+	return sum;
+}
+
 std::string trimmed(const std::string &str)
 {
 	std::string result;

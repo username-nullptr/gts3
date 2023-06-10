@@ -4,10 +4,6 @@
 #include "service.h"
 #include <functional>
 
-namespace gts { namespace http {
-struct request;
-}} //namespace gts::http
-
 namespace gts { namespace web
 {
 
@@ -49,10 +45,15 @@ private:
 class GTS_DECL_HIDDEN task_config
 {
 public:
-	static std::string cgi_path;
 	static void init();
 	static void exit();
 	static std::string view_status();
+
+public:
+	static std::string default_resource;
+	static std::string plugins_access;
+	static std::string cgi_access;
+	static std::string cgi_path;
 };
 
 template <class asio_socket>
@@ -130,15 +131,15 @@ void task<asio_socket>::run()
 ({ \
 	sio.url_name = _sio.request.path; \
 	if( sio.url_name.empty() ) \
-		sio.url_name = "/index.html"; \
+		sio.url_name = task_config::default_resource; \
 	else { \
 		auto pos = sio.url_name.find("/", 1); \
 		if( pos != std::string::npos ) { \
 			auto prefix = sio.url_name.substr(0,pos); \
-			if( prefix == "/cgi-bin" ) { \
+			if( prefix == task_config::cgi_access ) { \
 				sio.url_name = task_config::cgi_path + sio.url_name.substr(pos+1); \
 				return service::call_cgi_service(sio); \
-			} else if ( prefix == "/plugin-lib" ) { \
+			} else if ( prefix == task_config::plugins_access ) { \
 				sio.url_name.erase(0, pos+1); \
 				return service::call_plugin_service(sio); \
 			} \
@@ -182,13 +183,13 @@ void task<asio_socket>::HEAD(service_io<asio_socket> &sio)
 	if( pos != std::string::npos )
 	{
 		auto prefix = sio.url_name.substr(0,pos);
-		if( prefix == "/cgi-bin" )
+		if( prefix == task_config::cgi_access )
 		{
 			if( fs::exists(task_config::cgi_path + sio.url_name.substr(pos+1)) )
 				return sio.return_to_null();
 			return sio.return_to_null(http::hs_not_found);
 		}
-		else if ( prefix == "/plugin-lib" )
+		else if ( prefix == task_config::plugins_access )
 		{
 			sio.url_name.erase(0, pos+1);
 			return service::call_plugin_service(sio);

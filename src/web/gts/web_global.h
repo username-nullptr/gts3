@@ -2,11 +2,7 @@
 #define GTS_WEB_GLOBAL_H
 
 #include <gts/gts_global.h>
-#include <vector>
-
-#ifndef USING_ASIO
-# include <functional>
-#endif //no asio
+#include <functional>
 
 #ifdef gtsweb_EXPORTS
 # define GTSWEB_API  GTS_DECL_EXPORT

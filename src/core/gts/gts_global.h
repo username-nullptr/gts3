@@ -51,6 +51,9 @@ namespace gts
 
 #endif //compiler
 
+#define C_VIRTUAL_FUNC             __attribute_weak__
+#define C_VIRTUAL_SYMBOL(_symbol)  __attribute_weakref__(_symbol)
+
 #ifdef gtscore_EXPORTS
 # define GTSCORE_API  GTS_DECL_EXPORT
 #else //gtscore_EXPORTS
