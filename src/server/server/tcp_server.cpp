@@ -27,17 +27,7 @@ tcp_server::tcp_server() :
 {
 	auto plugin_file_name = READ_CONFIG(std::string, SINI_GTS_STRATEGY, _GTS_DEFULT_STRATEGY);
 	plugin_file_name = appinfo::absolute_path(plugin_file_name);
-
 	m_plugin_lib = std::make_shared<rttr::library>(plugin_file_name);
-	if( m_plugin_lib->load() == false )
-		log_fatal("gts.plugin load failed: {}.\n", m_plugin_lib->get_error_string());
-
-	new_connect_method_init();
-	call_init();
-
-	m_buffer_size = READ_CONFIG(int, SINI_GTS_TCP_BUF_SIZE, m_buffer_size);
-	if( m_buffer_size < 1024 )
-		m_buffer_size = 1024;
 
 #ifdef GTS_ENABLE_SSL
 	auto &ssl_context = asio_ssl_context();
@@ -92,6 +82,9 @@ tcp_server::~tcp_server()
 
 void tcp_server::start()
 {
+	if( m_plugin_lib->load() == false )
+		log_fatal("gts.plugin load failed: {}.\n", m_plugin_lib->get_error_string());
+
 	auto &_settings = settings::global_instance();
 	auto json_file = _settings.read<std::string>(SINI_GROUP_GTS, SINI_GTS_SITES_CONFIG);
 
@@ -108,6 +101,13 @@ void tcp_server::start()
 
 	if( not errstr.empty() )
 		log_fatal("Json file read failed: {}.", errstr);
+
+	new_connect_method_init();
+	call_init();
+
+	m_buffer_size = READ_CONFIG(int, SINI_GTS_TCP_BUF_SIZE, m_buffer_size);
+	if( m_buffer_size < 1024 )
+		m_buffer_size = 1024;
 
 	for(auto it=root_object.MemberBegin(); it!=root_object.MemberEnd(); ++it)
 	{
@@ -185,7 +185,7 @@ void tcp_server::stop()
 		return ;
 
 	auto method = rttr::type::get_global_method(GTS_PLUGIN_INTERFACE_EXIT);
-	if( method.is_valid() )
+	if( method.is_valid() and method.get_parameter_infos().size() == 0 )
 		method.invoke({});
 
 	m_plugin_lib->unload();

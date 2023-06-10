@@ -3,7 +3,7 @@
 #include <fmt/format.h>
 #include <asio.hpp>
 #include <iostream>
-#include <dlfcn.h>
+#include <future>
 
 #ifdef GTS_ENABLE_SSL
 # include <asio/ssl.hpp>
@@ -25,8 +25,8 @@ namespace gts { namespace web { namespace business
 class DECL_EXPORT plugin1
 {
 public:
-	static void init();
-	static void exit();
+	static std::shared_ptr<std::future<void>> init();
+	static std::shared_ptr<std::future<void>> exit();
 	static std::string view_status();
 
 public:
@@ -56,14 +56,28 @@ private:
 	std::unordered_map<std::string, std::string> m_envs;
 };
 
-void plugin1::init()
+std::shared_ptr<std::future<void>> plugin1::init()
 {
-
+	return std::make_shared<std::future<void>>(std::async(std::launch::async, []
+	{
+		for(int i=0; i<7; i++)
+		{
+			std::cerr << "plugin1: init task ..." << std::endl;
+			std::this_thread::sleep_for(std::chrono::milliseconds(700));
+		}
+	}));
 }
 
-void plugin1::exit()
+std::shared_ptr<std::future<void>> plugin1::exit()
 {
-
+	return std::make_shared<std::future<void>>(std::async(std::launch::async, []
+	{
+		for(int i=0; i<5; i++)
+		{
+			std::cerr << "plugin1: exit task ..." << std::endl;
+			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		}
+	}));
 }
 
 std::string plugin1::view_status()

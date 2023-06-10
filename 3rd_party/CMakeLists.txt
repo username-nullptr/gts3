@@ -5,9 +5,10 @@ add_subdirectory(asio)
 add_subdirectory(rttr)
 add_subdirectory(fmt)
 
+option(ENABLE_SSL "-- gts: enable link libssl" ON)
+
 if (ENABLE_SSL)
 	message("-- gts: enable open ssl. (the version must be greater than or equal to 1.0.2)")
-	add_definitions(-DGTS_ENABLE_SSL)
 	if (OpenSSL_DIR)
 		message("-- gts: manually specify the path of openssl: ${OpenSSL_DIR}")
 		include_directories(${OpenSSL_DIR}/include)

@@ -17,6 +17,10 @@ set(output_dir_name output)
 add_subdirectory(3rd_party)
 include(3rd_party)
 
+if (ENABLE_SSL)
+	add_definitions(-DGTS_ENABLE_SSL)
+endif()
+
 if (CMAKE_BUILD_TYPE AND (CMAKE_BUILD_TYPE STREQUAL "Debug"))
 	add_definitions(-DGTS_DEBUG)
 endif()
@@ -26,8 +30,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 		link_libraries(stdc++fs)
 	endif()
 endif()
-
-option(ENABLE_SSL "-- gts: enable link libssl" ON)
 
 add_definitions(-DUSING_ASIO)
 add_compile_options(-Wall)

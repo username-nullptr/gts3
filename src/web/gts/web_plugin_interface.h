@@ -6,13 +6,16 @@
 #define GTS_WEB_PLUGIN_INTERFACE  "gts.web.plugin."
 
 /*
- * init(void)
- * init(const std::string &config_file)
+ * void init(void)
+ * void init(const std::string &config_file)
+ * std::shared_ptr<std::future<void>> init(void)
+ * std::shared_ptr<std::future<void>> init(const std::string &config_file)
 */
 #define GTS_WEB_PLUGIN_INTERFACE_INIT  ".init"
 
 /*
- * exit(void)
+ * void exit(void)
+ * std::shared_ptr<std::future<void>> exit(void)
 */
 #define GTS_WEB_PLUGIN_INTERFACE_EXIT  ".exit"
 

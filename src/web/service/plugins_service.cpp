@@ -1,5 +1,6 @@
 #include "plugins_service.h"
 #include "json.h"
+#include <future>
 #include <iostream>
 
 namespace gts { namespace web
@@ -9,20 +10,31 @@ std::list<rttr::library> plugin_service_config::library_list;
 
 std::list<rttr::type> plugin_service_config::type_list;
 
-static void call_init(const std::string &class_name)
+static void call_init(const std::string &class_name, std::list<std::shared_ptr<std::future<void>>> &futures)
 {
 	auto init_method_name = class_name + GTS_WEB_PLUGIN_INTERFACE_INIT;
 
 	auto method = rttr::type::get_global_method(init_method_name);
 	if( method.is_valid() and method.get_parameter_infos().size() == 0 )
 	{
-		method.invoke({});
+		if( method.get_return_type() == rttr::type::get<std::shared_ptr<std::future<void>>>() )
+			futures.emplace_back(method.invoke({}).get_value<std::shared_ptr<std::future<void>>>());
+		else
+			method.invoke({});
 		return ;
 	}
 
 	method = rttr::type::get_global_method(init_method_name, {rttr::type::get<std::string>()});
 	if( method.is_valid() )
-		method.invoke({}, settings::global_instance().file_name());
+	{
+		if( method.get_return_type() == rttr::type::get<std::shared_ptr<std::future<void>>>() )
+		{
+			futures.emplace_back(method.invoke({}, settings::global_instance().file_name())
+								 .get_value<std::shared_ptr<std::future<void>>>());
+		}
+		else
+			method.invoke({}, settings::global_instance().file_name());
+	}
 }
 
 void plugin_service_config::init()
@@ -44,6 +56,7 @@ void plugin_service_config::init()
 		return ;
 	}
 	auto json_file_path = file_path(json_file);
+	std::list<std::shared_ptr<std::future<void>>> futures;
 
 	for(auto it=json_object.MemberBegin(); it!=json_object.MemberEnd(); ++it)
 	{
@@ -95,8 +108,10 @@ void plugin_service_config::init()
 			library_list.pop_back();
 			continue;
 		}
-		call_init(class_name);
+		call_init(class_name, futures);
 	}
+	for(auto &future : futures)
+		future->wait();
 }
 
 void plugin_service_config::exit()
@@ -104,12 +119,20 @@ void plugin_service_config::exit()
 	if( library_list.empty() )
 		return ;
 
+	std::list<std::shared_ptr<std::future<void>>> futures;
 	for(auto &type : type_list)
 	{
 		auto method = rttr::type::get_global_method(std::string(type.get_name()) + GTS_WEB_PLUGIN_INTERFACE_EXIT);
-		if( method.is_valid() )
+		if( not method.is_valid() or method.get_parameter_infos().size() != 0 )
+			continue;
+
+		if( method.get_return_type() == rttr::type::get<std::shared_ptr<std::future<void>>>() )
+			futures.emplace_back(method.invoke({}).get_value<std::shared_ptr<std::future<void>>>());
+		else
 			method.invoke({});
 	}
+	for(auto &future : futures)
+		future->wait();
 	type_list.clear();
 
 	for(auto &library : library_list)
