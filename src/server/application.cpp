@@ -121,6 +121,9 @@ applictaion_impl::applictaion_impl(int argc, const char *argv[])
 
 applictaion_impl::~applictaion_impl()
 {
+	auto method = rttr::type::get_global_method(GTS_STARTUP_PLUGIN_INTERFACE_EXIT);
+	if( method.is_valid() and method.get_parameter_infos().size() == 0 )
+		method.invoke({});
 	cmdline::app_unlock();
 }
 

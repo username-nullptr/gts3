@@ -132,7 +132,7 @@ void task<asio_socket>::run()
 	sio.url_name = _sio.request.path; \
 	if( sio.url_name.empty() ) \
 		sio.url_name = task_config::default_resource; \
-	else { \
+	else if( sio.url_name != task_config::default_resource ) { \
 		auto pos = sio.url_name.find("/", 1); \
 		if( pos != std::string::npos ) { \
 			auto prefix = sio.url_name.substr(0,pos); \

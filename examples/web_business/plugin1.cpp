@@ -60,10 +60,10 @@ std::shared_ptr<std::future<void>> plugin1::init()
 {
 	return std::make_shared<std::future<void>>(std::async(std::launch::async, []
 	{
-		for(int i=0; i<7; i++)
+		for(int i=0; i<6; i++)
 		{
 			std::cerr << "plugin1: init task ..." << std::endl;
-			std::this_thread::sleep_for(std::chrono::milliseconds(700));
+			std::this_thread::sleep_for(std::chrono::milliseconds(400));
 		}
 	}));
 }
@@ -75,7 +75,7 @@ std::shared_ptr<std::future<void>> plugin1::exit()
 		for(int i=0; i<5; i++)
 		{
 			std::cerr << "plugin1: exit task ..." << std::endl;
-			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+			std::this_thread::sleep_for(std::chrono::milliseconds(300));
 		}
 	}));
 }

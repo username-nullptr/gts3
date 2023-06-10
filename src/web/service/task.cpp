@@ -59,6 +59,9 @@ void task_config::init()
 	cgi_access = _setting.read<std::string>(SINI_GROUP_WEB, SINI_WEB_CGI_ACCESS, cgi_access);
 	access_check(cgi_access);
 
+	if( default_resource == plugins_access or default_resource == cgi_access or plugins_access == cgi_access )
+		log_fatal("Config error: 'default_resource', 'plugins_access', 'cgi_access' cannot be equal.");
+
 	cgi_path = _setting.read<std::string>(SINI_GROUP_WEB, SINI_WEB_CGI_PATH, cgi_path);
 	cgi_path = appinfo::absolute_path(cgi_path);
 

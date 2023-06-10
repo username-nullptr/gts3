@@ -18,9 +18,14 @@ DECL_EXPORT void args_parsing(int argc, const char *argv[])
 		std::cerr << "argv[" << i << "] = " << argv[i] << std::endl;
 }
 
-DECL_EXPORT void extern_init()
+DECL_EXPORT void extensions_init()
 {
 	std::cerr << "extern init ..." << std::endl;
+}
+
+DECL_EXPORT void extensions_exit()
+{
+	std::cerr << "extern exit ..." << std::endl;
 }
 
 DECL_EXPORT std::string view_version_info()
@@ -36,6 +41,7 @@ RTTR_PLUGIN_REGISTRATION
 
 	rttr::registration::
 			method("gts.cmdline.plugin.args_parsing", args_parsing)
-			.method("gts.cmdline.plugin.init", extern_init)
+			.method("gts.cmdline.plugin.init", extensions_init)
+			.method("gts.cmdline.plugin.exit", extensions_exit)
 			.method("gts.cmdline.plugin.version", view_version_info);
 }

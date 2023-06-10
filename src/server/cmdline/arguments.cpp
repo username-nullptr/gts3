@@ -46,7 +46,7 @@ namespace gts { namespace cmdline
 	} \
 })
 
-static void extern_args_parsing(const string_list &args);
+static void args_parsing_extensions(const string_list &args);
 [[noreturn]] static void printVersion(bool all = false);
 [[noreturn]] static void printHelp();
 
@@ -132,7 +132,7 @@ argument_hash argument_check(int argc, const char *argv[])
 			other_args.emplace_back(argv[i]);
 		}
 	}
-	extern_args_parsing(other_args);
+	args_parsing_extensions(other_args);
 	return args_hash;
 }
 
@@ -148,15 +148,15 @@ bool operator&(const std::string &key, const argument_hash &args_hash)
 
 /*----------------------------------------------------------------------------------------------------------------------*/
 
-static inline bool load_cmdline_extern_library()
+static inline bool load_startup_extensions_library()
 {
-	static rttr::library library("gtsstartupextern");
+	static rttr::library library("gtsstartupextensions");
 	return library.load();
 }
 
-static void extern_args_parsing(const string_list &args)
+static void args_parsing_extensions(const string_list &args)
 {
-	if( load_cmdline_extern_library() == false )
+	if( load_startup_extensions_library() == false )
 		return ;
 
 	auto method = rttr::type::get_global_method(GTS_STARTUP_PLUGIN_INTERFACE_ARGS_PARSING,
@@ -200,7 +200,7 @@ static void extern_args_parsing(const string_list &args)
 
 	std::cout << "Compilation time: " << __DATE__ << " " << __TIME__ << std::endl;
 
-	if( load_cmdline_extern_library() == false )
+	if( load_startup_extensions_library() == false )
 		::exit(0);
 	auto method = rttr::type::get_global_method(GTS_STARTUP_PLUGIN_INTERFACE_VERSION);
 
