@@ -24,6 +24,8 @@ void cmdline_handle(int argc, const char *argv[], argument_hash &args_hash)
 	isInit = true;
 
 	args_hash = argument_check(argc, argv);
+	if( args_hash & GC_SA_INSNAME )
+		appinfo::set_instance_name(args_hash[GC_SA_INSNAME]);
 
 	if( args_hash & GC_SA_START )
 	{
@@ -96,7 +98,7 @@ static void server_is_running_check()
 		std::cerr << "Invalid arguments." << std::endl;
 		exit(-1);
 	}
-	if( args_hash.size() > 1 )
+	if( args_hash.size() > 1 and not (args_hash & GC_SA_INSNAME) )
 	{
 		std::cerr << "Too many arguments." << std::endl;
 		exit(-1);

@@ -6,6 +6,8 @@
 namespace gts { namespace app
 {
 
+GTSCORE_API std::string instance_name();
+
 GTSCORE_API std::string file_path();
 GTSCORE_API std::string dir_path();
 

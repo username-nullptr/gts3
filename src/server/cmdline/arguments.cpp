@@ -24,10 +24,19 @@ namespace gts { namespace cmdline
 ({ \
 	if( argc == 1 ) { \
 		ope; \
+		break; \
+	} else if( argc == 3 ) { \
+		if( i == 0 ) { \
+			ope; \
+		} else if( argc == 2 ) { \
+			ope; \
+			break; \
+		} else { \
+			ERROR_EXIT("Invalid arguments."); \
+		} \
 	} else { \
 		ERROR_EXIT("Too many arguments."); \
 	} \
-	break; \
 })
 
 #define ARGC_EQ_2(ope) \
@@ -35,10 +44,19 @@ namespace gts { namespace cmdline
 	if( argc == 2 ) { \
 		if( i == 0 ) { \
 			ope; \
+			break; \
 		} else { \
 			ERROR_EXIT("Invalid arguments."); \
 		} \
-		break; \
+	} else if( argc == 4 ) { \
+		if( i == 0 ) { \
+			ope; \
+		} else if( i == 2 ) { \
+			ope; \
+			break; \
+		} else { \
+			ERROR_EXIT("Invalid arguments."); \
+		} \
 	} else if( argc == 1 ) { \
 		ERROR_EXIT("Invalid argument."); \
 	} else { \
@@ -63,19 +81,21 @@ argument_hash argument_check(int argc, const char *argv[])
 
 	for(int i=0 ;i<argc; i++)
 	{
-		if( strcmp(argv[i], "stop") == 0 )
+		if( strcmp(argv[i], GC_SA_STOP) == 0 )
 			args_hash.emplace(GC_SA_STOP, std::string());
 
-		else if( strcmp(argv[i], "start") == 0 )
+		else if( strcmp(argv[i], GC_SA_START) == 0 )
 			args_hash.emplace(GC_SA_START, std::string());
 
-		else if( strcmp(argv[i], "restart") == 0 )
+		else if( strcmp(argv[i], GC_SA_RESTART) == 0 )
 			args_hash.emplace(GC_SA_RESTART, std::string());
 
-		else if( strcmp(argv[i], "-d") == 0 )
+		else if( strcmp(argv[i], "daemon") == 0 or
+				 strcmp(argv[i], GC_SA_DAEMON) == 0 )
 			args_hash.emplace(GC_SA_DAEMON, std::string());
 
-		else if( strcmp(argv[i], "-f") == 0 )
+		///////////////////////////////////////////////////////////////////////////////////////
+		else if( strcmp(argv[i], GC_SA_CFPATH) == 0 )
 		{
 			if( i + 1 >= argc )
 				ERROR_EXIT("Invalid arguments.");
@@ -88,26 +108,39 @@ argument_hash argument_check(int argc, const char *argv[])
 			args_hash.emplace(GC_SA_CFPATH, argv[++i]);
 			args_hash.emplace(GC_SA_DAEMON, std::string());
 		}
+		else if( strcmp(argv[i], GC_SA_INSNAME) == 0 )
+		{
+			if( i + 1 >= argc )
+				ERROR_EXIT("Invalid arguments.");
+			args_hash.emplace(GC_SA_INSNAME, argv[++i]);
+		}
+		else if( strcmp(argv[i], "-di") == 0 )
+		{
+			if( i + 1 >= argc )
+				ERROR_EXIT("Invalid arguments.");
+			args_hash.emplace(GC_SA_DAEMON, std::string());
+			args_hash.emplace(GC_SA_INSNAME, argv[++i]);
+		}
 
 		///////////////////////////////////////////////////////////////////////////////////////
-		else if( strcmp(argv[i], "stat") == 0 or
-				 strcmp(argv[i], "-stat") == 0 or
+		else if( strcmp(argv[i], "-stat") == 0 or
 				 strcmp(argv[i], "--stat") == 0 or
 				 strcmp(argv[i], "status") == 0 or
 				 strcmp(argv[i], "-status") == 0 or
-				 strcmp(argv[i], "--status") == 0 )
+				 strcmp(argv[i], "--status") == 0 or
+				 strcmp(argv[i], GC_SA_STATUS) == 0 )
 			ARGC_EQ_1(args_hash.emplace(GC_SA_STATUS, std::string()));
 
-		else if( strcmp(argv[i], "--start-subserver-all") == 0 )
+		else if( strcmp(argv[i], GC_SA_STSSA) == 0 )
 			ARGC_EQ_1(args_hash.emplace(GC_SA_STSSA, std::string()));
 
-		else if( strcmp(argv[i], "--stop-subserver-all") == 0 )
+		else if( strcmp(argv[i], GC_SA_SPSSA) == 0 )
 			ARGC_EQ_1(args_hash.emplace(GC_SA_SPSSA, std::string()));
 
-		else if( strcmp(argv[i], "--view-subserver-all") == 0 )
+		else if( strcmp(argv[i], GC_SA_VASUS) == 0 )
 			ARGC_EQ_1(args_hash.emplace(GC_SA_VASUS, std::string()));
 
-		else if( strcmp(argv[i], "--view-subserver") == 0 )
+		else if( strcmp(argv[i], GC_SA_VRSUS) == 0 )
 			ARGC_EQ_1(args_hash.emplace(GC_SA_VRSUS, std::string()));
 
 		else if( strcmp(argv[i], "--version") == 0 )
@@ -120,10 +153,10 @@ argument_hash argument_check(int argc, const char *argv[])
 			ARGC_EQ_1(printHelp());
 
 		///////////////////////////////////////////////////////////////////////////////////////
-		else if( strcmp(argv[i], "--start-subserver") == 0 )
+		else if( strcmp(argv[i], GC_SA_STSS) == 0 )
 			ARGC_EQ_2(args_hash.emplace(GC_SA_STSS, argv[++i]));
 
-		else if( strcmp(argv[i], "--stop-subserver") == 0 )
+		else if( strcmp(argv[i], GC_SA_SPSS) == 0 )
 			ARGC_EQ_2(args_hash.emplace(GC_SA_SPSS, argv[++i]));
 
 		///////////////////////////////////////////////////////////////////////////////////////
@@ -227,23 +260,24 @@ static void args_parsing_extensions(const string_list &args)
 
 [[noreturn]] static void printHelp()
 {
-	std::cout << "GTS " << GTS_VERSION_STR                                                                            << std::endl;
-	std::cout << "Description of command line parameters:"                                                            << std::endl;
-	std::cout << "  start                              : Start the server."                                           << std::endl;
-	std::cout << "  stop                               : Stop the server."                                            << std::endl;
-	std::cout << "  restart                            : Restart the server."                                         << std::endl;
-	std::cout << "  -d                                 : Start as a daemon process."                                  << std::endl;
-	std::cout << "  -f file                            : Specify the configuration file (default is './config.ini')." << std::endl;
-	std::cout << "  stat                               : Viewing server status."                                      << std::endl;
-	std::cout << "  --version                          : Viewing server version."                                     << std::endl;
-	std::cout << "  -v                                 : Viewing the detailed version information."                   << std::endl;
-	std::cout << "  -h or --help                       : Viewing help."                                               << std::endl;
-	std::cout << "  --view-subserver-all               : Viewing all subservers."                                     << std::endl;
-	std::cout << "  --view-subserver                   : Viewing running subservers."                                 << std::endl;
-	std::cout << "  --start-subserver-all              : Start all subservers."                                       << std::endl;
-	std::cout << "  --start-subserver <name0,name1...> : Start subservices in the list."                              << std::endl;
-	std::cout << "  --stop-subserver-all               : Stop all subservers."                                        << std::endl;
-	std::cout << "  --stop-subserver <name0,name1...>  : Stop subservices in the list."                               << std::endl;
+	std::cout << "GTS " << GTS_VERSION_STR                                                                                                  << std::endl;
+	std::cout << "Description of command line parameters:"                                                                                  << std::endl;
+	std::cout << "  start                              : Start the server."                                                                 << std::endl;
+	std::cout << "  stop                               : Stop the server."                                                                  << std::endl;
+	std::cout << "  restart                            : Restart the server."                                                               << std::endl;
+	std::cout << "  -d                                 : Start as a daemon process."                                                        << std::endl;
+	std::cout << "  -i name                            : Specify the server instance name to start multiple instances. (default is 'gts')"  << std::endl;
+	std::cout << "  -f file                            : Specify the configuration file (default is './config.ini')."                       << std::endl;
+	std::cout << "  stat                               : Viewing server status."                                                            << std::endl;
+	std::cout << "  --version                          : Viewing server version."                                                           << std::endl;
+	std::cout << "  -v                                 : Viewing the detailed version information."                                         << std::endl;
+	std::cout << "  -h or --help                       : Viewing help."                                                                     << std::endl;
+	std::cout << "  --view-subserver-all               : Viewing all subservers."                                                           << std::endl;
+	std::cout << "  --view-subserver                   : Viewing running subservers."                                                       << std::endl;
+	std::cout << "  --start-subserver-all              : Start all subservers."                                                             << std::endl;
+	std::cout << "  --start-subserver <name0,name1...> : Start subservices in the list."                                                    << std::endl;
+	std::cout << "  --stop-subserver-all               : Stop all subservers."                                                              << std::endl;
+	std::cout << "  --stop-subserver <name0,name1...>  : Stop subservices in the list."                                                     << std::endl;
 	exit(0);
 }
 

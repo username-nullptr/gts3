@@ -4,6 +4,11 @@
 namespace gts { namespace app
 {
 
+std::string instance_name()
+{
+	return appinfo::instance_name();
+}
+
 std::string file_path()
 {
 	return appinfo::file_path();

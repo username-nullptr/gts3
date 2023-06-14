@@ -63,7 +63,9 @@ applictaion_impl::applictaion_impl(int argc, const char *argv[])
 {
 	if( appinfo::set_current_directory(appinfo::dir_path()) == false )
 		log_fatal("set_current_directory failed: {}. ({})", strerror(errno), errno);
+
 	set_config_file(cmdline::startup(argc, argv));
+	log_info("Server instance name: '{}'.", appinfo::instance_name());
 
 	log::logger::context context;
 	auto &_settings = gts::settings::global_instance();

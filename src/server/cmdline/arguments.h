@@ -10,6 +10,7 @@ namespace gts { namespace cmdline
 #define GC_SA_START    "start"
 #define GC_SA_CFPATH   "-f"
 #define GC_SA_DAEMON   "-d"
+#define GC_SA_INSNAME  "-i"
 #define GC_SA_STOP     "stop"
 #define GC_SA_RESTART  "restart"
 #define GC_SA_STATUS   "stat"

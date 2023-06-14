@@ -11,6 +11,31 @@
 namespace gts { namespace appinfo
 {
 
+static std::string g_instace_name = "gts";
+
+std::string set_instance_name(const std::string &name)
+{
+	g_instace_name = trimmed(name);
+	if( g_instace_name.empty() )
+		g_instace_name = "gts";
+	else
+	{
+		for(auto &c : g_instace_name)
+		{
+			if( c != '/' and c != '\\' )
+				continue;
+			g_instace_name = "gts";
+			break;
+		}
+	}
+	return g_instace_name;
+}
+
+std::string instance_name()
+{
+	return g_instace_name;
+}
+
 std::string file_path()
 {
 	char exe_name[1024] = "";
@@ -32,12 +57,12 @@ std::string dir_path()
 
 std::string tmp_dir_path()
 {
-	return APP_TMP_DIR_PATH;
+	return APP_TMP_DIR_PATH + g_instace_name + "/";
 }
 
 std::string lock_file_name()
 {
-	return APP_TMP_DIR_PATH "pid.lock";
+	return tmp_dir_path() + "pid.lock";
 }
 
 std::string current_directory()

@@ -6,6 +6,9 @@
 namespace gts { namespace appinfo
 {
 
+GTSCORE_API std::string set_instance_name(const std::string &name);
+GTSCORE_API std::string instance_name();
+
 GTSCORE_API std::string file_path();
 GTSCORE_API std::string dir_path();
 
