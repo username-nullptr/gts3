@@ -84,6 +84,9 @@ void cgi_service<asio_socket>::call()
 			return m_sio.return_to_null(http::hs_not_found);
 	}
 
+	for(auto &pair : cgi_service_config::cgi_env)
+		m_cgi.add_env(pair.first, pair.second);
+
 	auto parameter = m_sio.request.parameters_string;
 	if( parameter.empty() )
 		parameter = "/";

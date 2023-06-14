@@ -20,11 +20,8 @@ void cgi_service_config::init()
 
 		if( pos == std::string::npos )
 			cgi_env.emplace(trimmed(env), "");
-
-		else {
-			cgi_env.emplace(to_upper(trimmed(env.substr(0, pos))),
-							to_upper(trimmed(env.substr(pos + 1))));
-		}
+		else
+			cgi_env.emplace(trimmed(env.substr(0, pos)), trimmed(env.substr(pos + 1)));
 	}
 
 #ifdef GTS_ENABLE_SSL
