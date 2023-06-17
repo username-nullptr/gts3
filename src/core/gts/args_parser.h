@@ -18,6 +18,7 @@ public:
 	typedef std::string  rule;
 	typedef std::string  value;
 	typedef std::string  description;
+	typedef std::string  identification;
 	typedef std::unordered_map<rule, value>  arguments;
 
 public:
@@ -30,11 +31,11 @@ public:
 public:
 	// ./a.out -f filename
 	// ./a.out --file=filename
-	args_parser &add_group(const rule &r, const description &d);
+	args_parser &add_group(const rule &r, const description &d, const identification &i = {});
 
 	// ./a.out -abc
 	// ./a.out -a -b -c
-	args_parser &add_flag(const rule &r, const description &d);
+	args_parser &add_flag(const rule &r, const description &d, const identification &i = {});
 
 public:
 	args_parser &set_version(const description &d);

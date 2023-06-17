@@ -17,6 +17,11 @@
 #define GTS_STARTUP_PLUGIN_INTERFACE_VERSION  GTS_STARTUP_PLUGIN_INTERFACE "version"
 
 /*
+ * std::string view_help_extension()
+*/
+#define GTS_STARTUP_PLUGIN_INTERFACE_HELP_EX  GTS_STARTUP_PLUGIN_INTERFACE "help_extension"
+
+/*
  * init(void)
  * init(const std::string &config_file)
 */
