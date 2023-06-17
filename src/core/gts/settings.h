@@ -10,7 +10,7 @@ namespace gts
 
 class GTSCORE_API settings
 {
-	DISABLE_COPY(settings)
+	GTS_DISABLE_COPY_MOVE(settings)
 
 public:
 	explicit settings(const std::string &file_name = std::string());

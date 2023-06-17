@@ -14,7 +14,7 @@ class tcp_server;
 
 class cmdline_server
 {
-	DISABLE_COPY(cmdline_server)
+	GTS_DISABLE_COPY_MOVE(cmdline_server)
 
 public:
 	cmdline_server(tcp_server &tcp_server);

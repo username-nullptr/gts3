@@ -18,7 +18,7 @@ namespace gts
 
 class GTS_DECL_HIDDEN process_private
 {
-	DISABLE_COPY(process_private)
+	GTS_DISABLE_COPY_MOVE(process_private)
 
 public:
 	process_private(asio::io_context &io);

@@ -9,7 +9,7 @@ namespace gts
 {
 
 GTSCORE_API string_list string_split(const std::string &str, const std::string &splits, bool ignore_empty = true);
-GTSCORE_API std::string string_list_join(const string_list &vector, const std::string &splits = " ");
+GTSCORE_API std::string string_list_join(const basic_string_list &list, const std::string &splits = " ");
 
 GTSCORE_API bool starts_with(const std::string &str, const std::string &prefix);
 GTSCORE_API bool ends_with(const std::string &str, const std::string &suffix);

@@ -17,7 +17,7 @@ class logger_impl;
 
 class GTSLOG_API logger
 {
-	DISABLE_COPY(logger)
+	GTS_DISABLE_COPY_MOVE(logger)
 
 public:
 	struct context

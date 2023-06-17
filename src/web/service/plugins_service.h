@@ -19,7 +19,7 @@ namespace gts { namespace web
 template <class asio_socket>
 class GTS_DECL_HIDDEN plugin_service
 {
-	DISABLE_COPY(plugin_service)
+	GTS_DISABLE_COPY_MOVE(plugin_service)
 	typedef service_io<asio_socket>  s_io;
 
 public:

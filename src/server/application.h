@@ -13,7 +13,7 @@ namespace gts
 
 class applictaion
 {
-	DISABLE_COPY(applictaion)
+	GTS_DISABLE_COPY_MOVE(applictaion)
 
 public:
 	applictaion(int argc, const char *argv[]);

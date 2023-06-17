@@ -1,5 +1,6 @@
 set(core_sources
 	gts/gts_global.cpp
+	gts/args_parser.cpp
 	gts/application.cpp
 	gts/string_list.cpp
 	gts/algorithm.cpp
@@ -13,6 +14,7 @@ set(core_sources
 
 set(core_headers
 	gts/gts_global.h
+	gts/args_parser.h
 	gts/application.h
 	gts/string_list.h
 	gts/algorithm.h

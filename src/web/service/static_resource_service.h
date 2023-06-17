@@ -15,7 +15,7 @@ namespace gts { namespace web
 template <class asio_socket>
 class GTS_DECL_HIDDEN static_resource_service
 {
-	DISABLE_COPY(static_resource_service)
+	GTS_DISABLE_COPY_MOVE(static_resource_service)
 	typedef service_io<asio_socket>  s_io;
 
 public:

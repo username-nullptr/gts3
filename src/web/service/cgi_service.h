@@ -25,7 +25,7 @@ namespace gts { namespace web
 template <class asio_socket>
 class GTS_DECL_HIDDEN cgi_service
 {
-	DISABLE_COPY(cgi_service)
+	GTS_DISABLE_COPY_MOVE(cgi_service)
 	typedef service_io<asio_socket>  s_io;
 
 public:

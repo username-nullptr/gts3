@@ -12,7 +12,7 @@ class interaction_private;
 
 class interaction
 {
-	DISABLE_COPY(interaction)
+	GTS_DISABLE_COPY_MOVE(interaction)
 
 public:
 	explicit interaction(bool is_server = true);

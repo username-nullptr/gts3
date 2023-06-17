@@ -83,7 +83,7 @@ bool process::start(const string_list &args)
 		dup2(d_ptr->m_cwpr_fd[1], STDOUT_FILENO);
 
 		int res = chdir(d_ptr->m_work_path.c_str());
-		_UNUSED(res);
+		GTS_UNUSED(res);
 
 		for(auto &env : d_ptr->m_env)
 			setenv(env.first.c_str(), env.second.c_str(), 1);
@@ -125,17 +125,17 @@ void process::kill()
 
 int process::write(const char *buf, int size, int timeout)
 {
-	_UNUSED(buf);
-	_UNUSED(size);
-	_UNUSED(timeout);
+	GTS_UNUSED(buf);
+	GTS_UNUSED(size);
+	GTS_UNUSED(timeout);
 	return -1;
 }
 
 int process::read(const char *buf, int size, int timeout)
 {
-	_UNUSED(buf);
-	_UNUSED(size);
-	_UNUSED(timeout);
+	GTS_UNUSED(buf);
+	GTS_UNUSED(size);
+	GTS_UNUSED(timeout);
 	return -1;
 }
 

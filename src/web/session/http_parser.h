@@ -12,7 +12,7 @@ namespace gts { namespace web
 
 class GTS_DECL_HIDDEN http_parser
 {
-	DISABLE_COPY(http_parser)
+	GTS_DISABLE_COPY_MOVE(http_parser)
 
 public:
 	explicit http_parser(int buf_size = 65536);

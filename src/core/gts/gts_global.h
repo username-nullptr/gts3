@@ -60,21 +60,26 @@ namespace gts
 # define GTSCORE_API  GTS_DECL_IMPORT
 #endif //gtscore_EXPORTS
 
-#define _UNUSED(x)  (void)(x)
+#define GTS_UNUSED(x)  (void)(x)
 
 #if defined(_WIN64) || defined(__x86_64__) || defined(__arm64__) || defined(__aarch64__)
-# define _OS_64BIT
+# define GTS_OS_64BIT
 typedef uint64_t  address_bits_wide;
 #else
 # define _OS_32BIT
 typedef uint32_t  address_bits_wide;
 #endif // 32bit & 64bit
 
-#define DISABLE_COPY(_class) \
+#define GTS_DISABLE_COPY(_class) \
 	explicit _class(const _class&) = delete; \
+	void operator=(const _class&) = delete;
+
+#define GTS_DISABLE_MOVE(_class) \
 	explicit _class(_class&&) = delete; \
-	void operator=(const _class&) = delete; \
 	void operator=(_class&&) = delete;
+
+#define GTS_DISABLE_COPY_MOVE(_class) \
+	GTS_DISABLE_COPY(_class) GTS_DISABLE_MOVE(_class)
 
 #ifdef USING_ASIO
 GTSCORE_API asio::io_context &io_context();

@@ -28,7 +28,7 @@ namespace gts
 
 static class GTS_DECL_HIDDEN applictaion_impl
 {
-	DISABLE_COPY(applictaion_impl)
+	GTS_DISABLE_COPY_MOVE(applictaion_impl)
 
 public:
 	applictaion_impl(int argc, const char *argv[]);
@@ -228,7 +228,7 @@ int applictaion::exec()
 		return g_impl->m_exit_code;
 
 	auto &io = gts::io_context();
-	asio::io_context::work io_work(io); _UNUSED(io_work);
+	asio::io_context::work io_work(io); GTS_UNUSED(io_work);
 
 	io.run();
 	return g_impl->m_exit_code;

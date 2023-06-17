@@ -9,7 +9,7 @@ namespace gts { namespace subserver
 
 static class GTS_DECL_HIDDEN manager_impl
 {
-	DISABLE_COPY(manager_impl)
+	GTS_DISABLE_COPY_MOVE(manager_impl)
 
 public:
 	manager_impl();

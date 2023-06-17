@@ -26,7 +26,7 @@ string_list string_split(const std::string &str, const std::string &splits, bool
 	return result;
 }
 
-std::string string_list_join(const string_list &list, const std::string &splits)
+std::string string_list_join(const basic_string_list &list, const std::string &splits)
 {
 	std::string result;
 	if( list.empty() )

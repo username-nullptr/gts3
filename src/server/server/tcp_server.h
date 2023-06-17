@@ -11,7 +11,7 @@ namespace gts
 
 class tcp_server
 {
-	DISABLE_COPY(tcp_server)
+	GTS_DISABLE_COPY_MOVE(tcp_server)
 
 public:
 	tcp_server();
@@ -33,7 +33,7 @@ private:
 private:
 	class basic_site
 	{
-		DISABLE_COPY(basic_site)
+		GTS_DISABLE_COPY_MOVE(basic_site)
 
 	public:
 		basic_site(tcp_server *q_ptr, asio::io_context &io, const std::string &addr, uint16_t port);

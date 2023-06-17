@@ -10,7 +10,7 @@ namespace gts { namespace web
 template <class asio_socket>
 class GTS_DECL_HIDDEN task
 {
-	DISABLE_COPY(task)
+	GTS_DISABLE_COPY_MOVE(task)
 	typedef gts::socket<asio_socket>        tcp_socket;
 	typedef std::shared_ptr<tcp_socket>     tcp_socket_ptr;
 	typedef std::shared_ptr<http::request>  http_request_ptr;

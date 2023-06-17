@@ -148,7 +148,7 @@ bool pipe_ope::is_open() const
 
 int pipe_ope::read(char *buf, int len, int timeout)
 {
-	_UNUSED(timeout);
+	GTS_UNUSED(timeout);
 	if( not is_open() )
 	{
 		log_error("pipe not open.");
@@ -198,7 +198,7 @@ int pipe_ope::read(char *buf, int len, int timeout)
 
 int pipe_ope::write(const char *buf, int len, int timeout)
 {
-	_UNUSED(timeout);
+	GTS_UNUSED(timeout);
 	if( not is_open() )
 	{
 		log_error("pipe not open.");

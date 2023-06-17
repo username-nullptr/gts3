@@ -10,7 +10,7 @@ namespace gts { namespace subserver
 
 class manager
 {
-	DISABLE_COPY(manager)
+	GTS_DISABLE_COPY_MOVE(manager)
 
 public:
 	manager();

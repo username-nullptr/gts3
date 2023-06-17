@@ -14,6 +14,9 @@ typedef std::deque<std::string>  basic_string_list;
 class GTSCORE_API string_list : public basic_string_list
 {
 public:
+#if 1
+	using basic_string_list::deque;
+#else
 	string_list();
 	explicit string_list(const allocator_type& __a);
 	explicit string_list(size_type __n, const allocator_type& __a = allocator_type());
@@ -31,10 +34,14 @@ public:
 public:
 	string_list(const string_list& __x);
 	string_list(string_list&& __x);
+#endif
 
 public:
 	std::vector<std::string> to_vector() const;
 	std::vector<const char*> c_str_vector() const;
+
+public:
+	std::string join(const std::string &splits = " ");
 };
 
 } //namespace gts

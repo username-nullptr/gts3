@@ -30,7 +30,7 @@ class process_private;
 
 class GTSCORE_API process
 {
-	DISABLE_COPY(process)
+	GTS_DISABLE_COPY_MOVE(process)
 
 public:
 	explicit process(asio::io_context &io, const std::string &file_name = std::string());
