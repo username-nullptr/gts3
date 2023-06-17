@@ -20,14 +20,14 @@ static int become_child_process();
 
 static int g_lock_file_fd = -1;
 
-argument_hash startup(int argc, const char *argv[])
+args_parser::arguments startup(int argc, const char *argv[])
 {
 	static bool isInit = false;
 	if( isInit )
 		log_fatal("cmdline_handle repeat call.");
 	isInit = true;
 
-	argument_hash args_hash;
+	args_parser::arguments args_hash;
 	cmdline_handle(argc, argv, args_hash);
 
 	int pipefd = -1;
@@ -120,7 +120,7 @@ void stop_app(bool noreturn)
 		{
 			std::cerr << "Unable to kill server process: " << strerror(errno) << std::endl;
 			std::cout << "If the server has stopped, you can remove '" << appinfo::lock_file_name() << "'." << std::endl;
-			__END(noreturn, -1);
+			__END(true, -1);
 		}
 
 		for(int i=0; i<100; i++)

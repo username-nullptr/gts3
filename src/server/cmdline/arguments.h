@@ -1,8 +1,7 @@
 #ifndef ARGUMENTS_H
 #define ARGUMENTS_H
 
-#include <string>
-#include <map>
+#include "gts/args_parser.h"
 
 namespace gts { namespace cmdline
 {
@@ -13,7 +12,7 @@ namespace gts { namespace cmdline
 #define GC_SA_INSNAME  "-i"
 #define GC_SA_STOP     "stop"
 #define GC_SA_RESTART  "restart"
-#define GC_SA_STATUS   "stat"
+#define GC_SA_STATUS   "status"
 #define GC_SA_VASUS    "--view-subserver-all"
 #define GC_SA_VRSUS    "--view-subserver"
 #define GC_SA_STSSA    "--start-subserver-all"
@@ -21,12 +20,7 @@ namespace gts { namespace cmdline
 #define GC_SA_STSS     "--start-subserver"
 #define GC_SA_SPSS     "--stop-subserver"
 
-typedef std::map<std::string, std::string>  argument_hash;
-
-argument_hash argument_check(int argc, const char *argv[]);
-
-bool operator&(const argument_hash &args_hash, const std::string &key);
-bool operator&(const std::string &key, const argument_hash &args_hash);
+args_parser::arguments argument_check(int argc, const char *argv[], string_list &others);
 
 }} //namespace gts::cmdline
 

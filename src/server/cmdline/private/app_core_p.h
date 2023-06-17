@@ -7,7 +7,7 @@
 namespace gts { namespace cmdline
 {
 
-void cmdline_handle(int argc, const char *argv[], argument_hash &args_hash);
+void cmdline_handle(int argc, const char *argv[], args_parser::arguments &args_hash);
 
 }} //namespace gts::cmdline
 

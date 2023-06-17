@@ -35,7 +35,7 @@ public:
 	~applictaion_impl();
 
 private:
-	void set_config_file(const cmdline::argument_hash &args_hash);
+	void set_config_file(const cmdline::args_parser::arguments &args_hash);
 
 public:
 	string_list m_args;
@@ -129,7 +129,7 @@ applictaion_impl::~applictaion_impl()
 	cmdline::app_unlock();
 }
 
-void applictaion_impl::set_config_file(const cmdline::argument_hash &args_hash)
+void applictaion_impl::set_config_file(const cmdline::args_parser::arguments &args_hash)
 {
 	std::string file_name;
 	auto it = args_hash.find(GC_SA_CFPATH);

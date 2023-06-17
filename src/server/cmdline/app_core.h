@@ -6,7 +6,7 @@
 namespace gts { namespace cmdline
 {
 
-argument_hash startup(int argc, const char *argv[]);
+args_parser::arguments startup(int argc, const char *argv[]);
 
 void app_unlock();
 

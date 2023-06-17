@@ -1,11 +1,8 @@
 #include "arguments.h"
 #include "startup_plugin_interface.h"
-#include "gts/string_list.h"
-#include "gts/log.h"
 
 #include <rttr/library.h>
 #include <iostream>
-#include <cstring>
 
 #if GTS_ENABLE_SSL
 # include <openssl/ssl.h>
@@ -14,169 +11,40 @@
 namespace gts { namespace cmdline
 {
 
-#define ERROR_EXIT(msg) \
-({ \
-	std::cerr << msg << std::endl; \
-	exit(-1); \
-})
-
-#define ARGC_EQ_1(ope) \
-({ \
-	if( argc == 1 ) { \
-		ope; \
-		break; \
-	} else if( argc == 3 ) { \
-		if( i == 0 ) { \
-			ope; \
-		} else if( argc == 2 ) { \
-			ope; \
-			break; \
-		} else { \
-			ERROR_EXIT("Invalid arguments."); \
-		} \
-	} else { \
-		ERROR_EXIT("Too many arguments."); \
-	} \
-})
-
-#define ARGC_EQ_2(ope) \
-({ \
-	if( argc == 2 ) { \
-		if( i == 0 ) { \
-			ope; \
-			break; \
-		} else { \
-			ERROR_EXIT("Invalid arguments."); \
-		} \
-	} else if( argc == 4 ) { \
-		if( i == 0 ) { \
-			ope; \
-		} else if( i == 2 ) { \
-			ope; \
-			break; \
-		} else { \
-			ERROR_EXIT("Invalid arguments."); \
-		} \
-	} else if( argc == 1 ) { \
-		ERROR_EXIT("Invalid argument."); \
-	} else { \
-		ERROR_EXIT("Too many arguments."); \
-	} \
-})
-
 static void args_parsing_extensions(const string_list &args);
-[[noreturn]] static void printVersion(bool all = false);
-[[noreturn]] static void printHelp();
+static std::string view_version(bool all = false);
+static std::string view_help_extension();
 
 // Modify or extend this function
-argument_hash argument_check(int argc, const char *argv[])
+args_parser::arguments argument_check(int argc, const char *argv[], string_list &others)
 {
-	argument_hash args_hash;
-	if( argc <= 1 )
-		return args_hash;
+	auto args_hash =
+		args_parser("GTS " GTS_VERSION_STR "\n"
+					"Description of command line parameters:")
 
-	string_list other_args;
-	argc -= 1;
-	argv += 1;
+			.add_flag ("start, -start, --start"      , "Start the server."                                                               , GC_SA_START)
+			.add_flag ("stop, -stop, --stop"         , "Stop the server."                                                                , GC_SA_STOP)
+			.add_flag ("restart, -restart, --restart", "Restart the server."                                                             , GC_SA_RESTART)
+			.add_flag ("-d, --daemon"                , "Start as a daemon process."                                                      , GC_SA_DAEMON)
+			.add_group("-i, --instace"               , "Specify the server instance name to start multiple instances. (default is 'gts')", GC_SA_INSNAME)
+			.add_group("-f, --file"                  , "Specify the configuration file (default is './config.ini')."                     , GC_SA_CFPATH)
+			.add_flag ("status, -status, --status"   , "Viewing server status."                                                          , GC_SA_STATUS)
+			.add_flag ("--view-subserver-all"        , "Viewing all subservers."                                                         , GC_SA_VASUS)
+			.add_flag ("--view-subserver"            , "Viewing running subservers."                                                     , GC_SA_VRSUS)
+			.add_flag ("--start-subserver-all"       , "Start all subservers."                                                           , GC_SA_STSSA)
+			.add_group("--start-subserver"           , "Start subservices in the list."                                                  , GC_SA_STSS)
+			.add_flag ("--stop-subserver-all"        , "Stop all subservers."                                                            , GC_SA_SPSSA)
+			.add_group("--stop-subserver"            , "Stop subservices in the list."                                                   , GC_SA_SPSS)
 
-	for(int i=0 ;i<argc; i++)
-	{
-		if( strcmp(argv[i], GC_SA_STOP) == 0 )
-			args_hash.emplace(GC_SA_STOP, std::string());
+			.enable_h()
+			.set_help_extension(view_help_extension())
+			.set_version(view_version(false))
+			.set_v(view_version(true))
 
-		else if( strcmp(argv[i], GC_SA_START) == 0 )
-			args_hash.emplace(GC_SA_START, std::string());
+			.parsing(argc, argv, others);
 
-		else if( strcmp(argv[i], GC_SA_RESTART) == 0 )
-			args_hash.emplace(GC_SA_RESTART, std::string());
-
-		else if( strcmp(argv[i], "daemon") == 0 or
-				 strcmp(argv[i], GC_SA_DAEMON) == 0 )
-			args_hash.emplace(GC_SA_DAEMON, std::string());
-
-		///////////////////////////////////////////////////////////////////////////////////////
-		else if( strcmp(argv[i], GC_SA_CFPATH) == 0 )
-		{
-			if( i + 1 >= argc )
-				ERROR_EXIT("Invalid arguments.");
-			args_hash.emplace(GC_SA_CFPATH, argv[++i]);
-		}
-		else if( strcmp(argv[i], "-df") == 0 )
-		{
-			if( i + 1 >= argc )
-				ERROR_EXIT("Invalid arguments.");
-			args_hash.emplace(GC_SA_CFPATH, argv[++i]);
-			args_hash.emplace(GC_SA_DAEMON, std::string());
-		}
-		else if( strcmp(argv[i], GC_SA_INSNAME) == 0 )
-		{
-			if( i + 1 >= argc )
-				ERROR_EXIT("Invalid arguments.");
-			args_hash.emplace(GC_SA_INSNAME, argv[++i]);
-		}
-		else if( strcmp(argv[i], "-di") == 0 )
-		{
-			if( i + 1 >= argc )
-				ERROR_EXIT("Invalid arguments.");
-			args_hash.emplace(GC_SA_DAEMON, std::string());
-			args_hash.emplace(GC_SA_INSNAME, argv[++i]);
-		}
-
-		///////////////////////////////////////////////////////////////////////////////////////
-		else if( strcmp(argv[i], "-stat") == 0 or
-				 strcmp(argv[i], "--stat") == 0 or
-				 strcmp(argv[i], "status") == 0 or
-				 strcmp(argv[i], "-status") == 0 or
-				 strcmp(argv[i], "--status") == 0 or
-				 strcmp(argv[i], GC_SA_STATUS) == 0 )
-			ARGC_EQ_1(args_hash.emplace(GC_SA_STATUS, std::string()));
-
-		else if( strcmp(argv[i], GC_SA_STSSA) == 0 )
-			ARGC_EQ_1(args_hash.emplace(GC_SA_STSSA, std::string()));
-
-		else if( strcmp(argv[i], GC_SA_SPSSA) == 0 )
-			ARGC_EQ_1(args_hash.emplace(GC_SA_SPSSA, std::string()));
-
-		else if( strcmp(argv[i], GC_SA_VASUS) == 0 )
-			ARGC_EQ_1(args_hash.emplace(GC_SA_VASUS, std::string()));
-
-		else if( strcmp(argv[i], GC_SA_VRSUS) == 0 )
-			ARGC_EQ_1(args_hash.emplace(GC_SA_VRSUS, std::string()));
-
-		else if( strcmp(argv[i], "--version") == 0 )
-			ARGC_EQ_1(printVersion(false));
-
-		else if( strcmp(argv[i], "-v") == 0 )
-			ARGC_EQ_1(printVersion(true));
-
-		else if( strcmp(argv[i], "-h") == 0 or strcmp(argv[i], "--help") == 0 )
-			ARGC_EQ_1(printHelp());
-
-		///////////////////////////////////////////////////////////////////////////////////////
-		else if( strcmp(argv[i], GC_SA_STSS) == 0 )
-			ARGC_EQ_2(args_hash.emplace(GC_SA_STSS, argv[++i]));
-
-		else if( strcmp(argv[i], GC_SA_SPSS) == 0 )
-			ARGC_EQ_2(args_hash.emplace(GC_SA_SPSS, argv[++i]));
-
-		///////////////////////////////////////////////////////////////////////////////////////
-		else {
-			args_hash.emplace("@" + std::string(argv[i]), argv[i]);
-			other_args.emplace_back(argv[i]);
-		}
-	}
-	args_parsing_extensions(other_args);
+	args_parsing_extensions(others);
 	return args_hash;
-}
-
-bool operator&(const argument_hash &args_hash, const std::string &key)
-{
-	return args_hash.find(key) != args_hash.end();
-}
-
-bool operator&(const std::string &key, const argument_hash &args_hash)
-{
-	return args_hash.find(key) != args_hash.end();
 }
 
 /*----------------------------------------------------------------------------------------------------------------------*/
@@ -189,23 +57,39 @@ static inline bool load_startup_extensions_library()
 
 static void args_parsing_extensions(const string_list &args)
 {
-	if( load_startup_extensions_library() == false )
+	if( args.empty() )
 		return ;
 
-	auto method = rttr::type::get_global_method(GTS_STARTUP_PLUGIN_INTERFACE_ARGS_PARSING,
-												{rttr::type::get<int>(), rttr::type::get<const char**>()});
-	if( method.is_valid() )
+	bool res = false;
+	if( load_startup_extensions_library() )
 	{
-		static auto other_args_vector = args.c_str_vector();
-		method.invoke({}, static_cast<int>(other_args_vector.size()), other_args_vector.data());
-		return ;
-	}
+		auto method = rttr::type::get_global_method(GTS_STARTUP_PLUGIN_INTERFACE_ARGS_PARSING,
+													{rttr::type::get<int>(), rttr::type::get<const char**>()});
+		if( method.is_valid() )
+		{
+			if( method.get_return_type() == rttr::type::get<bool>() )
+			{
+				static auto other_args_vector = args.c_str_vector();
+				res = method.invoke({}, static_cast<int>(other_args_vector.size()), other_args_vector.data()).to_bool();
+			}
+		}
+		else
+		{
+			method = rttr::type::get_global_method(GTS_STARTUP_PLUGIN_INTERFACE_ARGS_PARSING,
+												   {rttr::type::get<std::deque<std::string>>()});
 
-	method = rttr::type::get_global_method(GTS_STARTUP_PLUGIN_INTERFACE_ARGS_PARSING,
-										   {rttr::type::get<std::deque<std::string>>()});
-	if( method.is_valid() )
-		method.invoke({}, static_cast<std::deque<std::string>>(args));
+			if( method.is_valid() and method.get_return_type() == rttr::type::get<bool>() )
+				res = method.invoke({}, static_cast<std::deque<std::string>>(args)).to_bool();
+		}
+	}
+	if( not res )
+	{
+		std::cerr << "Invalid arguments." << std::endl;
+		exit(-1);
+	}
 }
+
+static std::string view_extension(const char *method_name);
 
 #ifdef __llvm__
 # define IS_CLANG  "Clang-"
@@ -213,36 +97,47 @@ static void args_parsing_extensions(const string_list &args)
 # define IS_CLANG  ""
 #endif //Clang
 
-[[noreturn]] static void printVersion(bool all)
+static std::string view_version(bool all)
 {
-	if( all ) std::cout << "\n";
-
-	std::cout << "GTS " << GTS_VERSION_STR << std::endl;
+	std::string result;
+	result += "GTS " GTS_VERSION_STR;
 	if( not all )
-		::exit(0);
+		return result;
 
+	result += "\n";
 #if GTS_ENABLE_SSL
-	std::cout << OPENSSL_VERSION_TEXT "\n";
+	result += OPENSSL_VERSION_TEXT "\n";
 #endif //ssl
 
 #ifdef __GNUC__
-	std::cout << "Compiler: " IS_CLANG "GCC " << __VERSION__ "\n";
+	result += "Compiler: " IS_CLANG "GCC " __VERSION__ "\n";
 #elif defined(_MSC_VER)
-	std::cout << "Compiler: " IS_CLANG "MSVC " << _MSC_VER << std::endl;
+	result += "Compiler: " IS_CLANG "MSVC " _MSC_VER "\n";
 #endif //GCC
 
-	std::cout << "Compilation time: " << __DATE__ << " " << __TIME__ << std::endl;
+	result += "Compilation time: " __DATE__ " " __TIME__ "\n" +
+			  view_extension(GTS_STARTUP_PLUGIN_INTERFACE_VERSION);
+	return result;
+}
 
+static inline std::string view_help_extension()
+{
+	return view_extension(GTS_STARTUP_PLUGIN_INTERFACE_HELP_EX);
+}
+
+static std::string view_extension(const char *method_name)
+{
+	std::string result;
 	if( load_startup_extensions_library() == false )
-		::exit(0);
-	auto method = rttr::type::get_global_method(GTS_STARTUP_PLUGIN_INTERFACE_VERSION);
+		return result;
+	auto method = rttr::type::get_global_method(method_name);
 
 	if( method.is_valid() and method.get_parameter_infos().size() == 0 and
 		method.get_return_type() == rttr::type::get<std::string>() )
 	{
 		auto str = method.invoke({}).to_string();
 		if( str.empty() )
-			::exit(0);
+			return result;
 
 		int i = str.size() - 1;
 		for(; i>=0; i--)
@@ -253,32 +148,9 @@ static void args_parsing_extensions(const string_list &args)
 		str = str.substr(0, i + 1);
 
 		if( not str.empty() )
-			std::cout << "\nExtern:\n" << str << "\n" << std::endl;
+			result += "\nExtern:\n" + str;
 	}
-	::exit(0);
-}
-
-[[noreturn]] static void printHelp()
-{
-	std::cout << "GTS " << GTS_VERSION_STR                                                                                                  << std::endl;
-	std::cout << "Description of command line parameters:"                                                                                  << std::endl;
-	std::cout << "  start                              : Start the server."                                                                 << std::endl;
-	std::cout << "  stop                               : Stop the server."                                                                  << std::endl;
-	std::cout << "  restart                            : Restart the server."                                                               << std::endl;
-	std::cout << "  -d                                 : Start as a daemon process."                                                        << std::endl;
-	std::cout << "  -i name                            : Specify the server instance name to start multiple instances. (default is 'gts')"  << std::endl;
-	std::cout << "  -f file                            : Specify the configuration file (default is './config.ini')."                       << std::endl;
-	std::cout << "  stat                               : Viewing server status."                                                            << std::endl;
-	std::cout << "  --version                          : Viewing server version."                                                           << std::endl;
-	std::cout << "  -v                                 : Viewing the detailed version information."                                         << std::endl;
-	std::cout << "  -h or --help                       : Viewing help."                                                                     << std::endl;
-	std::cout << "  --view-subserver-all               : Viewing all subservers."                                                           << std::endl;
-	std::cout << "  --view-subserver                   : Viewing running subservers."                                                       << std::endl;
-	std::cout << "  --start-subserver-all              : Start all subservers."                                                             << std::endl;
-	std::cout << "  --start-subserver <name0,name1...> : Start subservices in the list."                                                    << std::endl;
-	std::cout << "  --stop-subserver-all               : Stop all subservers."                                                              << std::endl;
-	std::cout << "  --stop-subserver <name0,name1...>  : Stop subservices in the list."                                                     << std::endl;
-	exit(0);
+	return result;
 }
 
 }} //namespace gts::cmdline

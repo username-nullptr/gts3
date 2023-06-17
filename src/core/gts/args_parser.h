@@ -1,5 +1,5 @@
-#ifndef GTS_ARGS_PARSING_H
-#define GTS_ARGS_PARSING_H
+#ifndef GTS_ARGS_PARSER_H
+#define GTS_ARGS_PARSER_H
 
 #include <gts/string_list.h>
 #include <unordered_map>
@@ -54,10 +54,10 @@ private:
 	parser_impl *m_impl;
 };
 
-GTSCORE_API bool operator&(const args_parser::arguments &args_hash, args_parser::rule &key);
+GTSCORE_API bool operator&(const args_parser::arguments &args_hash, const args_parser::rule &key);
 GTSCORE_API bool operator&(const args_parser::rule &key, const args_parser::arguments &args_hash);
 
 }} //namespace gts::cmdline
 
 
-#endif //GTS_ARGS_PARSING_H
+#endif //GTS_ARGS_PARSER_H

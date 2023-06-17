@@ -27,10 +27,12 @@ class GTS_DECL_HIDDEN parser_impl
 {
 public:
 	explicit parser_impl(const std::string &help_title);
+	void add(args_cache &cache, const rule &r, const description &d, const identification &i);
 
 public:
-	void add(args_cache &cache, const rule &r, const description &d, const identification &i);
-	void print_help();
+	[[noreturn]] void print_version();
+	[[noreturn]] void print_v();
+	[[noreturn]] void print_help();
 
 public:
 	args_cache m_group;
@@ -90,15 +92,40 @@ void parser_impl::add(args_cache &cache, const rule &r, const description &d, co
 	m_help += "    " + r + " :\n        " + d + "\n\n";
 }
 
-void parser_impl::print_help()
+[[noreturn]] void parser_impl::print_version()
+{
+	std::cout << "\n" << m_version << "\n\n";
+	exit(0);
+}
+
+[[noreturn]] void parser_impl::print_v()
+{
+	std::cout << "\n" << m_v << "\n\n";
+	exit(0);
+}
+
+[[noreturn]] void parser_impl::print_help()
 {
 	std::cout << "\n";
 	if( not m_help_title.empty() )
 		std::cout << m_help_title << "\n\n";
 
 	std::cout << m_help;
+
+	if( m_v.empty() )
+		std::cout << "    --version:";
+	else
+		std::cout << "    -v, --version:";
+	std::cout << "\n        Viewing server version.\n\n";
+
+	if( m_h )
+		std::cout << "    -h, --help:";
+	else
+		std::cout << "    --help:";
+	std::cout << "\n        Viewing help.\n\n";
+
 	if( not m_help_ex.empty() )
-		std::cout << m_help_ex;
+		std::cout << m_help_ex << "\n\n";
 
 	std::cout << std::flush;
 	exit(0);
@@ -162,8 +189,6 @@ args_parser &args_parser::disable_h()
 args_parser &args_parser::set_help_extension(const description &d)
 {
 	m_impl->m_help_ex = d;
-	while( not ends_with(m_impl->m_help_ex, "\n\n") )
-		m_impl->m_help_ex += "\n";
 	return *this;
 }
 
@@ -186,7 +211,7 @@ arguments args_parser::parsing(int argc, const char *argv[], string_list &other)
 		std::string arg(argv[i]);
 		if( arg == "-" or arg == "--" )
 		{
-			std::cerr << "Invalid argument." << std::endl;
+			std::cerr << "Invalid arguments." << std::endl;
 			exit(-1);
 		}
 		else if( arg == "--version" )
@@ -197,18 +222,12 @@ arguments args_parser::parsing(int argc, const char *argv[], string_list &other)
 				exit(-1);
 			}
 			else if( not m_impl->m_version.empty() )
-			{
-				std::cout << m_impl->m_version << std::endl;
-				exit(0);
-			}
+				m_impl->print_version();
 			else if( not m_impl->m_v.empty() )
-			{
-				std::cout << m_impl->m_version << std::endl;
-				exit(0);
-			}
+				m_impl->print_v();
 			else
 			{
-				std::cerr << "Invalid argument." << std::endl;
+				std::cerr << "Invalid arguments." << std::endl;
 				exit(-1);
 			}
 		}
@@ -221,8 +240,7 @@ arguments args_parser::parsing(int argc, const char *argv[], string_list &other)
 					std::cerr << "Too many parameters." << std::endl;
 					exit(-1);
 				}
-				std::cout << m_impl->m_v << std::endl;
-				exit(0);
+				m_impl->print_v();
 			}
 		}
 		else if( arg == "--help" )
@@ -236,7 +254,7 @@ arguments args_parser::parsing(int argc, const char *argv[], string_list &other)
 				m_impl->print_help();
 			else
 			{
-				std::cerr << "Invalid argument." << std::endl;
+				std::cerr << "Invalid arguments." << std::endl;
 				exit(-1);
 			}
 		}
@@ -260,7 +278,7 @@ arguments args_parser::parsing(int argc, const char *argv[], string_list &other)
 				m_impl->m_group.find(argv[i+1]) != m_impl->m_group.end() or
 				m_impl->m_flag.find(argv[i+1]) != m_impl->m_flag.end() )
 			{
-				std::cerr << "Invalid argument." << std::endl;
+				std::cerr << "Invalid arguments." << std::endl;
 				exit(-1);
 			}
 			group_check_duplication(cache, it->second.group);
@@ -359,7 +377,7 @@ arguments args_parser::parsing(int argc, const char *argv[], string_list &other)
 				m_impl->m_group.find(argv[i+1]) != m_impl->m_group.end() or
 				m_impl->m_flag.find(argv[i+1]) != m_impl->m_flag.end() )
 			{
-				std::cerr << "Invalid argument." << std::endl;
+				std::cerr << "Invalid arguments." << std::endl;
 				exit(-1);
 			}
 			group_check_duplication(cache, it2->second.group);
@@ -378,13 +396,13 @@ arguments args_parser::parsing(int argc, const char *argv[])
 	auto res = parsing(argc, argv, other);
 	if( not other.empty() )
 	{
-		std::cerr << "Invalid argument." << std::endl;
+		std::cerr << "Invalid arguments." << std::endl;
 		exit(-1);
 	}
 	return res;
 }
 
-bool operator&(const args_parser::arguments &args_hash, args_parser::rule &key)
+bool operator&(const args_parser::arguments &args_hash, const args_parser::rule &key)
 {
 	return args_hash.find(key) != args_hash.end();
 }

@@ -6,8 +6,8 @@
 #define GTS_STARTUP_PLUGIN_INTERFACE  "gts.cmdline.plugin."
 
 /*
- * args_parsing(int argc, const char *argv[])
- * args_parsing(const std::deque<std::string> &args)
+ * bool args_parsing(int argc, const char *argv[])
+ * bool args_parsing(const std::deque<std::string> &args)
 */
 #define GTS_STARTUP_PLUGIN_INTERFACE_ARGS_PARSING  GTS_STARTUP_PLUGIN_INTERFACE "args_parsing"
 

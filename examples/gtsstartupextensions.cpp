@@ -12,10 +12,11 @@
 namespace gts { namespace cmdline { namespace business
 {
 
-DECL_EXPORT void args_parsing(int argc, const char *argv[])
+DECL_EXPORT bool args_parsing(int argc, const char *argv[])
 {
 	for(int i=0; i<argc; i++)
 		std::cerr << "argv[" << i << "] = " << argv[i] << std::endl;
+	return true;
 }
 
 DECL_EXPORT void extensions_init()

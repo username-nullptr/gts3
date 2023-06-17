@@ -14,46 +14,61 @@ namespace gts { namespace cmdline
 
 static void server_is_running_check();
 
-[[noreturn]] static void short_cmd_check(const cmdline::argument_hash &args_hash);
+[[noreturn]] static void short_cmd_check(const args_parser::arguments &args_hash);
 
-void cmdline_handle(int argc, const char *argv[], argument_hash &args_hash)
+void cmdline_handle(int argc, const char *argv[], args_parser::arguments &args_hash)
 {
 	static bool isInit = false;
 	if( isInit )
 		log_fatal("cmdline_handle repeat call.");
 	isInit = true;
 
-	args_hash = argument_check(argc, argv);
-	if( args_hash & GC_SA_INSNAME )
-		appinfo::set_instance_name(args_hash[GC_SA_INSNAME]);
+	string_list others;
+	auto _args_hash = argument_check(argc, argv, others);
 
-	if( args_hash & GC_SA_START )
+	if( _args_hash & GC_SA_INSNAME )
 	{
-		if( not fs::exists(appinfo::tmp_dir_path()) )
-		{
-			if( fs::create_directories(appinfo::tmp_dir_path()) == false )
-				log_fatal("Run(tmp) diractory make failed!");
-		}
-		return ;
+		appinfo::set_instance_name(_args_hash[GC_SA_INSNAME]);
+		_args_hash.erase(GC_SA_INSNAME);
 	}
-	else if( args_hash.empty() or args_hash & GC_SA_DAEMON )
-	{
+	if( _args_hash & GC_SA_STATUS or
+		_args_hash & GC_SA_VASUS or
+		_args_hash & GC_SA_VRSUS or
+		_args_hash & GC_SA_STSSA or
+		_args_hash & GC_SA_SPSSA or
+		_args_hash & GC_SA_STSS or
+		_args_hash & GC_SA_SPSS )
+		short_cmd_check(_args_hash);
+
+	do {
+		if( _args_hash & GC_SA_START )
+		{
+			if( not fs::exists(appinfo::tmp_dir_path()) )
+			{
+				if( fs::create_directories(appinfo::tmp_dir_path()) == false )
+					log_fatal("Run(tmp) diractory make failed!");
+			}
+			break;
+		}
+		else if( _args_hash & GC_SA_RESTART )
+		{
+			server_is_running_check();
+			stop_app(false);
+			break;
+		}
+		else if( _args_hash & GC_SA_STOP )
+		{
+			if( _args_hash.size() > 1 )
+				log_fatal("Too many arguments.");
+			server_is_running_check();
+			stop_app(true); //exit
+		}
+
 		std::cout << "If you want to start the server, add the argument 'start'." << std::endl;
 		exit(-1);
 	}
-	else if( args_hash & GC_SA_STOP )
-	{
-		if( args_hash.size() > 1 )
-			log_fatal("Too many arguments.");
-		server_is_running_check();
-		stop_app(true); //exit
-	}
-	else if( args_hash & GC_SA_RESTART )
-	{
-		server_is_running_check();
-		return stop_app(false);
-	}
-	short_cmd_check(args_hash);
+	while(0);
+	args_hash = std::move(_args_hash);
 }
 
 /*----------------------------------------------------------------------------------------------------------------------*/
@@ -64,7 +79,7 @@ static void server_is_running_check()
 		return ;
 
 	std::cout << "The server is not running." << std::endl;
-	exit(-1);
+	exit(1);
 }
 
 #ifdef _WINDOWS
@@ -75,7 +90,7 @@ static void server_is_running_check()
 # define _BUF_SIZE  8192
 #endif //os
 
-[[noreturn]] static void short_cmd_check(const cmdline::argument_hash &args_hash)
+[[noreturn]] static void short_cmd_check(const args_parser::arguments &args_hash)
 {
 	std::string cmd_str;
 
@@ -98,7 +113,7 @@ static void server_is_running_check()
 		std::cerr << "Invalid arguments." << std::endl;
 		exit(-1);
 	}
-	if( args_hash.size() > 1 and not (args_hash & GC_SA_INSNAME) )
+	if( args_hash.size() > 1 )
 	{
 		std::cerr << "Too many arguments." << std::endl;
 		exit(-1);
