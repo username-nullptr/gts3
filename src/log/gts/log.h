@@ -27,11 +27,11 @@ public:
 
 		std::size_t max_size_one_file = 10240;
 		std::size_t max_size_one_day  = 10485760;
-		std::size_t max_size         = 1073741824;
+		std::size_t max_size          = 1073741824;
 
 		int  mask          = 4;
 		int  time_category = true;
-		bool async         = true;
+		bool async         = false;
 		bool no_stdout     = false;
 	};
 
@@ -46,6 +46,7 @@ public:
 public:
 	static context get_context();
 	static bool get_header_breaks_aline();
+	static void wait();
 
 public:
 	template <typename...Args>

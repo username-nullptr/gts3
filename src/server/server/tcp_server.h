@@ -27,6 +27,13 @@ public:
 private:
 	template <class asio_socket>
 	void service(std::shared_ptr<socket<asio_socket>> _socket);
+	void call_new_connect_method_0(std::shared_ptr<socket<tcp::socket>> _socket);
+
+#ifdef GTS_ENABLE_SSL
+	void call_new_connect_method_0(std::shared_ptr<socket<ssl_stream>> _socket);
+#endif //ssl
+
+private:
 	void new_connect_method_init();
 	void call_init();
 
@@ -84,6 +91,10 @@ private:
 	std::shared_ptr<rttr::library> m_plugin_lib;
 	rttr::method m_new_connect_method;
 
+#ifdef GTS_ENABLE_SSL
+	rttr::method m_new_connect_method_ssl;
+#endif //ssl
+
 	int m_method_id = 1;
 	int m_buffer_size = 65536;
 };
@@ -101,17 +112,20 @@ void tcp_server::service(std::shared_ptr<socket<asio_socket>> _socket)
 		log_error("asio: set socket receive buffer error: {}. ({})\n", error.message(), error.value());
 
 	if( m_method_id == 0 )
+		call_new_connect_method_0(_socket);
+
+	else if( m_method_id == 1 )
 	{
 		m_new_connect_method.invoke({}, std::move(_socket->next_layer()),
 									reinterpret_cast<void*>(_socket->release_ssl()));
 	}
-	else if( m_method_id == 1 )
+	else if( m_method_id == 2 )
 	{
 		bool is_v6 = _socket->remote_endpoint().address().is_v6();
 		m_new_connect_method.invoke({}, _socket->release(),
 									reinterpret_cast<void*>(_socket->release_ssl()), is_v6);
 	}
-	else if( m_method_id == 2 )
+	else if( m_method_id == 3 )
 	{
 		m_new_connect_method.invoke({}, _socket->release(),
 									reinterpret_cast<void*>(_socket->release_ssl()));

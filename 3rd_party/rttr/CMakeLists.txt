@@ -1,7 +1,3 @@
-if (${CMAKE_CXX_STANDARD} GREATER 17)
-	set(CMAKE_CXX_STANDARD 17)
-endif()
-
 set(rttr_headers
 	rttr/access_levels.h
 	rttr/argument.h
@@ -182,6 +178,10 @@ elseif (UNIX)
 endif()
 
 add_library(rttr_core SHARED ${rttr_sources} ${rttr_headers} ${rttr_private_headers})
+
+if (${CMAKE_CXX_STANDARD} GREATER 17)
+	set_target_properties(rttr_core PROPERTIES CXX_STANDARD 17)
+endif()
 
 if (UNIX)
 	target_link_libraries(rttr_core PRIVATE dl)

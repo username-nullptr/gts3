@@ -16,13 +16,13 @@
 namespace gts
 {
 
-class GTS_DECL_HIDDEN process_private
+class GTS_DECL_HIDDEN process_impl
 {
-	GTS_DISABLE_COPY_MOVE(process_private)
+	GTS_DISABLE_COPY_MOVE(process_impl)
 
 public:
-	process_private(asio::io_context &io);
-	~process_private();
+	process_impl(asio::io_context &io);
+	~process_impl();
 
 public:
 	typedef std::unordered_map<std::string , std::string>  env;

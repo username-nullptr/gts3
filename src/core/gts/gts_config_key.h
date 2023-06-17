@@ -22,9 +22,9 @@
 
 #define SINI_GTS_LOG_DIR       "directory"
 
-#define SINI_GTS_LOG_LEVEL     "level_mask"
+#define SINI_GTS_LOG_DIR_TMCY  "time_category"
 
-#define SINI_GTS_LOG_CATEGORY  "category"
+#define SINI_GTS_LOG_LEVEL     "level_mask"
 
 #define SINI_GTS_LOG_ASYNC     "async"
 

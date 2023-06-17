@@ -64,17 +64,23 @@ applictaion_impl::applictaion_impl(int argc, const char *argv[])
 	if( appinfo::set_current_directory(appinfo::dir_path()) == false )
 		log_fatal("set_current_directory failed: {}. ({})", strerror(errno), errno);
 
-	set_config_file(cmdline::startup(argc, argv));
+	cmdline::args_parser::arguments args_hash = cmdline::startup(argc, argv);
+	set_config_file(args_hash);
 	log_info("Server instance name: '{}'.", appinfo::instance_name());
 
-	log::logger::context context;
 	auto &_settings = gts::settings::global_instance();
+	log::logger::context context;
+
+	if( args_hash & GC_SA_INSNAME )
+		context.category = args_hash.at(GC_SA_INSNAME);
+	else
+		context.category = "gts";
 
 	context.dir      = _settings.read<std::string>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_DIR);
-	context.category = _settings.read<std::string>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_CATEGORY);
 	context.mask     = _settings.read<int>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_LEVEL);
 	context.async    = _settings.read<bool>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_ASYNC);
 
+	context.time_category     = _settings.read<bool>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_DIR_TMCY);
 	context.max_size_one_file = _settings.read<int>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_MAXOF);
 	context.max_size_one_day  = _settings.read<int>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_MAXOD);
 	context.max_size          = _settings.read<int>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_MAX);
@@ -172,8 +178,8 @@ void applictaion_impl::set_config_file(const cmdline::args_parser::arguments &ar
 	{
 		{ SINI_GTS_LOG_DIR      , ""         },
 		{ SINI_GTS_LOG_LEVEL    , 4          },
-		{ SINI_GTS_LOG_CATEGORY , "gts"      },
 		{ SINI_GTS_LOG_ASYNC    , true       },
+		{ SINI_GTS_LOG_DIR_TMCY , false      },
 		{ SINI_GTS_LOG_MAXOF    , 10240      },
 		{ SINI_GTS_LOG_MAXOD    , 10485760   },
 		{ SINI_GTS_LOG_MAX      , 1073741824 },

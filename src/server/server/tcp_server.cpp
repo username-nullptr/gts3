@@ -24,6 +24,9 @@ namespace ip = asio::ip;
 
 tcp_server::tcp_server() :
 	m_new_connect_method(rttr::type::get_global_method(""))
+#ifdef GTS_ENABLE_SSL
+	,m_new_connect_method_ssl(rttr::type::get_global_method(""))
+#endif //ssl
 {
 	auto plugin_file_name = READ_CONFIG(std::string, SINI_GTS_STRATEGY, _GTS_DEFULT_STRATEGY);
 	plugin_file_name = appinfo::absolute_path(plugin_file_name);
@@ -208,6 +211,18 @@ std::string tcp_server::view_status() const
 	return status;
 }
 
+void tcp_server::call_new_connect_method_0(std::shared_ptr<socket<tcp::socket>> _socket)
+{
+	m_new_connect_method.invoke({}, std::move(*_socket));
+}
+
+#ifdef GTS_ENABLE_SSL
+void tcp_server::call_new_connect_method_0(std::shared_ptr<socket<ssl_stream>> _socket)
+{
+	m_new_connect_method_ssl.invoke({}, std::move(*_socket));
+}
+#endif //ssl
+
 #define ERROR_CHECK(_error) \
 ({ \
 	if( error ) { \
@@ -222,12 +237,30 @@ void tcp_server::new_connect_method_init()
 {
 	m_new_connect_method = rttr::type::get_global_method
 						   (GTS_PLUGIN_INTERFACE_NEW_CONNECT, {
+								rttr::type::get<gts::socket<tcp::socket>>()
+							});
+	if( m_new_connect_method.is_valid() )
+	{
+#ifdef GTS_ENABLE_SSL
+		m_new_connect_method_ssl = rttr::type::get_global_method
+								   (GTS_PLUGIN_INTERFACE_NEW_CONNECT_SSL, {
+										rttr::type::get<gts::socket<ssl_stream>>()
+									});
+		if( not m_new_connect_method_ssl.is_valid() )
+			log_fatal("gts.plugin error: strategy is null.\n");
+#endif //ssl
+		m_method_id = 0;
+		return ;
+	}
+
+	m_new_connect_method = rttr::type::get_global_method
+						   (GTS_PLUGIN_INTERFACE_NEW_CONNECT, {
 								rttr::type::get<tcp::socket>(),
 								rttr::type::get<void*>()
 							});
 	if( m_new_connect_method.is_valid() )
 	{
-		m_method_id = 0;
+		m_method_id = 1;
 		return ;
 	}
 
@@ -239,7 +272,7 @@ void tcp_server::new_connect_method_init()
 							});
 	if( m_new_connect_method.is_valid() )
 	{
-		m_method_id = 1;
+		m_method_id = 2;
 		return ;
 	}
 
@@ -250,10 +283,9 @@ void tcp_server::new_connect_method_init()
 							});
 	if( m_new_connect_method.is_valid() )
 	{
-		m_method_id = 2;
+		m_method_id = 3;
 		return ;
 	}
-
 	log_fatal("gts.plugin error: strategy is null.\n");
 }
 

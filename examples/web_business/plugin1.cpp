@@ -1,7 +1,7 @@
 #include <rttr/registration>
 #include <rttr/library.h>
+#include <gts/socket.h>
 #include <fmt/format.h>
-#include <asio.hpp>
 #include <iostream>
 #include <future>
 
@@ -26,7 +26,8 @@ class DECL_EXPORT plugin1
 {
 public:
 	static std::shared_ptr<std::future<void>> init();
-	static std::shared_ptr<std::future<void>> exit();
+//	static std::shared_ptr<std::future<void>> exit();
+	static void exit();
 	static std::string view_status();
 
 public:
@@ -43,7 +44,8 @@ public:
 	void set_body(const std::string &body);
 
 public:
-	void call(tcp::socket::native_handle_type handle, void *ssl, bool ipv6);
+	template <typename asio_socket>
+	void call(gts::socket<asio_socket> &sock);
 
 private:
 	std::string m_version;
@@ -68,16 +70,21 @@ std::shared_ptr<std::future<void>> plugin1::init()
 	}));
 }
 
-std::shared_ptr<std::future<void>> plugin1::exit()
+//std::shared_ptr<std::future<void>> plugin1::exit()
+//{
+//	return std::make_shared<std::future<void>>(std::async(std::launch::async, []
+//	{
+//		for(int i=0; i<5; i++)
+//		{
+//			std::cerr << "plugin1: exit task ..." << std::endl;
+//			std::this_thread::sleep_for(std::chrono::milliseconds(300));
+//		}
+//	}));
+//}
+
+void plugin1::exit()
 {
-	return std::make_shared<std::future<void>>(std::async(std::launch::async, []
-	{
-		for(int i=0; i<5; i++)
-		{
-			std::cerr << "plugin1: exit task ..." << std::endl;
-			std::this_thread::sleep_for(std::chrono::milliseconds(300));
-		}
-	}));
+	std::cerr << "plugin1: exit task ..." << std::endl;
 }
 
 std::string plugin1::view_status()
@@ -124,12 +131,10 @@ inline void plugin1::set_body(const std::string&)
 
 }
 
-inline void plugin1::call(tcp::socket::native_handle_type handle, void *ssl, bool ipv6)
+template <typename asio_socket>
+inline void plugin1::call(gts::socket<asio_socket> &sock)
 {
 	std::cerr << std::endl;
-
-	asio::io_context io;
-	tcp::socket tcp_socket(io, ipv6? tcp::v6() : tcp::v4(), handle);
 
 	auto content = fmt::format("Ok!!!\npath = {}\n\n", m_path);
 
@@ -153,25 +158,9 @@ inline void plugin1::call(tcp::socket::native_handle_type handle, void *ssl, boo
 						  "\r\n", content.size()) + content;
 
 	asio::error_code error;
-#ifdef GTS_ENABLE_SSL
-	if( ssl )
-	{
-		typedef asio::ssl::stream<tcp::socket>  ssl_stream;
-		ssl_stream ssl_socket(std::move(tcp_socket), reinterpret_cast<ssl_stream::native_handle_type>(ssl));
-
-		ssl_socket.write_some(asio::buffer(content), error);
-		ssl_socket.next_layer().shutdown(tcp::socket::shutdown_both);
-		ssl_socket.next_layer().close();
-	}
-	else
-#else
-	(void)(ssl);
-#endif //ssl
-	{
-		tcp_socket.write_some(asio::buffer(content), error);
-		tcp_socket.shutdown(tcp::socket::shutdown_both);
-		tcp_socket.close();
-	}
+	sock.write_some(asio::buffer(content), error);
+	sock.next_layer().shutdown(tcp::socket::shutdown_both);
+	sock.next_layer().close();
 }
 
 }}} //namespace gts::web::business
@@ -192,7 +181,11 @@ RTTR_PLUGIN_REGISTRATION
 			.method("add_header"   , &plugin1::add_header)
 			.method("add_env"      , &plugin1::add_env)
 			.method("set_body"     , &plugin1::set_body)
-			.method("call"         , &plugin1::call);
+			.method("call"         , &plugin1::call<tcp::socket>)
+#ifdef GTS_ENABLE_SSL
+			.method("call_ssl"     , &plugin1::call<gts::ssl_stream>)
+#endif //ssl
+			;
 
 	registration::
 			method("gts.web.plugin." + lib_name + ".init", &plugin1::init)

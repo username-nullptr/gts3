@@ -57,15 +57,10 @@ GTS_DECL_EXPORT void exit()
 	global_exit();
 }
 
-GTS_DECL_EXPORT void new_connection(tcp::socket &tcp_socket, void *ssl)
+template <typename asio_socket>
+GTS_DECL_EXPORT void new_connection(gts::socket<asio_socket> &socket)
 {
-#ifdef GTS_ENABLE_SSL
-	if( ssl )
-		session<ssl_stream>::new_connection(std::make_shared<socket<ssl_stream>>(std::move(tcp_socket),
-											reinterpret_cast<ssl_stream::native_handle_type>(ssl)));
-	else
-#endif //ssl
-		session<tcp::socket>::new_connection(std::make_shared<socket<tcp::socket>>(std::move(tcp_socket)));
+	session<asio_socket>::new_connection(std::make_shared<gts::socket<asio_socket>>(std::move(socket)));
 }
 
 GTS_DECL_EXPORT std::string view_status()
@@ -84,6 +79,9 @@ RTTR_PLUGIN_REGISTRATION
 	rttr::registration::
 			method(GTS_PLUGIN "init", plugin_main::init)
 			.method(GTS_PLUGIN "exit", plugin_main::exit)
-			.method(GTS_PLUGIN "new_connection", plugin_main::new_connection)
+			.method(GTS_PLUGIN "new_connection", plugin_main::new_connection<tcp::socket>)
+#ifdef GTS_ENABLE_SSL
+			.method(GTS_PLUGIN "new_connection_ssl", plugin_main::new_connection<gts::ssl_stream>)
+#endif //ssl
 			.method(GTS_PLUGIN "view_status", plugin_main::view_status);
 }

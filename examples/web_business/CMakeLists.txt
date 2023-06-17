@@ -6,6 +6,8 @@ set_target_properties(plugin0 PROPERTIES
 )
 
 add_library(plugin1 SHARED plugin1.cpp)
+target_link_libraries(plugin1 gtscore)
+target_include_directories(plugin1 PRIVATE ../../src/core)
 set_target_properties(plugin1 PROPERTIES
 	LIBRARY_OUTPUT_DIRECTORY ../../${output_dir_name}/business_plugins
 )

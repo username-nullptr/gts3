@@ -17,11 +17,17 @@
 #define GTS_PLUGIN_INTERFACE_EXIT  GTS_PLUGIN_INTERFACE "exit"
 
 /*
+ * new_connect(gts::socket<asio::ip::tcp::socket> &sock)
  * new_connect(asio::ip::tcp::socket &sock, void *ssl)
  * new_connect(socket hanlde, void *ssl, bool is_ipv6)
  * new_connect(socket handle, void *ssl)
 */
 #define GTS_PLUGIN_INTERFACE_NEW_CONNECT  GTS_PLUGIN_INTERFACE "new_connection"
+
+/*
+ * new_connect(gts::socket<asio::ssl::stream<asio::ip::tcp::socket>> &sock)
+*/
+#define GTS_PLUGIN_INTERFACE_NEW_CONNECT_SSL  GTS_PLUGIN_INTERFACE_NEW_CONNECT "_ssl"
 
 /*
  * std::string view_status(void)

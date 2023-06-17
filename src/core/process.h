@@ -26,7 +26,7 @@ namespace gts
 	>
 #endif //c++2017
 
-class process_private;
+class process_impl;
 
 class GTSCORE_API process
 {
@@ -68,8 +68,8 @@ public:
 	void cancel();
 
 private:
-	friend class process_private;
-	process_private *d_ptr;
+	friend class process_impl;
+	process_impl *m_impl;
 };
 
 template <typename...Args> inline

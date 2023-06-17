@@ -1,5 +1,5 @@
 project(GTS VERSION 3.0.0)
-add_compile_definitions(GTS_VERSION_STR="3.0.0 dev")
+add_definitions(-DGTS_VERSION_STR="3.0.0 dev")
 
 add_subdirectory(core)
 add_subdirectory(log)

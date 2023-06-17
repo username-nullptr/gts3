@@ -402,6 +402,10 @@ arguments args_parser::parsing(int argc, const char *argv[])
 	return res;
 }
 
+}} //namespace gts::cmdline
+
+using namespace gts::cmdline;
+
 bool operator&(const args_parser::arguments &args_hash, const args_parser::rule &key)
 {
 	return args_hash.find(key) != args_hash.end();
@@ -411,5 +415,3 @@ bool operator&(const args_parser::rule &key, const args_parser::arguments &args_
 {
 	return args_hash.find(key) != args_hash.end();
 }
-
-}} //namespace gts::cmdline

@@ -60,16 +60,22 @@
 #define GTS_WEB_PLUGIN_INTERFACE_SET_BODY  "set_body"
 
 /*
- * new_request(asio::ip::tcp::socket &sock)
- * new_request(socket handle/descriptor, bool is_ipv6)
- * new_request(socket handle/descriptor)
- * new_request(const gts::http::request &request, asio::ip::tcp::socket &sock)
- * new_request(const gts::http::request &request, socket handle/descriptor, bool is_ipv6)
- * new_request(const gts::http::request &request, socket handle/descriptor)
+ * new_request(asio::ip::tcp::socket &sock, void *ssl)
+ * new_request(socket handle/descriptor, void *ssl, bool is_ipv6)
+ * new_request(socket handle/descriptor, void *ssl)
+ * new_request(const gts::http::request &request, asio::ip::tcp::socket &sock, void *ssl)
+ * new_request(const gts::http::request &request, socket handle/descriptor, void *ssl, bool is_ipv6)
+ * new_request(const gts::http::request &request, socket handle/descriptor, void *ssl)
+ * new_request(gts::socket<asio::ip::tcp::socket> &sock) and new_request(gts::socket<asio::ssl::stream<asio::ip::tcp::socket>> &sock)
  *----------------------------------------------------------------------------------------------
- * If xxx from the GTS library is used, no request passing interface other than env is required.
+ * If 'gts::http::request' from the GTS library is used, no request passing interface other than env is required.
 */
 #define GTS_WEB_PLUGIN_INTERFACE_CALL  "call"
+
+/*
+ * new_request(gts::socket<asio::ssl::stream<asio::ip::tcp::socket>> &sock)
+*/
+#define GTS_WEB_PLUGIN_INTERFACE_CALL_SSL  GTS_WEB_PLUGIN_INTERFACE_CALL "_ssl"
 
 /*
  * std::string default_content(int status)

@@ -21,6 +21,10 @@ struct GTSHTTP_API request
 	bool keep_alive;
 	bool support_gzip;
 
+	inline request() {}
+	request(request &&other);
+	request &operator=(request &&other);
+
 	bool is_valid() const;
 	void finish();
 };

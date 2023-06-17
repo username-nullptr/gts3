@@ -4,6 +4,28 @@
 namespace gts { namespace http
 {
 
+request::request(request &&other)
+{
+	operator=(std::move(other));
+}
+
+request &request::operator=(request &&other)
+{
+	method  = std::move(other.method);
+	version = std::move(other.version);
+	path    = std::move(other.path);
+
+	parameters = std::move(other.parameters);
+	headers    = std::move(other.headers);
+
+	parameters_string = std::move(other.parameters_string);
+	body = std::move(other.body);
+
+	keep_alive   = other.keep_alive;
+	support_gzip = other.support_gzip;
+	return *this;
+}
+
 bool request::is_valid() const
 {
 	return not method.empty();

@@ -54,10 +54,10 @@ private:
 	parser_impl *m_impl;
 };
 
-GTSCORE_API bool operator&(const args_parser::arguments &args_hash, const args_parser::rule &key);
-GTSCORE_API bool operator&(const args_parser::rule &key, const args_parser::arguments &args_hash);
-
 }} //namespace gts::cmdline
+
+GTSCORE_API bool operator&(const gts::cmdline::args_parser::arguments &args_hash, const gts::cmdline::args_parser::rule &key);
+GTSCORE_API bool operator&(const gts::cmdline::args_parser::rule &key, const gts::cmdline::args_parser::arguments &args_hash);
 
 
 #endif //GTS_ARGS_PARSER_H

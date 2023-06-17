@@ -113,6 +113,9 @@ void logger::set_context(const context &con)
 	g_context_rwlock.lock();
 	g_context = con;
 
+	if( g_context.category.empty() )
+		g_context.category = "default";
+
 #ifdef _WINDOWS
 	replace(g_context.dir, "/", "\\");
 	replace(g_context.category, "/", "\\");
@@ -142,6 +145,10 @@ bool logger::get_header_breaks_aline()
 	return g_header_breaks_aline;
 }
 
+void logger::wait()
+{
+
+}
 
 #ifdef __NO_DEBUG__
 # define LOG_OUTPUT(_type)  return output(log_buffer::_type)
@@ -221,8 +228,11 @@ public:
 	{
 		m_stop_flag = true;
 		m_condition.notify_one();
-		if( m_thread.joinable() )
-			m_thread.join();
+		try {
+			if( m_thread.joinable() )
+				m_thread.join();
+		}
+		catch(...) {}
 	}
 
 private:
@@ -292,7 +302,7 @@ static struct GTS_DECL_HIDDEN curr_log_file
 	std::string name;
 	log_buffer::otime last;
 
-	void saveLastName()
+	void save_last_name()
 	{
 		if( name.empty() )
 			return ;
@@ -390,7 +400,7 @@ static bool open_log_output_device
 	}
 	else if( dt::time_point_cast<dt::days>(time) > g_curr_log_file.last )
 	{
-		g_curr_log_file.saveLastName();
+		g_curr_log_file.save_last_name();
 		g_curr_log_file.name = "";
 	}
 
@@ -438,7 +448,7 @@ static bool open_log_output_device
 
 	else if( fs::file_size(g_curr_log_file.name) + log_size > context.max_size_one_file )
 	{
-		g_curr_log_file.saveLastName();
+		g_curr_log_file.save_last_name();
 		g_curr_log_file.name = dir_name + fmt::format("{:%H:%M:%S}-(now)", time);
 	}
 
@@ -519,8 +529,8 @@ static void remove_if_too_big(const std::list<fs::directory_entry> &list, int64_
 
 	for(auto &info : list)
 	{
-		fs::remove(info.path());
 		size -= fs::file_size(info.path());
+		fs::remove(info.path());
 
 		if( size + log_size <= max_size )
 			break;
