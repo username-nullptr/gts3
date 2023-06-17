@@ -43,6 +43,7 @@ public:
 public:
 	args_parser &enable_h();
 	args_parser &disable_h();
+	args_parser &set_help_extension(const description &d);
 
 public:
 	arguments parsing(int argc, const char *argv[], string_list &other);
@@ -51,6 +52,9 @@ public:
 private:
 	parser_impl *m_impl;
 };
+
+GTSCORE_API bool operator&(const args_parser::arguments &args_hash, args_parser::rule &key);
+GTSCORE_API bool operator&(const args_parser::rule &key, const args_parser::arguments &args_hash);
 
 }} //namespace gts::cmdline
 

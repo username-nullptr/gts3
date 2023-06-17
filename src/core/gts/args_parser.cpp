@@ -18,7 +18,10 @@ class GTS_DECL_HIDDEN parser_impl
 {
 public:
 	explicit parser_impl(const std::string &help_title);
+
+public:
 	void add(args_cache &cache, const rule &r, const description &d);
+	void print_help();
 
 public:
 	std::string m_help_title;
@@ -27,6 +30,7 @@ public:
 	description m_version;
 	description m_v;
 	description m_help;
+	description m_help_ex;
 	bool m_h = false;
 };
 
@@ -68,6 +72,20 @@ void parser_impl::add(args_cache &cache, const rule &r, const description &d)
 			cache.emplace(arg);
 	}
 	m_help += "    " + r + " :\n        " + d + "\n\n";
+}
+
+void parser_impl::print_help()
+{
+	std::cout << "\n";
+	if( not m_help_title.empty() )
+		std::cout << m_help_title << "\n\n";
+
+	std::cout << m_help;
+	if( not m_help_ex.empty() )
+		std::cout << m_help_ex;
+
+	std::cout << std::flush;
+	exit(0);
 }
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -122,6 +140,14 @@ args_parser &args_parser::enable_h()
 args_parser &args_parser::disable_h()
 {
 	m_impl->m_h = false;
+	return *this;
+}
+
+args_parser &args_parser::set_help_extension(const description &d)
+{
+	m_impl->m_help_ex = d;
+	while( not ends_with(m_impl->m_help_ex, "\n\n") )
+		m_impl->m_help_ex += "\n";
 	return *this;
 }
 
@@ -189,13 +215,7 @@ arguments args_parser::parsing(int argc, const char *argv[], string_list &other)
 				exit(-1);
 			}
 			else if( not m_impl->m_help.empty() )
-			{
-				std::cout << "\n";
-				if( not m_impl->m_help_title.empty() )
-					std::cout << m_impl->m_help_title << "\n\n";
-				std::cout << m_impl->m_help << std::flush;
-				exit(0);
-			}
+				m_impl->print_help();
 			else
 			{
 				std::cerr << "Invalid argument." << std::endl;
@@ -211,11 +231,7 @@ arguments args_parser::parsing(int argc, const char *argv[], string_list &other)
 					std::cerr << "Too many parameters." << std::endl;
 					exit(-1);
 				}
-				std::cout << "\n";
-				if( not m_impl->m_help_title.empty() )
-					std::cout << m_impl->m_help_title << "\n\n";
-				std::cout << m_impl->m_help << std::flush;
-				exit(0);
+				m_impl->print_help();
 			}
 		}
 
@@ -250,7 +266,14 @@ arguments args_parser::parsing(int argc, const char *argv[], string_list &other)
 		auto pos = arg.find("=");
 		if( pos != std::string::npos )
 		{
-			auto it2 = m_impl->m_group.find(arg.substr(0,pos));
+			pair = cache.emplace(arg.substr(0,pos));
+			auto tmp = *pair.first;
+			if( pair.second == false )
+			{
+				std::cerr << "Too many parameters." << std::endl;
+				exit(-1);
+			}
+			auto it2 = m_impl->m_group.find(tmp);
 			if( it2 == m_impl->m_group.end() )
 				other.emplace_back(arg);
 			else
@@ -267,9 +290,9 @@ arguments args_parser::parsing(int argc, const char *argv[], string_list &other)
 		bool flag = true;
 		std::size_t j = 1;
 
-		for(; j<it->size(); i++)
+		for(; j<arg.size(); j++)
 		{
-			if( (*it)[j] < 'A' or ((*it)[j] > 'Z' and (*it)[j] < 'a') or (*it)[j] > 'z' )
+			if( arg[j] < 'A' or (arg[j] > 'Z' and arg[j] < 'a') or arg[j] > 'z' )
 			{
 				flag = false;
 				break;
@@ -281,21 +304,36 @@ arguments args_parser::parsing(int argc, const char *argv[], string_list &other)
 			continue;
 		}
 
-		for(j=1; j<it->size()-1; j++)
+		for(j=1; j<arg.size()-1; j++)
 		{
-			it = m_impl->m_flag.find(std::string("-") + (*it)[j]);
-			if( it == m_impl->m_flag.end() )
+			pair = cache.emplace(std::string("-") + arg[j]);
+			auto tmp = *pair.first;
+			if( pair.second == false )
+			{
+				std::cerr << "Too many parameters." << std::endl;
+				exit(-1);
+			}
+
+			auto it2 = m_impl->m_flag.find(tmp);
+			if( it2 == m_impl->m_flag.end() )
 			{
 				other.emplace_back(arg);
 				continue;
 			}
 			else
 			{
-				result.emplace(*it, *it);
+				result.emplace(*it2, *it2);
 				continue ;
 			}
 		}
-		auto tmp = std::string("-") + (*it)[j];
+
+		pair = cache.emplace(std::string("-") + arg[j]);
+		auto tmp = *pair.first;
+		if( pair.second == false )
+		{
+			std::cerr << "Too many parameters." << std::endl;
+			exit(-1);
+		}
 
 		auto it2 = m_impl->m_flag.find(tmp);
 		if( it2 != m_impl->m_flag.end() )
@@ -325,8 +363,24 @@ arguments args_parser::parsing(int argc, const char *argv[], string_list &other)
 
 arguments args_parser::parsing(int argc, const char *argv[])
 {
+	string_list other;
+	auto res = parsing(argc, argv, other);
+	if( not other.empty() )
+	{
+		std::cerr << "Invalid argument." << std::endl;
+		exit(-1);
+	}
+	return res;
+}
 
-	return {};
+bool operator&(const args_parser::arguments &args_hash, args_parser::rule &key)
+{
+	return args_hash.find(key) != args_hash.end();
+}
+
+bool operator&(const args_parser::rule &key, const args_parser::arguments &args_hash)
+{
+	return args_hash.find(key) != args_hash.end();
 }
 
 }} //namespace gts::cmdline
