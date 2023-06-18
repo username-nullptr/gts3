@@ -196,9 +196,27 @@ void logger::_fatal(const std::string &msg)
 
 /*---------------------------------------------------------------------------------------------------------------*/
 
-static class GTS_DECL_HIDDEN task_thread
+class GTS_DECL_HIDDEN task_thread
 {
+	GTS_DISABLE_COPY_MOVE(task_thread)
+
 public:
+	static inline task_thread &instance()
+	{
+		if( g_instance == nullptr )
+			g_instance = new task_thread();
+		return *g_instance;
+	}
+
+public:
+	static inline void reload()
+	{
+		if( g_instance )
+			delete g_instance;
+		g_instance = new task_thread();
+	}
+
+private:
 	task_thread()
 	{
 		m_thread = std::thread([this]
@@ -224,6 +242,8 @@ public:
 			shutdown();
 		});
 	}
+
+public:
 	~task_thread()
 	{
 		m_stop_flag = true;
@@ -277,12 +297,17 @@ private:
 	}
 
 private:
+	inline static task_thread *g_instance = nullptr;
 	std::thread m_thread;
 	std::atomic_bool m_stop_flag {false};
 	std::condition_variable m_condition;
 	std::mutex m_mutex;
+};
+
+void logger::reload()
+{
+	task_thread::reload();
 }
-g_task_thread;
 
 GTS_DECL_HIDDEN void message_handler
 (log_buffer::type type, const log_buffer::context &runtime_context, const std::string &msg)
@@ -292,7 +317,7 @@ GTS_DECL_HIDDEN void message_handler
 	g_context_rwlock.unlock();
 
 	if( context->async and type != log_buffer::fetal )
-		g_task_thread.produce(type, std::move(context), runtime_context, msg);
+		task_thread::instance().produce(type, std::move(context), runtime_context, msg);
 	else
 		_output(type, *context, runtime_context, msg);
 }

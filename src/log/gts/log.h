@@ -77,6 +77,9 @@ public:
 	void fatal(fmt::format_string<Args...> fmt, Args&&...args);
 	void fatal(const std::string &msg);
 
+public:
+	static void reload();
+
 private:
 	void _fatal(const std::string &msg);
 	logger_impl *m_impl;
