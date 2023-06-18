@@ -297,12 +297,13 @@ private:
 	}
 
 private:
-	inline static task_thread *g_instance = nullptr;
+	static task_thread *g_instance;
 	std::thread m_thread;
 	std::atomic_bool m_stop_flag {false};
 	std::condition_variable m_condition;
 	std::mutex m_mutex;
 };
+task_thread *task_thread::g_instance = nullptr;
 
 void logger::reload()
 {
