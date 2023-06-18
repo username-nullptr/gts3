@@ -211,15 +211,21 @@ std::string tcp_server::view_status() const
 	return status;
 }
 
-void tcp_server::call_new_connect_method_0(std::shared_ptr<socket<tcp::socket>> _socket)
+void tcp_server::call_new_connect_method_0(std::shared_ptr<socket<tcp::socket>> sock)
 {
-	m_new_connect_method.invoke({}, std::move(*_socket));
+	m_new_connect_method.invoke({}, std::move(*sock));
 }
 
 #ifdef GTS_ENABLE_SSL
-void tcp_server::call_new_connect_method_0(std::shared_ptr<socket<ssl_stream>> _socket)
+void tcp_server::call_new_connect_method_0(std::shared_ptr<socket<ssl_stream>> sock)
 {
-	m_new_connect_method_ssl.invoke({}, std::move(*_socket));
+	if( m_new_connect_method_ssl.is_valid() )
+		m_new_connect_method_ssl.invoke({}, std::move(*sock));
+	else
+	{
+		sock->shutdown(tcp::socket::shutdown_both);
+		sock->close();
+	}
 }
 #endif //ssl
 
@@ -246,8 +252,6 @@ void tcp_server::new_connect_method_init()
 								   (GTS_PLUGIN_INTERFACE_NEW_CONNECT_SSL, {
 										rttr::type::get<gts::socket<ssl_stream>>()
 									});
-		if( not m_new_connect_method_ssl.is_valid() )
-			log_fatal("gts.plugin error: strategy is null.\n");
 #endif //ssl
 		m_method_id = 0;
 		return ;
@@ -391,11 +395,11 @@ bool tcp_server::tcp_site::start()
 
 void tcp_server::tcp_site::do_accept()
 {
-	auto _socket = std::make_shared<socket<tcp::socket>>(gts_app.io_context());
-	m_acceptor.async_accept(*_socket, [_socket, this](asio::error_code error)
+	auto sock = std::make_shared<socket<tcp::socket>>(gts_app.io_context());
+	m_acceptor.async_accept(*sock, [sock, this](asio::error_code error)
 	{
 		ERROR_CHECK(error);
-		q_ptr->service(std::move(_socket));
+		q_ptr->service(std::move(sock));
 		do_accept();
 	});
 }
@@ -431,19 +435,19 @@ bool tcp_server::ssl_site::start()
 
 void tcp_server::ssl_site::do_accept()
 {
-	auto _socket = std::make_shared<socket<ssl_stream>>(tcp::socket(io_context()), asio_ssl_context());
-	m_acceptor.async_accept(_socket->next_layer(), [_socket, this](asio::error_code error)
+	auto sock = std::make_shared<socket<ssl_stream>>(tcp::socket(io_context()), asio_ssl_context());
+	m_acceptor.async_accept(sock->next_layer(), [sock, this](asio::error_code error)
 	{
 		ERROR_CHECK(error);
-		_socket->async_handshake(ssl_stream::server, [_socket, this](const asio::error_code &error)
+		sock->async_handshake(ssl_stream::server, [sock, this](const asio::error_code &error)
 		{
 			if( error )
 			{
 				log_warning("asio: ssl_stream handshake error: {}.", error);
-				_socket->close();
+				sock->close();
 			}
 			else
-				q_ptr->service(std::move(_socket));
+				q_ptr->service(std::move(sock));
 			do_accept();
 		});
 	});

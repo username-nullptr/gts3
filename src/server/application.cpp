@@ -150,12 +150,18 @@ void applictaion_impl::set_config_file(const cmdline::args_parser::arguments &ar
 	if( not fs::exists(file_name) )
 	{
 		log_warning("Config file '{}' not exists. (auto create)", file_name);
-		auto fp = std::fopen(file_name.c_str(), "w");
 
-		if( fp == nullptr )
-			log_error("Config file '{}' create failed: {}.", file_name, strerror(errno));
+		if( fs::create_directories(file_path(file_name)) )
+		{
+			auto fp = std::fopen(file_name.c_str(), "w");
+
+			if( fp == nullptr )
+				log_error("Config file '{}' create failed: {}.", file_name, strerror(errno));
+			else
+				std::fclose(fp);
+		}
 		else
-			std::fclose(fp);
+			log_error("Config file '{}' create failed: {}.", file_name, strerror(errno));
 	}
 
 	auto &_settings = settings::global_instance();

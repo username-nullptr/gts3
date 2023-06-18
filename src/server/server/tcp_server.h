@@ -26,11 +26,11 @@ public:
 
 private:
 	template <class asio_socket>
-	void service(std::shared_ptr<socket<asio_socket>> _socket);
-	void call_new_connect_method_0(std::shared_ptr<socket<tcp::socket>> _socket);
+	void service(std::shared_ptr<socket<asio_socket>> sock);
+	void call_new_connect_method_0(std::shared_ptr<socket<tcp::socket>> sock);
 
 #ifdef GTS_ENABLE_SSL
-	void call_new_connect_method_0(std::shared_ptr<socket<ssl_stream>> _socket);
+	void call_new_connect_method_0(std::shared_ptr<socket<ssl_stream>> sock);
 #endif //ssl
 
 private:
@@ -100,35 +100,35 @@ private:
 };
 
 template <class asio_socket>
-void tcp_server::service(std::shared_ptr<socket<asio_socket>> _socket)
+void tcp_server::service(std::shared_ptr<socket<asio_socket>> sock)
 {
 	asio::error_code error;
-	_socket->set_option(tcp::socket::send_buffer_size(m_buffer_size), error);
+	sock->set_option(tcp::socket::send_buffer_size(m_buffer_size), error);
 	if( error )
 		log_error("asio: set socket send buffer error: {}. ({})\n", error.message(), error.value());
 
-	_socket->set_option(tcp::socket::receive_buffer_size(m_buffer_size), error);
+	sock->set_option(tcp::socket::receive_buffer_size(m_buffer_size), error);
 	if( error )
 		log_error("asio: set socket receive buffer error: {}. ({})\n", error.message(), error.value());
 
 	if( m_method_id == 0 )
-		call_new_connect_method_0(_socket);
+		call_new_connect_method_0(sock);
 
 	else if( m_method_id == 1 )
 	{
-		m_new_connect_method.invoke({}, std::move(_socket->next_layer()),
-									reinterpret_cast<void*>(_socket->release_ssl()));
+		m_new_connect_method.invoke({}, std::move(sock->next_layer()),
+									reinterpret_cast<void*>(sock->release_ssl()));
 	}
 	else if( m_method_id == 2 )
 	{
-		bool is_v6 = _socket->remote_endpoint().address().is_v6();
-		m_new_connect_method.invoke({}, _socket->release(),
-									reinterpret_cast<void*>(_socket->release_ssl()), is_v6);
+		bool is_v6 = sock->remote_endpoint().address().is_v6();
+		m_new_connect_method.invoke({}, sock->release(),
+									reinterpret_cast<void*>(sock->release_ssl()), is_v6);
 	}
 	else if( m_method_id == 3 )
 	{
-		m_new_connect_method.invoke({}, _socket->release(),
-									reinterpret_cast<void*>(_socket->release_ssl()));
+		m_new_connect_method.invoke({}, sock->release(),
+									reinterpret_cast<void*>(sock->release_ssl()));
 	}
 }
 
