@@ -12,6 +12,14 @@ set_target_properties(plugin1 PROPERTIES
 	LIBRARY_OUTPUT_DIRECTORY ../../${output_dir_name}/business_plugins
 )
 
+add_library(plugin2 SHARED plugin2.cpp)
+target_link_libraries(plugin2 gtshttp)
+target_include_directories(plugin2 PRIVATE ../../src/core)
+target_include_directories(plugin2 PRIVATE ../../src/web)
+set_target_properties(plugin2 PROPERTIES
+	LIBRARY_OUTPUT_DIRECTORY ../../${output_dir_name}/business_plugins
+)
+
 # cgi service
 
 add_executable(cgi0 cgi0.cpp)

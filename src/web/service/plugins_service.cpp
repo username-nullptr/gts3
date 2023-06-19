@@ -8,10 +8,11 @@ namespace gts { namespace web
 
 std::list<rttr::library> plugin_service_config::library_list;
 
-std::list<rttr::type> plugin_service_config::type_list;
+static std::list<std::string> g_plugin_name_list;
 
 static void call_init(const std::string &class_name, std::list<std::shared_ptr<std::future<void>>> &futures)
 {
+	g_plugin_name_list.emplace_back(class_name);
 	auto init_method_name = class_name + GTS_WEB_PLUGIN_INTERFACE_INIT;
 
 	auto method = rttr::type::get_global_method(init_method_name);
@@ -94,21 +95,7 @@ void plugin_service_config::init()
 			log_error("gts.web.plugin load failed: {}.", library.get_error_string());
 			continue;
 		}
-
-		auto class_name = GTS_WEB_PLUGIN_INTERFACE + type_name;
-		type_list.emplace_back(rttr::type::get_by_name(class_name));
-		auto &type = type_list.back();
-
-		if( not type.is_valid() )
-		{
-			log_error("gts.web.plugin error: service interface class is null.");
-			type_list.pop_back();
-
-			library.unload();
-			library_list.pop_back();
-			continue;
-		}
-		call_init(class_name, futures);
+		call_init(GTS_WEB_PLUGIN_INTERFACE + type_name, futures);
 	}
 	for(auto &future : futures)
 		future->wait();
@@ -120,9 +107,9 @@ void plugin_service_config::exit()
 		return ;
 
 	std::list<std::shared_ptr<std::future<void>>> futures;
-	for(auto &type : type_list)
+	for(auto &name : g_plugin_name_list)
 	{
-		auto method = rttr::type::get_global_method(std::string(type.get_name()) + GTS_WEB_PLUGIN_INTERFACE_EXIT);
+		auto method = rttr::type::get_global_method(name + GTS_WEB_PLUGIN_INTERFACE_INIT);
 		if( not method.is_valid() or method.get_parameter_infos().size() != 0 )
 			continue;
 
@@ -133,7 +120,7 @@ void plugin_service_config::exit()
 	}
 	for(auto &future : futures)
 		future->wait();
-	type_list.clear();
+	g_plugin_name_list.clear();
 
 	for(auto &library : library_list)
 		library.unload();
@@ -143,9 +130,9 @@ void plugin_service_config::exit()
 std::string plugin_service_config::view_status()
 {
 	std::string result;
-	for(auto &type : plugin_service_config::type_list)
+	for(auto &name : g_plugin_name_list)
 	{
-		auto method = rttr::type::get_global_method(std::string(type.get_name()) + GTS_WEB_PLUGIN_INTERFACE_VIEW_STATUS);
+		auto method = rttr::type::get_global_method(name + GTS_WEB_PLUGIN_INTERFACE_VIEW_STATUS);
 		if( method.is_valid() and method.get_return_type() == rttr::type::get<std::string>() )
 			result += method.invoke({}).get_value<std::string>();
 	}

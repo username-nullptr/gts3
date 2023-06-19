@@ -27,7 +27,9 @@ public:
 	void call();
 
 private:
-	rttr::method call_method_check(rttr::type &type);
+	int _call(const std::string &class_name, const string_list &str_list);
+	rttr::method get_call_method(rttr::type &type, string_list str_list);
+	rttr::method get_call_method(rttr::type &type, const std::string &method_name);
 
 private:
 	s_io &m_sio;
@@ -39,7 +41,7 @@ class GTS_DECL_HIDDEN plugin_service_config
 {
 public:
 	static std::list<rttr::library> library_list;
-	static std::list<rttr::type> type_list;
+//	static std::list<rttr::type> type_list;
 
 public:
 	static void init();
@@ -57,153 +59,189 @@ plugin_service<asio_socket>::plugin_service(s_io &sio) :
 template <class asio_socket>
 void plugin_service<asio_socket>::call()
 {
-	std::string plugin_name;
-	auto pos = m_sio.url_name.find("/");
+	auto str_list = string_split(m_sio.url_name, "/");
+	assert(not str_list.empty());
 
-	if( pos == std::string::npos )
-	{
-		plugin_name = m_sio.url_name;
-		m_sio.request.path = "/";
-	}
-	else
-	{
-		plugin_name = m_sio.url_name.substr(0, pos);
-		m_sio.request.path = m_sio.url_name.substr(pos);
-	}
-
-	for(auto &type : plugin_service_config::type_list)
-	{
-		if( type.get_name() != GTS_WEB_PLUGIN_INTERFACE + plugin_name )
-			continue ;
-
-		auto var = type.create();
-		if( not var.is_valid() )
-		{
-			log_error("Web plugin class: object create failed.");
-			return m_sio.return_to_null(http::hs_internal_server_error);
-		}
-
-		auto call_method = call_method_check(type);
-		if( not call_method.is_valid() )
-			return m_sio.return_to_null(http::hs_internal_server_error);
-
-		auto method = type.get_method(GTS_WEB_PLUGIN_INTERFACE_ADD_ENV, {
-										  rttr::type::get<std::string>(),
-										  rttr::type::get<std::string>()
-									  });
-		if( method.is_valid() )
-		{
-			auto parameter = m_sio.request.parameters_string;
-			if( parameter.empty() )
-				parameter = "/";
-
-			method.invoke(var, std::string("REQUEST_METHOD")   , m_sio.request.method);
-			method.invoke(var, std::string("QUERY_STRING")     , parameter);
-			method.invoke(var, std::string("REMOTE_ADDR")      , m_sio.socket.remote_endpoint().address().to_string());
-			method.invoke(var, std::string("GATEWAY_INTERFACE"), std::string("RTTR/" RTTR_VERSION_STR));
-			method.invoke(var, std::string("SERVER_NAME")      , m_sio.socket.local_endpoint().address().to_string());
-			method.invoke(var, std::string("SERVER_PORT")      , fmt::format("{}", m_sio.socket.local_endpoint().port()));
-			method.invoke(var, std::string("SERVER_PROTOCOL")  , "HTTP/" + m_sio.request.version);
-			method.invoke(var, std::string("DOCUMENT_ROOT")    , service_io_config::resource_path);
-			method.invoke(var, std::string("SERVER_SOFTWARE")  , std::string("GTS/1.0(GTS/" GTS_VERSION_STR ")"));
-		}
-
-		if( m_direct_pass_request )
-		{
-			if( m_call_method_id == 0 ) {
-				call_method.invoke(var, std::move(m_sio.request), std::move(m_sio.socket));
-			}
-			else if( m_call_method_id == 1 )
-			{
-				call_method.invoke(var, std::move(m_sio.request), std::move(m_sio.socket.next_layer()),
-								   reinterpret_cast<void*>(m_sio.socket.release_ssl()));
-			}
-			else if( m_call_method_id == 2 )
-			{
-				bool is_v6 = m_sio.socket.remote_endpoint().address().is_v6();
-				call_method.invoke(var, std::move(m_sio.request), m_sio.socket.release(),
-								   reinterpret_cast<void*>(m_sio.socket.release_ssl()), is_v6);
-			}
-			else
-			{
-				call_method.invoke(var, std::move(m_sio.request), m_sio.socket.release(),
-								   reinterpret_cast<void*>(m_sio.socket.release_ssl()));
-			}
-		}
-		else
-		{
-			method = type.get_method(GTS_WEB_PLUGIN_INTERFACE_SET_VERSION, {rttr::type::get<std::string>()});
-			if( method.is_valid() )
-				method.invoke(var, m_sio.request.version);
-
-			method = type.get_method(GTS_WEB_PLUGIN_INTERFACE_SET_METHOD, {rttr::type::get<std::string>()});
-			if( method.is_valid() )
-				method.invoke(var, m_sio.request.method);
-
-			method = type.get_method(GTS_WEB_PLUGIN_INTERFACE_SET_PATH, {rttr::type::get<std::string>()});
-			if( method.is_valid() )
-				method.invoke(var, m_sio.request.path);
-
-			method = type.get_method(GTS_WEB_PLUGIN_INTERFACE_ADD_PARAMETER, {
-										 rttr::type::get<std::string>(),
-										 rttr::type::get<std::string>()
-									 });
-			if( method.is_valid() )
-			{
-				for(auto &header : m_sio.request.parameters)
-					method.invoke(var, header.first, header.second);
-			}
-
-			method = type.get_method(GTS_WEB_PLUGIN_INTERFACE_ADD_HEADER, {
-										 rttr::type::get<std::string>(),
-										 rttr::type::get<std::string>()
-									 });
-			if( method.is_valid() )
-			{
-				for(auto &para : m_sio.request.headers)
-					method.invoke(var, para.first, para.second);
-			}
-
-			if( not m_sio.request.body.empty() )
-			{
-				method = type.get_method(GTS_WEB_PLUGIN_INTERFACE_SET_BODY, {rttr::type::get<std::string>()});
-				if( method.is_valid() )
-					method.invoke(var, m_sio.request.body);
-			}
-
-			if( m_call_method_id == 0 ) {
-				call_method.invoke(var, std::move(m_sio.socket));
-			}
-			else if( m_call_method_id == 1 )
-			{
-				call_method.invoke(var, std::move(m_sio.socket.next_layer()),
-								   reinterpret_cast<void*>(m_sio.socket.release_ssl()));
-			}
-			else if( m_call_method_id == 2 )
-			{
-				bool is_v6 = m_sio.socket.remote_endpoint().address().is_v6();
-				call_method.invoke(var, m_sio.socket.release(),
-								   reinterpret_cast<void*>(m_sio.socket.release_ssl()), is_v6);
-			}
-			else
-			{
-				call_method.invoke(var, m_sio.socket.release(),
-								   reinterpret_cast<void*>(m_sio.socket.release_ssl()));
-			}
-		}
+	if( _call("/", str_list) )
 		return ;
+
+	std::string class_name;
+	while( not str_list.empty() )
+	{
+		class_name += "/" + str_list[0];
+		str_list.pop_front();
+
+		if( _call(class_name, str_list) )
+			return ;
 	}
 	m_sio.return_to_null(http::hs_not_found);
 }
 
-template<class asio_socket>
-rttr::method plugin_service<asio_socket>::call_method_check(rttr::type &type)
+template <class asio_socket>
+int plugin_service<asio_socket>::_call(const std::string &class_name, const string_list &str_list)
 {
-	auto method = type.get_method
-				  (GTS_WEB_PLUGIN_INTERFACE_CALL, {
-					   rttr::type::get<http::request>(),
-					   rttr::type::get<gts::socket<asio_socket>>()
-				   });
+	auto type = rttr::type::get_by_name(GTS_WEB_PLUGIN_INTERFACE + std::string(class_name.c_str() + 1, class_name.size() - 1));
+	if( not type.is_valid() )
+	{
+		type = rttr::type::get_by_name(GTS_WEB_PLUGIN_INTERFACE + class_name);
+		if( not type.is_valid() )
+			return 0;
+	}
+
+	auto call_method = get_call_method(type, str_list);
+	if( not call_method.is_valid() )
+		return 0;
+
+	auto obj = type.create();
+	if( not obj.is_valid() )
+	{
+		log_error("Web plugin class: object create failed.");
+		m_sio.return_to_null(http::hs_internal_server_error);
+		return -1;
+	}
+
+	auto method = type.get_method(GTS_WEB_PLUGIN_INTERFACE_ADD_ENV, {
+									  rttr::type::get<std::string>(),
+									  rttr::type::get<std::string>()
+								  });
+	if( method.is_valid() )
+	{
+		auto parameter = m_sio.request.parameters_string;
+		if( parameter.empty() )
+			parameter = "/";
+
+		method.invoke(obj, std::string("REQUEST_METHOD")   , m_sio.request.method);
+		method.invoke(obj, std::string("QUERY_STRING")     , parameter);
+		method.invoke(obj, std::string("REMOTE_ADDR")      , m_sio.socket.remote_endpoint().address().to_string());
+		method.invoke(obj, std::string("GATEWAY_INTERFACE"), std::string("RTTR/" RTTR_VERSION_STR));
+		method.invoke(obj, std::string("SERVER_NAME")      , m_sio.socket.local_endpoint().address().to_string());
+		method.invoke(obj, std::string("SERVER_PORT")      , fmt::format("{}", m_sio.socket.local_endpoint().port()));
+		method.invoke(obj, std::string("SERVER_PROTOCOL")  , "HTTP/" + m_sio.request.version);
+		method.invoke(obj, std::string("DOCUMENT_ROOT")    , service_io_config::resource_path);
+		method.invoke(obj, std::string("SERVER_SOFTWARE")  , std::string("GTS/1.0(GTS/" GTS_VERSION_STR ")"));
+	}
+
+	if( m_direct_pass_request )
+	{
+		if( m_call_method_id == 0 ) {
+			call_method.invoke(obj, std::move(m_sio.request), std::move(m_sio.socket));
+		}
+		else if( m_call_method_id == 1 )
+		{
+			call_method.invoke(obj, std::move(m_sio.request), std::move(m_sio.socket.next_layer()),
+							   reinterpret_cast<void*>(m_sio.socket.release_ssl()));
+		}
+		else if( m_call_method_id == 2 )
+		{
+			bool is_v6 = m_sio.socket.remote_endpoint().address().is_v6();
+			call_method.invoke(obj, std::move(m_sio.request), m_sio.socket.release(),
+							   reinterpret_cast<void*>(m_sio.socket.release_ssl()), is_v6);
+		}
+		else
+		{
+			call_method.invoke(obj, std::move(m_sio.request), m_sio.socket.release(),
+							   reinterpret_cast<void*>(m_sio.socket.release_ssl()));
+		}
+	}
+	else
+	{
+		method = type.get_method(GTS_WEB_PLUGIN_INTERFACE_SET_VERSION, {rttr::type::get<std::string>()});
+		if( method.is_valid() )
+			method.invoke(obj, m_sio.request.version);
+
+		method = type.get_method(GTS_WEB_PLUGIN_INTERFACE_SET_METHOD, {rttr::type::get<std::string>()});
+		if( method.is_valid() )
+			method.invoke(obj, m_sio.request.method);
+
+		method = type.get_method(GTS_WEB_PLUGIN_INTERFACE_SET_PATH, {rttr::type::get<std::string>()});
+		if( method.is_valid() )
+			method.invoke(obj, m_sio.request.path);
+
+		method = type.get_method(GTS_WEB_PLUGIN_INTERFACE_ADD_PARAMETER, {
+									 rttr::type::get<std::string>(),
+									 rttr::type::get<std::string>()
+								 });
+		if( method.is_valid() )
+		{
+			for(auto &header : m_sio.request.parameters)
+				method.invoke(obj, header.first, header.second.to_string());
+		}
+
+		method = type.get_method(GTS_WEB_PLUGIN_INTERFACE_ADD_HEADER, {
+									 rttr::type::get<std::string>(),
+									 rttr::type::get<std::string>()
+								 });
+		if( method.is_valid() )
+		{
+			for(auto &para : m_sio.request.headers)
+				method.invoke(obj, para.first, para.second);
+		}
+
+		if( not m_sio.request.body.empty() )
+		{
+			method = type.get_method(GTS_WEB_PLUGIN_INTERFACE_SET_BODY, {rttr::type::get<std::string>()});
+			if( method.is_valid() )
+				method.invoke(obj, m_sio.request.body);
+		}
+
+		if( m_call_method_id == 0 ) {
+			call_method.invoke(obj, std::move(m_sio.socket));
+		}
+		else if( m_call_method_id == 1 )
+		{
+			call_method.invoke(obj, std::move(m_sio.socket.next_layer()),
+							   reinterpret_cast<void*>(m_sio.socket.release_ssl()));
+		}
+		else if( m_call_method_id == 2 )
+		{
+			bool is_v6 = m_sio.socket.remote_endpoint().address().is_v6();
+			call_method.invoke(obj, m_sio.socket.release(),
+							   reinterpret_cast<void*>(m_sio.socket.release_ssl()), is_v6);
+		}
+		else
+		{
+			call_method.invoke(obj, m_sio.socket.release(),
+							   reinterpret_cast<void*>(m_sio.socket.release_ssl()));
+		}
+	}
+	return true;
+}
+
+template <class asio_socket>
+rttr::method plugin_service<asio_socket>::get_call_method(rttr::type &type, string_list str_list)
+{
+	if( str_list.empty() )
+	{
+		m_sio.request.path = "/";
+		return get_call_method(type, "/");
+	}
+
+	std::string method_name;
+	while( not str_list.empty() )
+	{
+		method_name += "/" + str_list[0];
+		str_list.pop_front();
+
+		m_sio.request.path = "/" + str_list.join("/");
+
+		auto method = get_call_method(type, std::string(method_name.c_str() + 1, method_name.size() - 1));
+		if( method.is_valid() )
+			return method;
+
+		method = get_call_method(type, method_name);
+		if( method.is_valid() )
+			return method;
+	}
+	return rttr::type::get_global_method("");
+}
+
+template <class asio_socket>
+rttr::method plugin_service<asio_socket>::get_call_method(rttr::type &type, const std::string &method_name)
+{
+	auto method = type.get_method(method_name, {
+									  rttr::type::get<http::request>(),
+									  rttr::type::get<gts::socket<asio_socket>>()
+								  });
 	if( method.is_valid() )
 	{
 		m_direct_pass_request = true;
@@ -212,11 +250,10 @@ rttr::method plugin_service<asio_socket>::call_method_check(rttr::type &type)
 	}
 
 #ifdef GTS_ENABLE_SSL
-	method = type.get_method
-			 (GTS_WEB_PLUGIN_INTERFACE_CALL, {
-				  rttr::type::get<http::request>(),
-				  rttr::type::get<gts::socket<asio_socket>>()
-			  });
+	method = type.get_method(method_name, {
+								 rttr::type::get<http::request>(),
+								 rttr::type::get<gts::socket<asio_socket>>()
+							 });
 	if( method.is_valid() )
 	{
 		m_direct_pass_request = true;
@@ -225,12 +262,11 @@ rttr::method plugin_service<asio_socket>::call_method_check(rttr::type &type)
 	}
 #endif //ssl
 
-	method = type.get_method
-				  (GTS_WEB_PLUGIN_INTERFACE_CALL, {
-					   rttr::type::get<http::request>(),
-					   rttr::type::get<tcp::socket>(),
-					   rttr::type::get<void*>()
-				   });
+	method = type.get_method(method_name, {
+								 rttr::type::get<http::request>(),
+								 rttr::type::get<tcp::socket>(),
+								 rttr::type::get<void*>()
+							 });
 	if( method.is_valid() )
 	{
 		m_direct_pass_request = true;
@@ -238,13 +274,12 @@ rttr::method plugin_service<asio_socket>::call_method_check(rttr::type &type)
 		return method;
 	}
 
-	method = type.get_method
-			 (GTS_WEB_PLUGIN_INTERFACE_CALL, {
-				  rttr::type::get<http::request>(),
-				  rttr::type::get<tcp::socket::native_handle_type>(),
-				  rttr::type::get<void*>(),
-				  rttr::type::get<bool>()
-			  });
+	method = type.get_method(method_name, {
+								 rttr::type::get<http::request>(),
+								 rttr::type::get<tcp::socket::native_handle_type>(),
+								 rttr::type::get<void*>(),
+								 rttr::type::get<bool>()
+							 });
 	if( method.is_valid() )
 	{
 		m_direct_pass_request = true;
@@ -252,12 +287,11 @@ rttr::method plugin_service<asio_socket>::call_method_check(rttr::type &type)
 		return method;
 	}
 
-	method = type.get_method
-				  (GTS_WEB_PLUGIN_INTERFACE_CALL, {
-					   rttr::type::get<http::request>(),
-					   rttr::type::get<tcp::socket::native_handle_type>(),
-					   rttr::type::get<void*>()
-				   });
+	method = type.get_method(method_name, {
+								 rttr::type::get<http::request>(),
+								 rttr::type::get<tcp::socket::native_handle_type>(),
+								 rttr::type::get<void*>()
+							 });
 	if( method.is_valid() )
 	{
 		m_direct_pass_request = true;
@@ -265,10 +299,9 @@ rttr::method plugin_service<asio_socket>::call_method_check(rttr::type &type)
 		return method;
 	}
 
-	method = type.get_method
-			 (GTS_WEB_PLUGIN_INTERFACE_CALL, {
-				  rttr::type::get<gts::socket<asio_socket>>()
-			  });
+	method = type.get_method(method_name, {
+								 rttr::type::get<gts::socket<asio_socket>>()
+							 });
 	if( method.is_valid() )
 	{
 		m_direct_pass_request = false;
@@ -277,10 +310,9 @@ rttr::method plugin_service<asio_socket>::call_method_check(rttr::type &type)
 	}
 
 #ifdef GTS_ENABLE_SSL
-	method = type.get_method
-			 (GTS_WEB_PLUGIN_INTERFACE_CALL, {
-				  rttr::type::get<gts::socket<asio_socket>>()
-			  });
+	method = type.get_method(method_name, {
+								 rttr::type::get<gts::socket<asio_socket>>()
+							 });
 	if( method.is_valid() )
 	{
 		m_direct_pass_request = false;
@@ -289,11 +321,10 @@ rttr::method plugin_service<asio_socket>::call_method_check(rttr::type &type)
 	}
 #endif //ssl
 
-	method = type.get_method
-			 (GTS_WEB_PLUGIN_INTERFACE_CALL, {
-				  rttr::type::get<tcp::socket>(),
-				  rttr::type::get<void*>()
-			  });
+	method = type.get_method(method_name, {
+								 rttr::type::get<tcp::socket>(),
+								 rttr::type::get<void*>()
+							 });
 	if( method.is_valid() )
 	{
 		m_direct_pass_request = false;
@@ -301,12 +332,11 @@ rttr::method plugin_service<asio_socket>::call_method_check(rttr::type &type)
 		return method;
 	}
 
-	method = type.get_method
-			 (GTS_WEB_PLUGIN_INTERFACE_CALL, {
-				  rttr::type::get<tcp::socket::native_handle_type>(),
-				  rttr::type::get<void*>(),
-				  rttr::type::get<bool>()
-			  });
+	method = type.get_method(method_name, {
+								 rttr::type::get<tcp::socket::native_handle_type>(),
+								 rttr::type::get<void*>(),
+								 rttr::type::get<bool>()
+							 });
 	if( method.is_valid() )
 	{
 		m_direct_pass_request = false;
@@ -314,19 +344,16 @@ rttr::method plugin_service<asio_socket>::call_method_check(rttr::type &type)
 		return method;
 	}
 
-	method = type.get_method
-			 (GTS_WEB_PLUGIN_INTERFACE_CALL, {
-				  rttr::type::get<tcp::socket::native_handle_type>(),
-				  rttr::type::get<void*>()
-			  });
+	method = type.get_method(method_name, {
+								 rttr::type::get<tcp::socket::native_handle_type>(),
+								 rttr::type::get<void*>()
+							 });
 	if( method.is_valid() )
 	{
 		m_direct_pass_request = false;
 		m_call_method_id = 3;
 		return method;
 	}
-
-	log_error("Web plugin class::call is cannot be called.");
 	return method;
 }
 

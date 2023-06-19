@@ -1,6 +1,8 @@
 #ifndef GTS_GLOBAL_H
 #define GTS_GLOBAL_H
 
+#include <rttr/variant.h>
+
 #ifdef USING_ASIO
 # include <asio.hpp>
 #endif //using asio

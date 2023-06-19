@@ -97,42 +97,42 @@ void plugin1::set_version(const std::string &version)
 	m_version = version;
 }
 
-inline void plugin1::set_method(const std::string &method)
+void plugin1::set_method(const std::string &method)
 {
 	m_method = method;
 }
 
-inline void plugin1::set_path(const std::string &path)
+void plugin1::set_path(const std::string &path)
 {
 	std::cerr << "path: " << path << std::endl;
 	m_path = path;
 }
 
-inline void plugin1::add_parameter(const std::string &key, const std::string &value)
+void plugin1::add_parameter(const std::string &key, const std::string &value)
 {
 	std::cerr << fmt::format("parameter: {} - {}", key, value) << std::endl;
 	m_parameters.emplace(key, value);
 }
 
-inline void plugin1::add_header(const std::string &key, const std::string &value)
+void plugin1::add_header(const std::string &key, const std::string &value)
 {
 	std::cerr << fmt::format("header: {} - {}", key, value) << std::endl;
 	m_headers.emplace(key, value);
 }
 
-inline void plugin1::add_env(const std::string &key, const std::string &value)
+void plugin1::add_env(const std::string &key, const std::string &value)
 {
 	std::cerr << fmt::format("env: {} - {}", key, value) << std::endl;
 	m_envs.emplace(key, value);
 }
 
-inline void plugin1::set_body(const std::string&)
+void plugin1::set_body(const std::string&)
 {
 
 }
 
 template <typename asio_socket>
-inline void plugin1::call(gts::socket<asio_socket> &sock)
+void plugin1::call(gts::socket<asio_socket> &sock)
 {
 	std::cerr << std::endl;
 
@@ -159,8 +159,8 @@ inline void plugin1::call(gts::socket<asio_socket> &sock)
 
 	asio::error_code error;
 	sock.write_some(asio::buffer(content), error);
-	sock.next_layer().shutdown(tcp::socket::shutdown_both);
-	sock.next_layer().close();
+	sock.shutdown(tcp::socket::shutdown_both);
+	sock.close();
 }
 
 }}} //namespace gts::web::business
@@ -181,9 +181,10 @@ RTTR_PLUGIN_REGISTRATION
 			.method("add_header"   , &plugin1::add_header)
 			.method("add_env"      , &plugin1::add_env)
 			.method("set_body"     , &plugin1::set_body)
-			.method("call"         , &plugin1::call<tcp::socket>)
+
+			.method("test", &plugin1::call<tcp::socket>)
 #ifdef GTS_ENABLE_SSL
-			.method("call"         , &plugin1::call<gts::ssl_stream>)
+			.method("test", &plugin1::call<gts::ssl_stream>)
 #endif //ssl
 			;
 

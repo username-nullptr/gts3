@@ -18,8 +18,8 @@ struct GTSHTTP_API request
 	std::string parameters_string;
 	mutable std::string body;
 
-	bool keep_alive;
-	bool support_gzip;
+	bool keep_alive = true;
+	bool support_gzip = false;
 
 	inline request() {}
 	request(request &&other);

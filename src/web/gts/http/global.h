@@ -81,8 +81,8 @@ GTSHTTP_API std::string status_description(int s);
 typedef std::pair<std::string, std::string>           header;
 typedef std::unordered_map<std::string, std::string>  headers;
 
-typedef std::pair<std::string, std::string>           parameter;
-typedef std::unordered_map<std::string, std::string>  parameters;
+typedef std::pair<std::string, rttr::variant>           parameter;
+typedef std::unordered_map<std::string, rttr::variant>  parameters;
 
 }} //namespace gts::http
 
