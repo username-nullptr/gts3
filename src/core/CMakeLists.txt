@@ -41,6 +41,7 @@ elseif (UNIX)
 endif()
 
 add_library(gtscore SHARED ${core_sources} ${core_headers})
+target_compile_definitions(gtscore PRIVATE gtscore_EXPORTS)
 
 target_include_directories(gtscore PRIVATE .)
 

@@ -73,11 +73,6 @@
 #define GTS_WEB_PLUGIN_INTERFACE_CALL  "call"
 
 /*
- * new_request(gts::socket<asio::ssl::stream<asio::ip::tcp::socket>> &sock)
-*/
-#define GTS_WEB_PLUGIN_INTERFACE_CALL_SSL  GTS_WEB_PLUGIN_INTERFACE_CALL "_ssl"
-
-/*
  * std::string default_content(int status)
 */
 #define GTS_WEB_PLUGIN_INTERFACE_DEFAULT_CONTENT  GTS_WEB_PLUGIN_INTERFACE "default_content"

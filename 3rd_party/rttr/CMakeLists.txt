@@ -178,6 +178,7 @@ elseif (UNIX)
 endif()
 
 add_library(rttr_core SHARED ${rttr_sources} ${rttr_headers} ${rttr_private_headers})
+target_compile_definitions(rttr_core PRIVATE RTTR_DLL RTTR_DLL_EXPORTS)
 
 if (${CMAKE_CXX_STANDARD} GREATER 17)
 	set_target_properties(rttr_core PROPERTIES CXX_STANDARD 17)

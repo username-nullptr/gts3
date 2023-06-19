@@ -50,6 +50,7 @@ set(web_headers
 )
 
 add_library(gtsweb SHARED ${web_sources} ${web_headers})
+target_compile_definitions(gtsweb PRIVATE gtsweb_EXPORTS)
 
 target_include_directories(gtsweb PRIVATE . ../core ../log)
 target_link_libraries(gtsweb PRIVATE gtscore gtslog gtshttp)

@@ -61,17 +61,6 @@ std::shared_ptr<request> http_parser::write(const std::string &data)
 	return {};
 }
 
-static inline void remove_back_separator(std::string &str)
-{
-	int i = str.size() - 1;
-	for(; i>=0; i--)
-	{
-		if( str[i] != '/' )
-			break;
-	}
-	str = str.substr(0, i + 1);
-}
-
 bool http_parser::state_handler_waiting_request(const std::string &line_buf)
 {
 	auto request_line_parts = string_split(line_buf, ' ');
@@ -99,7 +88,6 @@ bool http_parser::state_handler_waiting_request(const std::string &line_buf)
 	{
 		m_cache->path = resource_line.substr(0, pos);
 		m_cache->parameters_string = resource_line.substr(pos + 1);
-		remove_back_separator(m_cache->parameters_string);
 
 		for(auto &para_str : string_split(m_cache->parameters_string, ";"))
 		{
@@ -111,7 +99,9 @@ bool http_parser::state_handler_waiting_request(const std::string &line_buf)
 		}
 	}
 
-	remove_back_separator(m_cache->path);
+	std::unique(m_cache->path.begin(), m_cache->path.end(), [](char c0, char c1){
+		return c0 == c1 and c0 == '/';
+	});
 	m_state = reading_headers;
 	return true;
 }

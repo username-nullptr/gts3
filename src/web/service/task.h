@@ -130,7 +130,7 @@ void task<asio_socket>::run()
 #define _TASK_DO_PARSING(_sio) \
 ({ \
 	sio.url_name = _sio.request.path; \
-	if( sio.url_name.empty() ) \
+	if( sio.url_name.empty() or sio.url_name == "/" ) \
 		sio.url_name = task_config::default_resource; \
 	else if( sio.url_name != task_config::default_resource ) { \
 		auto pos = sio.url_name.find("/", 1); \

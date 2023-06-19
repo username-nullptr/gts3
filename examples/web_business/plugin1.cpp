@@ -183,7 +183,7 @@ RTTR_PLUGIN_REGISTRATION
 			.method("set_body"     , &plugin1::set_body)
 			.method("call"         , &plugin1::call<tcp::socket>)
 #ifdef GTS_ENABLE_SSL
-			.method("call_ssl"     , &plugin1::call<gts::ssl_stream>)
+			.method("call"         , &plugin1::call<gts::ssl_stream>)
 #endif //ssl
 			;
 

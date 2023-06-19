@@ -213,7 +213,7 @@ rttr::method plugin_service<asio_socket>::call_method_check(rttr::type &type)
 
 #ifdef GTS_ENABLE_SSL
 	method = type.get_method
-			 (GTS_WEB_PLUGIN_INTERFACE_CALL_SSL, {
+			 (GTS_WEB_PLUGIN_INTERFACE_CALL, {
 				  rttr::type::get<http::request>(),
 				  rttr::type::get<gts::socket<asio_socket>>()
 			  });
@@ -278,7 +278,7 @@ rttr::method plugin_service<asio_socket>::call_method_check(rttr::type &type)
 
 #ifdef GTS_ENABLE_SSL
 	method = type.get_method
-			 (GTS_WEB_PLUGIN_INTERFACE_CALL_SSL, {
+			 (GTS_WEB_PLUGIN_INTERFACE_CALL, {
 				  rttr::type::get<gts::socket<asio_socket>>()
 			  });
 	if( method.is_valid() )

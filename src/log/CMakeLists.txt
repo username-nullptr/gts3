@@ -16,6 +16,7 @@ set(log_private_headers
 )
 
 add_library(gtslog SHARED ${log_sources} ${log_headers} ${log_private_headers})
+target_compile_definitions(gtslog PRIVATE gtslog_EXPORTS)
 
 target_include_directories(gtslog PRIVATE . ../core)
 
