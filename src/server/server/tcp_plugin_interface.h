@@ -25,11 +25,6 @@
 #define GTS_PLUGIN_INTERFACE_NEW_CONNECT  GTS_PLUGIN_INTERFACE "new_connection"
 
 /*
- * new_connect(gts::socket<asio::ssl::stream<asio::ip::tcp::socket>> &sock)
-*/
-#define GTS_PLUGIN_INTERFACE_NEW_CONNECT_SSL  GTS_PLUGIN_INTERFACE_NEW_CONNECT "_ssl"
-
-/*
  * std::string view_status(void)
 */
 #define GTS_PLUGIN_INTERFACE_VIEW_STATUS  GTS_PLUGIN_INTERFACE "view_status"

@@ -81,7 +81,7 @@ RTTR_PLUGIN_REGISTRATION
 			.method(GTS_PLUGIN "exit", plugin_main::exit)
 			.method(GTS_PLUGIN "new_connection", plugin_main::new_connection<tcp::socket>)
 #ifdef GTS_ENABLE_SSL
-			.method(GTS_PLUGIN "new_connection_ssl", plugin_main::new_connection<gts::ssl_stream>)
+			.method(GTS_PLUGIN "new_connection", plugin_main::new_connection<gts::ssl_stream>)
 #endif //ssl
 			.method(GTS_PLUGIN "view_status", plugin_main::view_status);
 }

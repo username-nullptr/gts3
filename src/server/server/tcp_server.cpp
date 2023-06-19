@@ -249,7 +249,7 @@ void tcp_server::new_connect_method_init()
 	{
 #ifdef GTS_ENABLE_SSL
 		m_new_connect_method_ssl = rttr::type::get_global_method
-								   (GTS_PLUGIN_INTERFACE_NEW_CONNECT_SSL, {
+								   (GTS_PLUGIN_INTERFACE_NEW_CONNECT, {
 										rttr::type::get<gts::socket<ssl_stream>>()
 									});
 #endif //ssl
