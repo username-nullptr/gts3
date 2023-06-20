@@ -27,6 +27,8 @@ class response_private;
 
 class GTSHTTP_API response
 {
+	GTS_DISABLE_COPY(response)
+
 public:
 	explicit response(http::status status = hs_ok);
 	explicit response(const http::headers &headers, http::status status = hs_ok);
