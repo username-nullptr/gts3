@@ -92,12 +92,12 @@ static bool _new_connection_method_call(const std::string &method_suffix, tcp_so
 	auto method = rttr::type::get_global_method("gts.plugin." + method_suffix, {rttr::type::get<tcp_socket_ptr>()});
 	if( method.is_valid() )
 	{
-		method.invoke({}, std::shared_ptr<tcp_socket>(sock));
+		method.invoke({}, tcp_socket_ptr(sock));
 		return true;
 	}
 	else if( plugin_obj_check() )
 	{
-		method = g_plugin_obj.get_type().get_method(method_suffix, {rttr::type::get<std::shared_ptr<tcp_socket>>()});
+		method = g_plugin_obj.get_type().get_method(method_suffix, {rttr::type::get<tcp_socket_ptr>()});
 		if( method.is_valid() )
 		{
 			method.invoke(g_plugin_obj, tcp_socket_ptr(sock));
@@ -111,10 +111,10 @@ bool new_connection(tcp_socket *sock, bool universal)
 {
 	if( universal or _new_connection_method_call(fmt::format("new_connection.{}", sock->local_endpoint().port()), sock) == false )
 	{
-		if( _new_connection_method_call("new_connection", sock) )
-			return true;
+		if( _new_connection_method_call("new_connection", sock) == false )
+			return false;
 	}
-	return false;
+	return true;
 }
 
 std::string view_status()

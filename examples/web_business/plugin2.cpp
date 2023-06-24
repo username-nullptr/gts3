@@ -1,3 +1,4 @@
+#include <gts/registration.h>
 #include <gts/tcp_socket.h>
 #include <gts/web.h>
 
@@ -93,6 +94,19 @@ void plugin2::new_request_1(tcp_socket_ptr socket)
 	socket->close();
 }
 
+static void intercept(tcp_socket_ptr socket)
+{
+	asio::error_code error;
+	socket->write_some("HTTP/1.1 200 OK\r\n"
+					   "content-length: 22\r\n"
+					   "content-type: text/plain; charset=utf-8\r\n"
+					   "connection: close\r\n"
+					   "\r\n"
+					   "plugin2: intercept ..."
+					   , error);
+	socket->close();
+}
+
 }}} //namespace gts::web::business
 
 RTTR_PLUGIN_REGISTRATION
@@ -111,4 +125,11 @@ RTTR_PLUGIN_REGISTRATION
 			.exit_method(&business::plugin2::exit)
 			.new_request_method<GET>("subsub", &business::plugin2::new_request_0)
 			.new_request_method<GET>("subsub/test", &business::plugin2::new_request_1);
+
+	for(auto &pair : gts::get_site_infos())
+	{
+		auto &info = pair.second;
+		if( not info.universal )
+			gts::registration(business::intercept, info.port);
+	}
 }
