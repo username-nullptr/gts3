@@ -6,10 +6,12 @@ set(core_sources
 	gts/algorithm.cpp
 	gts/mime_type.cpp
 	gts/settings.cpp
-	gts/socket.cpp
+	gts/tcp_socket.cpp
+	gts/ssl_socket.cpp
 	app_info.cpp
 	process.cpp
 	json.cpp
+	server_tool.cpp
 )
 
 set(core_headers
@@ -21,10 +23,13 @@ set(core_headers
 	gts/mime_type.h
 	gts/gts_config_key.h
 	gts/settings.h
-	gts/socket.h
+	gts/tcp_socket.h
+	gts/ssl_socket.h
+	gts/registration.h
 	app_info.h
 	process.h
 	json.h
+	server_tool.h
 	private/process_p.h
 )
 

@@ -1,5 +1,5 @@
 #include "arguments.h"
-#include "startup_plugin_interface.h"
+#include "server_tool.h"
 
 #include <rttr/library.h>
 #include <iostream>
@@ -11,13 +11,14 @@
 namespace gts { namespace cmdline
 {
 
-static void args_parsing_extensions(const string_list &args);
 static std::string view_version(bool all = false);
-static std::string view_help_extension();
 
 // Modify or extend this function
 args_parser::arguments argument_check(int argc, const char *argv[], string_list &others)
 {
+	static rttr::library library("gtsstartupextensions");
+	library.load();
+
 	auto args_hash =
 		args_parser("GTS " GTS_VERSION_STR "\n"
 					"Description of command line parameters:")
@@ -37,59 +38,21 @@ args_parser::arguments argument_check(int argc, const char *argv[], string_list 
 			.add_group("--stop-subserver"            , "Stop subservices in the list."                                                   , GC_SA_SPSS)
 
 			.enable_h()
-			.set_help_extension(view_help_extension())
+			.set_help_extension(extension::plugin_call::view_help())
 			.set_version(view_version(false))
 			.set_v(view_version(true))
 
 			.parsing(argc, argv, others);
 
-	args_parsing_extensions(others);
-	return args_hash;
-}
-
-/*----------------------------------------------------------------------------------------------------------------------*/
-
-static inline bool load_startup_extensions_library()
-{
-	static rttr::library library("gtsstartupextensions");
-	return library.load();
-}
-
-static void args_parsing_extensions(const string_list &args)
-{
-	if( args.empty() )
-		return ;
-
-	bool res = false;
-	if( load_startup_extensions_library() )
-	{
-		auto method = rttr::type::get_global_method(GTS_STARTUP_PLUGIN_INTERFACE_ARGS_PARSING,
-													{rttr::type::get<int>(), rttr::type::get<const char**>()});
-		if( method.is_valid() )
-		{
-			if( method.get_return_type() == rttr::type::get<bool>() )
-			{
-				static auto other_args_vector = args.c_str_vector();
-				res = method.invoke({}, static_cast<int>(other_args_vector.size()), other_args_vector.data()).to_bool();
-			}
-		}
-		else
-		{
-			method = rttr::type::get_global_method(GTS_STARTUP_PLUGIN_INTERFACE_ARGS_PARSING,
-												   {rttr::type::get<std::deque<std::string>>()});
-
-			if( method.is_valid() and method.get_return_type() == rttr::type::get<bool>() )
-				res = method.invoke({}, static_cast<std::deque<std::string>>(args)).to_bool();
-		}
-	}
-	if( not res )
+	if( not others.empty() and not extension::plugin_call::args_parsing(others) )
 	{
 		std::cerr << "Invalid arguments." << std::endl;
 		exit(-1);
 	}
+	return args_hash;
 }
 
-static std::string view_extension(const char *method_name);
+/*----------------------------------------------------------------------------------------------------------------------*/
 
 #ifdef __llvm__
 # define IS_CLANG  "Clang-"
@@ -115,41 +78,11 @@ static std::string view_version(bool all)
 	result += "Compiler: " IS_CLANG "MSVC " _MSC_VER "\n";
 #endif //GCC
 
-	result += "Compilation time: " __DATE__ " " __TIME__ "\n" +
-			  view_extension(GTS_STARTUP_PLUGIN_INTERFACE_VERSION);
-	return result;
-}
+	result += "Compilation time: " __DATE__ " " __TIME__;
+	auto ext_info = extension::plugin_call::view_version();
 
-static inline std::string view_help_extension()
-{
-	return view_extension(GTS_STARTUP_PLUGIN_INTERFACE_HELP_EX);
-}
-
-static std::string view_extension(const char *method_name)
-{
-	std::string result;
-	if( load_startup_extensions_library() == false )
-		return result;
-	auto method = rttr::type::get_global_method(method_name);
-
-	if( method.is_valid() and method.get_parameter_infos().size() == 0 and
-		method.get_return_type() == rttr::type::get<std::string>() )
-	{
-		auto str = method.invoke({}).to_string();
-		if( str.empty() )
-			return result;
-
-		int i = str.size() - 1;
-		for(; i>=0; i--)
-		{
-			if( str[i] != '\n' )
-				break;
-		}
-		str = str.substr(0, i + 1);
-
-		if( not str.empty() )
-			result += "\nExtern:\n" + str;
-	}
+	if( not ext_info.empty() )
+		result += "\n" + ext_info;
 	return result;
 }
 

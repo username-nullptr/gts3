@@ -94,13 +94,13 @@ void parser_impl::add(args_cache &cache, const rule &r, const description &d, co
 
 [[noreturn]] void parser_impl::print_version()
 {
-	std::cout << "\n" << m_version << "\n\n";
+	std::cout << "\n" << m_version << "\n\n" << std::flush;
 	exit(0);
 }
 
 [[noreturn]] void parser_impl::print_v()
 {
-	std::cout << "\n" << m_v << "\n\n";
+	std::cout << "\n" << m_v << "\n\n" << std::flush;
 	exit(0);
 }
 

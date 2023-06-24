@@ -1,10 +1,10 @@
 #include "session/session.h"
+#include "gts/web/thread_pool.h"
+#include "gts/web/config_key.h"
+#include "gts/registration.h"
+#include "gts/algorithm.h"
 #include "gts/settings.h"
 #include "gts/log.h"
-
-#include "gts/gts_config_key.h"
-#include "gts/web_config_key.h"
-#include "gts/algorithm.h"
 
 #include <rttr/registration>
 #include <iostream>
@@ -16,8 +16,20 @@
 namespace gts { namespace web
 {
 
-extern GTS_DECL_HIDDEN void global_init();
-extern GTS_DECL_HIDDEN void global_exit();
+static asio::thread_pool *g_pool = nullptr;
+
+static std::size_t g_count = 0;
+
+asio::thread_pool &thread_pool()
+{
+	assert(g_pool);
+	return *g_pool;
+}
+
+std::size_t thread_pool_count()
+{
+	return g_count;
+}
 
 namespace plugin_main
 {
@@ -42,46 +54,55 @@ GTS_DECL_EXPORT void init(const std::string &config_file)
 		{ SINI_WEB_ENABLE_WSS        , false                           },
 		{ SINI_WEB_WSS_NAME          , ""                              },
 		{ SINI_WEB_WSS_PORT          , ""                              },
-		{ SINI_WEB_WSS_STRATEGY      , ""                              },
+		{ SINI_WEB_WSS_STRATEGY      , ""                              }
 	};
 	settings::ini_file_check(SINI_GROUP_WEB, sample_gts);
+	session::init();
 
-	session_config::init();
-	global_init();
+	auto &_settings = settings::global_instance();
+	g_count = _settings.read<int>(SINI_GROUP_WEB, SINI_WEB_THREAD_POOL_TC, 255);
+
+	if( g_count < 1 )
+	{
+		log_warning("Config: max thread count setting error.");
+		g_count = 1;
+	}
+
+	log_debug("Web: max thread count: {}", g_count);
+	g_pool = new asio::thread_pool(g_count);
 }
 
 GTS_DECL_EXPORT void exit()
 {
 	log_debug("web plugin exit.");
-	session_config::exit();
-	global_exit();
+	session::exit();
+
+	if( g_pool == nullptr )
+		return ;
+
+	g_pool->join();
+	delete g_pool;
+	g_pool = nullptr;
 }
 
-template <typename asio_socket>
-GTS_DECL_EXPORT void new_connection(gts::socket<asio_socket> &socket)
+GTS_DECL_EXPORT void new_connection(tcp_socket_ptr socket)
 {
-	session<asio_socket>::new_connection(std::make_shared<gts::socket<asio_socket>>(std::move(socket)));
+	session::new_connection(std::move(socket));
 }
 
 GTS_DECL_EXPORT std::string view_status()
 {
-	return session_config::view_status();
+	return session::view_status();
 }
 
 }}} //namespace gts::web::plugin_main
 
 using namespace gts::web;
 
-#define GTS_PLUGIN  "gts.plugin."
-
 RTTR_PLUGIN_REGISTRATION
 {
-	rttr::registration::
-			method(GTS_PLUGIN "init", plugin_main::init)
-			.method(GTS_PLUGIN "exit", plugin_main::exit)
-			.method(GTS_PLUGIN "new_connection", plugin_main::new_connection<tcp::socket>)
-#ifdef GTS_ENABLE_SSL
-			.method(GTS_PLUGIN "new_connection", plugin_main::new_connection<gts::ssl_stream>)
-#endif //ssl
-			.method(GTS_PLUGIN "view_status", plugin_main::view_status);
+	gts::registration(plugin_main::new_connection)
+			.init_method(plugin_main::init)
+			.exit_method(plugin_main::exit)
+			.view_status_method(plugin_main::view_status);
 }

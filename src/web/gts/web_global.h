@@ -2,7 +2,7 @@
 #define GTS_WEB_GLOBAL_H
 
 #include <gts/gts_global.h>
-#include <functional>
+#include <unordered_map>
 
 #ifdef gtsweb_EXPORTS
 # define GTSWEB_API  GTS_DECL_EXPORT
@@ -13,13 +13,7 @@
 namespace gts { namespace web
 {
 
-#ifdef USING_ASIO
-GTSWEB_API asio::thread_pool &thread_pool();
-#endif //using asio
-
-GTSWEB_API std::size_t thread_pool_count();
-
-GTSWEB_API void thread_pool_post(std::function<void()> func);
+typedef std::unordered_map<std::string, std::string>  environments;
 
 }} //namespace gts::web
 

@@ -20,6 +20,10 @@ public:
 	~applictaion();
 
 public:
+	void extension_init();
+	void extension_exit();
+
+public:
 	static applictaion &instance();
 	asio::io_context &io_context();
 

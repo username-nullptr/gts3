@@ -1,8 +1,8 @@
 #include "application.h"
+#include "server_tool.h"
 #include "app_info.h"
 #include "global.h"
 
-#include "startup_plugin_interface.h"
 #include "gts/gts_config_key.h"
 #include "gts/algorithm.h"
 #include "gts/log.h"
@@ -115,23 +115,10 @@ applictaion_impl::applictaion_impl(int argc, const char *argv[])
 			log_info("pipe rupture. (ignore)");
 	});
 #endif //__unix__
-
-	auto method = rttr::type::get_global_method(GTS_STARTUP_PLUGIN_INTERFACE_INIT);
-	if( method.is_valid() and method.get_parameter_infos().size() == 0 )
-	{
-		method.invoke({});
-		return ;
-	}
-	method = rttr::type::get_global_method(GTS_STARTUP_PLUGIN_INTERFACE_INIT, {rttr::type::get<std::string>()});
-	if( method.is_valid() )
-		method.invoke({}, _settings.file_name());
 }
 
 applictaion_impl::~applictaion_impl()
 {
-	auto method = rttr::type::get_global_method(GTS_STARTUP_PLUGIN_INTERFACE_EXIT);
-	if( method.is_valid() and method.get_parameter_infos().size() == 0 )
-		method.invoke({});
 	cmdline::app_unlock();
 }
 
@@ -216,6 +203,16 @@ applictaion::~applictaion()
 		g_instance = nullptr;
 		g_impl = nullptr;
 	}
+}
+
+void applictaion::extension_init()
+{
+	extension::plugin_call::init(settings::global_instance().file_name());
+}
+
+void applictaion::extension_exit()
+{
+	extension::plugin_call::exit();
 }
 
 applictaion &applictaion::instance()

@@ -28,7 +28,7 @@ request &request::operator=(request &&other)
 
 bool request::is_valid() const
 {
-	return not method.empty();
+	return not version.empty() and not path.empty();
 }
 
 void request::finish()

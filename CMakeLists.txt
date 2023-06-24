@@ -40,7 +40,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	endif()
 endif()
 
-add_definitions(-DUSING_ASIO)
 add_compile_options(-Wall)
 add_subdirectory(src)
 

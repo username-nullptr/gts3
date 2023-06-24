@@ -1,14 +1,8 @@
 #ifndef GTS_HTTP_GLOBAL_H
 #define GTS_HTTP_GLOBAL_H
 
-#include <gts/gts_global.h>
+#include <gts/web_global.h>
 #include <unordered_map>
-
-#ifdef gtshttp_EXPORTS
-# define GTSHTTP_API  GTS_DECL_EXPORT
-#else //gtshttp_EXPORTS
-# define GTSHTTP_API  GTS_DECL_IMPORT
-#endif //gtshttp_EXPORTS
 
 namespace gts { namespace http
 {
@@ -76,13 +70,27 @@ enum status
 	hs_network_authentication_required = 511, // Network Authentication Required
 };
 
-GTSHTTP_API std::string status_description(int s);
+GTSWEB_API std::string status_description(int s);
 
 typedef std::pair<std::string, std::string>           header;
 typedef std::unordered_map<std::string, std::string>  headers;
 
 typedef std::pair<std::string, rttr::variant>           parameter;
 typedef std::unordered_map<std::string, rttr::variant>  parameters;
+
+enum method
+{
+	GET     = 0x01,
+	PUT     = 0x02,
+	POST    = 0x04,
+	HEAD    = 0x08,
+	DELETE  = 0x10,
+	OPTIONS = 0x20,
+	CONNECT = 0x40,
+	TRACH   = 0x80
+};
+GTSWEB_API std::string method_string(method m);
+GTSWEB_API method from_method_string(const std::string &m);
 
 }} //namespace gts::http
 

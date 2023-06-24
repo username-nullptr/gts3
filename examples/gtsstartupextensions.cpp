@@ -1,37 +1,34 @@
-#include <rttr/registration>
+#include <gts/registration.h>
 #include <iostream>
-
-#ifdef _MSC_VER
-# define DECL_EXPORT  __declspec(dllexport)
-#elif defined(__GNUC__)
-# define DECL_EXPORT  __attribute__((visibility("default")))
-#else // other compiler
-# define DECL_EXPORT
-#endif //compiler
 
 namespace gts { namespace cmdline { namespace business
 {
 
-DECL_EXPORT bool args_parsing(int argc, const char *argv[])
+static void extensions_init()
+{
+	std::cerr << "extern init ..." << std::endl;
+}
+
+static void extensions_exit()
+{
+	std::cerr << "extern exit ..." << std::endl;
+}
+
+static bool args_parsing(int argc, const char *argv[])
 {
 	for(int i=0; i<argc; i++)
 		std::cerr << "argv[" << i << "] = " << argv[i] << std::endl;
 	return true;
 }
 
-DECL_EXPORT void extensions_init()
-{
-	std::cerr << "extern init ..." << std::endl;
-}
-
-DECL_EXPORT void extensions_exit()
-{
-	std::cerr << "extern exit ..." << std::endl;
-}
-
-DECL_EXPORT std::string view_version_info()
+static std::string view_version_info()
 {
 	return "gts cmdline extern examples. v0.0.0\n";
+}
+
+static std::string view_help()
+{
+	return "    gts cmdline extern examples: help.\n";
 }
 
 }}} //gts::cmdline::business
@@ -40,9 +37,10 @@ RTTR_PLUGIN_REGISTRATION
 {
 	using namespace gts::cmdline::business;
 
-	rttr::registration::
-			method("gts.cmdline.plugin.args_parsing", args_parsing)
-			.method("gts.cmdline.plugin.init", extensions_init)
-			.method("gts.cmdline.plugin.exit", extensions_exit)
-			.method("gts.cmdline.plugin.version", view_version_info);
+	gts::extension::registration()
+			.init_method(extensions_init)
+			.exit_method(extensions_exit)
+			.args_parsing_method(args_parsing)
+			.view_version_method(view_version_info)
+			.view_help_method(view_help);
 }

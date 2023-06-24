@@ -1,152 +1,52 @@
-#include <rttr/registration>
-#include <rttr/library.h>
-#include <gts/socket.h>
-#include <fmt/format.h>
+#include <gts/tcp_socket.h>
+#include <gts/web.h>
+
 #include <iostream>
 #include <future>
-
-#ifdef GTS_ENABLE_SSL
-# include <asio/ssl.hpp>
-#endif //ssl
-
-#ifdef _MSC_VER
-# define DECL_EXPORT  __declspec(dllexport)
-#elif defined(__GNUC__)
-# define DECL_EXPORT  __attribute__((visibility("default")))
-#else // other compiler
-# define DECL_EXPORT
-#endif //compiler
-
-using namespace asio::ip;
 
 namespace gts { namespace web { namespace business
 {
 
-class DECL_EXPORT plugin1
+class GTS_DECL_EXPORT plugin1_0
 {
 public:
-	static std::shared_ptr<std::future<void>> init();
-//	static std::shared_ptr<std::future<void>> exit();
-	static void exit();
-	static std::string view_status();
-
-public:
-	void set_version(const std::string &version);
-	void set_method(const std::string &method);
-	void set_path(const std::string &path);
-
-public:
-	void add_parameter(const std::string &key, const std::string &value);
-	void add_header(const std::string &key, const std::string &value);
-
-public:
-	void add_env(const std::string &key, const std::string &value);
-	void set_body(const std::string &body);
-
-public:
-	template <typename asio_socket>
-	void call(gts::socket<asio_socket> &sock);
-
-private:
-	std::string m_version;
-	std::string m_method;
-	std::string m_path;
-
-private:
-	std::unordered_map<std::string, std::string> m_parameters;
-	std::unordered_map<std::string, std::string> m_headers;
-	std::unordered_map<std::string, std::string> m_envs;
+	std::shared_ptr<std::future<void>> init();
+	void exit();
+	void new_request(tcp_socket_ptr socket, http::request &&request, environments &&envs);
 };
 
-std::shared_ptr<std::future<void>> plugin1::init()
+std::shared_ptr<std::future<void>> plugin1_0::init()
 {
 	return std::make_shared<std::future<void>>(std::async(std::launch::async, []
 	{
-		for(int i=0; i<6; i++)
+		for(int i=0; i<10; i++)
 		{
-			std::cerr << "plugin1: init task ..." << std::endl;
-			std::this_thread::sleep_for(std::chrono::milliseconds(400));
+			std::cerr << "plugin1-0: init task ..." << std::endl;
+			std::this_thread::sleep_for(std::chrono::milliseconds(150));
 		}
 	}));
 }
 
-//std::shared_ptr<std::future<void>> plugin1::exit()
-//{
-//	return std::make_shared<std::future<void>>(std::async(std::launch::async, []
-//	{
-//		for(int i=0; i<5; i++)
-//		{
-//			std::cerr << "plugin1: exit task ..." << std::endl;
-//			std::this_thread::sleep_for(std::chrono::milliseconds(300));
-//		}
-//	}));
-//}
-
-void plugin1::exit()
+void plugin1_0::exit()
 {
-	std::cerr << "plugin1: exit task ..." << std::endl;
+	std::cerr << "plugin1-0: exit task ..." << std::endl;
 }
 
-std::string plugin1::view_status()
-{
-	return "web plugin: examples-plugin1: hello1\n";
-}
-
-void plugin1::set_version(const std::string &version)
-{
-	m_version = version;
-}
-
-void plugin1::set_method(const std::string &method)
-{
-	m_method = method;
-}
-
-void plugin1::set_path(const std::string &path)
-{
-	std::cerr << "path: " << path << std::endl;
-	m_path = path;
-}
-
-void plugin1::add_parameter(const std::string &key, const std::string &value)
-{
-	std::cerr << fmt::format("parameter: {} - {}", key, value) << std::endl;
-	m_parameters.emplace(key, value);
-}
-
-void plugin1::add_header(const std::string &key, const std::string &value)
-{
-	std::cerr << fmt::format("header: {} - {}", key, value) << std::endl;
-	m_headers.emplace(key, value);
-}
-
-void plugin1::add_env(const std::string &key, const std::string &value)
-{
-	std::cerr << fmt::format("env: {} - {}", key, value) << std::endl;
-	m_envs.emplace(key, value);
-}
-
-void plugin1::set_body(const std::string&)
-{
-
-}
-
-template <typename asio_socket>
-void plugin1::call(gts::socket<asio_socket> &sock)
+void plugin1_0::new_request(tcp_socket_ptr socket, http::request &&request, environments &&envs)
 {
 	std::cerr << std::endl;
 
-	auto content = fmt::format("Ok!!!\npath = {}\n\n", m_path);
+	auto content = fmt::format("Ok!!!\npath = {}\n\n", request.path);
 
-	for(auto &para : m_parameters)
-		content += fmt::format("(p) {} = {}\n", para.first, para.second);
+	for(auto &para : request.parameters)
+		content += fmt::format("(p) {} = {}\n", para.first, para.second.to_string());
 	content += "\n";
 
-	for(auto &para : m_headers)
+	for(auto &para : request.headers)
 		content += fmt::format("(h) {} = {}\n", para.first, para.second);
 	content += "\n";
 
-	for(auto &para : m_envs)
+	for(auto &para : envs)
 		content += fmt::format("(e) {} = {}\n", para.first, para.second);
 	content += "\n";
 
@@ -154,42 +54,88 @@ void plugin1::call(gts::socket<asio_socket> &sock)
 	content = fmt::format("HTTP/1.1 200 OK\r\n"
 						  "content-length: {}\r\n"
 						  "content-type: text/plain; charset=utf-8\r\n"
-						  "keep-alive: close\r\n"
+						  "connection: close\r\n"
 						  "\r\n", content.size()) + content;
 
 	asio::error_code error;
-	sock.write_some(asio::buffer(content), error);
-	sock.shutdown(tcp::socket::shutdown_both);
-	sock.close();
+	socket->write_some(content, error);
+	socket->close();
+}
+
+class GTS_DECL_EXPORT plugin1_1
+{
+public:
+	std::shared_ptr<std::future<void>> init();
+	void exit();
+	void new_request_0(tcp_socket_ptr socket);
+	void new_request_1(tcp_socket_ptr socket);
+};
+
+std::shared_ptr<std::future<void>> plugin1_1::init()
+{
+	return std::make_shared<std::future<void>>(std::async(std::launch::async, []
+	{
+		for(int i=0; i<4; i++)
+		{
+			std::cerr << "plugin1-1: init task ..." << std::endl;
+			std::this_thread::sleep_for(std::chrono::milliseconds(550));
+		}
+	}));
+}
+
+void plugin1_1::exit()
+{
+	std::cerr << "plugin1-1: exit task ..." << std::endl;
+}
+
+void plugin1_1::new_request_0(tcp_socket_ptr socket)
+{
+	static const std::string str = "HTTP/1.1 200 OK\r\n"
+								   "content-length: 12\r\n"
+								   "content-type: text/plain; charset=utf-8\r\n"
+								   "connection: close\r\n"
+								   "\r\n"
+								   "plugin1-1::0";
+	asio::error_code error;
+	socket->write_some(str, error);
+	socket->close();
+}
+
+void plugin1_1::new_request_1(tcp_socket_ptr socket)
+{
+	static const std::string str = "HTTP/1.1 200 OK\r\n"
+								   "content-length: 12\r\n"
+								   "content-type: text/plain; charset=utf-8\r\n"
+								   "connection: close\r\n"
+								   "\r\n"
+								   "PLUGIN1-1::1";
+	asio::error_code error;
+	socket->write_some(str, error);
+	socket->close();
+}
+
+static std::string view_status()
+{
+	return "web plugin: examples-plugin1: hello1\n";
 }
 
 }}} //namespace gts::web::business
 
-using namespace gts::web::business;
-
 RTTR_PLUGIN_REGISTRATION
 {
-	using namespace rttr;
-	auto lib_name = library::get_library_name(reinterpret_cast<void*>(&plugin1::init)).to_string();
+	using namespace gts::http;
+	using namespace gts::web;
 
-	registration::class_<plugin1>("gts.web.plugin." + lib_name)
-			.constructor<>()
-			.method("set_version"  , &plugin1::set_version)
-			.method("set_method"   , &plugin1::set_method)
-			.method("set_path"     , &plugin1::set_path)
-			.method("add_parameter", &plugin1::add_parameter)
-			.method("add_header"   , &plugin1::add_header)
-			.method("add_env"      , &plugin1::add_env)
-			.method("set_body"     , &plugin1::set_body)
+	registration().view_status_method(business::view_status);
 
-			.method("test", &plugin1::call<tcp::socket>)
-#ifdef GTS_ENABLE_SSL
-			.method("test", &plugin1::call<gts::ssl_stream>)
-#endif //ssl
-			;
+	registration::class_<business::plugin1_0>("/")
+			.init_method(&business::plugin1_0::init)
+			.exit_method(&business::plugin1_0::exit)
+			.new_request_method<GET>("plugin1", &business::plugin1_0::new_request);
 
-	registration::
-			method("gts.web.plugin." + lib_name + ".init", &plugin1::init)
-			.method("gts.web.plugin." + lib_name + ".exit", &plugin1::exit)
-			.method("gts.web.plugin." + lib_name + ".view_status", &plugin1::view_status);
+	registration::class_<business::plugin1_1>("plugin1")
+			.init_method(&business::plugin1_1::init)
+			.exit_method(&business::plugin1_1::exit)
+			.new_request_method<GET>("/sub0/", &business::plugin1_1::new_request_0)
+			.new_request_method<GET>("sub1", &business::plugin1_1::new_request_1);
 }

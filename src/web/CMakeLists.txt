@@ -1,30 +1,9 @@
-set(http_sources
-	gts/http/global.cpp
-	gts/http/request.cpp
-	gts/http/response.cpp
-)
-
-set(http_headers
-	gts/http/global.h
-	gts/http/request.h
-	gts/http/response.h
-)
-
-add_library(gtshttp SHARED ${http_sources} ${http_headers})
-
-target_include_directories(gtshttp PRIVATE . ../core)
-
-set_target_properties(gtshttp PROPERTIES
-	LIBRARY_OUTPUT_DIRECTORY ../../${output_dir_name}/bin
-)
-
-install(TARGETS gtshttp DESTINATION bin)
-
-#--------------------------------------------------------------------------------------------------
-
 set(web_sources
 	main.cpp
-	gts/web_global.cpp
+	gts/http/type.cpp
+	gts/http/request.cpp
+	gts/http/response.cpp
+	gts/web/registration.cpp
 	session/http_parser.cpp
 	session/session.cpp
 	service/task.cpp
@@ -36,9 +15,15 @@ set(web_sources
 )
 
 set(web_headers
+	gts/web.h
+	gts/http.h
 	gts/web_global.h
-	gts/web_config_key.h
-	gts/web_plugin_interface.h
+	gts/http/type.h
+	gts/http/request.h
+	gts/http/response.h
+	gts/web/config_key.h
+	gts/web/thread_pool.h
+	gts/web/registration.h
 	session/http_parser.h
 	session/session.h
 	service/task.h
@@ -53,7 +38,7 @@ add_library(gtsweb SHARED ${web_sources} ${web_headers})
 target_compile_definitions(gtsweb PRIVATE gtsweb_EXPORTS)
 
 target_include_directories(gtsweb PRIVATE . ../core ../log)
-target_link_libraries(gtsweb PRIVATE gtscore gtslog gtshttp)
+target_link_libraries(gtsweb PRIVATE gtscore gtslog)
 
 set_target_properties(gtsweb PROPERTIES
 	LIBRARY_OUTPUT_DIRECTORY ../../${output_dir_name}/bin

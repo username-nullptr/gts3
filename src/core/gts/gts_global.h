@@ -2,10 +2,8 @@
 #define GTS_GLOBAL_H
 
 #include <rttr/variant.h>
-
-#ifdef USING_ASIO
-# include <asio.hpp>
-#endif //using asio
+#include <asio.hpp>
+#include <vector>
 
 namespace gts
 {
@@ -83,7 +81,6 @@ typedef uint32_t  address_bits_wide;
 #define GTS_DISABLE_COPY_MOVE(_class) \
 	GTS_DISABLE_COPY(_class) GTS_DISABLE_MOVE(_class)
 
-#ifdef USING_ASIO
 GTSCORE_API asio::io_context &io_context();
 
 template <typename T> inline
@@ -93,7 +90,20 @@ void delete_later(T *obj)
 		delete obj;
 	});
 }
-#endif //using asio
+
+struct site_info
+{
+	std::string addr;
+	uint16_t port;
+	bool universal;
+
+#ifdef GTS_ENABLE_SSL
+	bool ssl;
+#endif //ssl
+};
+typedef std::map<std::string, site_info>  site_info_map;
+
+GTSCORE_API site_info_map get_site_infos();
 
 } //namespace gts
 

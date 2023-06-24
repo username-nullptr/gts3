@@ -1,21 +1,28 @@
 # plugin service
 
 add_library(plugin0 SHARED plugin0.cpp)
+target_include_directories(plugin0 PRIVATE ../../src/core)
+target_include_directories(plugin0 PRIVATE ../../src/log)
+target_include_directories(plugin0 PRIVATE ../../src/web)
+target_link_libraries(plugin0 PRIVATE gtsweb)
 set_target_properties(plugin0 PROPERTIES
 	LIBRARY_OUTPUT_DIRECTORY ../../${output_dir_name}/business_plugins
 )
 
 add_library(plugin1 SHARED plugin1.cpp)
-target_link_libraries(plugin1 gtscore)
 target_include_directories(plugin1 PRIVATE ../../src/core)
+target_include_directories(plugin1 PRIVATE ../../src/log)
+target_include_directories(plugin1 PRIVATE ../../src/web)
+target_link_libraries(plugin1 gtsweb)
 set_target_properties(plugin1 PROPERTIES
 	LIBRARY_OUTPUT_DIRECTORY ../../${output_dir_name}/business_plugins
 )
 
 add_library(plugin2 SHARED plugin2.cpp)
-target_link_libraries(plugin2 gtshttp)
 target_include_directories(plugin2 PRIVATE ../../src/core)
+target_include_directories(plugin2 PRIVATE ../../src/log)
 target_include_directories(plugin2 PRIVATE ../../src/web)
+target_link_libraries(plugin2 gtsweb)
 set_target_properties(plugin2 PROPERTIES
 	LIBRARY_OUTPUT_DIRECTORY ../../${output_dir_name}/business_plugins
 )
@@ -48,4 +55,5 @@ install(TARGETS login DESTINATION cgi)
 install(TARGETS upload DESTINATION cgi)
 
 install(TARGETS plugin0 DESTINATION business_plugins)
-install(TARGETS plugin1 DESTINATION business_plugins)
+#install(TARGETS plugin1 DESTINATION business_plugins)
+#install(TARGETS plugin2 DESTINATION business_plugins)

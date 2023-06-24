@@ -14,11 +14,9 @@ set(server_sources
 set(server_headers
 	global.h
 	application.h
-	startup_plugin_interface.h
 	cmdline/arguments.h
 	cmdline/app_core.h
 	cmdline/interaction.h
-	server/tcp_plugin_interface.h
 	server/tcp_server.h
 	server/cmdline_server.h
 	subserver/server_ope.h
@@ -50,11 +48,4 @@ target_link_libraries(gts PRIVATE gtscore gtslog)
 set_target_properties(gts PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY ../../${output_dir_name}/bin
 )
-
 install(TARGETS gts DESTINATION bin)
-
-install(FILES
-	startup_plugin_interface.h
-	server/tcp_plugin_interface.h
-	DESTINATION include/gts
-)

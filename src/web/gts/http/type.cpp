@@ -1,4 +1,4 @@
-#include "global.h"
+#include "type.h"
 #include <assert.h>
 
 namespace gts { namespace http
@@ -71,6 +71,38 @@ std::string status_description(int s)
 	auto it = hash.find(s);
 	assert(it != hash.end());
 	return it->second;
+}
+
+std::string method_string(method m)
+{
+	switch(m)
+	{
+	case GET    : return "GET";
+	case PUT    : return "PUT";
+	case POST   : return "POST";
+	case HEAD   : return "HEAD";
+	case DELETE : return "DELETE";
+	case OPTIONS: return "OPTIONS";
+	case CONNECT: return "CONNECT";
+	case TRACH  : return "TRACH";
+	default: break;
+	}
+	assert(false);
+	return "Unkown";
+}
+
+gts::http::method from_method_string(const std::string &m)
+{
+	if     ( m == "GET"     ) return GET;
+	else if( m == "PUT"     ) return PUT;
+	else if( m == "POST"    ) return POST;
+	else if( m == "HEAD"    ) return HEAD;
+	else if( m == "DELETE"  ) return DELETE;
+	else if( m == "OPTIONS" ) return OPTIONS;
+	else if( m == "CONNECT" ) return CONNECT;
+	else if( m == "TRACH"   ) return TRACH;
+	assert(false);
+	return GET;
 }
 
 }} //namespace gts::http

@@ -75,7 +75,7 @@ bool http_parser::state_handler_waiting_request(const std::string &line_buf)
 	if( m_cache == nullptr )
 		m_cache = new request();
 
-	m_cache->method  = request_line_parts[0];
+	m_cache->method  = from_method_string(request_line_parts[0]);
 	m_cache->version = request_line_parts[2].substr(5,3);
 
 	auto resource_line = from_percent_encoding(request_line_parts[1]);

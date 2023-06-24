@@ -2,11 +2,13 @@
     "site0": {
         "address": "ipv4",
         "port": 8080,
+        "universal": true,
         "ssl": false
     },
     "site1": {
         "address": "ipv4",
         "port": 9999,
+        "universal": true,
         "ssl": true
     }
 }

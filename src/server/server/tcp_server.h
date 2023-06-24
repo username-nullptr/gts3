@@ -3,8 +3,13 @@
 
 #include <thread>
 #include <rttr/type>
-#include "gts/socket.h"
 #include "gts/log.h"
+
+#ifdef GTS_ENABLE_SSL
+# include "gts/ssl_socket.h"
+#else
+# include "gts/tcp_socket.h"
+#endif
 
 namespace gts
 {
@@ -25,17 +30,7 @@ public:
 	std::string view_status() const;
 
 private:
-	template <class asio_socket>
-	void service(std::shared_ptr<socket<asio_socket>> sock);
-	void call_new_connect_method_0(std::shared_ptr<socket<tcp::socket>> sock);
-
-#ifdef GTS_ENABLE_SSL
-	void call_new_connect_method_0(std::shared_ptr<socket<ssl_stream>> sock);
-#endif //ssl
-
-private:
-	void new_connect_method_init();
-	void call_init();
+	void service(tcp_socket *sock, bool universal);
 
 private:
 	class basic_site
@@ -43,7 +38,7 @@ private:
 		GTS_DISABLE_COPY_MOVE(basic_site)
 
 	public:
-		basic_site(tcp_server *q_ptr, asio::io_context &io, const std::string &addr, uint16_t port);
+		basic_site(tcp_server *q_ptr, asio::io_context &io, const site_info &info);
 		virtual ~basic_site() = 0;
 
 	public:
@@ -56,6 +51,7 @@ private:
 		tcp::acceptor m_acceptor;
 		tcp::endpoint m_endpoint;
 		std::string m_addr;
+		bool m_universal;
 	};
 
 	class tcp_site : public basic_site
@@ -73,7 +69,7 @@ private:
 	class ssl_site : public basic_site
 	{
 	public:
-		ssl_site(tcp_server *q_ptr, asio::io_context &io, const std::string &addr, uint16_t port);
+		using basic_site::basic_site;
 		std::string view_status() const override;
 		bool start() override;
 
@@ -89,48 +85,9 @@ private:
 
 private:
 	std::shared_ptr<rttr::library> m_plugin_lib;
-	rttr::method m_new_connect_method;
-
-#ifdef GTS_ENABLE_SSL
-	rttr::method m_new_connect_method_ssl;
-#endif //ssl
-
 	int m_method_id = 1;
 	int m_buffer_size = 65536;
 };
-
-template <class asio_socket>
-void tcp_server::service(std::shared_ptr<socket<asio_socket>> sock)
-{
-	asio::error_code error;
-	sock->set_option(tcp::socket::send_buffer_size(m_buffer_size), error);
-	if( error )
-		log_error("asio: set socket send buffer error: {}. ({})\n", error.message(), error.value());
-
-	sock->set_option(tcp::socket::receive_buffer_size(m_buffer_size), error);
-	if( error )
-		log_error("asio: set socket receive buffer error: {}. ({})\n", error.message(), error.value());
-
-	if( m_method_id == 0 )
-		call_new_connect_method_0(sock);
-
-	else if( m_method_id == 1 )
-	{
-		m_new_connect_method.invoke({}, std::move(sock->next_layer()),
-									reinterpret_cast<void*>(sock->release_ssl()));
-	}
-	else if( m_method_id == 2 )
-	{
-		bool is_v6 = sock->remote_endpoint().address().is_v6();
-		m_new_connect_method.invoke({}, sock->release(),
-									reinterpret_cast<void*>(sock->release_ssl()), is_v6);
-	}
-	else if( m_method_id == 3 )
-	{
-		m_new_connect_method.invoke({}, sock->release(),
-									reinterpret_cast<void*>(sock->release_ssl()));
-	}
-}
 
 } //namespace gts
 

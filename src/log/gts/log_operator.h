@@ -1,13 +1,10 @@
 #ifndef LOG_OPERATOR_H
 #define LOG_OPERATOR_H
 
+#include <asio.hpp>
 #include <fmt/format.h>
 #include <rttr/string_view.h>
 #include <thread>
-
-#ifdef USING_ASIO
-# include <asio.hpp>
-#endif //asio
 
 namespace fmt
 {
@@ -40,7 +37,6 @@ public:
 	}
 };
 
-#ifdef USING_ASIO
 template <>
 class formatter<asio::error_code>
 {
@@ -68,7 +64,6 @@ public:
 		return format_to(context.out(), "{}:{}", endpoint.address().to_string(), endpoint.port());
 	}
 };
-#endif //asio
 
 } //namespace fmt
 

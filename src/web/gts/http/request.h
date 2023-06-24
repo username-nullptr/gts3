@@ -1,14 +1,14 @@
 #ifndef GTS_HTTP_REQUEST_H
 #define GTS_HTTP_REQUEST_H
 
-#include <gts/http/global.h>
+#include <gts/http/type.h>
 
 namespace gts { namespace http
 {
 
-struct GTSHTTP_API request
+struct GTSWEB_API request
 {
-	std::string method;
+	http::method method;
 	std::string version;
 	std::string path;
 

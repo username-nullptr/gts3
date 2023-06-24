@@ -5,6 +5,7 @@
 int main(int argc, const char *argv[])
 {
 	gts::applictaion app(argc, argv);
+	app.extension_init();
 
 	gts::tcp_server tcp_server;
 	tcp_server.start();
@@ -15,5 +16,7 @@ int main(int argc, const char *argv[])
 	int res = app.exec();
 	cmdline_server.stop();
 	tcp_server.stop();
+
+	app.extension_exit();
 	return res;
 }

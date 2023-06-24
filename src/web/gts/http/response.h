@@ -1,7 +1,7 @@
 #ifndef GTS_HTTP_RESPONSE_H
 #define GTS_HTTP_RESPONSE_H
 
-#include <gts/http/global.h>
+#include <gts/http/type.h>
 #include <fmt/format.h>
 
 namespace gts { namespace http
@@ -25,7 +25,7 @@ namespace gts { namespace http
 
 class response_private;
 
-class GTSHTTP_API response
+class GTSWEB_API response
 {
 	GTS_DISABLE_COPY(response)
 
@@ -59,8 +59,6 @@ public:
 	response &operator=(response &&other);
 
 private:
-	response(const response&) = delete;
-	void operator=(const response&) = delete;
 	response_private *d_ptr;
 };
 
