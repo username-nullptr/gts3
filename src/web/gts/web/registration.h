@@ -64,22 +64,22 @@ public:
 		return _new_request_method<http_method...>(path, std::forward<Func>(func));
 	}
 
-	template <http::method...http_method, typename Func, typename T = decltype(std::declval<Func>()(std::declval<http::response>(), environments(), http::request())), long long U0=0>
+	template <http::method...http_method, typename Func, typename T = decltype(std::declval<Func>()(std::declval<http::response>(), environments(), http::request())), char U0=0, char U1=0>
 	registration &new_request_method(const std::string &path, Func &&func) {
 		return _new_request_method<http_method...>(path, std::forward<Func>(func));
 	}
 
-	template <http::method...http_method, typename Func, typename T = decltype(std::declval<Func>()(environments(), std::declval<http::response>(), http::request())), float U0=0>
+	template <http::method...http_method, typename Func, typename T = decltype(std::declval<Func>()(environments(), std::declval<http::response>(), http::request())), char U0=0, short U1=0>
 	registration &new_request_method(const std::string &path, Func &&func) {
 		return _new_request_method<http_method...>(path, std::forward<Func>(func));
 	}
 
-	template <http::method...http_method, typename Func, typename T = decltype(std::declval<Func>()(environments(), http::request(), std::declval<http::response>())), double U1=0>
+	template <http::method...http_method, typename Func, typename T = decltype(std::declval<Func>()(environments(), http::request(), std::declval<http::response>())), char U0=0, int U1=0>
 	registration &new_request_method(const std::string &path, Func &&func) {
 		return _new_request_method<http_method...>(path, std::forward<Func>(func));
 	}
 
-	template <http::method...http_method, typename Func, typename T = decltype(std::declval<Func>()(http::request(), environments(), std::declval<http::response>())), long double U1=0>
+	template <http::method...http_method, typename Func, typename T = decltype(std::declval<Func>()(http::request(), environments(), std::declval<http::response>())), char U0=0, long U1=0>
 	registration &new_request_method(const std::string &path, Func &&func) {
 		return _new_request_method<http_method...>(path, std::forward<Func>(func));
 	}
@@ -168,19 +168,19 @@ public:
 		}
 
 		template <http::method...http_method, typename Return, typename Env, typename Res, typename Req, typename T =
-				  decltype((std::declval<Class>().*std::declval<Return(Class::*)(Env, Res, Req)>())(environments(), std::declval<http::response>(), http::request())), long long U0=0>
+				  decltype((std::declval<Class>().*std::declval<Return(Class::*)(Env, Res, Req)>())(environments(), std::declval<http::response>(), http::request())), char U0=0, char U1=0>
 		class_ &new_request_method(const std::string &path, Return(Class::*func)(Env, Res, Req)) {
 			return _new_request_method<http_method...>(path, func);
 		}
 
 		template <http::method...http_method, typename Return, typename Env, typename Req, typename Res, typename T =
-				  decltype((std::declval<Class>().*std::declval<Return(Class::*)(Env, Req, Res)>())(environments(), http::request(), std::declval<http::response>())), float U0=0>
+				  decltype((std::declval<Class>().*std::declval<Return(Class::*)(Env, Req, Res)>())(environments(), http::request(), std::declval<http::response>())), char U0=0, short U1=0>
 		class_ &new_request_method(const std::string &path, Return(Class::*func)(Env, Req, Res)) {
 			return _new_request_method<http_method...>(path, func);
 		}
 
 		template <http::method...http_method, typename Return, typename Req, typename Env, typename Res, typename T =
-				  decltype((std::declval<Class>().*std::declval<Return(Class::*)(Req, Env, Res)>())(http::request(), environments(), std::declval<http::response>())), double U0=0>
+				  decltype((std::declval<Class>().*std::declval<Return(Class::*)(Req, Env, Res)>())(http::request(), environments(), std::declval<http::response>())), char U0=0, int U1=0>
 		class_ &new_request_method(const std::string &path, Return(Class::*func)(Req, Env, Res)) {
 			return _new_request_method<http_method...>(path, func);
 		}

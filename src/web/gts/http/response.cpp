@@ -125,6 +125,8 @@ void response::write(const std::string &body, bool close)
 void response::write_body(const std::string &body, bool close)
 {
 	m_impl->m_socket->write_some(body);
+	if( close )
+		m_impl->m_socket->close();
 }
 
 void response::close(bool force)
