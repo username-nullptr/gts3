@@ -18,28 +18,28 @@ public:
 	virtual ~tcp_socket();
 
 public:
-	virtual std::size_t write_some(const std::string &buf);
 	virtual std::size_t write_some(const std::string &buf, asio::error_code &error);
-	virtual std::size_t write_some(const void *buf, std::size_t size);
 	virtual std::size_t write_some(const void *buf, std::size_t size, asio::error_code &error);
-
-public:
-	virtual std::size_t read_some(std::string &buf);
 	virtual std::size_t read_some(std::string &buf, asio::error_code &error);
-	virtual std::size_t read_some(void *buf, std::size_t size);
 	virtual std::size_t read_some(void *buf, std::size_t size, asio::error_code &error);
 
 public:
-	virtual void async_write_some(const std::string &buf, std::function<void(std::size_t)>);
 	virtual void async_write_some(const std::string &buf, std::function<void(asio::error_code, std::size_t)>);
-	virtual void async_write_some(const void *buf, std::size_t size, std::function<void(std::size_t)>);
 	virtual void async_write_some(const void *buf, std::size_t size, std::function<void(asio::error_code, std::size_t)>);
+	virtual void async_read_some(std::string &buf, std::function<void(asio::error_code, std::size_t)>);
+	virtual void async_read_some(void *buf, std::size_t size, std::function<void(asio::error_code, std::size_t)>);
 
 public:
-	virtual void async_read_some(std::string &buf, std::function<void(std::size_t)>);
-	virtual void async_read_some(std::string &buf, std::function<void(asio::error_code, std::size_t)>);
-	virtual void async_read_some(void *buf, std::size_t size, std::function<void(std::size_t)>);
-	virtual void async_read_some(void *buf, std::size_t size, std::function<void(asio::error_code, std::size_t)>);
+	std::size_t write_some(const std::string &buf);
+	std::size_t write_some(const void *buf, std::size_t size);
+	std::size_t read_some(std::string &buf);
+	std::size_t read_some(void *buf, std::size_t size);
+
+public:
+	void async_write_some(const std::string &buf, std::function<void(std::size_t)>);
+	void async_write_some(const void *buf, std::size_t size, std::function<void(std::size_t)>);
+	void async_read_some(std::string &buf, std::function<void(std::size_t)>);
+	void async_read_some(void *buf, std::size_t size, std::function<void(std::size_t)>);
 
 public:
 	tcp::endpoint remote_endpoint(asio::error_code &error);

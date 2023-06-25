@@ -28,20 +28,28 @@ static std::unordered_map<std::string, std::pair<rttr::type, rttr::variant>> g_p
 
 void plugin_service::call()
 {
-	if( global_method_call(m_sio.url_name) or
-		global_method_call("/" + m_sio.url_name) or
-		global_method_call(m_sio.url_name + "/") or
-		global_method_call("/" + m_sio.url_name + "/") )
+	if( global_method_call(m_sio.url_name) or global_method_call("/" + m_sio.url_name) )
 		return ;
+
+	else if( m_sio.url_name[m_sio.url_name.size() - 1] != '/' )
+	{
+		if( global_method_call(m_sio.url_name + "/") or global_method_call("/" + m_sio.url_name + "/") )
+			return ;
+	}
 
 	auto it = g_plugin_obj_map.find("gts.web.plugin.class./");
 	if( it != g_plugin_obj_map.end() )
 	{
 		if( class_method_call(it->second.first, it->second.second, m_sio.url_name) or
-			class_method_call(it->second.first, it->second.second, "/" + m_sio.url_name) or
-			class_method_call(it->second.first, it->second.second, m_sio.url_name + "/") or
-			class_method_call(it->second.first, it->second.second, "/" + m_sio.url_name + "/") )
-		return ;
+			class_method_call(it->second.first, it->second.second, "/" + m_sio.url_name) )
+			return ;
+
+		else if( m_sio.url_name[m_sio.url_name.size() - 1] != '/' )
+		{
+			if( class_method_call(it->second.first, it->second.second, m_sio.url_name + "/") or
+				class_method_call(it->second.first, it->second.second, "/" + m_sio.url_name + "/") )
+				return ;
+		}
 	}
 
 	auto str_list = string_split(m_sio.url_name, "/");
@@ -63,10 +71,15 @@ void plugin_service::call()
 			continue;
 
 		else if( class_method_call(pair.first, pair.second, _url_name) or
-				 class_method_call(pair.first, pair.second, "/" + _url_name) or
-				 class_method_call(pair.first, pair.second, _url_name + "/") or
-				 class_method_call(pair.first, pair.second, "/" + _url_name + "/") )
+				 class_method_call(pair.first, pair.second, "/" + _url_name) )
 			return ;
+
+		else if( m_sio.url_name[m_sio.url_name.size() - 1] != '/' )
+		{
+			if( class_method_call(pair.first, pair.second, _url_name + "/") or
+				class_method_call(pair.first, pair.second, "/" + _url_name + "/") )
+				return ;
+		}
 	}
 	m_sio.return_to_null(http::hs_not_found);
 }

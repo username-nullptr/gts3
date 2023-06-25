@@ -7,7 +7,6 @@ set(log_sources
 set(log_headers
 	gts/log_global.h
 	gts/log_buffer.h
-	gts/log_operator.h
 	gts/log.h
 )
 

@@ -2,7 +2,7 @@
 #define GTS_LOG_H
 
 #include <gts/log_buffer.h>
-#include <gts/log_operator.h>
+#include <gts/fmt_formatter.h>
 
 namespace gts { namespace log
 {

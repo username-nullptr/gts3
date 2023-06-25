@@ -200,5 +200,9 @@ private:
 
 }} //namespace gts::web
 
+#ifndef GTS_REGISTRATION
+# define GTS_REGISTRATION  RTTR_REGISTRATION
+#endif //GTS_REGISTRATION
+
 
 #endif //GTS_WEB_PLUGIN_INTERFACE_H

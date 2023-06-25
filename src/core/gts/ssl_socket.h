@@ -22,27 +22,15 @@ public:
 	~ssl_socket() override;
 
 public:
-	std::size_t write_some(const std::string &buf) override;
 	std::size_t write_some(const std::string &buf, asio::error_code &error) override;
-	std::size_t write_some(const void *buf, std::size_t size) override;
 	std::size_t write_some(const void *buf, std::size_t size, asio::error_code &error) override;
-
-public:
-	std::size_t read_some(std::string &buf) override;
 	std::size_t read_some(std::string &buf, asio::error_code &error) override;
-	std::size_t read_some(void *buf, std::size_t size) override;
 	std::size_t read_some(void *buf, std::size_t size, asio::error_code &error) override;
 
 public:
-	void async_write_some(const std::string &buf, std::function<void(std::size_t)>) override;
 	void async_write_some(const std::string &buf, std::function<void(asio::error_code, std::size_t)>) override;
-	void async_write_some(const void *buf, std::size_t size, std::function<void(std::size_t)>) override;
 	void async_write_some(const void *buf, std::size_t size, std::function<void(asio::error_code, std::size_t)>) override;
-
-public:
-	void async_read_some(std::string &buf, std::function<void(std::size_t)>) override;
 	void async_read_some(std::string &buf, std::function<void(asio::error_code, std::size_t)>) override;
-	void async_read_some(void *buf, std::size_t size, std::function<void(std::size_t)>) override;
 	void async_read_some(void *buf, std::size_t size, std::function<void(asio::error_code, std::size_t)>) override;
 
 public:

@@ -26,6 +26,7 @@ set(core_headers
 	gts/tcp_socket.h
 	gts/ssl_socket.h
 	gts/registration.h
+	gts/fmt_formatter.h
 	app_info.h
 	process.h
 	json.h

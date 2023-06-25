@@ -1,4 +1,8 @@
 #include "tcp_socket.h"
+#include "gts/fmt_formatter.h"
+
+#include <fmt/format.h>
+#include <iostream>
 
 namespace gts
 {
@@ -15,51 +19,28 @@ tcp_socket::~tcp_socket()
 		delete m_sock;
 }
 
-std::size_t tcp_socket::write_some(const std::string &buf)
-{
-	return m_sock->write_some(asio::buffer(buf));
-}
-
 std::size_t tcp_socket::write_some(const std::string &buf, asio::error_code &error)
 {
+	m_sock->non_blocking(false);
 	return m_sock->write_some(asio::buffer(buf), error);
-}
-
-std::size_t tcp_socket::write_some(const void *buf, std::size_t size)
-{
-	return m_sock->write_some(asio::buffer(buf, size));
 }
 
 std::size_t tcp_socket::write_some(const void *buf, std::size_t size, asio::error_code &error)
 {
+	m_sock->non_blocking(false);
 	return m_sock->write_some(asio::buffer(buf, size), error);
-}
-
-std::size_t tcp_socket::read_some(std::string &buf)
-{
-	return m_sock->read_some(asio::buffer(buf));
 }
 
 std::size_t tcp_socket::read_some(std::string &buf, asio::error_code &error)
 {
+	m_sock->non_blocking(false);
 	return m_sock->read_some(asio::buffer(buf), error);
-}
-
-std::size_t tcp_socket::read_some(void *buf, std::size_t size)
-{
-	return m_sock->read_some(asio::buffer(buf, size));
 }
 
 std::size_t tcp_socket::read_some(void *buf, std::size_t size, asio::error_code &error)
 {
+	m_sock->non_blocking(false);
 	return m_sock->read_some(asio::buffer(buf, size), error);
-}
-
-void tcp_socket::async_write_some(const std::string &buf, std::function<void(std::size_t)> callback)
-{
-	m_sock->async_write_some(asio::buffer(buf), [callback](const asio::error_code&, std::size_t size){
-		callback(size);
-	});
 }
 
 void tcp_socket::async_write_some(const std::string &buf, std::function<void(asio::error_code, std::size_t)> callback)
@@ -67,23 +48,9 @@ void tcp_socket::async_write_some(const std::string &buf, std::function<void(asi
 	m_sock->async_write_some(asio::buffer(buf), callback);
 }
 
-void tcp_socket::async_write_some(const void *buf, std::size_t size, std::function<void(std::size_t)> callback)
-{
-	m_sock->async_write_some(asio::buffer(buf, size), [callback](const asio::error_code&, std::size_t size){
-		callback(size);
-	});
-}
-
 void tcp_socket::async_write_some(const void *buf, std::size_t size, std::function<void(asio::error_code, std::size_t)> callback)
 {
 	m_sock->async_write_some(asio::buffer(buf, size), callback);
-}
-
-void tcp_socket::async_read_some(std::string &buf, std::function<void(std::size_t)> callback)
-{
-	m_sock->async_read_some(asio::buffer(buf), [callback](const asio::error_code&, std::size_t size){
-		callback(size);
-	});
 }
 
 void tcp_socket::async_read_some(std::string &buf, std::function<void(asio::error_code, std::size_t)> callback)
@@ -91,16 +58,85 @@ void tcp_socket::async_read_some(std::string &buf, std::function<void(asio::erro
 	m_sock->async_read_some(asio::buffer(buf), callback);
 }
 
-void tcp_socket::async_read_some(void *buf, std::size_t size, std::function<void(std::size_t)> callback)
+void tcp_socket::async_read_some(void *buf, std::size_t size, std::function<void(asio::error_code, std::size_t)> callback)
 {
-	m_sock->async_read_some(asio::buffer(buf, size), [callback](const asio::error_code&, std::size_t size){
+	m_sock->async_read_some(asio::buffer(buf, size), callback);
+}
+
+std::size_t tcp_socket::write_some(const std::string &buf)
+{
+	asio::error_code error;
+	auto res = write_some(buf, error);
+	if( error )
+		std::cerr << fmt::format("*** Error: tcp_socket::write_some(std::string) error: {}", error) << std::endl;
+	return res;
+}
+
+std::size_t tcp_socket::write_some(const void *buf, std::size_t size)
+{
+	asio::error_code error;
+	auto res = write_some(buf, size, error);
+	if( error )
+		std::cerr << fmt::format("*** Error: tcp_socket::write_some(void*) error: {}", error) << std::endl;
+	return res;
+}
+
+std::size_t tcp_socket::read_some(std::string &buf)
+{
+	asio::error_code error;
+	auto res = read_some(buf, error);
+	if( error )
+		std::cerr << fmt::format("*** Error: tcp_socket::read_some(std::string) error: {}", error) << std::endl;
+	return res;
+}
+
+std::size_t tcp_socket::read_some(void *buf, std::size_t size)
+{
+	asio::error_code error;
+	auto res = read_some(buf, size, error);
+	if( error )
+		std::cerr << fmt::format("*** Error: tcp_socket::read_some(void*) error: {}", error) << std::endl;
+	return res;
+}
+
+void tcp_socket::async_write_some(const std::string &buf, std::function<void(std::size_t)> callback)
+{
+	async_write_some(buf, [callback](const asio::error_code &error, std::size_t size)
+	{
+		if( error )
+			std::cerr << fmt::format("*** Error: tcp_socket::async_write_some(std::string) error: {}", error) << std::endl;
 		callback(size);
 	});
 }
 
-void tcp_socket::async_read_some(void *buf, std::size_t size, std::function<void(asio::error_code, std::size_t)> callback)
+void tcp_socket::async_write_some(const void *buf, std::size_t size, std::function<void(std::size_t)> callback)
 {
-	m_sock->async_read_some(asio::buffer(buf, size), callback);
+	async_write_some(buf, size, [callback](const asio::error_code &error, std::size_t size)
+	{
+		if( error )
+			std::cerr << fmt::format("*** Error: tcp_socket::async_write_some(void*) error: {}", error) << std::endl;
+		callback(size);
+	});
+}
+
+void tcp_socket::async_read_some(std::string &buf, std::function<void(std::size_t)> callback)
+{
+	async_read_some(buf, [callback](const asio::error_code &error, std::size_t size)
+	{
+		if( error )
+			std::cerr << fmt::format("*** Error: tcp_socket::async_read_some(std::string) error: {}", error) << std::endl;
+		callback(size);
+	});
+}
+
+void tcp_socket::async_read_some(void *buf, std::size_t size, std::function<void(std::size_t)> callback)
+{
+	async_read_some(buf, size, [callback](const asio::error_code &error, std::size_t size)
+	{
+		if( error )
+			std::cerr << fmt::format("*** Error: tcp_socket::async_read_some(void*) error: {}", error) << std::endl;
+		callback(size);
+	});
 }
 
 tcp::endpoint tcp_socket::remote_endpoint(asio::error_code &error)

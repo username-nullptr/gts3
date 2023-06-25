@@ -180,5 +180,9 @@ public:
 
 } //namespace gts
 
+#ifndef GTS_REGISTRATION
+# define GTS_REGISTRATION  RTTR_REGISTRATION
+#endif //GTS_REGISTRATION
+
 
 #endif //GTS_REGISTRATION_H
