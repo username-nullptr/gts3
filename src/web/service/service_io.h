@@ -19,15 +19,9 @@ public:
 	static std::string resource_path();
 
 public:
-	void write_some(const char *buf);
-	void write_some(const char *buf, std::size_t size);
-	void write_some(const std::string &buf);
-
-public:
 	void return_to_null(http::status status = http::hs_ok);
 
 public:
-	tcp_socket_ptr socket;
 	http::request &request;
 	http::response response;
 	std::string url_name;

@@ -43,30 +43,14 @@ static std::string view_status()
 	return "web plugin: examples-plugin0: hello0\n";
 }
 
-static void new_request_0(tcp_socket_ptr socket)
+static void new_request_0(http::response &&response)
 {
-	static const std::string buf = "HTTP/1.1 200 OK\r\n"
-								   "content-length: 11\r\n"
-								   "content-type: text/plain; charset=utf-8\r\n"
-								   "connection: close\r\n"
-								   "\r\n"
-								   "hello world";
-	asio::error_code error;
-	socket->write_some(buf, error);
-	socket->close();
+	response.write("hello world");
 }
 
-static void new_request_1(tcp_socket_ptr socket)
+static void new_request_1(http::response &&response)
 {
-	static const std::string buf = "HTTP/1.1 200 OK\r\n"
-								   "content-length: 11\r\n"
-								   "content-type: text/plain; charset=utf-8\r\n"
-								   "connection: close\r\n"
-								   "\r\n"
-								   "HELLO WORLD";
-	asio::error_code error;
-	socket->write_some(buf, error);
-	socket->close();
+	response.write("HELLO WORLD");
 }
 
 }}} //namespace gts::web::business

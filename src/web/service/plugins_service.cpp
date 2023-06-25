@@ -21,7 +21,7 @@ namespace gts { namespace web
 plugin_service::plugin_service(service_io &sio) :
 	m_sio(sio)
 {
-	m_sio.socket->non_blocking(false);
+	m_sio.response.socket().non_blocking(false);
 }
 
 static std::unordered_map<std::string, std::pair<rttr::type, rttr::variant>> g_plugin_obj_map;
@@ -233,15 +233,15 @@ std::string plugin_service::view_status()
 static environments make_envs(service_io &sio)
 {
 	return environments{
-		{ "REQUEST_METHOD"   , http::method_string(sio.request.method)                },
-		{ "QUERY_STRING"     , sio.request.parameters_string                          },
-		{ "REMOTE_ADDR"      , sio.socket->remote_endpoint().address().to_string()    },
-		{ "GATEWAY_INTERFACE", "RTTR/" RTTR_VERSION_STR                               },
-		{ "SERVER_NAME"      , sio.socket->local_endpoint().address().to_string()     },
-		{ "SERVER_PORT"      , fmt::format("{}", sio.socket->local_endpoint().port()) },
-		{ "SERVER_PROTOCOL"  , "HTTP/" + sio.request.version                          },
-		{ "DOCUMENT_ROOT"    , service_io::resource_path()                            },
-		{ "SERVER_SOFTWARE"  , "GTS/1.0(GTS/" GTS_VERSION_STR ")"                     }
+		{ "REQUEST_METHOD"   , http::method_string(sio.request.method)                          },
+		{ "QUERY_STRING"     , sio.request.parameters_string                                    },
+		{ "REMOTE_ADDR"      , sio.response.socket().remote_endpoint().address().to_string()    },
+		{ "GATEWAY_INTERFACE", "RTTR/" RTTR_VERSION_STR                                         },
+		{ "SERVER_NAME"      , sio.response.socket().local_endpoint().address().to_string()     },
+		{ "SERVER_PORT"      , fmt::format("{}", sio.response.socket().local_endpoint().port()) },
+		{ "SERVER_PROTOCOL"  , "HTTP/" + sio.request.version                                    },
+		{ "DOCUMENT_ROOT"    , service_io::resource_path()                                      },
+		{ "SERVER_SOFTWARE"  , "GTS/1.0(GTS/" GTS_VERSION_STR ")"                               }
 	};
 }
 
@@ -260,26 +260,74 @@ bool plugin_service::global_method_call(const std::string &method_name)
 	auto _method_name = "gts.web.plugin.new_request." + method_name;
 
 	auto method = rttr::type::get_global_method
-				  (_method_name, {rttr::type::get<tcp_socket_ptr>()});
+				  (_method_name, {GTS_RTTR_TYPE(http::response)});
 	if( method.is_valid() )
 	{
-		_CHECK_HTTP_METHOD_GLOBAL_CALL(std::move(m_sio.socket));
+		_CHECK_HTTP_METHOD_GLOBAL_CALL(std::move(m_sio.response));
 		return true;
 	}
 
 	method = rttr::type::get_global_method
-			 (_method_name, {rttr::type::get<tcp_socket_ptr>(), rttr::type::get<http::request>()});
+			 (_method_name, {GTS_RTTR_TYPE(http::request), GTS_RTTR_TYPE(http::response)});
 	if( method.is_valid() )
 	{
-		_CHECK_HTTP_METHOD_GLOBAL_CALL(std::move(m_sio.socket), std::move(m_sio.request));
+		_CHECK_HTTP_METHOD_GLOBAL_CALL(std::move(m_sio.request), std::move(m_sio.response));
 		return true;
 	}
 
 	method = rttr::type::get_global_method
-			 (_method_name, {rttr::type::get<tcp_socket_ptr>(), rttr::type::get<http::request>(), rttr::type::get<environments>()});
+			 (_method_name, {GTS_RTTR_TYPE(http::response), GTS_RTTR_TYPE(http::request)});
 	if( method.is_valid() )
 	{
-		_CHECK_HTTP_METHOD_GLOBAL_CALL(std::move(m_sio.socket), std::move(m_sio.request), make_envs(m_sio));
+		_CHECK_HTTP_METHOD_GLOBAL_CALL(std::move(m_sio.response), std::move(m_sio.request));
+		return true;
+	}
+
+	method = rttr::type::get_global_method
+			 (_method_name, {GTS_RTTR_TYPE(http::request), GTS_RTTR_TYPE(http::response), GTS_RTTR_TYPE(environments)});
+	if( method.is_valid() )
+	{
+		_CHECK_HTTP_METHOD_GLOBAL_CALL(std::move(m_sio.request), std::move(m_sio.response), make_envs(m_sio));
+		return true;
+	}
+
+	method = rttr::type::get_global_method
+			 (_method_name, {GTS_RTTR_TYPE(http::response), GTS_RTTR_TYPE(http::request), GTS_RTTR_TYPE(environments)});
+	if( method.is_valid() )
+	{
+		_CHECK_HTTP_METHOD_GLOBAL_CALL(std::move(m_sio.response), std::move(m_sio.request), make_envs(m_sio));
+		return true;
+	}
+
+	method = rttr::type::get_global_method
+			 (_method_name, {GTS_RTTR_TYPE(http::response), GTS_RTTR_TYPE(environments), GTS_RTTR_TYPE(http::request)});
+	if( method.is_valid() )
+	{
+		_CHECK_HTTP_METHOD_GLOBAL_CALL(std::move(m_sio.response), make_envs(m_sio), std::move(m_sio.request));
+		return true;
+	}
+
+	method = rttr::type::get_global_method
+			 (_method_name, {GTS_RTTR_TYPE(environments), GTS_RTTR_TYPE(http::response), GTS_RTTR_TYPE(http::request)});
+	if( method.is_valid() )
+	{
+		_CHECK_HTTP_METHOD_GLOBAL_CALL(make_envs(m_sio), std::move(m_sio.response), std::move(m_sio.request));
+		return true;
+	}
+
+	method = rttr::type::get_global_method
+			 (_method_name, {GTS_RTTR_TYPE(environments), GTS_RTTR_TYPE(http::request), GTS_RTTR_TYPE(http::response)});
+	if( method.is_valid() )
+	{
+		_CHECK_HTTP_METHOD_GLOBAL_CALL(make_envs(m_sio), std::move(m_sio.request), std::move(m_sio.response));
+		return true;
+	}
+
+	method = rttr::type::get_global_method
+			 (_method_name, {GTS_RTTR_TYPE(http::request), GTS_RTTR_TYPE(environments), GTS_RTTR_TYPE(http::response)});
+	if( method.is_valid() )
+	{
+		_CHECK_HTTP_METHOD_GLOBAL_CALL(std::move(m_sio.request), make_envs(m_sio), std::move(m_sio.response));
 		return true;
 	}
 	return false;
@@ -302,24 +350,66 @@ bool plugin_service::class_method_call(rttr::type &type, rttr::variant &obj, con
 	auto _class_name = type.get_name().to_string();
 	auto _method_name = "new_request." + method_name;
 
-	auto method = type.get_method(_method_name, {rttr::type::get<tcp_socket_ptr>()});
+	auto method = type.get_method(_method_name, {GTS_RTTR_TYPE(http::response)});
 	if( method.is_valid() )
 	{
-		_CHECK_HTTP_METHOD_CLASS_CALL(std::move(m_sio.socket));
+		_CHECK_HTTP_METHOD_CLASS_CALL(std::move(m_sio.response));
 		return true;
 	}
 
-	method = type.get_method(_method_name, {rttr::type::get<tcp_socket_ptr>(), rttr::type::get<http::request>()});
+	method = type.get_method(_method_name, {GTS_RTTR_TYPE(http::request), GTS_RTTR_TYPE(http::response)});
 	if( method.is_valid() )
 	{
-		_CHECK_HTTP_METHOD_CLASS_CALL(std::move(m_sio.socket), std::move(m_sio.request));
+		_CHECK_HTTP_METHOD_CLASS_CALL(std::move(m_sio.request), std::move(m_sio.response));
 		return true;
 	}
 
-	method = type.get_method(_method_name, {rttr::type::get<tcp_socket_ptr>(), rttr::type::get<http::request>(), rttr::type::get<environments>()});
+	method = type.get_method(_method_name, {GTS_RTTR_TYPE(http::response), GTS_RTTR_TYPE(http::request)});
 	if( method.is_valid() )
 	{
-		_CHECK_HTTP_METHOD_CLASS_CALL(std::move(m_sio.socket), std::move(m_sio.request), make_envs(m_sio));
+		_CHECK_HTTP_METHOD_CLASS_CALL(std::move(m_sio.response), std::move(m_sio.request));
+		return true;
+	}
+
+	method = type.get_method(_method_name, {GTS_RTTR_TYPE(http::request), GTS_RTTR_TYPE(http::response), GTS_RTTR_TYPE(environments)});
+	if( method.is_valid() )
+	{
+		_CHECK_HTTP_METHOD_CLASS_CALL(std::move(m_sio.request), std::move(m_sio.response), make_envs(m_sio));
+		return true;
+	}
+
+	method = type.get_method(_method_name, {GTS_RTTR_TYPE(http::response), GTS_RTTR_TYPE(http::request), GTS_RTTR_TYPE(environments)});
+	if( method.is_valid() )
+	{
+		_CHECK_HTTP_METHOD_CLASS_CALL(std::move(m_sio.response), std::move(m_sio.request), make_envs(m_sio));
+		return true;
+	}
+
+	method = type.get_method(_method_name, {GTS_RTTR_TYPE(http::response), GTS_RTTR_TYPE(environments), GTS_RTTR_TYPE(http::request)});
+	if( method.is_valid() )
+	{
+		_CHECK_HTTP_METHOD_CLASS_CALL(std::move(m_sio.response), make_envs(m_sio), std::move(m_sio.request));
+		return true;
+	}
+
+	method = type.get_method(_method_name, {GTS_RTTR_TYPE(environments), GTS_RTTR_TYPE(http::response), GTS_RTTR_TYPE(http::request)});
+	if( method.is_valid() )
+	{
+		_CHECK_HTTP_METHOD_CLASS_CALL(make_envs(m_sio), std::move(m_sio.response), std::move(m_sio.request));
+		return true;
+	}
+
+	method = type.get_method(_method_name, {GTS_RTTR_TYPE(environments), GTS_RTTR_TYPE(http::request), GTS_RTTR_TYPE(http::response)});
+	if( method.is_valid() )
+	{
+		_CHECK_HTTP_METHOD_CLASS_CALL(make_envs(m_sio), std::move(m_sio.request), std::move(m_sio.response));
+		return true;
+	}
+
+	method = type.get_method(_method_name, {GTS_RTTR_TYPE(http::request), GTS_RTTR_TYPE(environments), GTS_RTTR_TYPE(http::response)});
+	if( method.is_valid() )
+	{
+		_CHECK_HTTP_METHOD_CLASS_CALL(std::move(m_sio.request), make_envs(m_sio), std::move(m_sio.response));
 		return true;
 	}
 	return false;

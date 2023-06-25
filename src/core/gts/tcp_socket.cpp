@@ -22,13 +22,31 @@ tcp_socket::~tcp_socket()
 std::size_t tcp_socket::write_some(const std::string &buf, asio::error_code &error)
 {
 	m_sock->non_blocking(false);
-	return m_sock->write_some(asio::buffer(buf), error);
+	return write_some(buf.c_str(), buf.size(), error);
 }
 
 std::size_t tcp_socket::write_some(const void *buf, std::size_t size, asio::error_code &error)
 {
 	m_sock->non_blocking(false);
-	return m_sock->write_some(asio::buffer(buf, size), error);
+	const char *cbuf = static_cast<const char*>(buf);
+	std::size_t counter = 0;
+
+	while( size > 0 )
+	{
+		auto res = m_sock->write_some(asio::buffer(cbuf, size), error);
+		if( error )
+		{
+			if( res > 0 )
+				counter += res;
+			break;
+		}
+		else
+			counter += res;
+
+		size -= res;
+		cbuf += res;
+	}
+	return counter;
 }
 
 std::size_t tcp_socket::read_some(std::string &buf, asio::error_code &error)

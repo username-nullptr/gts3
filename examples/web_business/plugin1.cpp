@@ -12,7 +12,7 @@ class GTS_DECL_EXPORT plugin1_0
 public:
 	std::shared_ptr<std::future<void>> init();
 	void exit();
-	void new_request(tcp_socket_ptr socket, http::request &&request, environments &&envs);
+	void new_request(http::request &&request, http::response &&response, environments &&envs);
 };
 
 std::shared_ptr<std::future<void>> plugin1_0::init()
@@ -32,34 +32,26 @@ void plugin1_0::exit()
 	std::cerr << "plugin1-0: exit task ..." << std::endl;
 }
 
-void plugin1_0::new_request(tcp_socket_ptr socket, http::request &&request, environments &&envs)
+void plugin1_0::new_request(http::request &&request, http::response &&response, environments &&envs)
 {
 	std::cerr << std::endl;
 
-	auto content = fmt::format("Ok!!!\npath = {}\n\n", request.path);
+	auto body = fmt::format("Ok!!!\npath = {}\n\n", request.path);
 
 	for(auto &para : request.parameters)
-		content += fmt::format("(p) {} = {}\n", para.first, para.second.to_string());
-	content += "\n";
+		body += fmt::format("(p) {} = {}\n", para.first, para.second.to_string());
+	body += "\n";
 
 	for(auto &para : request.headers)
-		content += fmt::format("(h) {} = {}\n", para.first, para.second);
-	content += "\n";
+		body += fmt::format("(h) {} = {}\n", para.first, para.second);
+	body += "\n";
 
 	for(auto &para : envs)
-		content += fmt::format("(e) {} = {}\n", para.first, para.second);
-	content += "\n";
+		body += fmt::format("(e) {} = {}\n", para.first, para.second);
+	body += "\n";
 
-	content.erase(content.size() - 2);
-	content = fmt::format("HTTP/1.1 200 OK\r\n"
-						  "content-length: {}\r\n"
-						  "content-type: text/plain; charset=utf-8\r\n"
-						  "connection: close\r\n"
-						  "\r\n", content.size()) + content;
-
-	asio::error_code error;
-	socket->write_some(content, error);
-	socket->close();
+	body.erase(body.size() - 2);
+	response.write(body);
 }
 
 class GTS_DECL_EXPORT plugin1_1
@@ -67,8 +59,8 @@ class GTS_DECL_EXPORT plugin1_1
 public:
 	std::shared_ptr<std::future<void>> init();
 	void exit();
-	void new_request_0(tcp_socket_ptr socket);
-	void new_request_1(tcp_socket_ptr socket);
+	void new_request_0(http::response &&response);
+	void new_request_1(http::response &&response);
 };
 
 std::shared_ptr<std::future<void>> plugin1_1::init()
@@ -88,30 +80,14 @@ void plugin1_1::exit()
 	std::cerr << "plugin1-1: exit task ..." << std::endl;
 }
 
-void plugin1_1::new_request_0(tcp_socket_ptr socket)
+void plugin1_1::new_request_0(http::response &&response)
 {
-	static const std::string str = "HTTP/1.1 200 OK\r\n"
-								   "content-length: 12\r\n"
-								   "content-type: text/plain; charset=utf-8\r\n"
-								   "connection: close\r\n"
-								   "\r\n"
-								   "plugin1-1::0";
-	asio::error_code error;
-	socket->write_some(str, error);
-	socket->close();
+	response.write("plugin1-1::0");
 }
 
-void plugin1_1::new_request_1(tcp_socket_ptr socket)
+void plugin1_1::new_request_1(http::response &&response)
 {
-	static const std::string str = "HTTP/1.1 200 OK\r\n"
-								   "content-length: 12\r\n"
-								   "content-type: text/plain; charset=utf-8\r\n"
-								   "connection: close\r\n"
-								   "\r\n"
-								   "PLUGIN1-1::1";
-	asio::error_code error;
-	socket->write_some(str, error);
-	socket->close();
+	response.write("plugin1-1::1");
 }
 
 static std::string view_status()

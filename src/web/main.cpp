@@ -85,24 +85,19 @@ GTS_DECL_EXPORT void exit()
 	g_pool = nullptr;
 }
 
-GTS_DECL_EXPORT void new_connection(tcp_socket_ptr socket)
-{
-	session::new_connection(std::move(socket));
-}
-
-GTS_DECL_EXPORT std::string view_status()
-{
-	return session::view_status();
-}
-
 }}} //namespace gts::web::plugin_main
-
-using namespace gts::web;
 
 RTTR_PLUGIN_REGISTRATION
 {
-	gts::registration(plugin_main::new_connection)
+	using namespace gts;
+	using namespace gts::web;
+
+	gts::registration([](tcp_socket_ptr socket){
+		session::new_connection(std::move(socket));
+	})
+	.view_status_method([]{
+		return session::view_status();
+	})
 			.init_method(plugin_main::init)
-			.exit_method(plugin_main::exit)
-			.view_status_method(plugin_main::view_status);
+			.exit_method(plugin_main::exit);
 }

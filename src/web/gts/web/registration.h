@@ -1,11 +1,9 @@
 #ifndef GTS_WEB_PLUGIN_INTERFACE_H
 #define GTS_WEB_PLUGIN_INTERFACE_H
 
+#include <gts/http.h>
 #include <fmt/format.h>
 #include <rttr/registration>
-#include <gts/http/request.h>
-#include <gts/web_global.h>
-#include <gts/tcp_socket.h>
 
 namespace gts { namespace web
 {
@@ -41,17 +39,47 @@ public:
 	}
 
 public:
-	template <http::method...http_method, typename Func, typename T = decltype(std::declval<Func>()(tcp_socket_ptr()))>
+	template <http::method...http_method, typename Func, typename T = decltype(std::declval<Func>()(std::declval<http::response>()))>
 	registration &new_request_method(const std::string &path, Func &&func) {
 		return _new_request_method<http_method...>(path, std::forward<Func>(func));
 	}
 
-	template <http::method...http_method, typename Func, typename T = decltype(std::declval<Func>()(tcp_socket_ptr(), http::request())), int U0=0>
+	template <http::method...http_method, typename Func, typename T = decltype(std::declval<Func>()(http::request(), std::declval<http::response>())), char U0=0>
 	registration &new_request_method(const std::string &path, Func &&func) {
 		return _new_request_method<http_method...>(path, std::forward<Func>(func));
 	}
 
-	template <http::method...http_method, typename Func, typename T = decltype(std::declval<Func>()(tcp_socket_ptr(), http::request(), environments())), char U0=0>
+	template <http::method...http_method, typename Func, typename T = decltype(std::declval<Func>()(std::declval<http::response>(), http::request())), short U0=0>
+	registration &new_request_method(const std::string &path, Func &&func) {
+		return _new_request_method<http_method...>(path, std::forward<Func>(func));
+	}
+
+	template <http::method...http_method, typename Func, typename T = decltype(std::declval<Func>()(http::request(), std::declval<http::response>(), environments())), int U0=0>
+	registration &new_request_method(const std::string &path, Func &&func) {
+		return _new_request_method<http_method...>(path, std::forward<Func>(func));
+	}
+
+	template <http::method...http_method, typename Func, typename T = decltype(std::declval<Func>()(std::declval<http::response>(), http::request(), environments())), long U0=0>
+	registration &new_request_method(const std::string &path, Func &&func) {
+		return _new_request_method<http_method...>(path, std::forward<Func>(func));
+	}
+
+	template <http::method...http_method, typename Func, typename T = decltype(std::declval<Func>()(std::declval<http::response>(), environments(), http::request())), long long U0=0>
+	registration &new_request_method(const std::string &path, Func &&func) {
+		return _new_request_method<http_method...>(path, std::forward<Func>(func));
+	}
+
+	template <http::method...http_method, typename Func, typename T = decltype(std::declval<Func>()(environments(), std::declval<http::response>(), http::request())), float U0=0>
+	registration &new_request_method(const std::string &path, Func &&func) {
+		return _new_request_method<http_method...>(path, std::forward<Func>(func));
+	}
+
+	template <http::method...http_method, typename Func, typename T = decltype(std::declval<Func>()(environments(), http::request(), std::declval<http::response>())), double U1=0>
+	registration &new_request_method(const std::string &path, Func &&func) {
+		return _new_request_method<http_method...>(path, std::forward<Func>(func));
+	}
+
+	template <http::method...http_method, typename Func, typename T = decltype(std::declval<Func>()(http::request(), environments(), std::declval<http::response>())), long double U1=0>
 	registration &new_request_method(const std::string &path, Func &&func) {
 		return _new_request_method<http_method...>(path, std::forward<Func>(func));
 	}
@@ -103,21 +131,57 @@ public:
 		}
 
 	public:
-		template <http::method...http_method, typename Return, typename Sock, typename T =
-				  decltype((std::declval<Class>().*std::declval<Return(Class::*)(Sock)>())(tcp_socket_ptr()))>
-		class_ &new_request_method(const std::string &path, Return(Class::*func)(Sock)) {
+		template <http::method...http_method, typename Return, typename Res, typename T =
+				  decltype((std::declval<Class>().*std::declval<Return(Class::*)(Res)>())(std::declval<http::response>()))>
+		class_ &new_request_method(const std::string &path, Return(Class::*func)(Res)) {
 			return _new_request_method<http_method...>(path, func);
 		}
 
-		template <http::method...http_method, typename Return, typename Sock, typename Req, typename T =
-				  decltype((std::declval<Class>().*std::declval<Return(Class::*)(Sock, Req)>())(tcp_socket_ptr(), http::request()))>
-		class_ &new_request_method(const std::string &path, Return(Class::*func)(Sock, Req)) {
+		template <http::method...http_method, typename Return, typename Req, typename Res, typename T =
+				  decltype((std::declval<Class>().*std::declval<Return(Class::*)(Req, Res)>())(http::request(), std::declval<http::response>()))>
+		class_ &new_request_method(const std::string &path, Return(Class::*func)(Req, Res)) {
 			return _new_request_method<http_method...>(path, func);
 		}
 
-		template <http::method...http_method, typename Return, typename Sock, typename Req, typename Env, typename T =
-				  decltype((std::declval<Class>().*std::declval<Return(Class::*)(Sock, Req, Env)>())(tcp_socket_ptr(), http::request(), environments()))>
-		class_ &new_request_method(const std::string &path, Return(Class::*func)(Sock, Req, Env)) {
+		template <http::method...http_method, typename Return, typename Res, typename Req, typename T =
+				  decltype((std::declval<Class>().*std::declval<Return(Class::*)(Res, Req)>())(std::declval<http::response>(), http::request())), char U0=0>
+		class_ &new_request_method(const std::string &path, Return(Class::*func)(Res, Req)) {
+			return _new_request_method<http_method...>(path, func);
+		}
+
+		template <http::method...http_method, typename Return, typename Req, typename Res, typename Env, typename T =
+				  decltype((std::declval<Class>().*std::declval<Return(Class::*)(Req, Res, Env)>())(http::request(), std::declval<http::response>(), environments())), short U0=0>
+		class_ &new_request_method(const std::string &path, Return(Class::*func)(Req, Res, Env)) {
+			return _new_request_method<http_method...>(path, func);
+		}
+
+		template <http::method...http_method, typename Return, typename Res, typename Req, typename Env, typename T =
+				  decltype((std::declval<Class>().*std::declval<Return(Class::*)(Res, Req, Env)>())(std::declval<http::response>(), http::request(), environments())), int U0=0>
+		class_ &new_request_method(const std::string &path, Return(Class::*func)(Res, Req, Env)) {
+			return _new_request_method<http_method...>(path, func);
+		}
+
+		template <http::method...http_method, typename Return, typename Res, typename Env, typename Req, typename T =
+				  decltype((std::declval<Class>().*std::declval<Return(Class::*)(Res, Env, Req)>())(std::declval<http::response>(), environments(), http::request())), long U0=0>
+		class_ &new_request_method(const std::string &path, Return(Class::*func)(Res, Env, Req)) {
+			return _new_request_method<http_method...>(path, func);
+		}
+
+		template <http::method...http_method, typename Return, typename Env, typename Res, typename Req, typename T =
+				  decltype((std::declval<Class>().*std::declval<Return(Class::*)(Env, Res, Req)>())(environments(), std::declval<http::response>(), http::request())), long long U0=0>
+		class_ &new_request_method(const std::string &path, Return(Class::*func)(Env, Res, Req)) {
+			return _new_request_method<http_method...>(path, func);
+		}
+
+		template <http::method...http_method, typename Return, typename Env, typename Req, typename Res, typename T =
+				  decltype((std::declval<Class>().*std::declval<Return(Class::*)(Env, Req, Res)>())(environments(), http::request(), std::declval<http::response>())), float U0=0>
+		class_ &new_request_method(const std::string &path, Return(Class::*func)(Env, Req, Res)) {
+			return _new_request_method<http_method...>(path, func);
+		}
+
+		template <http::method...http_method, typename Return, typename Req, typename Env, typename Res, typename T =
+				  decltype((std::declval<Class>().*std::declval<Return(Class::*)(Req, Env, Res)>())(http::request(), environments(), std::declval<http::response>())), double U0=0>
+		class_ &new_request_method(const std::string &path, Return(Class::*func)(Req, Env, Res)) {
 			return _new_request_method<http_method...>(path, func);
 		}
 

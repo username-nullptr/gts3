@@ -15,16 +15,28 @@ ssl_socket::~ssl_socket()
 	m_sock = nullptr;
 }
 
-std::size_t ssl_socket::write_some(const std::string &buf, asio::error_code &error)
-{
-	m_sock->non_blocking(false);
-	return m_ssl_sock->write_some(asio::buffer(buf), error);
-}
-
 std::size_t ssl_socket::write_some(const void *buf, std::size_t size, asio::error_code &error)
 {
 	m_sock->non_blocking(false);
-	return m_ssl_sock->write_some(asio::buffer(buf, size), error);
+	const char *cbuf = static_cast<const char*>(buf);
+	std::size_t counter = 0;
+
+	while( size > 0 )
+	{
+		auto res = m_ssl_sock->write_some(asio::buffer(cbuf, size), error);
+		if( error )
+		{
+			if( res > 0 )
+				counter += res;
+			break;
+		}
+		else
+			counter += res;
+
+		size -= res;
+		cbuf += res;
+	}
+	return counter;
 }
 
 std::size_t ssl_socket::read_some(std::string &buf, asio::error_code &error)

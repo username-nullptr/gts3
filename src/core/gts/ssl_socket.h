@@ -22,7 +22,6 @@ public:
 	~ssl_socket() override;
 
 public:
-	std::size_t write_some(const std::string &buf, asio::error_code &error) override;
 	std::size_t write_some(const void *buf, std::size_t size, asio::error_code &error) override;
 	std::size_t read_some(std::string &buf, asio::error_code &error) override;
 	std::size_t read_some(void *buf, std::size_t size, asio::error_code &error) override;

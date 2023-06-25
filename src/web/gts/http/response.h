@@ -1,6 +1,7 @@
 #ifndef GTS_HTTP_RESPONSE_H
 #define GTS_HTTP_RESPONSE_H
 
+#include <gts/tcp_socket.h>
 #include <gts/http/type.h>
 #include <fmt/format.h>
 
@@ -23,17 +24,17 @@ namespace gts { namespace http
 	>
 #endif //c++2017
 
-class response_private;
+class response_impl;
 
 class GTSWEB_API response
 {
 	GTS_DISABLE_COPY(response)
 
 public:
-	explicit response(http::status status = hs_ok);
-	explicit response(const http::headers &headers, http::status status = hs_ok);
-	explicit response(const std::string &v, http::status status = hs_ok);
-	response(const std::string &v, const http::headers &headers, http::status status = hs_ok);
+	explicit response(tcp_socket_ptr socket, http::status status = hs_ok);
+	response(tcp_socket_ptr socket, const http::headers &headers, http::status status = hs_ok);
+	response(tcp_socket_ptr socket, const std::string &v, http::status status = hs_ok);
+	response(tcp_socket_ptr socket, const std::string &v, const http::headers &headers, http::status status = hs_ok);
 
 public:
 	response(response &&other);
@@ -55,11 +56,30 @@ public:
 	http::status status() const;
 
 public:
-	std::string to_string(bool end = true) const;
+	void write(const void *body, std::size_t size, bool close = false);
+	void write(const std::string &body = "", bool close = false);
+
+public:
+	void write_body(const void *body, std::size_t size, bool close = false);
+	void write_body(const std::string &body, bool close = false);
+
+public:
+	template <typename...Args>
+	void write(fmt::format_string<Args...> fmt, Args&&...args);
+
+	template <typename...Args>
+	void write_body(fmt::format_string<Args...> fmt, Args&&...args);
+
+public:
+	void close(bool force = false);
+	const tcp_socket &socket() const;
+	tcp_socket &socket();
+
+public:
 	response &operator=(response &&other);
 
 private:
-	response_private *d_ptr;
+	response_impl *m_impl;
 };
 
 inline void response::set_headers(const http::headers &headers)
@@ -77,6 +97,28 @@ void response::set_header(const std::string &key, fmt::format_string<Args...> va
 _GTS_HTTP_RESPONSE_NOT_STRING response::set_header(const std::string &key, T &&value)
 {
 	set_header(key, fmt::format("{}", std::forward<T>(value)));
+}
+
+inline void response::write(const void *body, std::size_t size, bool close)
+{
+	write(std::string(static_cast<const char*>(body), size), close);
+}
+
+inline void response::write_body(const void *body, std::size_t size, bool close)
+{
+	write_body(std::string(static_cast<const char*>(body), size), close);
+}
+
+template <typename...Args>
+void response::write(fmt::format_string<Args...> value_fmt, Args&&...args)
+{
+	write(fmt::format(value_fmt, std::forward<Args>(args)...));
+}
+
+template <typename...Args>
+void response::write_body(fmt::format_string<Args...> value_fmt, Args&&...args)
+{
+	write_body(fmt::format(value_fmt, std::forward<Args>(args)...));
 }
 
 }} //namespace gts::http

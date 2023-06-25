@@ -70,6 +70,9 @@ typedef uint64_t  address_bits_wide;
 typedef uint32_t  address_bits_wide;
 #endif // 32bit & 64bit
 
+#define GTS_RTTR_TYPE(_type)          rttr::type::get<_type>()
+#define GTS_RTTR_TYPE_BY_NAME(_name)  rttr::type::get_by_name(_name)
+
 #define GTS_DISABLE_COPY(_class) \
 	explicit _class(const _class&) = delete; \
 	void operator=(const _class&) = delete;

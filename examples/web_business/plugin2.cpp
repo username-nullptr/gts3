@@ -1,5 +1,4 @@
 #include <gts/registration.h>
-#include <gts/tcp_socket.h>
 #include <gts/web.h>
 
 #include <iostream>
@@ -29,17 +28,9 @@ static std::string view_status()
 	return "web plugin: examples-plugin2: hello2\n";
 }
 
-void new_request_0(tcp_socket_ptr socket)
+void new_request_0(http::response &&response)
 {
-	asio::error_code error;
-	socket->write_some("HTTP/1.1 200 OK\r\n"
-					   "content-length: 14\r\n"
-					   "content-type: text/plain; charset=utf-8\r\n"
-					   "connection: close\r\n"
-					   "\r\n"
-					   "plugin2-global"
-					   , error);
-	socket->close();
+	response.write("plugin2-global");
 }
 
 class GTS_DECL_EXPORT plugin2
@@ -47,8 +38,8 @@ class GTS_DECL_EXPORT plugin2
 public:
 	std::shared_ptr<std::future<void>> init();
 	void exit();
-	void new_request_0(tcp_socket_ptr socket);
-	void new_request_1(tcp_socket_ptr socket);
+	void new_request_0(http::response &&response);
+	void new_request_1(http::response &&response);
 };
 
 std::shared_ptr<std::future<void>> plugin2::init()
@@ -68,32 +59,17 @@ void plugin2::exit()
 	std::cerr << "plugin2: exit task ..." << std::endl;
 }
 
-void plugin2::new_request_0(tcp_socket_ptr socket)
+void plugin2::new_request_0(http::response &&response)
 {
-	asio::error_code error;
-	socket->write_some("HTTP/1.1 200 OK\r\n"
-					   "content-length: 9\r\n"
-					   "content-type: text/plain; charset=utf-8\r\n"
-					   "connection: close\r\n"
-					   "\r\n"
-					   "plugin2-0"
-					   , error);
-	socket->close();
+	response.write("plugin2-0");
 }
 
-void plugin2::new_request_1(tcp_socket_ptr socket)
+void plugin2::new_request_1(http::response &&response)
 {
-	asio::error_code error;
-	socket->write_some("HTTP/1.1 200 OK\r\n"
-					   "content-length: 9\r\n"
-					   "content-type: text/plain; charset=utf-8\r\n"
-					   "connection: close\r\n"
-					   "\r\n"
-					   "plugin2-1"
-					   , error);
-	socket->close();
+	response.write("plugin2-1");
 }
 
+#if 0
 static void intercept(tcp_socket_ptr socket)
 {
 	asio::error_code error;
@@ -106,6 +82,7 @@ static void intercept(tcp_socket_ptr socket)
 					   , error);
 	socket->close();
 }
+#endif
 
 }}} //namespace gts::web::business
 
@@ -126,10 +103,12 @@ RTTR_PLUGIN_REGISTRATION
 			.new_request_method<GET>("subsub", &business::plugin2::new_request_0)
 			.new_request_method<GET>("subsub/test", &business::plugin2::new_request_1);
 
+#if 0
 	for(auto &pair : gts::get_site_infos())
 	{
 		auto &info = pair.second;
 		if( not info.universal )
 			gts::registration(business::intercept, info.port);
 	}
+#endif
 }
