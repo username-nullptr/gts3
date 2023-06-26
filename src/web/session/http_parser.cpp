@@ -106,9 +106,12 @@ bool http_parser::state_handler_waiting_request(const std::string &line_buf)
 		}
 	}
 
-	std::unique(m_cache->path.begin(), m_cache->path.end(), [](char c0, char c1){
+	auto n_it = std::unique(m_cache->path.begin(), m_cache->path.end(), [](char c0, char c1){
 		return c0 == c1 and c0 == '/';
 	});
+	if( n_it != m_cache->path.end() )
+		m_cache->path.erase(n_it, m_cache->path.end());
+
 	m_state = reading_headers;
 	return true;
 }

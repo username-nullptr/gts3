@@ -64,10 +64,8 @@ namespace gts
 
 #if defined(_WIN64) || defined(__x86_64__) || defined(__arm64__) || defined(__aarch64__)
 # define GTS_OS_64BIT
-typedef uint64_t  address_bits_wide;
 #else
 # define _OS_32BIT
-typedef uint32_t  address_bits_wide;
 #endif // 32bit & 64bit
 
 #define GTS_RTTR_TYPE(_type)          rttr::type::get<_type>()

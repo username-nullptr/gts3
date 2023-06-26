@@ -22,9 +22,8 @@ public:
 	static std::string view_status();
 
 private:
-	bool global_method_call(const std::string &method_name);
-	bool class_method_call(rttr::type &type, rttr::variant &obj, const std::string &method_name);
-	std::pair<rttr::type, rttr::variant> &find_plugin_obj(const std::string &class_name);
+	void global_method_call(const rttr::method &method);
+	void class_method_call(rttr::method &method, rttr::variant &obj);
 
 private:
 	service_io &m_sio;
