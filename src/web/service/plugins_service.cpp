@@ -28,10 +28,11 @@ static std::unordered_map<std::string, std::pair<rttr::type, rttr::variant>> g_p
 
 void plugin_service::call()
 {
-    if( m_sio.url_name.empty() )
-        return m_sio.return_to_null(http::hs_not_found);
-    else if( m_sio.url_name[m_sio.url_name.size() - 1] == '/' )
-        m_sio.url_name.erase(m_sio.url_name.size() - 1);
+	if( m_sio.url_name.empty() )
+		return m_sio.return_to_null(http::hs_not_found);
+
+	else if( m_sio.url_name[m_sio.url_name.size() - 1] == '/' )
+		m_sio.url_name.erase(m_sio.url_name.size() - 1);
 
 	if( global_method_call(m_sio.url_name) or
         global_method_call(m_sio.url_name + "/") or

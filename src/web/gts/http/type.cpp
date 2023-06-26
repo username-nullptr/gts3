@@ -101,8 +101,7 @@ gts::http::method from_method_string(const std::string &m)
 	else if( m == "OPTIONS" ) return OPTIONS;
 	else if( m == "CONNECT" ) return CONNECT;
 	else if( m == "TRACH"   ) return TRACH;
-	assert(false);
-	return GET;
+	return METHOD_UNKNOWN;
 }
 
 }} //namespace gts::http

@@ -80,6 +80,7 @@ typedef std::unordered_map<std::string, rttr::variant>  parameters;
 
 enum method
 {
+	METHOD_UNKNOWN = 0,
 	GET     = 0x01,
 	PUT     = 0x02,
 	POST    = 0x04,

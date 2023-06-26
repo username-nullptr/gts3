@@ -65,10 +65,10 @@ public:
 
 public:
 	template <typename...Args>
-	void write(fmt::format_string<Args...> fmt, Args&&...args);
+	void fmt_write(fmt::format_string<Args...> fmt, Args&&...args);
 
 	template <typename...Args>
-	void write_body(fmt::format_string<Args...> fmt, Args&&...args);
+	void fmt_write_body(fmt::format_string<Args...> fmt, Args&&...args);
 
 public:
 	void close(bool force = false);
@@ -110,13 +110,13 @@ inline void response::write_body(const void *body, std::size_t size, bool close)
 }
 
 template <typename...Args>
-void response::write(fmt::format_string<Args...> value_fmt, Args&&...args)
+void response::fmt_write(fmt::format_string<Args...> value_fmt, Args&&...args)
 {
 	write(fmt::format(value_fmt, std::forward<Args>(args)...));
 }
 
 template <typename...Args>
-void response::write_body(fmt::format_string<Args...> value_fmt, Args&&...args)
+void response::fmt_write_body(fmt::format_string<Args...> value_fmt, Args&&...args)
 {
 	write_body(fmt::format(value_fmt, std::forward<Args>(args)...));
 }

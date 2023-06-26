@@ -64,7 +64,6 @@ std::shared_ptr<request> http_parser::write(const std::string &data)
 bool http_parser::state_handler_waiting_request(const std::string &line_buf)
 {
 	auto request_line_parts = string_split(line_buf, ' ');
-
 	if( request_line_parts.size() != 3 or not starts_with(to_upper(request_line_parts[2]), "HTTP/") )
 	{
 		log_info("Invalid request line.");
@@ -72,10 +71,18 @@ bool http_parser::state_handler_waiting_request(const std::string &line_buf)
 		return false;
 	}
 
+	auto method = from_method_string(request_line_parts[0]);
+	if( method == METHOD_UNKNOWN )
+	{
+		log_info("Invalid http method.");
+		m_buffer.clear();
+		return false;
+	}
+
 	if( m_cache == nullptr )
 		m_cache = new request();
 
-	m_cache->method  = from_method_string(request_line_parts[0]);
+	m_cache->method  = method;
 	m_cache->version = request_line_parts[2].substr(5,3);
 
 	auto resource_line = from_percent_encoding(request_line_parts[1]);
