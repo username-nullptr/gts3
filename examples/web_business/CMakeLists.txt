@@ -55,5 +55,5 @@ install(TARGETS login DESTINATION cgi)
 install(TARGETS upload DESTINATION cgi)
 
 install(TARGETS plugin0 DESTINATION business_plugins)
-#install(TARGETS plugin1 DESTINATION business_plugins)
-#install(TARGETS plugin2 DESTINATION business_plugins)
+install(TARGETS plugin1 DESTINATION business_plugins)
+install(TARGETS plugin2 DESTINATION business_plugins)
