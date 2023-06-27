@@ -7,15 +7,18 @@
 #include "application.h"
 #include "app_info.h"
 #include "global.h"
-#include "json.h"
 
+#include <nlohmann/json.hpp>
 #include <cppfilesystem>
 #include <algorithm>
 #include <iostream>
+#include <fstream>
 #include <cctype>
 
 namespace gts
 {
+
+using njson = nlohmann::json;
 
 namespace ip = asio::ip;
 
@@ -102,11 +105,14 @@ void tcp_server::start()
 	}
 	json_file = appinfo::absolute_path(json_file);
 
-	rapidjson::Document root_object;
-	auto errstr = rapidjson::from_file(json_file, root_object);
+	if( not fs::exists(json_file) )
+		log_fatal("Sites json file is not exists.");
 
-	if( not errstr.empty() )
-		log_fatal("Json file read failed: {}.", errstr);
+	std::ifstream file(json_file);
+	auto json = njson::parse(file, nullptr, false);
+
+	if( json.is_null() )
+		log_fatal("Sites json file read error.");
 
 	m_buffer_size = READ_CONFIG(int, SINI_GTS_TCP_BUF_SIZE, m_buffer_size);
 	if( m_buffer_size < 1024 )
@@ -114,55 +120,51 @@ void tcp_server::start()
 
 	auto &si_map = server_get_site_infos();
 
-	for(auto it=root_object.MemberBegin(); it!=root_object.MemberEnd(); ++it)
+	for(auto &it : json.items())
 	{
-		try {
-			auto pair = si_map.emplace(it->name.GetString(), site_info());
-			if( pair.second == false )
-			{
-				log_error("Site '{}' exists.", pair.first->first);
-				continue;
-			}
+		auto &name = it.key();
+		auto pair = si_map.emplace(name, site_info());
 
-			auto &info = pair.first->second;
-			auto obj = it->value.GetObject();
-
-			auto it2 = obj.FindMember("address");
-			if( it2 == obj.MemberEnd() )
-				throw;
-			info.addr = to_lower(it2->value.GetString());
-
-			it2 = obj.FindMember("port");
-			if( it2 == obj.MemberEnd() )
-				throw;
-			info.port = it2->value.GetInt();
-
-			it2 = obj.FindMember("universal");
-			if( it2 == obj.MemberEnd() )
-				info.universal = true;
-			else
-				info.universal = it2->value.GetBool();
-
-			it2 = obj.FindMember("ssl");
-			if( it2 != obj.MemberEnd() )
-#ifdef GTS_ENABLE_SSL
-				info.ssl = it2->value.GetBool();
-			else
-				info.ssl = false;
-#else //no ssl
-			{
-				if( it2->value.GetBool() )
-				{
-					log_warning("Site '{}': ssl is disabled, if necessary, please recompile GTS server"
-								" (cmake -DENABLE_SSL -DOpenSSL_DIR)", pair.first->first);
-				}
-			}
-#endif //ssl
-		}
-		catch(...) {
-			log_warning("Sites config format(json) error.");
+		if( pair.second == false )
+		{
+			log_error("Site '{}' exists.", pair.first->first);
 			continue;
 		}
+		auto &info = pair.first->second;
+		auto &obj = it.value();
+
+		if( obj.contains("address") )
+			info.addr = to_lower(obj["address"].get<std::string>());
+		else
+		{
+			log_error("Sites json: {}: address is null. (default set: ipv4)", name);
+			info.addr = "ipv4";
+		}
+
+		if( obj.contains("port") )
+			info.port = obj["port"].get<int>();
+		else
+			log_fatal("Sites json: {}: port is null.", name);
+
+		if( obj.contains("universal") )
+			info.universal = obj["universal"].get<bool>();
+		else
+			info.universal = true;
+
+		if( obj.contains("ssl") )
+#ifdef GTS_ENABLE_SSL
+			info.ssl = obj["ssl"].get<bool>();
+		else
+			info.ssl = false;
+#else //no ssl
+		{
+			if( obj["ssl"].get<bool>() )
+			{
+				log_warning("Site '{}': ssl is disabled, if necessary, please recompile GTS server"
+							" (cmake -DENABLE_SSL -DOpenSSL_DIR)", pair.first->first);
+			}
+		}
+#endif //ssl
 	}
 	plugin_call::init(settings::global_instance().file_name());
 
@@ -178,7 +180,10 @@ void tcp_server::start()
 
 		if( site->start() )
 		{
-			log_info("Site '{}' start ...", pair.first);
+			auto &info = pair.second;
+			log_info("Site '{}' start ...\n"
+					 "    addr: '{}';  port: {};  universal: {};  ssl: {}",
+					 pair.first, info.addr, info.port, info.universal, info.ssl);
 			m_sites.emplace(std::move(pair.first), std::move(site));
 		}
 		else
@@ -258,7 +263,7 @@ tcp_server::basic_site::basic_site(tcp_server *q_ptr, asio::io_context &io, cons
 		m_endpoint = tcp::endpoint(ip::make_address(info.addr, error), info.port);
 		if( error )
 		{
-			log_error("Invalid bind address.");
+			log_error("Site: invalid bind address.");
 			m_endpoint = tcp::endpoint(tcp::v4(), info.port);
 		}
 	}

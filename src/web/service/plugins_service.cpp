@@ -1,6 +1,5 @@
 #include "plugins_service.h"
 #include "app_info.h"
-#include "json.h"
 
 #include "service/service_io.h"
 #include "gts/web/registration.h"
@@ -9,6 +8,7 @@
 #include "gts/settings.h"
 #include "gts/log.h"
 
+#include <nlohmann/json.hpp>
 #include <rttr/library.h>
 #include <cppfilesystem>
 #include <iostream>
@@ -18,11 +18,15 @@
 namespace gts { namespace web
 {
 
+using njson = nlohmann::json;
+
 plugin_service::plugin_service(service_io &sio) :
 	m_sio(sio)
 {
 	m_sio.response.socket().non_blocking(false);
 }
+
+static std::unordered_map<rttr::type::type_id, rttr::variant> g_obj_hash;
 
 void plugin_service::call()
 {
@@ -42,7 +46,7 @@ void plugin_service::call()
 
 	if( ss.class_type.is_valid() )
 	{
-		auto &obj = registration::g_obj_hash[ss.class_type.get_id()];
+		auto &obj = g_obj_hash[ss.class_type.get_id()];
 		return class_method_call(ss.method, obj);
 	}
 	global_method_call(ss.method);
@@ -87,23 +91,29 @@ void plugin_service::init()
 
 	if( json_file.empty() )
 		return ;
+
 	json_file = appinfo::absolute_path(json_file);
-
-	rapidjson::Document json_object;
-	auto errstr = rapidjson::from_file(json_file, json_object);
-
-	if( not errstr.empty() )
+	if( not fs::exists(json_file) )
 	{
-		log_error("Json file read failed: {}.", errstr);
+		log_error("Web plugins json file is not exists.");
+		return ;
+	}
+
+	std::ifstream file(json_file);
+	auto json = njson::parse(file, nullptr, false);
+
+	if( json.is_null() )
+	{
+		log_error("Web plugins json file read error.");
 		return ;
 	}
 	auto json_file_path = file_path(json_file);
 
-	for(auto it=json_object.MemberBegin(); it!=json_object.MemberEnd(); ++it)
+	for(auto &it : json.items())
 	{
 		std::string file_name;
 		try {
-			std::string file_path = it->value.GetString();
+			std::string file_path = it.value().get<std::string>();
 			if( not ends_with(file_path, "/") )
 				file_path += "/";
 
@@ -111,9 +121,9 @@ void plugin_service::init()
 				file_path = json_file_path + file_path;
 
 #ifdef _WINDOWS
-			file_name = it->name.GetString() + std::string(".dll");
+			file_name = it.key() + std::string(".dll");
 #elif defined(__unix__)
-			file_name = std::string("lib") + it->name.GetString() + ".so";
+			file_name = std::string("lib") + it.key() + ".so";
 #else
 			file_name += ".???";
 #endif
@@ -153,7 +163,7 @@ void plugin_service::init()
 			if( method.is_valid() )
 				call_init(method, obj, futures);
 
-			registration::g_obj_hash.emplace(ss.class_type.get_id(), std::move(obj));
+			g_obj_hash.emplace(ss.class_type.get_id(), std::move(obj));
 		}
 	}
 	for(auto &future : futures)
@@ -171,7 +181,7 @@ void plugin_service::exit()
 			if( not ss.class_type.is_valid() )
 				continue;
 
-			auto &obj = registration::g_obj_hash[ss.class_type.get_id()];
+			auto &obj = g_obj_hash[ss.class_type.get_id()];
 			auto method = ss.class_type.get_method(fmt::format("exit.{}", ss.class_type.get_id()));
 
 			if( method.is_valid() )
@@ -184,10 +194,9 @@ void plugin_service::exit()
 		if( starts_with(method.get_name().to_string(), "gts.web.plugin.exit.") )
 			call_exit(method, rttr::instance(), futures);
 	}
-
 	for(auto &future : futures)
 		future->wait();
-	registration::g_obj_hash.clear();
+	g_obj_hash.clear();
 }
 
 std::string plugin_service::view_status()
@@ -197,6 +206,20 @@ std::string plugin_service::view_status()
 	{
 		if( starts_with(method.get_name().to_string(), "gts.web.plugin.view_status.") and method.get_return_type() == rttr::type::get<std::string>() )
 			result += method.invoke({}).get_value<std::string>();
+	}
+	for(auto &pair : registration::g_path_hash)
+	{
+		for(auto &ss : pair.second)
+		{
+			if( not ss.class_type.is_valid() )
+				continue;
+
+			auto &obj = g_obj_hash[ss.class_type.get_id()];
+			auto method = ss.class_type.get_method(fmt::format("view_status.{}", ss.class_type.get_id()));
+
+			if( method.is_valid() and method.get_return_type() == rttr::type::get<std::string>() )
+				result += method.invoke(obj).get_value<std::string>();
+		}
 	}
 	if( not result.empty() and result[0] != '\n' )
 		result = "\n" + result;

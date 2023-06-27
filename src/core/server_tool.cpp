@@ -1,4 +1,5 @@
 #include "server_tool.h"
+#include "gts/algorithm.h"
 #include <fmt/format.h>
 
 namespace gts
@@ -19,72 +20,29 @@ site_info_map &server_get_site_infos()
 namespace plugin_call
 {
 
-static rttr::variant g_plugin_obj;
-
-static bool plugin_obj_check()
-{
-	if( g_plugin_obj.is_valid() )
-		return true;
-
-	auto type = rttr::type::get_by_name("gts.plugin.class");
-	if( not type.is_valid() )
-		return false;
-
-	auto obj = type.create();
-	if( not obj.is_valid() )
-		return false;
-
-	g_plugin_obj = obj;
-	return true;
-}
-
-template <typename Ins>
-static bool _init_method_call(rttr::method &method, Ins &&obj, const std::string &config_file)
-{
-	auto list = method.get_parameter_infos();
-	if( list.size() == 0 )
-	{
-		method.invoke(obj);
-		return true;
-	}
-	else if( list.size() == 1 and list.begin()->get_type() == rttr::type::get<std::string>() )
-	{
-		method.invoke(obj, config_file);
-		return true;
-	}
-	return false;
-}
-
 void init(const std::string &config_file)
 {
-	auto method = rttr::type::get_global_method("gts.plugin.init");
-	if( method.is_valid() and _init_method_call(method, rttr::instance(), config_file) )
-		return ;
-	else if( plugin_obj_check() == false )
-		return ;
+	for(auto &method : rttr::type::get_global_methods())
+	{
+		if( not starts_with(method.get_name().to_string(), "gts.plugin.init") )
+			continue;
+		auto list = method.get_parameter_infos();
 
-	method = g_plugin_obj.get_type().get_method("init");
-	if( method.is_valid() and _init_method_call(method, g_plugin_obj, config_file) )
-		return ;
+		if( list.size() == 0 )
+			method.invoke({});
+
+		else if( list.size() == 1 and list.begin()->get_type() == rttr::type::get<std::string>() )
+			method.invoke({}, config_file);
+	}
 }
 
 void exit()
 {
-	auto method = rttr::type::get_global_method("gts.plugin.exit");
-	if( method.is_valid() and method.get_parameter_infos().empty() )
+	for(auto &method : rttr::type::get_global_methods())
 	{
-		method.invoke({});
-		if( g_plugin_obj.is_valid() )
-			g_plugin_obj.clear();
-		return ;
+		if( starts_with(method.get_name().to_string(), "gts.plugin.exit") and method.get_parameter_infos().empty() )
+			method.invoke({});
 	}
-	else if( plugin_obj_check() == false )
-		return ;
-
-	method = g_plugin_obj.get_type().get_method("exit");
-	if( method.is_valid() and method.get_parameter_infos().empty() )
-		method.invoke(g_plugin_obj);
-	g_plugin_obj.clear();
 }
 
 static bool _new_connection_method_call(const std::string &method_suffix, tcp_socket *sock)
@@ -94,15 +52,6 @@ static bool _new_connection_method_call(const std::string &method_suffix, tcp_so
 	{
 		method.invoke({}, tcp_socket_ptr(sock));
 		return true;
-	}
-	else if( plugin_obj_check() )
-	{
-		method = g_plugin_obj.get_type().get_method(method_suffix, {rttr::type::get<tcp_socket_ptr>()});
-		if( method.is_valid() )
-		{
-			method.invoke(g_plugin_obj, tcp_socket_ptr(sock));
-			return true;
-		}
 	}
 	return false;
 }
@@ -120,16 +69,10 @@ bool new_connection(tcp_socket *sock, bool universal)
 std::string view_status()
 {
 	std::string result;
-	auto method = rttr::type::get_global_method("gts.plugin.view_status");
-
-	if( method.is_valid() and method.get_return_type() == rttr::type::get<std::string>() )
-		result = method.invoke({}).to_string();
-
-	else if( plugin_obj_check() )
+	for(auto &method : rttr::type::get_global_methods())
 	{
-		method = g_plugin_obj.get_type().get_method("view_status");
-		if( method.is_valid() and method.get_return_type() == rttr::type::get<std::string>() )
-			result = method.invoke(g_plugin_obj).to_string();
+		if( starts_with(method.get_name().to_string(), "gts.plugin.view_status") and method.get_return_type() == rttr::type::get<std::string>() )
+			result = method.invoke({}).to_string();
 	}
 	return result;
 }
@@ -141,22 +84,27 @@ namespace extension { namespace plugin_call
 
 void init(const std::string &config_file)
 {
-	auto method = rttr::type::get_global_method("gts.extension.plugin.init");
-	if( method.is_valid() and method.get_parameter_infos().size() == 0 )
+	for(auto &method : rttr::type::get_global_methods())
 	{
-		method.invoke({});
-		return ;
+		if( not starts_with(method.get_name().to_string(), "gts.extension.plugin.init") )
+			continue;
+		auto list = method.get_parameter_infos();
+
+		if( list.size() == 0 )
+			method.invoke({});
+
+		else if( list.size() == 1 and list.begin()->get_type() == rttr::type::get<std::string>() )
+			method.invoke({}, config_file);
 	}
-	method = rttr::type::get_global_method("gts.extension.plugin.init", {rttr::type::get<std::string>()});
-	if( method.is_valid() )
-		method.invoke({}, config_file);
 }
 
 void exit()
 {
-	auto method = rttr::type::get_global_method("gts.extension.plugin.exit");
-	if( method.is_valid() and method.get_parameter_infos().size() == 0 )
-		method.invoke({});
+	for(auto &method : rttr::type::get_global_methods())
+	{
+		if( starts_with(method.get_name().to_string(), "gts.extension.plugin.exit") and method.get_parameter_infos().empty() )
+			method.invoke({});
+	}
 }
 
 bool args_parsing(const string_list &args)

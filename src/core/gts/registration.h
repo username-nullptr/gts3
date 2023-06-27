@@ -21,24 +21,24 @@ public:
 
 public:
 	template <typename Func, typename T = decltype(std::declval<Func>()())>
-	registration &init_method(Func &&func)
+	registration &init_method(Func &&func, const std::string &path = "")
 	{
-		rttr::registration::method("gts.plugin.init", std::forward<Func>(func));
+		rttr::registration::method("gts.plugin.init." + path, std::forward<Func>(func));
 		return *this;
 	}
 
 	template <typename Func, typename T = decltype(std::declval<Func>()(std::string())), int U0=0>
-	registration &init_method(Func &&func)
+	registration &init_method(Func &&func, const std::string &path = "")
 	{
-		rttr::registration::method("gts.plugin.init", std::forward<Func>(func));
+		rttr::registration::method("gts.plugin.init." + path, std::forward<Func>(func));
 		return *this;
 	}
 
 public:
 	template <typename Func, typename T = decltype(std::declval<Func>()())>
-	registration &exit_method(Func &&func)
+	registration &exit_method(Func &&func, const std::string &path = "")
 	{
-		rttr::registration::method("gts.plugin.exit", std::forward<Func>(func));
+		rttr::registration::method("gts.plugin.exit." + path, std::forward<Func>(func));
 		return *this;
 	}
 
@@ -46,61 +46,11 @@ public:
 	template <typename Func, typename T = typename std::enable_if<
 				  std::is_same<typename std::decay<decltype(std::declval<Func>()())>::type,
 							   std::string>::value, int>::type>
-	registration &view_status_method(Func &&func)
+	registration &view_status_method(Func &&func, const std::string &path = "")
 	{
-		rttr::registration::method("gts.plugin.view_status", std::forward<Func>(func));
+		rttr::registration::method("gts.plugin.view_status." + path, std::forward<Func>(func));
 		return *this;
 	}
-
-public:
-	template <typename Class>
-	class class_
-	{
-		GTS_DISABLE_COPY_MOVE(class_)
-
-	public:
-		template <typename Return, typename Sock, typename T = decltype((std::declval<Class>().*std::declval<Return(Class::*)(Sock)>())(tcp_socket_ptr()))>
-		class_(Return(Class::*func)(Sock), uint16_t port = 0) : m_class_(std::make_shared<rttr::registration::class_<Class>>("gts.plugin.class")) {
-			m_class_->constructor().method(port == 0? "new_connection" : fmt::format("new_connection.{}", port), func);
-		}
-
-	public:
-		template <typename Return>
-		class_ &init_method(Return(Class::*func)(void))
-		{
-			m_class_->method("init", func);
-			return *this;
-		}
-
-		template <typename Return, typename Str, typename T =
-				  decltype((std::declval<Class>().*std::declval<Return(Class::*)(Str)>())(std::string()))>
-		class_ &init_method(Return(Class::*func)(Str))
-		{
-			m_class_->method("init", func);
-			return *this;
-		}
-
-	public:
-		template <typename Return>
-		class_ &exit_method(Return(Class::*func)(void))
-		{
-			m_class_->method("exit", func);
-			return *this;
-		}
-
-	public:
-		template <typename Func, typename T = typename std::enable_if<
-					  std::is_same<typename std::decay<decltype((std::declval<Class>().*std::declval<Func>())())>::type,
-								   std::string>::value, int>::type>
-		class_ &view_status_method(Func &&func)
-		{
-			m_class_->method("view_status", func);
-			return *this;
-		}
-
-	private:
-		std::shared_ptr<rttr::registration::class_<Class>> m_class_;
-	};
 };
 
 namespace extension
@@ -115,24 +65,24 @@ public:
 
 public:
 	template <typename Func, typename T = decltype(std::declval<Func>()())>
-	registration &init_method(Func &&func)
+	registration &init_method(Func &&func, const std::string &path = "")
 	{
-		rttr::registration::method("gts.extension.plugin.init", std::forward<Func>(func));
+		rttr::registration::method("gts.extension.plugin.init." + path, std::forward<Func>(func));
 		return *this;
 	}
 
 	template <typename Func, typename T = decltype(std::declval<Func>()(std::string())), int U0=0>
-	registration &init_method(Func &&func)
+	registration &init_method(Func &&func, const std::string &path = "")
 	{
-		rttr::registration::method("gts.extension.plugin.init", std::forward<Func>(func));
+		rttr::registration::method("gts.extension.plugin.init." + path, std::forward<Func>(func));
 		return *this;
 	}
 
 public:
 	template <typename Func, typename T = decltype(std::declval<Func>()())>
-	registration &exit_method(Func &&func)
+	registration &exit_method(Func &&func, const std::string &path = "")
 	{
-		rttr::registration::method("gts.extension.plugin.exit", std::forward<Func>(func));
+		rttr::registration::method("gts.extension.plugin.exit." + path, std::forward<Func>(func));
 		return *this;
 	}
 

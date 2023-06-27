@@ -8,8 +8,8 @@ if (${CMAKE_CXX_STANDARD} LESS 17)
 endif()
 
 include_directories(
+	${gts_3rd_path}/nlohmann.json
 	${gts_3rd_path}/filesystem
-	${gts_3rd_path}/rapidjson
 	${gts_3rd_path}/inifile
 	${gts_3rd_path}/asio
 	${gts_3rd_path}/rttr

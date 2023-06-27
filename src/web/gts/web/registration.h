@@ -20,24 +20,24 @@ public:
 
 public:
 	template <typename Func, typename T = decltype(std::declval<Func>()())>
-	registration &init_method(Func &&func)
+	registration &init_method(Func &&func, const std::string &path = "")
 	{
-		rttr::registration::method(fmt::format("gts.web.plugin.init.{}", typeid(Func).hash_code()), std::forward<Func>(func));
+		rttr::registration::method("gts.web.plugin.init." + path, std::forward<Func>(func));
 		return *this;
 	}
 
 	template <typename Func, typename T = decltype(std::declval<Func>()(std::string())), int U0=0>
-	registration &init_method(Func &&func)
+	registration &init_method(Func &&func, const std::string &path = "")
 	{
-		rttr::registration::method(fmt::format("gts.web.plugin.init.{}", typeid(Func).hash_code()), std::forward<Func>(func));
+		rttr::registration::method("gts.web.plugin.init." + path, std::forward<Func>(func));
 		return *this;
 	}
 
 public:
 	template <typename Func, typename T = decltype(std::declval<Func>()())>
-	registration &exit_method(Func &&func)
+	registration &exit_method(Func &&func, const std::string &path = "")
 	{
-		rttr::registration::method(fmt::format("gts.web.plugin.exit.{}", typeid(Func).hash_code()), std::forward<Func>(func));
+		rttr::registration::method("gts.web.plugin.exit." + path, std::forward<Func>(func));
 		return *this;
 	}
 
@@ -91,9 +91,9 @@ public:
 	template <typename Func, typename T = typename std::enable_if<
 				  std::is_same<typename std::decay<decltype(std::declval<Func>()())>::type,
 							   std::string>::value, int>::type>
-	registration &view_status_method(Func &&func)
+	registration &view_status_method(Func &&func, const std::string &path = "")
 	{
-		rttr::registration::method(fmt::format("gts.web.plugin.view_status.{}", typeid(Func).hash_code()), std::forward<Func>(func));
+		rttr::registration::method("gts.web.plugin.view_status." + path, std::forward<Func>(func));
 		return *this;
 	}
 
@@ -104,16 +104,6 @@ private:
 		rttr::method method {rttr::type::get_global_method("")};
 	};
 	using service_array = std::array<service,8>;
-
-	template <typename T>
-	union addr_tlr
-	{
-		T ptr;
-		std::uintptr_t addr;
-
-		inline explicit addr_tlr(T ptr) : ptr(ptr) {}
-		inline explicit addr_tlr(std::uintptr_t addr) : addr(addr) {}
-	};
 
 public:
 	template <typename Class>
@@ -161,7 +151,7 @@ public:
 				  decltype((std::declval<Class>().*std::declval<Return(Class::*)(Str)>())(std::string()))>
 		class_ &init_method(Return(Class::*func)(Str))
 		{
-			m_class_->method(fmt::format("init", m_type.get_id()), func);
+			m_class_->method(fmt::format("init.{}", m_type.get_id()), func);
 			return *this;
 		}
 
@@ -169,7 +159,17 @@ public:
 		template <typename Return>
 		class_ &exit_method(Return(Class::*func)(void))
 		{
-			m_class_->method(fmt::format("exit", m_type.get_id()), func);
+			m_class_->method(fmt::format("exit.{}", m_type.get_id()), func);
+			return *this;
+		}
+
+	public:
+		template <typename Func, typename T = typename std::enable_if<
+					  std::is_same<typename std::decay<decltype(std::declval<Func>()())>::type,
+								   std::string>::value, int>::type>
+		class_ &view_status_method(Func &&func)
+		{
+			rttr::registration::method(fmt::format("gts.web.plugin.view_status.{}", m_type.get_id()), std::forward<Func>(func));
 			return *this;
 		}
 
@@ -256,36 +256,29 @@ public:
 				path.erase(0,1);
 
 			auto pair0 = registration::g_path_hash.emplace(path, service_array());
-			if( pair0.second == false )
-				log_fatal("service '{}' multiple registration.", path);
-
-			addr_tlr at(func);
-			std::string method_name = fmt::format("new_request.{}.", at.addr);
-
-			auto pair1 = registration::g_id_hash.emplace(at.addr, method_name);
-			if( pair1.second )
-				m_class_->method(method_name, std::forward<Func>(func));
-
-			service_array_insert(path, pair0.first->second, method_name, http_method...);
+			service_array_insert(path, pair0.first->second, "new_request." + path + ".", std::forward<Func>(func), http_method...);
 			return *this;
 		}
 
 		using service_array = registration::service_array;
 
-		template <typename...Tail>
-		inline void service_array_insert(const std::string &path, service_array &method_array, const std::string &method_name, http::method http_method, Tail&&...tail)
+		template <typename Func, typename...Tail>
+		inline void service_array_insert(const std::string &path, service_array &method_array, const std::string &method_name, Func &&func, http::method http_method, Tail&&...tail)
 		{
-			service_array_insert(path, method_array, method_name, http_method);
-			service_array_insert(path, method_array, method_name, std::forward<Tail>(tail)...);
+			service_array_insert(path, method_array, method_name, std::forward<Func>(func), http_method);
+			service_array_insert(path, method_array, method_name, std::forward<Func>(func), std::forward<Tail>(tail)...);
 		}
 
-		inline void service_array_insert(const std::string &path, service_array &method_array, const std::string &method_name, http::method http_method)
+		template <typename Func>
+		inline void service_array_insert(const std::string &path, service_array &method_array, std::string method_name, Func &&func, http::method http_method)
 		{
 			if( method_array[http_method].method.is_valid() )
 				log_fatal("service '{} ({})' multiple registration.", path, http::method_string(http_method));
 			else
 			{
 				method_array[http_method].class_type = m_type;
+				method_name += http::method_string(http_method);
+				m_class_->method(method_name, std::forward<Func>(func));
 				method_array[http_method].method = m_type.get_method(method_name);
 			}
 		}
@@ -318,41 +311,32 @@ private:
 		}
 
 		auto pair0 = g_path_hash.emplace(path, service_array());
-		if( pair0.second == false )
-			log_fatal("service '{}' multiple registration.", path);
-
-		addr_tlr at(func);
-		std::string method_name = fmt::format("gts.web.plugin.new_request.{}.", at.addr);
-
-		auto pair1 = g_id_hash.emplace(at.addr, method_name);
-		if( pair1.second )
-			rttr::registration::method(method_name, std::forward<Func>(func));
-
-		service_array_insert(path, pair0.first->second, method_name, http_method...);
+		service_array_insert(path, pair0.first->second, "gts.web.plugin.new_request." + path + ".", std::forward<Func>(func), http_method...);
 		return *this;
 	}
 
-	template <typename...Tail>
-	inline void service_array_insert(const std::string &path, service_array &method_array, const std::string &method_name, http::method http_method, Tail&&...tail)
+	template <typename Func, typename...Tail>
+	inline void service_array_insert(const std::string &path, service_array &method_array, const std::string &method_name, Func &&func, http::method http_method, Tail&&...tail)
 	{
-		service_array_insert(path, method_array, method_name, http_method);
-		service_array_insert(path, method_array, method_name, std::forward<Tail>(tail)...);
+		service_array_insert(path, method_array, method_name, std::forward<Func>(func), http_method);
+		service_array_insert(path, method_array, method_name, std::forward<Func>(func), std::forward<Tail>(tail)...);
 	}
 
-	inline void service_array_insert(const std::string &path, service_array &method_array, const std::string &method_name, http::method http_method)
+	template <typename Func>
+	inline void service_array_insert(const std::string &path, service_array &method_array, std::string method_name, Func &&func, http::method http_method)
 	{
 		if( method_array[http_method].method.is_valid() )
 			log_fatal("service '{} ({})' multiple registration.", path, http::method_string(http_method));
 		else
+		{
+			method_name += http::method_string(http_method);
+			rttr::registration::method(method_name, std::forward<Func>(func));
 			method_array[http_method].method = rttr::type::get_global_method(method_name);
+		}
 	}
 
 private:
-	static std::unordered_map<rttr::type::type_id, rttr::variant> g_obj_hash;
 	static std::unordered_map<std::string, service_array> g_path_hash;
-	static std::unordered_map<std::uintptr_t, std::string> g_id_hash;
-
-private:
 	template <typename Class> friend class class_;
 	friend class plugin_service;
 };

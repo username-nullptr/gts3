@@ -10,7 +10,6 @@ set(core_sources
 	gts/ssl_socket.cpp
 	app_info.cpp
 	process.cpp
-	json.cpp
 	server_tool.cpp
 )
 
@@ -29,7 +28,6 @@ set(core_headers
 	gts/fmt_formatter.h
 	app_info.h
 	process.h
-	json.h
 	server_tool.h
 	private/process_p.h
 )

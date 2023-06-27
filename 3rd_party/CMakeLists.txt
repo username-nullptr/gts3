@@ -1,5 +1,5 @@
+add_subdirectory(nlohmann.json)
 add_subdirectory(filesystem)
-add_subdirectory(rapidjson)
 add_subdirectory(inifile)
 add_subdirectory(asio)
 add_subdirectory(rttr)
