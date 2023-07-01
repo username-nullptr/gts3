@@ -56,7 +56,7 @@ static std::list<rttr::library> g_library_list;
 
 #define _CHECK_RETURN_CALL(...) \
 ({ \
-	if( method.get_return_type() == rttr::type::get<std::shared_ptr<std::future<void>>>() ) { \
+	if( method.get_return_type() == GTS_RTTR_TYPE(std::shared_ptr<std::future<void>>) ) { \
 		rttr::variant var = method.invoke(__VA_ARGS__); \
 		futures.emplace_back(var.get_value<std::shared_ptr<std::future<void>>>()); \
 	} \
@@ -71,7 +71,7 @@ static void call_init(rttr::method &method, Ins obj, std::list<std::shared_ptr<s
 	if( para_list.empty() )
 		_CHECK_RETURN_CALL(obj);
 
-	else if( para_list.size() == 1 and para_list.begin()->get_type() == rttr::type::get<std::string>() )
+	else if( para_list.size() == 1 and para_list.begin()->get_type() == GTS_RTTR_TYPE(std::string) )
 		_CHECK_RETURN_CALL(obj, settings::global_instance().file_name());
 }
 
@@ -204,7 +204,7 @@ std::string plugin_service::view_status()
 	std::string result;
 	for(auto &method : rttr::type::get_global_methods())
 	{
-		if( starts_with(method.get_name().to_string(), "gts.web.plugin.view_status.") and method.get_return_type() == rttr::type::get<std::string>() )
+		if( starts_with(method.get_name().to_string(), "gts.web.plugin.view_status.") and method.get_return_type() == GTS_RTTR_TYPE(std::string) )
 			result += method.invoke({}).get_value<std::string>();
 	}
 	for(auto &pair : registration::g_path_hash)
@@ -217,7 +217,7 @@ std::string plugin_service::view_status()
 			auto &obj = g_obj_hash[ss.class_type.get_id()];
 			auto method = ss.class_type.get_method(fmt::format("view_status.{}", ss.class_type.get_id()));
 
-			if( method.is_valid() and method.get_return_type() == rttr::type::get<std::string>() )
+			if( method.is_valid() and method.get_return_type() == GTS_RTTR_TYPE(std::string) )
 				result += method.invoke(obj).get_value<std::string>();
 		}
 	}

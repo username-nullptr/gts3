@@ -91,16 +91,16 @@ void settings::ini_file_check(const std::string &group, const ini_hash &sample)
 	int c = 0;
 	for(auto &pair : tmp) //O(n)
 	{
-		if( pair.second.get_type() == rttr::type::get<int>() )
+		if( pair.second.get_type() == GTS_RTTR_TYPE(int) )
 			_settings.write(group, pair.first, pair.second.get_value<int>()); //O(log)
 
-		else if( pair.second.get_type() == rttr::type::get<bool>() )
+		else if( pair.second.get_type() == GTS_RTTR_TYPE(bool) )
 			_settings.write(group, pair.first, pair.second.get_value<bool>()); //O(log)
 
-		else if( pair.second.get_type() == rttr::type::get<std::string>() )
+		else if( pair.second.get_type() == GTS_RTTR_TYPE(std::string) )
 			_settings.write(group, pair.first, pair.second.get_value<std::string>()); //O(log)
 
-		else if( pair.second.get_type() == rttr::type::get<const char*>() )
+		else if( pair.second.get_type() == GTS_RTTR_TYPE(const char*) )
 			_settings.write(group, pair.first, pair.second.get_value<const char*>()); //O(log)
 		c++;
 	}
