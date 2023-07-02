@@ -136,8 +136,12 @@ void plugin_service::init()
 
 		g_library_list.emplace_back(file_name);
 		auto &library = g_library_list.back();
+
 		if( library.load() == false )
+		{
 			log_error("gts.web.plugin load failed: {}.", library.get_error_string());
+			g_library_list.pop_back(); //!!!library!!! -> null
+		}
 	}
 
 	std::list<std::shared_ptr<std::future<void>>> futures;

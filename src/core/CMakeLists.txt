@@ -15,6 +15,7 @@ set(core_sources
 
 set(core_headers
 	gts/gts_global.h
+	gts/utility.h
 	gts/args_parser.h
 	gts/application.h
 	gts/string_list.h

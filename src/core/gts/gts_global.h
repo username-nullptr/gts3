@@ -1,7 +1,7 @@
 #ifndef GTS_GLOBAL_H
 #define GTS_GLOBAL_H
 
-#include <rttr/variant.h>
+#include <gts/utility.h>
 #include <asio.hpp>
 #include <vector>
 
@@ -59,28 +59,6 @@ namespace gts
 #else //gtscore_EXPORTS
 # define GTSCORE_API  GTS_DECL_IMPORT
 #endif //gtscore_EXPORTS
-
-#define GTS_UNUSED(x)  (void)(x)
-
-#if defined(_WIN64) || defined(__x86_64__) || defined(__arm64__) || defined(__aarch64__)
-# define GTS_OS_64BIT
-#else
-# define _OS_32BIT
-#endif // 32bit & 64bit
-
-#define GTS_RTTR_TYPE(_type)          rttr::type::get<_type>()
-#define GTS_RTTR_TYPE_BY_NAME(_name)  rttr::type::get_by_name(_name)
-
-#define GTS_DISABLE_COPY(_class) \
-	explicit _class(const _class&) = delete; \
-	void operator=(const _class&) = delete;
-
-#define GTS_DISABLE_MOVE(_class) \
-	explicit _class(_class&&) = delete; \
-	void operator=(_class&&) = delete;
-
-#define GTS_DISABLE_COPY_MOVE(_class) \
-	GTS_DISABLE_COPY(_class) GTS_DISABLE_MOVE(_class)
 
 GTSCORE_API asio::io_context &io_context();
 
