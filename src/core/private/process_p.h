@@ -25,7 +25,7 @@ public:
 	~process_impl();
 
 public:
-	typedef std::unordered_map<std::string , std::string>  env;
+	typedef std::unordered_map<std::string, std::string>  env;
 
 public:
 	asio::io_context &m_io;

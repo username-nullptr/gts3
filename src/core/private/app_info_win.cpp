@@ -1,4 +1,4 @@
-#ifdef _WIN32
+#ifdef _WINDOWS
 #include <Windows.h>
 
 #include "app_info.h"
@@ -44,4 +44,4 @@ bool set_current_directory(const std::string& path)
 
 }} //namespace gts
 
-#endif //_WIN32
+#endif //_WINDOWS
