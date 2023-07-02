@@ -6,12 +6,8 @@
 #include "gts/settings.h"
 #include "gts/log.h"
 
-#include <rttr/registration>
 #include <iostream>
 #include <thread>
-
-#include <sys/socket.h>
-#include <sys/types.h>
 
 namespace gts { namespace web
 {
@@ -87,7 +83,7 @@ GTS_DECL_EXPORT void exit()
 
 }}} //namespace gts::web::plugin_main
 
-RTTR_PLUGIN_REGISTRATION
+GTS_PLUGIN_REGISTRATION
 {
 	using namespace gts;
 	using namespace gts::web;

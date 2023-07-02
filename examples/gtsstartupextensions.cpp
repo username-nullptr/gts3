@@ -4,36 +4,36 @@
 namespace gts { namespace cmdline { namespace business
 {
 
-static void extensions_init()
+GTS_DECL_EXPORT void extensions_init()
 {
 	std::cerr << "extern init ..." << std::endl;
 }
 
-static void extensions_exit()
+GTS_DECL_EXPORT void extensions_exit()
 {
 	std::cerr << "extern exit ..." << std::endl;
 }
 
-static bool args_parsing(int argc, const char *argv[])
+GTS_DECL_EXPORT bool args_parsing(int argc, const char *argv[])
 {
 	for(int i=0; i<argc; i++)
 		std::cerr << "argv[" << i << "] = " << argv[i] << std::endl;
 	return true;
 }
 
-static std::string view_version_info()
+GTS_DECL_EXPORT std::string view_version_info()
 {
 	return "gts cmdline extern examples. v0.0.0\n";
 }
 
-static std::string view_help()
+GTS_DECL_EXPORT std::string view_help()
 {
 	return "    gts cmdline extern examples: help.\n";
 }
 
 }}} //gts::cmdline::business
 
-RTTR_PLUGIN_REGISTRATION
+GTS_PLUGIN_REGISTRATION
 {
 	using namespace gts::cmdline::business;
 

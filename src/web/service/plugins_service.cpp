@@ -13,7 +13,6 @@
 #include <cppfilesystem>
 #include <iostream>
 #include <fstream>
-#include <future>
 
 namespace gts { namespace web
 {
@@ -26,7 +25,7 @@ plugin_service::plugin_service(service_io &sio) :
 	m_sio.response.socket().non_blocking(false);
 }
 
-static std::unordered_map<rttr::type::type_id, rttr::variant> g_obj_hash;
+static std::unordered_map<rttr::type, rttr::variant> g_obj_hash;
 
 void plugin_service::call()
 {
@@ -46,7 +45,7 @@ void plugin_service::call()
 
 	if( ss.class_type.is_valid() )
 	{
-		auto &obj = g_obj_hash[ss.class_type.get_id()];
+		auto &obj = g_obj_hash[ss.class_type];
 		return class_method_call(ss.method, obj);
 	}
 	global_method_call(ss.method);
@@ -56,16 +55,16 @@ static std::list<rttr::library> g_library_list;
 
 #define _CHECK_RETURN_CALL(...) \
 ({ \
-	if( method.get_return_type() == GTS_RTTR_TYPE(std::shared_ptr<std::future<void>>) ) { \
+	if( method.get_return_type() == GTS_RTTR_TYPE(future_ptr) ) { \
 		rttr::variant var = method.invoke(__VA_ARGS__); \
-		futures.emplace_back(var.get_value<std::shared_ptr<std::future<void>>>()); \
+		futures.emplace_back(var.get_value<future_ptr>()); \
 	} \
 	else \
 		method.invoke(__VA_ARGS__); \
 })
 
 template <typename Ins>
-static void call_init(rttr::method &method, Ins obj, std::list<std::shared_ptr<std::future<void>>> &futures)
+static void call_init(rttr::method &method, Ins obj, std::list<future_ptr> &futures)
 {
 	auto para_list = method.get_parameter_infos();
 	if( para_list.empty() )
@@ -76,7 +75,7 @@ static void call_init(rttr::method &method, Ins obj, std::list<std::shared_ptr<s
 }
 
 template <typename Ins>
-static void call_exit(rttr::method &method, Ins obj, std::list<std::shared_ptr<std::future<void>>> &futures)
+static void call_exit(rttr::method &method, Ins obj, std::list<future_ptr> &futures)
 {
 	auto para_list = method.get_parameter_infos();
 	if( para_list.empty() )
@@ -144,7 +143,7 @@ void plugin_service::init()
 		}
 	}
 
-	std::list<std::shared_ptr<std::future<void>>> futures;
+	std::list<future_ptr> futures;
 
 	for(auto method : rttr::type::get_global_methods())
 	{
@@ -159,15 +158,19 @@ void plugin_service::init()
 			if( not ss.class_type.is_valid() )
 				continue;
 
-			auto obj = ss.class_type.create();
+			auto pair = g_obj_hash.emplace(ss.class_type, rttr::variant());
+			if( pair.second == false )
+				continue ;
+
+			pair.first->second = ss.class_type.create();
+			auto &obj = pair.first->second;
+
 			if( not obj.is_valid() )
 				log_fatal("service class create failed.");
 
 			auto method = ss.class_type.get_method(fmt::format("init.{}", ss.class_type.get_id()));
 			if( method.is_valid() )
 				call_init(method, obj, futures);
-
-			g_obj_hash.emplace(ss.class_type.get_id(), std::move(obj));
 		}
 	}
 	for(auto &future : futures)
@@ -176,22 +179,17 @@ void plugin_service::init()
 
 void plugin_service::exit()
 {
-	std::list<std::shared_ptr<std::future<void>>> futures;
+	std::list<future_ptr> futures;
 
-	for(auto &pair : registration::g_path_hash)
+	for(auto &pair : g_obj_hash)
 	{
-		for(auto &ss : pair.second)
-		{
-			if( not ss.class_type.is_valid() )
-				continue;
+		auto &type = pair.first;
+		auto &obj = pair.second;
 
-			auto &obj = g_obj_hash[ss.class_type.get_id()];
-			auto method = ss.class_type.get_method(fmt::format("exit.{}", ss.class_type.get_id()));
-
-			if( method.is_valid() )
-				call_exit(method, obj, futures);
-			obj.clear();
-		}
+		auto method = type.get_method(fmt::format("exit.{}", type.get_id()));
+		if( method.is_valid() )
+			call_exit(method, obj, futures);
+		obj.clear();
 	}
 	for(auto method : rttr::type::get_global_methods())
 	{
@@ -211,19 +209,14 @@ std::string plugin_service::view_status()
 		if( starts_with(method.get_name().to_string(), "gts.web.plugin.view_status.") and method.get_return_type() == GTS_RTTR_TYPE(std::string) )
 			result += method.invoke({}).get_value<std::string>();
 	}
-	for(auto &pair : registration::g_path_hash)
+	for(auto &pair : g_obj_hash)
 	{
-		for(auto &ss : pair.second)
-		{
-			if( not ss.class_type.is_valid() )
-				continue;
+		auto &type = pair.first;
+		auto &obj = pair.second;
 
-			auto &obj = g_obj_hash[ss.class_type.get_id()];
-			auto method = ss.class_type.get_method(fmt::format("view_status.{}", ss.class_type.get_id()));
-
-			if( method.is_valid() and method.get_return_type() == GTS_RTTR_TYPE(std::string) )
-				result += method.invoke(obj).get_value<std::string>();
-		}
+		auto method = type.get_method(fmt::format("view_status.{}", type.get_id()));
+		if( method.is_valid() and method.get_return_type() == GTS_RTTR_TYPE(std::string) )
+			result += method.invoke(obj).get_value<std::string>();
 	}
 	if( not result.empty() and result[0] != '\n' )
 		result = "\n" + result;

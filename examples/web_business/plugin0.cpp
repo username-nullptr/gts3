@@ -1,17 +1,15 @@
 #include <gts/tcp_socket.h>
 #include <gts/web.h>
-
 #include <iostream>
-#include <future>
 
 using namespace asio::ip;
 
 namespace gts { namespace web { namespace business
 {
 
-static std::shared_ptr<std::future<void>> init()
+GTS_DECL_EXPORT future_ptr init()
 {
-	return std::make_shared<std::future<void>>(std::async(std::launch::async, []
+	return make_future_ptr(std::async(std::launch::async,[]
 	{
 		for(int i=0; i<3; i++)
 		{
@@ -21,7 +19,7 @@ static std::shared_ptr<std::future<void>> init()
 	}));
 }
 
-//staic std::shared_ptr<std::future<void>> exit()
+//GTS_DECL_EXPORT staic std::shared_ptr<std::future<void>> exit()
 //{
 //	return std::make_shared<std::future<void>>(std::async(std::launch::async, []
 //	{
@@ -33,29 +31,29 @@ static std::shared_ptr<std::future<void>> init()
 //	}));
 //}
 
-static void exit()
+GTS_DECL_EXPORT void exit()
 {
 	std::cerr << "plugin0: exit task ..." << std::endl;
 }
 
-static std::string view_status()
+GTS_DECL_EXPORT std::string view_status()
 {
 	return "web plugin: examples-plugin0: hello0\n";
 }
 
-static void new_request_0(http::response &&response)
+GTS_DECL_EXPORT void new_request_0(http::response &&response)
 {
 	response.write("hello world");
 }
 
-static void new_request_1(http::response &&response)
+GTS_DECL_EXPORT void new_request_1(http::response &&response)
 {
 	response.write("HELLO WORLD");
 }
 
 }}} //namespace gts::web::business
 
-RTTR_PLUGIN_REGISTRATION
+GTS_PLUGIN_REGISTRATION
 {
 	using namespace gts::http;
 	using namespace gts::web;

@@ -5,9 +5,22 @@
 #include <fmt/format.h>
 #include <gts/http.h>
 #include <gts/log.h>
+#include <future>
 #include <set>
 
-namespace gts { namespace web
+namespace gts
+{
+
+typedef std::future<void>  future_void;
+
+typedef std::shared_ptr<future_void>  future_ptr;
+
+inline future_ptr make_future_ptr(future_void &&future)
+{
+	return std::make_shared<future_void>(std::move(future));
+}
+
+namespace web
 {
 
 class plugin_service;
@@ -174,10 +187,9 @@ public:
 		}
 
 	public:
-		template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_same(decay_t<decltype(GTS_DECLVAL(Func)())>, std::string), int)>
-		class_ &view_status_method(Func &&func)
+		class_ &view_status_method(std::string(Class::*func)(void))
 		{
-			rttr::registration::method(fmt::format("gts.web.plugin.view_status.{}", m_type.get_id()), std::forward<Func>(func));
+			m_class_->method(fmt::format("view_status.{}", m_type.get_id()), func);
 			return *this;
 		}
 
@@ -355,9 +367,9 @@ private:
 
 }} //namespace gts::web
 
-#ifndef GTS_REGISTRATION
-# define GTS_REGISTRATION  RTTR_REGISTRATION
-#endif //GTS_REGISTRATION
+#ifndef GTS_PLUGIN_REGISTRATION
+# define GTS_PLUGIN_REGISTRATION  RTTR_PLUGIN_REGISTRATION
+#endif //GTS_PLUGIN_REGISTRATION
 
 
 #endif //GTS_WEB_PLUGIN_INTERFACE_H

@@ -1,14 +1,13 @@
 #include <gts/registration.h>
 #include <gts/web.h>
-
 #include <iostream>
-#include <future>
 
 namespace gts { namespace web { namespace business
 {
-static std::shared_ptr<std::future<void>> init()
+
+static future_ptr init()
 {
-	return std::make_shared<std::future<void>>(std::async(std::launch::async, []
+	return make_future_ptr(std::async(std::launch::async,[]
 	{
 		for(int i=0; i<2; i++)
 		{
@@ -18,17 +17,17 @@ static std::shared_ptr<std::future<void>> init()
 	}));
 }
 
-static void exit()
+GTS_DECL_EXPORT void exit()
 {
 	std::cerr << "plugin2: global exit task ..." << std::endl;
 }
 
-static std::string view_status()
+GTS_DECL_EXPORT std::string view_status()
 {
 	return "web plugin: examples-plugin2: hello2\n";
 }
 
-void new_request_0(http::response &&response)
+GTS_DECL_EXPORT void new_request_0(http::response &&response)
 {
 	response.write("plugin2-global");
 }
@@ -36,15 +35,15 @@ void new_request_0(http::response &&response)
 class GTS_DECL_EXPORT plugin2
 {
 public:
-	std::shared_ptr<std::future<void>> init();
+	future_ptr init();
 	void exit();
 	void new_request_0(http::response &&response);
 	void new_request_1(http::response &&response);
 };
 
-std::shared_ptr<std::future<void>> plugin2::init()
+future_ptr plugin2::init()
 {
-	return std::make_shared<std::future<void>>(std::async(std::launch::async, []
+	return make_future_ptr(std::async(std::launch::async,[]
 	{
 		for(int i=0; i<8; i++)
 		{
@@ -86,7 +85,7 @@ static void intercept(tcp_socket_ptr socket)
 
 }}} //namespace gts::web::business
 
-RTTR_PLUGIN_REGISTRATION
+GTS_PLUGIN_REGISTRATION
 {
 	using namespace gts::http;
 	using namespace gts::web;
