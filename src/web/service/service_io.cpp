@@ -12,8 +12,13 @@ static std::string g_resource_path = _GTS_WEB_DEFAULT_RC_PATH;
 
 service_io::service_io(tcp_socket_ptr socket, http::request &request) :
 	request(request), response(std::move(socket), request.version)
-{
+{	
 	response.set_header("server", "gts3");
+	auto it = request.headers.find("origin");
+
+	if( it != request.headers.end() )
+		response.set_header("access-control-allow-origin", it->second);
+
 	if( request.version == "1.1" )
 	{
 		if( not request.keep_alive )
@@ -38,8 +43,11 @@ std::string service_io::resource_path()
 
 void service_io::return_to_null(http::status status)
 {
-	response.set_status(status);
-	response.write(fmt::format("{} ({})", http::status_description(status), status));
+	auto body = fmt::format("{} ({})", http::status_description(status), status);
+
+	response.set_header("content-length", body.size())
+			.set_status(status)
+			.write(body);
 
 	if( not request.keep_alive )
 		response.close(true);

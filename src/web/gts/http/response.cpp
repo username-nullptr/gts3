@@ -62,16 +62,18 @@ response::~response()
 		delete m_impl;
 }
 
-void response::set_status(http::status status)
+response &response::set_status(http::status status)
 {
 	m_impl->m_status = status;
+	return *this;
 }
 
-void response::set_header(const std::string &key, const std::string &value)
+response &response::set_header(const std::string &key, const std::string &value)
 {
 	auto res = m_impl->m_headers.emplace(key, value);
 	if( res.second == false and res.first != m_impl->m_headers.end() )
 		res.first->second = value;
+	return *this;
 }
 
 const std::string &response::version() const
@@ -89,12 +91,35 @@ status response::status() const
 	return m_impl->m_status;
 }
 
-void response::write(const std::string &body, bool close)
+response &response::write_default()
 {
 	if( m_impl->m_headers_writed )
 	{
 		log_warning("The http protocol header is sent repeatedly. (auto ignore)");
-		return ;
+		return *this;
+	}
+	m_impl->m_headers_writed = true;
+
+	auto result = fmt::format("HTTP/{} {} {}\r\n", m_impl->m_version, static_cast<int>(m_impl->m_status),
+							  status_description(m_impl->m_status));
+
+	auto body = fmt::format("{} ({})", http::status_description(status()), status());
+	set_header("content-length", body.size());
+
+	for(auto &header : m_impl->m_headers)
+		result += header.first + ": " + header.second + "\r\n";
+
+	m_impl->m_socket->write_some(result + "\r\n");
+	m_impl->m_socket->write_some(body);
+	return *this;
+}
+
+response &response::write(std::size_t size, const void *body)
+{
+	if( m_impl->m_headers_writed )
+	{
+		log_warning("The http protocol header is sent repeatedly. (auto ignore)");
+		return *this;
 	}
 	m_impl->m_headers_writed = true;
 
@@ -104,29 +129,27 @@ void response::write(const std::string &body, bool close)
 	for(auto &header : m_impl->m_headers)
 		result += header.first + ": " + header.second + "\r\n";
 
-	if( body.empty() )
-	{
-		m_impl->m_socket->write_some(result + "\r\n");
-		if( close )
-			m_impl->m_socket->close();
-	}
-	else
-	{
-		if( m_impl->m_headers.find("content-length") == m_impl->m_headers.end() and
-			m_impl->m_headers.find("CONTENT-LENGTH") == m_impl->m_headers.end() and
-			m_impl->m_headers.find("Content-Length") == m_impl->m_headers.end() )
-			result += fmt::format("context-length: {}\r\n", body.size());
+	if( m_impl->m_headers.find("content-length") == m_impl->m_headers.end() and
+		m_impl->m_headers.find("CONTENT-LENGTH") == m_impl->m_headers.end() and
+		m_impl->m_headers.find("Content-Length") == m_impl->m_headers.end() )
+		result += fmt::format("content-length: {}\r\n", size);
 
-		m_impl->m_socket->write_some(result + "\r\n" + body);
-		m_impl->m_socket->close();
-	}
+	m_impl->m_socket->write_some(result + "\r\n");
+	if( size > 0 )
+		m_impl->m_socket->write_some(body, size);
+	return *this;
 }
 
-void response::write_body(const std::string &body, bool close)
+response &response::write_body(std::size_t size, const void *body)
 {
-	m_impl->m_socket->write_some(body);
-	if( close )
-		m_impl->m_socket->close();
+	m_impl->m_socket->write_some(body, size);
+	return *this;
+}
+
+response &response::unset_header(const std::string &key)
+{
+	m_impl->m_headers.erase(key);
+	return *this;
 }
 
 void response::close(bool force)

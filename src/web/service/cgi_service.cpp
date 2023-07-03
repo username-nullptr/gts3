@@ -78,22 +78,21 @@ void cgi_service::call()
 
 	auto file_path = gts::file_path(m_sio.url_name);
 
-	m_cgi.add_env("REQUEST_METHOD"   , m_sio.request.method);
-	m_cgi.add_env("QUERY_STRING"     , parameter);
-	m_cgi.add_env("SCRIPT_NAME"      , m_sio.url_name);
-	m_cgi.add_env("SCRIPT_FILENAME"  , file_path);
-	m_cgi.add_env("REMOTE_ADDR"      , m_sio.response.socket().remote_endpoint().address().to_string());
-	m_cgi.add_env("GATEWAY_INTERFACE", "CGI/1.1");
-	m_cgi.add_env("SERVER_NAME"      , m_sio.response.socket().local_endpoint().address().to_string());
-	m_cgi.add_env("SERVER_PORT"      , m_sio.response.socket().local_endpoint().port());
-	m_cgi.add_env("SERVER_PROTOCOL"  , "HTTP/" + m_sio.request.version);
-	m_cgi.add_env("DOCUMENT_ROOT"    , service_io::resource_path());
-	m_cgi.add_env("SERVER_SOFTWARE"  , "GTS/1.0(GTS/" GTS_VERSION_STR ")");
+	m_cgi.set_work_path(file_path)
+		 .add_env("REQUEST_METHOD"   , m_sio.request.method)
+		 .add_env("QUERY_STRING"     , parameter)
+		 .add_env("SCRIPT_NAME"      , m_sio.url_name)
+		 .add_env("SCRIPT_FILENAME"  , file_path)
+		 .add_env("REMOTE_ADDR"      , m_sio.response.socket().remote_endpoint().address().to_string())
+		 .add_env("GATEWAY_INTERFACE", "CGI/1.1")
+		 .add_env("SERVER_NAME"      , m_sio.response.socket().local_endpoint().address().to_string())
+		 .add_env("SERVER_PORT"      , m_sio.response.socket().local_endpoint().port())
+		 .add_env("SERVER_PROTOCOL"  , "HTTP/" + m_sio.request.version)
+		 .add_env("DOCUMENT_ROOT"    , service_io::resource_path())
+		 .add_env("SERVER_SOFTWARE"  , "GTS/1.0(GTS/" GTS_VERSION_STR ")");
 
 	for(auto &pair : m_sio.request.headers)
 		m_cgi.add_env("HTTP_" + to_upper(replace_http_to_env(pair.first)), pair.second);
-
-	m_cgi.set_work_path(file_path);
 
 	auto it = m_sio.request.headers.find("content-length");
 	if( it != m_sio.request.headers.end() )

@@ -165,13 +165,7 @@ void task::run()
 	else if( method == http::CONNECT ) _CONNECT(sio);
 	else if( method == http::TRACH   ) _TRACH  (sio);
 
-	else {
-		m_socket->write_some("HTTP/1.1 400 Bad Request\r\n"
-							 "content-length: 11\r\n"
-							 "connection: close\r\n"
-							 "\r\n"
-							 "Bad Request");
-	}
+	else sio.response.write_default(http::hs_bad_request);
 	if( not m_request->keep_alive )
 		m_socket->close(true);
 }

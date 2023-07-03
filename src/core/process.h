@@ -10,21 +10,12 @@
 namespace gts
 {
 
-#if __cplusplus < 201703L
-# define _GTS_PROCESS_NOT_STRING \
+#define _GTS_PROCESS_NOT_STRING \
 	template <typename T> \
-	typename std::enable_if< \
-		not std::is_same<typename std::decay<T>::type, std::string>::value and \
-		not std::is_same<typename std::decay<T>::type, char*>::value \
-	>::type
-#else //c++2017
-# define _GTS_PROCESS_NOT_STRING \
-	template <typename T> \
-	std::enable_if_t< \
-		not std::is_same_v<std::decay_t<T>, std::string> and \
-		not std::is_same_v<std::decay_t<T>, char*> \
-	>
-#endif //c++2017
+	enable_if_t< \
+		not gts_is_same(decay_t<T>, std::string) and \
+		not gts_is_same(decay_t<T>, char*), \
+	process>&
 
 class process_impl;
 
@@ -37,17 +28,17 @@ public:
 	~process();
 
 public:
-	void set_file(const std::string &file_name);
+	process &set_file(const std::string &file_name);
 	std::string file() const;
 
 public:
 	template <typename...Args>
-	void add_env(const std::string &key, fmt::format_string<Args...> fmt, Args&&...args);
+	process &add_env(const std::string &key, fmt::format_string<Args...> fmt, Args&&...args);
 	_GTS_PROCESS_NOT_STRING	add_env(const std::string &key, T &&value);
 
 public:
-	void add_env(const std::string &key, const std::string &value);
-	void set_work_path(const std::string &path);
+	process &add_env(const std::string &key, const std::string &value);
+	process &set_work_path(const std::string &path);
 	bool start(const string_list &args = {});
 
 public:
@@ -73,14 +64,12 @@ private:
 };
 
 template <typename...Args> inline
-void process::add_env(const std::string &key, fmt::format_string<Args...> value_fmt, Args&&...args)
-{
-	add_env(key, fmt::format(value_fmt, std::forward<Args>(args)...));
+process &process::add_env(const std::string &key, fmt::format_string<Args...> value_fmt, Args&&...args) {
+	return add_env(key, fmt::format(value_fmt, std::forward<Args>(args)...));
 }
 
-_GTS_PROCESS_NOT_STRING process::add_env(const std::string &key, T &&value)
-{
-	add_env(key, fmt::format("{}", std::forward<T>(value)));
+_GTS_PROCESS_NOT_STRING process::add_env(const std::string &key, T &&value) {
+	return add_env(key, fmt::format("{}", std::forward<T>(value)));
 }
 
 } //namespace gts

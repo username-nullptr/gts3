@@ -37,10 +37,11 @@ process::~process()
 	delete m_impl;
 }
 
-void process::set_file(const std::string &file_name)
+process &process::set_file(const std::string &file_name)
 {
 	if( not is_running() )
 		m_impl->m_file_name = file_name;
+	return *this;
 }
 
 std::string process::file() const
@@ -48,20 +49,22 @@ std::string process::file() const
 	return m_impl->m_file_name;
 }
 
-void process::add_env(const std::string &key, const std::string &value)
+process &process::add_env(const std::string &key, const std::string &value)
 {
 	if( is_running() )
-		return ;
+		return *this;
 
 	auto pair = m_impl->m_env.emplace(key, value);
 	if( pair.second == false )
 		pair.first->second = value;
+	return *this;
 }
 
-void process::set_work_path(const std::string &path)
+process &process::set_work_path(const std::string &path)
 {
 	if( not is_running() )
 		m_impl->m_work_path = path;
+	return *this;
 }
 
 } //namespace gts

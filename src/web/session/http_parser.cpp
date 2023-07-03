@@ -96,7 +96,7 @@ bool http_parser::state_handler_waiting_request(const std::string &line_buf)
 		m_cache->path = resource_line.substr(0, pos);
 		m_cache->parameters_string = resource_line.substr(pos + 1);
 
-		for(auto &para_str : string_split(m_cache->parameters_string, ";"))
+		for(auto &para_str : string_split(m_cache->parameters_string, "&"))
 		{
 			auto pos = para_str.find("=");
 			if( pos == std::string::npos )

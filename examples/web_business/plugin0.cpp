@@ -43,7 +43,7 @@ GTS_DECL_EXPORT std::string view_status()
 
 GTS_DECL_EXPORT void new_request_0(http::response &&response)
 {
-	response.write("hello world");
+	response.write("hello world").close();
 }
 
 GTS_DECL_EXPORT void new_request_1(http::response &&response)

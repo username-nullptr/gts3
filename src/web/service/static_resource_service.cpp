@@ -53,10 +53,10 @@ void static_resource_service::default_transfer()
 
 	auto file_size = fs::file_size(m_sio.url_name);
 
-	m_sio.response.set_header("content-length", file_size);
-	m_sio.response.set_header("content-type",   mime_type);
-	m_sio.response.set_header("access-control-allow-origin", "*");
-	m_sio.response.write();
+	m_sio.response
+			.set_header("content-length", file_size)
+			.set_header("content-type"  , mime_type)
+			.write();
 
 	if( file_size == 0 )
 		return ;
@@ -70,7 +70,7 @@ void static_resource_service::default_transfer()
 		if( size == 0 )
 			break;
 
-		m_sio.response.write_body(fr_buf, size);
+		m_sio.response.write_body(size, fr_buf);
 		if( size < buf_size )
 			break;
 	}
@@ -105,14 +105,12 @@ void static_resource_service::range_transfer(const std::string &range_str)
 		if( range_parsing(trimmed(range_list[0]), range_value.begin, range_value.end, range_value.size) == false )
 			return m_sio.return_to_null(http::hs_range_not_satisfiable);
 
-		m_sio.response.set_header("access-control-allow-origin", "*");
-		m_sio.response.set_header("accept-ranges", "bytes");
+		m_sio.response
+				.set_header("accept-ranges" , "bytes")
+				.set_header("content-type"  , mime_type)
+				.set_header("content-length", range_value.size)
+				.set_header("content-range" , "{}-{}/{}", range_value.begin, range_value.end, range_value.size);
 
-		m_sio.response.set_header("content-type", mime_type);
-		m_sio.response.set_header("content-length", range_value.size);
-
-		m_sio.response.set_header
-				("content-range", "{}-{}/{}", range_value.begin, range_value.end, range_value.size);
 		return send_range("", "", range_value_queue);
 	} // if( rangeList.size() == 1 )
 
@@ -155,10 +153,9 @@ void static_resource_service::range_transfer(const std::string &range_str)
 	}
 
 	content_length += 2 + boundary.size() + 2 + 2;     // --boundary--<CR><LF>
-	m_sio.response.set_header("content-length", content_length);
-
-	m_sio.response.set_header("access-control-allow-origin", "*");
-	m_sio.response.set_header("accept-ranges", "bytes");
+	m_sio.response
+			.set_header("content-length", content_length)
+			.set_header("accept-ranges" , "bytes");
 	send_range(boundary, ct_line, range_value_queue);
 }
 
@@ -250,7 +247,7 @@ void static_resource_service::send_range
 				auto buf = new char[value.size] {0};
 				auto s = m_file.readsome(buf, value.size);
 
-				m_sio.response.write_body(buf, s);
+				m_sio.response.write_body(s, buf);
 				delete[] buf;
 				flag = false;
 			}
@@ -259,7 +256,7 @@ void static_resource_service::send_range
 				auto buf = new char[buf_size] {0};
 				auto s = m_file.readsome(buf, buf_size);
 
-				m_sio.response.write_body(buf, s);
+				m_sio.response.write_body(s, buf);
 				value.size -= buf_size;
 				delete[] buf;
 			}
@@ -285,7 +282,7 @@ void static_resource_service::send_range
 				buf[s + 0] = '\r';
 				buf[s + 1] = '\n';
 
-				m_sio.response.write_body(buf, s + 2);
+				m_sio.response.write_body(s + 2, buf);
 				delete[] buf;
 				flag = false;
 			}
@@ -294,7 +291,7 @@ void static_resource_service::send_range
 				auto buf = new char[buf_size] {0};
 				auto s = m_file.readsome(buf, buf_size);
 
-				m_sio.response.write_body(buf, s);
+				m_sio.response.write_body(s, buf);
 				value.size -= buf_size;
 				delete[] buf;
 			}

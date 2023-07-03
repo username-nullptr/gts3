@@ -8,21 +8,12 @@
 namespace gts { namespace http
 {
 
-#if __cplusplus < 201703L
-# define _GTS_HTTP_RESPONSE_NOT_STRING \
+#define _GTS_HTTP_RESPONSE_NOT_STRING \
 	template <typename T> \
-	typename std::enable_if< \
-		not std::is_same<typename std::decay<T>::type, std::string>::value and \
-		not std::is_same<typename std::decay<T>::type, char*>::value \
-	>::type
-#else //c++2017
-# define _GTS_HTTP_RESPONSE_NOT_STRING \
-	template <typename T> \
-	std::enable_if_t< \
-		not std::is_same_v<std::decay_t<T>, std::string> and \
-		not std::is_same_v<std::decay_t<T>, char*> \
-	>
-#endif //c++2017
+	enable_if_t< \
+		not gts_is_same(decay_t<T>, std::string) and \
+		not gts_is_same(decay_t<T>, char*), \
+	response>&
 
 class response_impl;
 
@@ -41,13 +32,13 @@ public:
 	~response();
 
 public:
-	void set_status(http::status status);
-	void set_header(const std::string &key, const std::string &value);
-	void set_headers(const http::headers &headers);
+	response &set_status(http::status status);
+	response &set_header(const std::string &key, const std::string &value);
+	response &set_headers(const http::headers &headers);
 
 public:
 	template <typename...Args>
-	void set_header(const std::string &key, fmt::format_string<Args...> fmt, Args&&...args);
+	response &set_header(const std::string &key, fmt::format_string<Args...> fmt, Args&&...args);
 	_GTS_HTTP_RESPONSE_NOT_STRING set_header(const std::string &key, T &&value);
 
 public:
@@ -56,22 +47,36 @@ public:
 	http::status status() const;
 
 public:
-	void write(const void *body, std::size_t size, bool close = false);
-	void write(const std::string &body = "", bool close = false);
+	response &write_default();
+	response &write_default(http::status status);
 
 public:
-	void write_body(const void *body, std::size_t size, bool close = false);
-	void write_body(const std::string &body, bool close = false);
+	response &write();
+	response &write(std::size_t size, const void *body);
+	response &write(const std::string &body);
+	response &write(const char *body);
+
+public:
+	response &write_body(std::size_t size, const void *body);
+	response &write_body(const std::string &body);
+	response &write_body(const char *body);
 
 public:
 	template <typename...Args>
-	void fmt_write(fmt::format_string<Args...> fmt, Args&&...args);
+	response &write(fmt::format_string<Args...> fmt, Args&&...args);
 
 	template <typename...Args>
-	void fmt_write_body(fmt::format_string<Args...> fmt, Args&&...args);
+	response &write_body(fmt::format_string<Args...> fmt, Args&&...args);
 
 public:
+	_GTS_HTTP_RESPONSE_NOT_STRING write(T &&value);
+	_GTS_HTTP_RESPONSE_NOT_STRING write_body(T &&value);
+
+public:
+	response &unset_header(const std::string &key);
 	void close(bool force = false);
+
+public:
 	const tcp_socket &socket() const;
 	tcp_socket &socket();
 
@@ -82,43 +87,66 @@ private:
 	response_impl *m_impl;
 };
 
-inline void response::set_headers(const http::headers &headers)
+inline response &response::set_headers(const http::headers &headers)
 {
 	for(auto &p : headers)
 		set_header(p.first, p.second);
+	return *this;
 }
 
 template <typename...Args> inline
-void response::set_header(const std::string &key, fmt::format_string<Args...> value_fmt, Args&&...args)
-{
-	set_header(key, fmt::format(value_fmt, std::forward<Args>(args)...));
+response &response::set_header(const std::string &key, fmt::format_string<Args...> value_fmt, Args&&...args) {
+	return set_header(key, fmt::format(value_fmt, std::forward<Args>(args)...));
 }
 
-_GTS_HTTP_RESPONSE_NOT_STRING response::set_header(const std::string &key, T &&value)
-{
-	set_header(key, fmt::format("{}", std::forward<T>(value)));
+_GTS_HTTP_RESPONSE_NOT_STRING response::set_header(const std::string &key, T &&value) {
+	return set_header(key, fmt::format("{}", std::forward<T>(value)));
 }
 
-inline void response::write(const void *body, std::size_t size, bool close)
-{
-	write(std::string(static_cast<const char*>(body), size), close);
+inline response &response::write_default(http::status status) {
+	return set_status(status).write_default();
 }
 
-inline void response::write_body(const void *body, std::size_t size, bool close)
-{
-	write_body(std::string(static_cast<const char*>(body), size), close);
+inline response &response::write() {
+	return write(0,nullptr);
+}
+
+inline response &response::write(const std::string &body) {
+	return write(body.size(), body.c_str());
+}
+
+inline response &response::write(const char *body) {
+	return write(strlen(body), body);
+}
+
+inline response &response::write_body(const std::string &body) {
+	return write_body(body.size(), body.c_str());
+}
+
+inline response &response::write_body(const char *body) {
+	return write_body(strlen(body), body);
 }
 
 template <typename...Args>
-void response::fmt_write(fmt::format_string<Args...> value_fmt, Args&&...args)
+response &response::write(fmt::format_string<Args...> value_fmt, Args&&...args)
 {
-	write(fmt::format(value_fmt, std::forward<Args>(args)...));
+	auto body = fmt::format(value_fmt, std::forward<Args>(args)...);
+	return write(body.size(), body.c_str());
 }
 
 template <typename...Args>
-void response::fmt_write_body(fmt::format_string<Args...> value_fmt, Args&&...args)
+response &response::write_body(fmt::format_string<Args...> value_fmt, Args&&...args)
 {
-	write_body(fmt::format(value_fmt, std::forward<Args>(args)...));
+	auto body = fmt::format(value_fmt, std::forward<Args>(args)...);
+	return write_body(body.size(), body.c_str());
+}
+
+_GTS_HTTP_RESPONSE_NOT_STRING response::write(T &&value) {
+	return write("{}", value);
+}
+
+_GTS_HTTP_RESPONSE_NOT_STRING response::write_body(T &&value) {
+	return write_body("{}", value);
 }
 
 }} //namespace gts::http
