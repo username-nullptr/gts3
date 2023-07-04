@@ -1,6 +1,7 @@
 #ifndef GTS_GLOBAL_H
 #define GTS_GLOBAL_H
 
+#include <nlohmann/json.hpp>
 #include <gts/utility.h>
 #include <asio.hpp>
 #include <vector>
@@ -79,6 +80,8 @@ struct site_info
 #ifdef GTS_ENABLE_SSL
 	bool ssl;
 #endif //ssl
+
+	nlohmann::json json;
 };
 typedef std::map<std::string, site_info>  site_info_map;
 

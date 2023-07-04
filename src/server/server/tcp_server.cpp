@@ -88,8 +88,12 @@ void tcp_server::start()
 		log_fatal("gts.plugin load failed: {}.\n", m_plugin_lib->get_error_string());
 
 	auto &_settings = settings::global_instance();
-	auto json_file = _settings.read<std::string>(SINI_GROUP_GTS, SINI_GTS_SITES_CONFIG);
+	m_buffer_size = READ_CONFIG(int, SINI_GTS_TCP_BUF_SIZE, m_buffer_size);
 
+	if( m_buffer_size < 1024 )
+		m_buffer_size = 1024;
+
+	auto json_file = _settings.read<std::string>(SINI_GROUP_GTS, SINI_GTS_SITES_CONFIG);
 	if( json_file.empty() )
 	{
 		log_warning("Sites is not configured, using default. (http:80)");
@@ -109,63 +113,62 @@ void tcp_server::start()
 		log_fatal("Sites json file is not exists.");
 
 	std::ifstream file(json_file);
-	auto json = njson::parse(file, nullptr, false);
-
-	if( json.is_null() )
-		log_fatal("Sites json file read error.");
-
-	m_buffer_size = READ_CONFIG(int, SINI_GTS_TCP_BUF_SIZE, m_buffer_size);
-	if( m_buffer_size < 1024 )
-		m_buffer_size = 1024;
-
 	auto &si_map = server_get_site_infos();
 
-	for(auto &it : json.items())
-	{
-		auto &name = it.key();
-		auto pair = si_map.emplace(name, site_info());
-
-		if( pair.second == false )
+	try {
+		auto json = njson::parse(file, nullptr);
+		for(auto &it : json.items())
 		{
-			log_error("Site '{}' exists.", pair.first->first);
-			continue;
-		}
-		auto &info = pair.first->second;
-		auto &obj = it.value();
+			auto &name = it.key();
+			auto pair = si_map.emplace(name, site_info());
 
-		if( obj.contains("address") )
-			info.addr = to_lower(obj["address"].get<std::string>());
-		else
-		{
-			log_error("Sites json: {}: address is null. (default set: ipv4)", name);
-			info.addr = "ipv4";
-		}
-
-		if( obj.contains("port") )
-			info.port = obj["port"].get<int>();
-		else
-			log_fatal("Sites json: {}: port is null.", name);
-
-		if( obj.contains("universal") )
-			info.universal = obj["universal"].get<bool>();
-		else
-			info.universal = true;
-
-		if( obj.contains("ssl") )
-#ifdef GTS_ENABLE_SSL
-			info.ssl = obj["ssl"].get<bool>();
-		else
-			info.ssl = false;
-#else //no ssl
-		{
-			if( obj["ssl"].get<bool>() )
+			if( pair.second == false )
 			{
-				log_warning("Site '{}': ssl is disabled, if necessary, please recompile GTS server"
-							" (cmake -DENABLE_SSL -DOpenSSL_DIR)", pair.first->first);
+				log_error("Site '{}' exists.", pair.first->first);
+				continue;
 			}
-		}
+			auto &info = pair.first->second;
+			auto &obj = it.value();
+			info.json = obj;
+
+			if( obj.contains("address") )
+				info.addr = to_lower(obj["address"].get<std::string>());
+			else
+			{
+				log_error("Sites json: {}: address is null. (default set: ipv4)", name);
+				info.addr = "ipv4";
+			}
+
+			if( obj.contains("port") )
+				info.port = obj["port"].get<int>();
+			else
+				log_fatal("Sites json: {}: port is null.", name);
+
+			if( obj.contains("universal") )
+				info.universal = obj["universal"].get<bool>();
+			else
+				info.universal = true;
+
+			if( obj.contains("ssl") )
+#ifdef GTS_ENABLE_SSL
+				info.ssl = obj["ssl"].get<bool>();
+			else
+				info.ssl = false;
+#else //no ssl
+			{
+				if( obj["ssl"].get<bool>() )
+				{
+					log_warning("Site '{}': ssl is disabled, if necessary, please recompile GTS server"
+								" (cmake -DENABLE_SSL -DOpenSSL_DIR)", pair.first->first);
+				}
+			}
 #endif //ssl
+		}
 	}
+	catch(...) {
+		log_fatal("Sites json file load failed: 'The file does not exist or is in the wrong format' ?");
+	}
+
 	plugin_call::init(settings::global_instance().file_name());
 
 	for(auto &pair : si_map)
