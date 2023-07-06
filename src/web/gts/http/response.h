@@ -42,7 +42,7 @@ public:
 	_GTS_HTTP_RESPONSE_NOT_STRING set_header(const std::string &key, T &&value);
 
 public:
-	const std::string &version() const;
+	std::string version() const;
 	const http::headers &headers() const;
 	http::status status() const;
 
@@ -71,6 +71,21 @@ public:
 public:
 	_GTS_HTTP_RESPONSE_NOT_STRING write(T &&value);
 	_GTS_HTTP_RESPONSE_NOT_STRING write_body(T &&value);
+
+public:
+	response &write_file(const std::string &file_name);
+	response &write_file(const std::string &file_name, const std::string &range_http_value);
+	response &write_file(const std::string &file_name, std::size_t begin, std::size_t end);
+
+public:
+	struct range
+	{
+		std::size_t begin;
+		std::size_t end;
+	};
+	using range_vector = std::vector<range>;
+	response &write_file(const std::string &file_name, const response::range &range);
+	response &write_file(const std::string &file_name, const range_vector &range);
 
 public:
 	response &unset_header(const std::string &key);
@@ -147,6 +162,14 @@ _GTS_HTTP_RESPONSE_NOT_STRING response::write(T &&value) {
 
 _GTS_HTTP_RESPONSE_NOT_STRING response::write_body(T &&value) {
 	return write_body("{}", value);
+}
+
+inline response &response::write_file(const std::string &file_name, const range &_range) {
+	return write_file(file_name, range_vector{_range});
+}
+
+inline response &response::write_file(const std::string &file_name, std::size_t begin, std::size_t end) {
+	return write_file(file_name, range_vector{{begin, end}});
 }
 
 }} //namespace gts::http

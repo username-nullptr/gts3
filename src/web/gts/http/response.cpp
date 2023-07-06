@@ -1,5 +1,10 @@
 #include "response.h"
+#include <gts/application.h>
+#include <gts/mime_type.h>
 #include <gts/log.h>
+
+#include <cppfilesystem>
+#include <fstream>
 #include <cassert>
 
 namespace gts { namespace http
@@ -7,6 +12,14 @@ namespace gts { namespace http
 
 class GTS_DECL_HIDDEN response_impl
 {
+public:
+	std::size_t tcp_ip_buffer_size() const
+	{
+		tcp::socket::send_buffer_size attr;
+		m_socket->get_option(attr);
+		return attr.value();
+	}
+
 public:
 	tcp_socket_ptr m_socket;
 
@@ -76,7 +89,7 @@ response &response::set_header(const std::string &key, const std::string &value)
 	return *this;
 }
 
-const std::string &response::version() const
+std::string response::version() const
 {
 	return m_impl->m_version;
 }
@@ -144,6 +157,67 @@ response &response::write_body(std::size_t size, const void *body)
 {
 	m_impl->m_socket->write_some(body, size);
 	return *this;
+}
+
+response &response::write_file(const std::string &_file_name)
+{
+	if( m_impl->m_headers_writed )
+	{
+		log_warning("The http protocol header is sent repeatedly. (auto ignore)");
+		return *this;
+	}
+	m_impl->m_headers_writed = true;
+
+	auto file_name = app::absolute_path(_file_name);
+	if( not fs::exists(file_name) )
+	{
+		log_error("The resource '{}' not exist.", file_name);
+		write_default(http::hs_not_found);
+		return *this;
+	}
+
+	std::fstream file(file_name);
+	if( not file.is_open() )
+	{
+		log_error("Can't open resource '{}'.", file_name);
+		write_default(http::hs_forbidden);
+		return *this;
+	}
+
+	auto mime_type = get_mime_type(file_name);
+	log_debug("resource mime-type: {}.", mime_type);
+
+	auto file_size = fs::file_size(file_name);
+	set_header("content-length", file_size);
+	set_header("content-type"  , mime_type);
+	write();
+
+	if( file_size == 0 )
+	{
+		log_info("response::write_file: file is empty.");
+		return *this;
+	}
+
+	auto buf_size = m_impl->tcp_ip_buffer_size();
+	char *fr_buf = new char[buf_size] {0};
+
+	for(;;)
+	{
+		std::size_t size = file.readsome(fr_buf, buf_size);
+		if( size == 0 )
+			break;
+
+		write_body(size, fr_buf);
+		if( size < buf_size )
+			break;
+	}
+	delete[] fr_buf;
+	return *this;
+}
+
+response &response::write_file(const std::string &file_name, const std::string &range_http_value)
+{
+
 }
 
 response &response::unset_header(const std::string &key)

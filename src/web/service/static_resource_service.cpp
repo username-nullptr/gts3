@@ -162,7 +162,7 @@ void static_resource_service::range_transfer(const std::string &range_str)
 bool static_resource_service::range_parsing
 (const std::string &range_str, std::size_t &begin, std::size_t &end, std::size_t &size)
 {
-	auto list = string_split(range_str, '-');
+	auto list = string_split(range_str, '-', false);
 
 	if( list.size() > 2 )
 	{
