@@ -19,6 +19,7 @@ class GTS_DECL_HIDDEN cgi_service
 
 public:
 	explicit cgi_service(service_io &sio);
+	~cgi_service();
 
 public:
 	static void init();
@@ -40,9 +41,10 @@ private:
 	process m_cgi;
 
 private:
-	char m_sock_read_buf[_BUF_SIZE];
 	char m_cgi_read_buf[_BUF_SIZE];
 	std::size_t m_content_length = 0;
+	std::size_t m_tcp_buf_size = _BUF_SIZE;
+	char *m_sock_read_buf = nullptr;
 
 private:
 	std::atomic_int m_counter {0};

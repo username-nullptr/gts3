@@ -24,6 +24,12 @@ cgi_service::cgi_service(service_io &sio) :
 
 }
 
+cgi_service::~cgi_service()
+{
+	if( m_sock_read_buf )
+		delete m_sock_read_buf;
+}
+
 static environments g_cgi_env;
 
 void cgi_service::init()
@@ -72,14 +78,14 @@ void cgi_service::call()
 	for(auto &pair : g_cgi_env)
 		m_cgi.add_env(pair.first, pair.second);
 
-	auto parameter = m_sio.request.parameters_string;
+	auto parameter = m_sio.request.parameters_string();
 	if( parameter.empty() )
 		parameter = "/";
 
 	auto file_path = gts::file_path(m_sio.url_name);
 
 	m_cgi.set_work_path(file_path)
-		 .add_env("REQUEST_METHOD"   , m_sio.request.method)
+		 .add_env("REQUEST_METHOD"   , m_sio.request.method())
 		 .add_env("QUERY_STRING"     , parameter)
 		 .add_env("SCRIPT_NAME"      , m_sio.url_name)
 		 .add_env("SCRIPT_FILENAME"  , file_path)
@@ -87,25 +93,31 @@ void cgi_service::call()
 		 .add_env("GATEWAY_INTERFACE", "CGI/1.1")
 		 .add_env("SERVER_NAME"      , m_sio.response.socket().local_endpoint().address().to_string())
 		 .add_env("SERVER_PORT"      , m_sio.response.socket().local_endpoint().port())
-		 .add_env("SERVER_PROTOCOL"  , "HTTP/" + m_sio.request.version)
+		 .add_env("SERVER_PROTOCOL"  , "HTTP/" + m_sio.request.version())
 		 .add_env("DOCUMENT_ROOT"    , service_io::resource_path())
 		 .add_env("SERVER_SOFTWARE"  , "GTS/1.0(GTS/" GTS_VERSION_STR ")");
 
-	for(auto &pair : m_sio.request.headers)
+	for(auto &pair : m_sio.request.headers())
 		m_cgi.add_env("HTTP_" + to_upper(replace_http_to_env(pair.first)), pair.second);
 
-	auto it = m_sio.request.headers.find("content-length");
-	if( it != m_sio.request.headers.end() )
+	auto it = m_sio.request.headers().find("content-length");
+	if( it != m_sio.request.headers().end() )
 		std::sscanf(it->second.c_str(), "%zu", &m_content_length);
 
 	if( m_cgi.start() == false )
 		return m_sio.return_to_null(http::hs_forbidden);
-
 	async_read_cgi();
-	if( m_sio.request.body.size() > 0 )
+
+	tcp::socket::send_buffer_size attr;
+	m_sio.request.socket().get_option(attr);
+	m_tcp_buf_size = attr.value();
+	m_sock_read_buf = new char[m_tcp_buf_size] {0};
+
+	auto res = m_sio.request.read_body(m_sock_read_buf, m_tcp_buf_size);
+	if( res > 0 )
 	{
-		m_content_length -= m_sio.request.body.size();
-		async_write_cgi(m_sio.request.body.c_str(), m_sio.request.body.size());
+		m_content_length -= res;
+		async_write_cgi(m_sock_read_buf, res);
 	}
 	else
 		async_read_socket();
@@ -143,9 +155,8 @@ void cgi_service::async_write_socket(const char *buf, std::size_t buf_size)
 void cgi_service::async_read_socket()
 {
 	auto buf_size = m_content_length;
-
-	if( buf_size > _BUF_SIZE )
-		buf_size = _BUF_SIZE;
+	if( buf_size > m_tcp_buf_size )
+		buf_size = m_tcp_buf_size;
 
 	else if( buf_size == 0 )
 		return ;

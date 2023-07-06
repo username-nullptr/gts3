@@ -151,8 +151,8 @@ static void _TRACH  (service_io &sio);
 
 void task::run()
 {
-	auto method = m_request->method;
-	log_debug() << "URL:" << m_request->path << method;
+	auto method = m_request->method();
+	log_debug() << "URL:" << m_request->path() << method;
 
 	service_io sio(m_socket, *m_request);
 
@@ -166,13 +166,13 @@ void task::run()
 	else if( method == http::TRACH   ) _TRACH  (sio);
 
 	else sio.response.write_default(http::hs_bad_request);
-	if( not m_request->keep_alive )
+	if( not m_request->keep_alive() )
 		m_socket->close(true);
 }
 
 #define _TASK_DO_PARSING(_sio) \
 ({ \
-	sio.url_name = _sio.request.path; \
+	sio.url_name = _sio.request.path(); \
 	if( sio.url_name.empty() or sio.url_name == "/" ) \
 		sio.url_name = g_default_resource; \
 	else if( sio.url_name != g_default_resource ) { \
@@ -213,7 +213,7 @@ static void _PUT(service_io &sio)
 
 static void _HEAD(service_io &sio)
 {
-	sio.url_name = sio.request.path;
+	sio.url_name = sio.request.path();
 	if( sio.url_name == "/" )
 		return sio.return_to_null();
 

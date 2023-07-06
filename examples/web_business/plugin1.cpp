@@ -34,13 +34,13 @@ void plugin1_0::new_request(http::request &&request, http::response &&response, 
 {
 	std::cerr << std::endl;
 
-	auto body = fmt::format("Ok!!!\npath = {}\n\n", request.path);
+	auto body = fmt::format("Ok!!!\npath = {}\n\n", request.path());
 
-	for(auto &para : request.parameters)
+	for(auto &para : request.parameters())
 		body += fmt::format("(p) {} = {}\n", para.first, para.second.to_string());
 	body += "\n";
 
-	for(auto &para : request.headers)
+	for(auto &para : request.headers())
 		body += fmt::format("(h) {} = {}\n", para.first, para.second);
 	body += "\n";
 

@@ -1,7 +1,7 @@
 #include "response.h"
-#include <gts/application.h>
-#include <gts/mime_type.h>
-#include <gts/log.h>
+#include "gts/application.h"
+#include "gts/mime_type.h"
+#include "gts/log.h"
 
 #include <cppfilesystem>
 #include <fstream>
@@ -60,12 +60,10 @@ response::response(tcp_socket_ptr socket, const std::string &v, const http::head
 	m_impl->m_version = v;
 }
 
-response::response(response &&other)
+response::response(response &&other) :
+	m_impl(other.m_impl)
 {
 	assert(other.m_impl);
-	m_impl = other.m_impl;
-
-	delete other.m_impl;
 	other.m_impl = nullptr;
 }
 
@@ -220,6 +218,11 @@ response &response::write_file(const std::string &file_name, const std::string &
 
 }
 
+response &response::write_file(const std::string &file_name, const range_vector &range)
+{
+
+}
+
 response &response::unset_header(const std::string &key)
 {
 	m_impl->m_headers.erase(key);
@@ -246,9 +249,8 @@ response &response::operator=(response &&other)
 	assert(other.m_impl);
 	if( m_impl )
 		delete m_impl;
-	m_impl = other.m_impl;
 
-	delete other.m_impl;
+	m_impl = other.m_impl;
 	other.m_impl = nullptr;
 	return *this;
 }

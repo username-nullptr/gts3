@@ -1,4 +1,5 @@
 #include "http_parser.h"
+#include "private/request_impl.h"
 #include "gts/http/request.h"
 #include "gts/algorithm.h"
 #include "gts/log.h"
@@ -82,35 +83,35 @@ bool http_parser::state_handler_waiting_request(const std::string &line_buf)
 	if( m_cache == nullptr )
 		m_cache = new request();
 
-	m_cache->method  = method;
-	m_cache->version = request_line_parts[2].substr(5,3);
+	m_cache->m_impl->m_method  = method;
+	m_cache->m_impl->m_version = request_line_parts[2].substr(5,3);
 
 	auto resource_line = from_percent_encoding(request_line_parts[1]);
 	auto pos = resource_line.find("?");
 
 	if( pos == std::string::npos )
-		m_cache->path = resource_line;
+		m_cache->m_impl->m_path = resource_line;
 
 	else
 	{
-		m_cache->path = resource_line.substr(0, pos);
-		m_cache->parameters_string = resource_line.substr(pos + 1);
+		m_cache->m_impl->m_path = resource_line.substr(0, pos);
+		m_cache->m_impl->m_parameters_string = resource_line.substr(pos + 1);
 
-		for(auto &para_str : string_split(m_cache->parameters_string, "&"))
+		for(auto &para_str : string_split(m_cache->m_impl->m_parameters_string, "&"))
 		{
 			auto pos = para_str.find("=");
 			if( pos == std::string::npos )
-				m_cache->parameters.emplace(para_str, "");
+				m_cache->m_impl->m_parameters.emplace(para_str, "");
 			else
-				m_cache->parameters.emplace(para_str.substr(0, pos), para_str.substr(pos+1));
+				m_cache->m_impl->m_parameters.emplace(para_str.substr(0, pos), para_str.substr(pos+1));
 		}
 	}
 
-	auto n_it = std::unique(m_cache->path.begin(), m_cache->path.end(), [](char c0, char c1){
+	auto n_it = std::unique(m_cache->m_impl->m_path.begin(), m_cache->m_impl->m_path.end(), [](char c0, char c1){
 		return c0 == c1 and c0 == '/';
 	});
-	if( n_it != m_cache->path.end() )
-		m_cache->path.erase(n_it, m_cache->path.end());
+	if( n_it != m_cache->m_impl->m_path.end() )
+		m_cache->m_impl->m_path.erase(n_it, m_cache->m_impl->m_path.end());
 
 	m_state = reading_headers;
 	return true;
@@ -133,7 +134,7 @@ request *http_parser::state_handler_reading_headers(const std::string &line_buf)
 	auto header_key = to_lower(trimmed(line_buf.substr(0, colon_index)));
 	auto header_value = from_percent_encoding(trimmed(line_buf.substr(colon_index + 1)));
 
-	m_cache->headers[header_key] = header_value;
+	m_cache->m_impl->m_headers[header_key] = header_value;
 	return nullptr;
 }
 
@@ -143,12 +144,12 @@ request *http_parser::next_request_ready()
 
 	if( not m_buffer.empty() )
 	{
-		auto it = m_cache->headers.find("content-length");
-		if( it != m_cache->headers.end() and not it->second.empty() )
+		auto it = m_cache->m_impl->m_headers.find("content-length");
+		if( it != m_cache->m_impl->m_headers.end() and not it->second.empty() )
 		{
 			std::size_t size = 0;
 			std::sscanf(it->second.c_str(), "%zu", &size);
-			m_cache->body = m_buffer.substr(0, size);
+			m_cache->m_impl->m_body = m_buffer.substr(0, size);
 		}
 		m_buffer.clear();
 	}
@@ -156,7 +157,7 @@ request *http_parser::next_request_ready()
 	auto request = m_cache;
 	m_cache = nullptr;
 
-	request->finish();
+	request->m_impl->finish();
 	return request;
 }
 

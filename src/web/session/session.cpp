@@ -1,6 +1,7 @@
 #include "session.h"
 #include "service/task.h"
 
+#include "private/request_impl.h"
 #include "gts/web/config_key.h"
 #include "gts/settings.h"
 #include "gts/log.h"
@@ -162,6 +163,7 @@ void session::do_recv()
 		m_task.async_wait_next([this]{
 			do_recv();
 		});
+		request->m_impl->m_socket = m_socket;
 		m_task.start(std::move(request));
 	});
 }

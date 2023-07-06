@@ -39,7 +39,7 @@ void plugin_service::call()
 	if( it == registration::g_path_hash.end() )
 		return m_sio.return_to_null(http::hs_not_found);
 
-	auto &ss = it->second[m_sio.request.method];
+	auto &ss = it->second[m_sio.request.method()];
 	if( not ss.method.is_valid() )
 		return m_sio.return_to_null(http::hs_method_not_allowed);
 
@@ -226,13 +226,13 @@ std::string plugin_service::view_status()
 static environments make_envs(service_io &sio)
 {
 	return environments{
-		{ "REQUEST_METHOD"   , http::method_string(sio.request.method)                          },
-		{ "QUERY_STRING"     , sio.request.parameters_string                                    },
+		{ "REQUEST_METHOD"   , http::method_string(sio.request.method())                        },
+		{ "QUERY_STRING"     , sio.request.parameters_string()                                  },
 		{ "REMOTE_ADDR"      , sio.response.socket().remote_endpoint().address().to_string()    },
 		{ "GATEWAY_INTERFACE", "RTTR/" RTTR_VERSION_STR                                         },
 		{ "SERVER_NAME"      , sio.response.socket().local_endpoint().address().to_string()     },
 		{ "SERVER_PORT"      , fmt::format("{}", sio.response.socket().local_endpoint().port()) },
-		{ "SERVER_PROTOCOL"  , "HTTP/" + sio.request.version                                    },
+		{ "SERVER_PROTOCOL"  , "HTTP/" + sio.request.version()                                  },
 		{ "DOCUMENT_ROOT"    , service_io::resource_path()                                      },
 		{ "SERVER_SOFTWARE"  , "GTS/1.0(GTS/" GTS_VERSION_STR ")"                               }
 	};

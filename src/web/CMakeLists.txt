@@ -12,6 +12,7 @@ set(web_sources
 	service/static_resource_service.cpp
 	service/plugins_service.cpp
 	service/cgi_service.cpp
+	private/request_impl.cpp
 )
 
 set(web_headers
@@ -32,6 +33,7 @@ set(web_headers
 	service/static_resource_service.h
 	service/plugins_service.h
 	service/cgi_service.h
+	private/request_impl.h
 )
 
 add_library(gtsweb SHARED ${web_sources} ${web_headers})

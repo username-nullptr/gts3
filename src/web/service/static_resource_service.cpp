@@ -30,8 +30,8 @@ void static_resource_service::call()
 		return m_sio.return_to_null(http::hs_forbidden);
 	}
 
-	auto it = m_sio.request.headers.find("range");
-	if( it == m_sio.request.headers.end() )
+	auto it = m_sio.request.headers().find("range");
+	if( it == m_sio.request.headers().end() )
 		default_transfer();
 
 	else if( not it->second.empty() ) // Range: bytes=x-y, m-n, i-j ...

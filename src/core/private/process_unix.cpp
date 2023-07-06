@@ -156,7 +156,6 @@ void process::async_write(const char *buf, int size, std::function<void(asio::er
 
 void process::async_read(char *buf, int size, std::function<void(asio::error_code,std::size_t)> call_back)
 {
-	// fuck ?!?
 	if( m_impl->m_read_fd == nullptr )
 	{
 		m_impl->m_io.post([call_back]{
@@ -166,8 +165,8 @@ void process::async_read(char *buf, int size, std::function<void(asio::error_cod
 	}
 
 	m_impl->m_read_fd->non_blocking(true);
-
 	int res = ::read(m_impl->m_read_fd->native_handle(), buf, size);
+
 	if( res > 0 )
 	{
 		m_impl->m_io.post([call_back, res]{
@@ -190,8 +189,17 @@ void process::async_read(char *buf, int size, std::function<void(asio::error_cod
 		m_impl->m_io.post([call_back]{
 			call_back(std::make_error_code(static_cast<std::errc>(errno)), 0);
 		});
+
 		if( m_impl->m_pid < 0 )
 			m_impl->reset_reader();
+		return ;
+	}
+	if( not is_running() )
+	{
+		m_impl->reset_reader();
+		m_impl->m_io.post([call_back, res]{
+			call_back(std::make_error_code(std::errc::operation_canceled), 0);
+		});
 		return ;
 	}
 
@@ -257,6 +265,7 @@ void process::join()
 
 	pid_t pid = waitpid(m_impl->m_pid, nullptr, 0);
 	m_impl->m_pid = -1;
+	std::cerr << "!!!!!!!!!!!!!!!!!! " << pid << std::endl;
 
 	if( pid > 0 )
 		m_impl->reset_writer(pid);
@@ -271,6 +280,7 @@ void process_impl::signal_hander(int signo)
 	if( signo == SIGCHLD )
 	{
 		pid_t pid = waitpid(-1, nullptr, WNOHANG);
+		std::cerr << "@@@@@@@@@@@ +++++++++  " << pid << std::endl;
 
 //		g_mutex.lock();
 		auto it = g_process_map.find(pid);
