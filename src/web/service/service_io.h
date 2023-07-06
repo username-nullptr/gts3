@@ -12,7 +12,7 @@ namespace gts { namespace web
 class GTS_DECL_HIDDEN service_io
 {
 public:
-	service_io(tcp_socket_ptr socket, http::request &request);
+	explicit service_io(http::request &request);
 
 public:
 	static void init();

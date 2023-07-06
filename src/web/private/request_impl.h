@@ -2,6 +2,7 @@
 #define GTS_HTTP_REQUEST_IMPL_H
 
 #include "gts/http/request.h"
+#include "gts/tcp_socket.h"
 
 namespace gts { namespace http
 {

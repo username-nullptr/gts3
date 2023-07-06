@@ -1,11 +1,13 @@
 #ifndef GTS_HTTP_RESPONSE_H
 #define GTS_HTTP_RESPONSE_H
 
-#include <gts/tcp_socket.h>
 #include <gts/http/type.h>
 #include <fmt/format.h>
 
-namespace gts { namespace http
+namespace gts {
+class tcp_socket;
+
+namespace http
 {
 
 #define _GTS_HTTP_RESPONSE_NOT_STRING \
@@ -15,6 +17,7 @@ namespace gts { namespace http
 		not gts_is_same(decay_t<T>, char*), \
 	response>&
 
+class request;
 class response_impl;
 
 class GTSWEB_API response
@@ -22,10 +25,8 @@ class GTSWEB_API response
 	GTS_DISABLE_COPY(response)
 
 public:
-	explicit response(tcp_socket_ptr socket, http::status status = hs_ok);
-	response(tcp_socket_ptr socket, const http::headers &headers, http::status status = hs_ok);
-	response(tcp_socket_ptr socket, const std::string &v, http::status status = hs_ok);
-	response(tcp_socket_ptr socket, const std::string &v, const http::headers &headers, http::status status = hs_ok);
+	explicit response(http::request &request, http::status status = hs_ok);
+	response(http::request &request, const http::headers &headers, http::status status = hs_ok);
 
 public:
 	response(response &&other);

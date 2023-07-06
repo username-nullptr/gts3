@@ -255,12 +255,12 @@ void plugin_service::global_method_call(const rttr::method &method)
 
 		if( t0 == GTS_RTTR_TYPE(http::request) and t1 == GTS_RTTR_TYPE(http::response) )
 		{
-			method.invoke({}, std::move(m_sio.request), std::move(m_sio.response));
+			method.invoke({}, m_sio.request, std::move(m_sio.response));
 			return ;
 		}
 		if( t0 == GTS_RTTR_TYPE(http::response) and t0 == GTS_RTTR_TYPE(http::request) )
 		{
-			method.invoke({}, std::move(m_sio.response), std::move(m_sio.request));
+			method.invoke({}, m_sio.response, m_sio.request);
 			return ;
 		}
 	}
@@ -273,32 +273,32 @@ void plugin_service::global_method_call(const rttr::method &method)
 
 		if( t0 == GTS_RTTR_TYPE(http::request) and t1 == GTS_RTTR_TYPE(http::response) and t2 == GTS_RTTR_TYPE(environments) )
 		{
-			method.invoke({}, std::move(m_sio.request), std::move(m_sio.response), make_envs(m_sio));
+			method.invoke({}, m_sio.request, std::move(m_sio.response), make_envs(m_sio));
 			return ;
 		}
 		else if( t0 == GTS_RTTR_TYPE(http::response) and t1 == GTS_RTTR_TYPE(http::request) and t2 == GTS_RTTR_TYPE(environments) )
 		{
-			method.invoke({}, std::move(m_sio.response), std::move(m_sio.request), make_envs(m_sio));
+			method.invoke({}, std::move(m_sio.response), m_sio.request, make_envs(m_sio));
 			return ;
 		}
 		else if( t0 == GTS_RTTR_TYPE(http::response) and t1 == GTS_RTTR_TYPE(environments) and t2 == GTS_RTTR_TYPE(http::request) )
 		{
-			method.invoke({}, std::move(m_sio.response), make_envs(m_sio), std::move(m_sio.request));
+			method.invoke({}, std::move(m_sio.response), make_envs(m_sio), m_sio.request);
 			return ;
 		}
 		else if( t0 == GTS_RTTR_TYPE(environments) and t1 == GTS_RTTR_TYPE(http::response) and t2 == GTS_RTTR_TYPE(http::request) )
 		{
-			method.invoke({}, make_envs(m_sio), std::move(m_sio.response), std::move(m_sio.request));
+			method.invoke({}, make_envs(m_sio), std::move(m_sio.response), m_sio.request);
 			return ;
 		}
 		else if( t0 == GTS_RTTR_TYPE(environments) and t1 == GTS_RTTR_TYPE(http::request) and t2 == GTS_RTTR_TYPE(http::response) )
 		{
-			method.invoke({}, make_envs(m_sio), std::move(m_sio.request), std::move(m_sio.response));
+			method.invoke({}, make_envs(m_sio), m_sio.request, std::move(m_sio.response));
 			return ;
 		}
 		else if( t0 == GTS_RTTR_TYPE(http::request) and t1 == GTS_RTTR_TYPE(environments) and t2 == GTS_RTTR_TYPE(http::response) )
 		{
-			method.invoke({}, std::move(m_sio.request), make_envs(m_sio), std::move(m_sio.response));
+			method.invoke({}, m_sio.request, make_envs(m_sio), std::move(m_sio.response));
 			return ;
 		}
 	}
@@ -324,12 +324,12 @@ void plugin_service::class_method_call(rttr::method &method, rttr::variant &obj)
 
 		if( t0 == GTS_RTTR_TYPE(http::request) and t1 == GTS_RTTR_TYPE(http::response) )
 		{
-			method.invoke(obj, std::move(m_sio.request), std::move(m_sio.response));
+			method.invoke(obj, m_sio.request, std::move(m_sio.response));
 			return ;
 		}
 		else if( t0 == GTS_RTTR_TYPE(http::response) and t1 == GTS_RTTR_TYPE(http::request) )
 		{
-			method.invoke(obj, std::move(m_sio.response), std::move(m_sio.request));
+			method.invoke(obj, std::move(m_sio.response), m_sio.request);
 			return ;
 		}
 	}
@@ -342,32 +342,32 @@ void plugin_service::class_method_call(rttr::method &method, rttr::variant &obj)
 
 		if( t0 == GTS_RTTR_TYPE(http::request) and t1 == GTS_RTTR_TYPE(http::response) and t2 == GTS_RTTR_TYPE(environments) )
 		{
-			method.invoke(obj, std::move(m_sio.request), std::move(m_sio.response), make_envs(m_sio));
+			method.invoke(obj, m_sio.request, std::move(m_sio.response), make_envs(m_sio));
 			return ;
 		}
 		else if( t0 == GTS_RTTR_TYPE(http::response) and t1 == GTS_RTTR_TYPE(http::request) and t2 == GTS_RTTR_TYPE(environments) )
 		{
-			method.invoke(obj, std::move(m_sio.response), std::move(m_sio.request), make_envs(m_sio));
+			method.invoke(obj, std::move(m_sio.response), m_sio.request, make_envs(m_sio));
 			return ;
 		}
 		else if( t0 == GTS_RTTR_TYPE(http::response) and t1 == GTS_RTTR_TYPE(environments) and t2 == GTS_RTTR_TYPE(http::request) )
 		{
-			method.invoke(obj, std::move(m_sio.response), make_envs(m_sio), std::move(m_sio.request));
+			method.invoke(obj, std::move(m_sio.response), make_envs(m_sio), m_sio.request);
 			return ;
 		}
 		else if( t0 == GTS_RTTR_TYPE(environments) and t1 == GTS_RTTR_TYPE(http::response) and t2 == GTS_RTTR_TYPE(http::request) )
 		{
-			method.invoke(obj, make_envs(m_sio), std::move(m_sio.response), std::move(m_sio.request));
+			method.invoke(obj, make_envs(m_sio), std::move(m_sio.response), m_sio.request);
 			return ;
 		}
 		else if( t0 == GTS_RTTR_TYPE(environments) and t1 == GTS_RTTR_TYPE(http::request) and t2 == GTS_RTTR_TYPE(http::response) )
 		{
-			method.invoke(obj, make_envs(m_sio), std::move(m_sio.request), std::move(m_sio.response));
+			method.invoke(obj, make_envs(m_sio), m_sio.request, std::move(m_sio.response));
 			return ;
 		}
 		else if( t0 == GTS_RTTR_TYPE(http::request) and t1 == GTS_RTTR_TYPE(environments) and t2 == GTS_RTTR_TYPE(http::response) )
 		{
-			method.invoke(obj, std::move(m_sio.request), make_envs(m_sio), std::move(m_sio.response));
+			method.invoke(obj, m_sio.request, make_envs(m_sio), std::move(m_sio.response));
 			return ;
 		}
 	}

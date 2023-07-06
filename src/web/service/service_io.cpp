@@ -10,8 +10,8 @@ namespace gts { namespace web
 
 static std::string g_resource_path = _GTS_WEB_DEFAULT_RC_PATH;
 
-service_io::service_io(tcp_socket_ptr socket, http::request &request) :
-	request(request), response(std::move(socket), request.version())
+service_io::service_io(http::request &request) :
+	request(request), response(request)
 {	
 	response.set_header("server", "gts3");
 	auto it = request.headers().find("origin");

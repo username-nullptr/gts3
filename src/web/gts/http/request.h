@@ -1,10 +1,12 @@
 #ifndef GTS_HTTP_REQUEST_H
 #define GTS_HTTP_REQUEST_H
 
-#include <gts/tcp_socket.h>
 #include <gts/http/type.h>
 
-namespace gts { namespace http
+namespace gts {
+class tcp_socket;
+
+namespace http
 {
 
 class request_impl;

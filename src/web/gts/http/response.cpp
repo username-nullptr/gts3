@@ -1,5 +1,7 @@
 #include "response.h"
+#include "gts/http/request.h"
 #include "gts/application.h"
+#include "gts/tcp_socket.h"
 #include "gts/mime_type.h"
 #include "gts/log.h"
 
@@ -13,17 +15,19 @@ namespace gts { namespace http
 class GTS_DECL_HIDDEN response_impl
 {
 public:
+	explicit response_impl(http::request &request) :
+		m_request(request) {}
+
+public:
 	std::size_t tcp_ip_buffer_size() const
 	{
 		tcp::socket::send_buffer_size attr;
-		m_socket->get_option(attr);
+		m_request.socket().get_option(attr);
 		return attr.value();
 	}
 
 public:
-	tcp_socket_ptr m_socket;
-
-	std::string m_version = "1.1";
+	request &m_request;
 	status m_status = hs_ok;
 
 	headers m_headers {
@@ -34,30 +38,16 @@ public:
 
 /*---------------------------------------------------------------------------------------------------------------*/
 
-response::response(tcp_socket_ptr socket, http::status status) :
-	m_impl(new response_impl())
+response::response(http::request &request, http::status status) :
+	m_impl(new response_impl(request))
 {
-	assert(socket);
-	m_impl->m_socket = std::move(socket);
 	m_impl->m_status = status;
 }
 
-response::response(tcp_socket_ptr socket, const http::headers &headers, http::status status) :
-	response(std::move(socket), status)
+response::response(http::request &request, const http::headers &headers, http::status status) :
+	response(request, status)
 {
 	m_impl->m_headers = headers;
-}
-
-response::response(tcp_socket_ptr socket, const std::string &v, http::status status) :
-	response(std::move(socket), status)
-{
-	m_impl->m_version = v;
-}
-
-response::response(tcp_socket_ptr socket, const std::string &v, const http::headers &headers, http::status status) :
-	response(std::move(socket), headers, status)
-{
-	m_impl->m_version = v;
 }
 
 response::response(response &&other) :
@@ -89,7 +79,7 @@ response &response::set_header(const std::string &key, const std::string &value)
 
 std::string response::version() const
 {
-	return m_impl->m_version;
+	return m_impl->m_request.version();
 }
 
 const headers &response::headers() const
@@ -111,7 +101,7 @@ response &response::write_default()
 	}
 	m_impl->m_headers_writed = true;
 
-	auto result = fmt::format("HTTP/{} {} {}\r\n", m_impl->m_version, static_cast<int>(m_impl->m_status),
+	auto result = fmt::format("HTTP/{} {} {}\r\n", version(), static_cast<int>(m_impl->m_status),
 							  status_description(m_impl->m_status));
 
 	auto body = fmt::format("{} ({})", http::status_description(status()), status());
@@ -120,8 +110,8 @@ response &response::write_default()
 	for(auto &header : m_impl->m_headers)
 		result += header.first + ": " + header.second + "\r\n";
 
-	m_impl->m_socket->write_some(result + "\r\n");
-	m_impl->m_socket->write_some(body);
+	socket().write_some(result + "\r\n");
+	socket().write_some(body);
 	return *this;
 }
 
@@ -134,7 +124,7 @@ response &response::write(std::size_t size, const void *body)
 	}
 	m_impl->m_headers_writed = true;
 
-	auto result = fmt::format("HTTP/{} {} {}\r\n", m_impl->m_version, static_cast<int>(m_impl->m_status),
+	auto result = fmt::format("HTTP/{} {} {}\r\n", version(), static_cast<int>(m_impl->m_status),
 							  status_description(m_impl->m_status));
 
 	for(auto &header : m_impl->m_headers)
@@ -145,15 +135,15 @@ response &response::write(std::size_t size, const void *body)
 		m_impl->m_headers.find("Content-Length") == m_impl->m_headers.end() )
 		result += fmt::format("content-length: {}\r\n", size);
 
-	m_impl->m_socket->write_some(result + "\r\n");
+	socket().write_some(result + "\r\n");
 	if( size > 0 )
-		m_impl->m_socket->write_some(body, size);
+		socket().write_some(body, size);
 	return *this;
 }
 
 response &response::write_body(std::size_t size, const void *body)
 {
-	m_impl->m_socket->write_some(body, size);
+	socket().write_some(body, size);
 	return *this;
 }
 
@@ -231,17 +221,17 @@ response &response::unset_header(const std::string &key)
 
 void response::close(bool force)
 {
-	m_impl->m_socket->close(force);
+	socket().close(force);
 }
 
 const tcp_socket &response::socket() const
 {
-	return *m_impl->m_socket;
+	return m_impl->m_request.socket();
 }
 
 tcp_socket &response::socket()
 {
-	return *m_impl->m_socket;
+	return m_impl->m_request.socket();
 }
 
 response &response::operator=(response &&other)

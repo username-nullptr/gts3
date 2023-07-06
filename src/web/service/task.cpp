@@ -154,7 +154,7 @@ void task::run()
 	auto method = m_request->method();
 	log_debug() << "URL:" << m_request->path() << method;
 
-	service_io sio(m_socket, *m_request);
+	service_io sio(*m_request);
 
 	if(      method == http::GET     ) _GET    (sio);
 	else if( method == http::POST    ) _POST   (sio);
