@@ -13,12 +13,6 @@ class GTS_DECL_HIDDEN service_io
 {
 public:
 	explicit service_io(http::request &request);
-
-public:
-	static void init();
-	static std::string resource_path();
-
-public:
 	void return_to_null(http::status status = http::hs_ok);
 
 public:

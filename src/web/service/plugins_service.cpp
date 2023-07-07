@@ -1,5 +1,6 @@
 #include "plugins_service.h"
 #include "app_info.h"
+#include "global.h"
 
 #include "service/service_io.h"
 #include "gts/web/registration.h"
@@ -233,7 +234,7 @@ static environments make_envs(service_io &sio)
 		{ "SERVER_NAME"      , sio.response.socket().local_endpoint().address().to_string()     },
 		{ "SERVER_PORT"      , fmt::format("{}", sio.response.socket().local_endpoint().port()) },
 		{ "SERVER_PROTOCOL"  , "HTTP/" + sio.request.version()                                  },
-		{ "DOCUMENT_ROOT"    , service_io::resource_path()                                      },
+		{ "DOCUMENT_ROOT"    , resource_root()                                                  },
 		{ "SERVER_SOFTWARE"  , "GTS/1.0(GTS/" GTS_VERSION_STR ")"                               }
 	};
 }

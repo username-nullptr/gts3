@@ -1,5 +1,6 @@
 #include "app_info.h"
 #include "gts/algorithm.h"
+#include <iostream>
 
 namespace gts { namespace appinfo
 {
@@ -46,20 +47,28 @@ std::string lock_file_name()
 std::string absolute_path(const std::string &path)
 {
 	auto result = path;
+#ifdef _WINDOWS
+	// ......
+#else
 	if( not starts_with(result, "/") )
 	{
-#ifdef __unix__
 		if( starts_with(result, "~/") )
 		{
-			std::string home = getenv("HOME");
+			auto tmp = getenv("HOME");
+			if( tmp == nullptr )
+			{
+				std::cerr << "System environment 'HOME' is null." << std::endl;
+				abort();
+			}
+			std::string home(tmp);
 			if( not ends_with(home, "/") )
 				home += "/";
 			result = home + result.erase(0,2);
 		}
 		else
-#endif //unix
-		{ result = dir_path() + result; }
+			result = dir_path() + result;
 	}
+#endif //unix
 	return result;
 }
 

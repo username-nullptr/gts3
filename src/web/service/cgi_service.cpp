@@ -1,4 +1,6 @@
 #include "service.h"
+#include "global.h"
+
 #include "service/service_io.h"
 #include "gts/web/config_key.h"
 #include "gts/web_global.h"
@@ -94,7 +96,7 @@ void cgi_service::call()
 		 .add_env("SERVER_NAME"      , m_sio.response.socket().local_endpoint().address().to_string())
 		 .add_env("SERVER_PORT"      , m_sio.response.socket().local_endpoint().port())
 		 .add_env("SERVER_PROTOCOL"  , "HTTP/" + m_sio.request.version())
-		 .add_env("DOCUMENT_ROOT"    , service_io::resource_path())
+		 .add_env("DOCUMENT_ROOT"    , resource_root())
 		 .add_env("SERVER_SOFTWARE"  , "GTS/1.0(GTS/" GTS_VERSION_STR ")");
 
 	for(auto &pair : m_sio.request.headers())

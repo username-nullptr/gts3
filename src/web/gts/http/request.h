@@ -16,7 +16,7 @@ class GTSWEB_API request
 	GTS_DISABLE_COPY(request)
 
 public:
-	explicit request();
+	request();
 	request(request &&other);
 	~request();
 

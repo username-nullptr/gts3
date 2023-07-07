@@ -65,7 +65,8 @@ void plugin2::new_request_0(http::response &&response)
 
 void plugin2::new_request_1(http::response &&response)
 {
-	response.write("plugin2-1");
+//	response.write("plugin2-1");
+	response.write_file("button.html");
 }
 
 #if 0

@@ -1,7 +1,10 @@
 #include "session/session.h"
+#include "global.h"
+
 #include "gts/web/thread_pool.h"
 #include "gts/web/config_key.h"
 #include "gts/registration.h"
+#include "gts/application.h"
 #include "gts/algorithm.h"
 #include "gts/settings.h"
 #include "gts/log.h"
@@ -25,6 +28,13 @@ asio::thread_pool &thread_pool()
 std::size_t thread_pool_count()
 {
 	return g_count;
+}
+
+static std::string g_resource_path = _GTS_WEB_DEFAULT_RC_PATH;
+
+std::string resource_root()
+{
+	return g_resource_path;
 }
 
 namespace plugin_main
@@ -53,11 +63,15 @@ GTS_DECL_EXPORT void init(const std::string &config_file)
 		{ SINI_WEB_WSS_STRATEGY      , ""                              }
 	};
 	settings::ini_file_check(SINI_GROUP_WEB, sample_gts);
-	session::init();
 
 	auto &_settings = settings::global_instance();
-	g_count = _settings.read<int>(SINI_GROUP_WEB, SINI_WEB_THREAD_POOL_TC, 255);
+	g_resource_path = _settings.read<std::string>(SINI_GROUP_WEB, SINI_WEB_RC_PATH, g_resource_path);
 
+	g_resource_path = app::absolute_path(g_resource_path);
+	if( not ends_with(g_resource_path, "/") )
+		g_resource_path += "/";
+
+	g_count = _settings.read<int>(SINI_GROUP_WEB, SINI_WEB_THREAD_POOL_TC, 255);
 	if( g_count < 1 )
 	{
 		log_warning("Config: max thread count setting error.");
@@ -66,6 +80,8 @@ GTS_DECL_EXPORT void init(const std::string &config_file)
 
 	log_debug("Web: max thread count: {}", g_count);
 	g_pool = new asio::thread_pool(g_count);
+
+	session::init();
 }
 
 GTS_DECL_EXPORT void exit()

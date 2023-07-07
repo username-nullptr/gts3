@@ -1,4 +1,5 @@
 #include "task.h"
+#include "global.h"
 #include "service.h"
 #include "service_io.h"
 
@@ -195,8 +196,11 @@ void task::run()
 
 static void _GET(service_io &sio)
 {
-	sio.url_name = service_io::resource_path() + _TASK_DO_PARSING(sio);
-	service::call_static_resource_service(sio);
+//	sio.url_name = service_io::resource_path() + _TASK_DO_PARSING(sio);
+//	service::call_static_resource_service(sio);
+
+	sio.url_name = resource_root() + _TASK_DO_PARSING(sio);
+	sio.response.write_file(sio.url_name);
 }
 
 static void _POST(service_io &sio)
@@ -235,7 +239,7 @@ static void _HEAD(service_io &sio)
 		}
 	}
 
-	else if( fs::exists(service_io::resource_path() + sio.url_name) )
+	else if( fs::exists(resource_root() + sio.url_name) )
 		sio.return_to_null(http::hs_not_found);
 	else
 		sio.return_to_null();

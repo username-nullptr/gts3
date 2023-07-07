@@ -72,11 +72,24 @@ enum status
 
 GTSWEB_API std::string status_description(int s);
 
-typedef std::pair<std::string, std::string>           header;
-typedef std::unordered_map<std::string, std::string>  headers;
+struct _ci_less : std::binary_function<std::string, std::string, bool>
+{
+	struct nocase_compare : public std::binary_function<unsigned char, unsigned char, bool>
+	{
+		bool operator()(const unsigned char c1, const unsigned char c2) const {
+			return tolower(c1) < tolower(c2);
+		}
+	};
+	bool operator()(const std::string &s1, const std::string &s2) const {
+		return std::lexicographical_compare(s1.begin(), s1.end(), s2.begin(), s2.end(), nocase_compare());
+	}
+};
 
-typedef std::pair<std::string, rttr::variant>           parameter;
-typedef std::unordered_map<std::string, rttr::variant>  parameters;
+using header  = std::pair<std::string, std::string>;
+using headers = std::map<std::string, std::string, _ci_less>;
+
+using parameter  = std::pair<std::string, rttr::variant>;
+using parameters = std::unordered_map<std::string, rttr::variant>;
 
 enum method
 {
@@ -92,6 +105,17 @@ enum method
 };
 GTSWEB_API std::string method_string(method m);
 GTSWEB_API method from_method_string(const std::string &m);
+
+enum class redirect_type
+{
+	moved_permanently,  //301
+	permanent_redirect, //308
+	found,              //302
+	see_other,          //303
+	temporary_redirect, //307
+	multiple_choice,    //300
+	not_modified        //304
+};
 
 }} //namespace gts::http
 
