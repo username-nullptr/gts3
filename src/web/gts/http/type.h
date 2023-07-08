@@ -113,7 +113,7 @@ enum class redirect_type
 	found,              //302
 	see_other,          //303
 	temporary_redirect, //307
-	multiple_choice,    //300
+	multiple_choices,   //300
 	not_modified        //304
 };
 

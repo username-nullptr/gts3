@@ -88,8 +88,8 @@ public:
 	response &write_file(const std::string &file_name, const response::range &range);
 	response &write_file(const std::string &file_name, const range_vector &range);
 
-public: // unrealized
-//	response &redirect(const std::string &url, redirect_type type = redirect_type::moved_permanently);
+public:
+	response &redirect(const std::string &url, redirect_type type = redirect_type::moved_permanently);
 
 public:
 	response &unset_header(const std::string &key);

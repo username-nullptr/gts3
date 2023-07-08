@@ -88,7 +88,8 @@ std::string plugin1_1::view_status()
 
 void plugin1_1::new_request_0(http::response &&response)
 {
-	response.write("plugin1-1::0");
+//	response.write("plugin1-1::0");
+	response.redirect("https://www.baidu.com");
 }
 
 void plugin1_1::new_request_1(http::response &&response)

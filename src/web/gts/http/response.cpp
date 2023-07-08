@@ -560,6 +560,22 @@ response &response::write_file(const std::string &file_name, const range_vector 
 	return write_file(file_name, str);
 }
 
+response &response::redirect(const std::string &url, redirect_type type)
+{
+	switch(type)
+	{
+	case redirect_type::moved_permanently  : set_status(http::hs_moved_permanently ); break;
+	case redirect_type::permanent_redirect : set_status(http::hs_permanent_redirect); break;
+	case redirect_type::found              : set_status(http::hs_found             ); break;
+	case redirect_type::see_other          : set_status(http::hs_see_other         ); break;
+	case redirect_type::temporary_redirect : set_status(http::hs_temporary_redirect); break;
+	case redirect_type::multiple_choices   : set_status(http::hs_multiple_choices  ); break;
+	case redirect_type::not_modified       : set_status(http::hs_not_modified      ); break;
+	default: log_fatal("Invalid redirect type.");
+	}
+	return set_header("location", url).write();
+}
+
 response &response::unset_header(const std::string &key)
 {
 	m_impl->m_headers.erase(key);
