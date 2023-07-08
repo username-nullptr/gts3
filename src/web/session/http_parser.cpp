@@ -1,5 +1,6 @@
 #include "http_parser.h"
-#include "private/request_impl.h"
+#include "request_impl.h"
+
 #include "gts/http/request.h"
 #include "gts/algorithm.h"
 #include "gts/log.h"

@@ -107,12 +107,12 @@ GTS_PLUGIN_REGISTRATION
 	registration::class_<business::plugin1_0>("/")
 			.init_method(&business::plugin1_0::init)
 			.exit_method(&business::plugin1_0::exit)
-			.new_request_method<GET>("plugin1", &business::plugin1_0::new_request);
+			.request_handle_method<GET>("plugin1", &business::plugin1_0::new_request);
 
 	registration::class_<business::plugin1_1>("plugin1")
 			.init_method(&business::plugin1_1::init)
 			.exit_method(&business::plugin1_1::exit)
 			.view_status_method(&business::plugin1_1::view_status)
-			.new_request_method<GET>("/sub0/", &business::plugin1_1::new_request_0)
-			.new_request_method<GET>("sub1", &business::plugin1_1::new_request_1);
+			.request_handle_method<GET>("/sub0/", &business::plugin1_1::new_request_0)
+			.request_handle_method<GET>("sub1", &business::plugin1_1::new_request_1);
 }

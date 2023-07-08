@@ -1,8 +1,9 @@
 #ifndef GTS_HTTP_RESPONSE_H
 #define GTS_HTTP_RESPONSE_H
 
-#include <gts/http/type.h>
+#include <gts/http/cookies.h>
 #include <fmt/format.h>
+#include <functional>
 
 namespace gts {
 class tcp_socket;
@@ -101,6 +102,7 @@ public:
 
 public:
 	response &operator=(response &&other);
+	static void set_default_write(std::function<void(response&)>);
 
 private:
 	response_impl *m_impl;

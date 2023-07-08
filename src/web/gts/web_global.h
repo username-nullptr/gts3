@@ -15,8 +15,8 @@ namespace gts { namespace web
 
 typedef std::unordered_map<std::string, std::string>  environments;
 
-class session;
 class http_parser;
+class session;
 
 }} //namespace gts::web
 

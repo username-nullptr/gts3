@@ -1,4 +1,4 @@
-#include "private/request_impl.h"
+#include "session/request_impl.h"
 #include "gts/algorithm.h"
 #include "gts/log.h"
 
@@ -26,58 +26,69 @@ request::~request()
 
 method request::method() const
 {
+	assert(m_impl);
 	return m_impl->m_method;
 }
 
 std::string request::version() const
 {
+	assert(m_impl);
 	return m_impl->m_version;
 }
 
 std::string request::path() const
 {
+	assert(m_impl);
 	return m_impl->m_path;
 }
 
 std::string request::parameters_string() const
 {
+	assert(m_impl);
 	return m_impl->m_parameters_string;
 }
 
 const parameters &request::parameters() const
 {
+	assert(m_impl);
 	return m_impl->m_parameters;
 }
 
 const headers &request::headers() const
 {
+	assert(m_impl);
 	return m_impl->m_headers;
 }
 
 std::string request::header_value(const std::string &key) const
 {
+	assert(m_impl);
 	return m_impl->m_headers.at(key);
 }
 
 std::string request::header_value(const std::string &key, const rttr::variant &default_value) const
 {
+	assert(m_impl);
 	auto it = m_impl->m_headers.find(key);
 	return it == m_impl->m_headers.end()? default_value.to_string() : it->second;
 }
 
 rttr::variant request::parameter_value(const std::string &key) const
 {
+	assert(m_impl);
 	return m_impl->m_parameters.at(key);
 }
 
 rttr::variant request::parameter_value(const std::string &key, const rttr::variant &default_value) const
 {
+	assert(m_impl);
 	auto it = m_impl->m_parameters.find(key);
 	return it == m_impl->m_parameters.end()? default_value : it->second;
 }
 
 std::string request::read_body(std::size_t size)
 {
+	assert(m_impl);
 	if( size == 0 )
 		size = m_impl->tcp_ip_buffer_size();
 
@@ -117,6 +128,7 @@ std::string request::read_body(std::size_t size)
 
 std::size_t request::read_body(void *buf, std::size_t size)
 {
+	assert(m_impl);
 	auto content_length = std::stoull(header_value("content-length", "0"));
 	if( size == 0 )
 	{
@@ -153,11 +165,13 @@ std::size_t request::read_body(void *buf, std::size_t size)
 
 bool request::keep_alive() const
 {
+	assert(m_impl);
 	return m_impl->m_keep_alive;
 }
 
 bool request::support_gzip() const
 {
+	assert(m_impl);
 	return m_impl->m_support_gzip;
 }
 
@@ -174,16 +188,18 @@ request &request::operator=(request &&other)
 
 bool request::is_valid() const
 {
-	return not m_impl->m_version.empty() and not m_impl->m_path.empty();
+	return m_impl and not m_impl->m_version.empty() and not m_impl->m_path.empty();
 }
 
 const tcp_socket &request::socket() const
 {
+	assert(m_impl);
 	return *m_impl->m_socket;
 }
 
 tcp_socket &request::socket()
 {
+	assert(m_impl);
 	return *m_impl->m_socket;
 }
 

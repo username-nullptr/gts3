@@ -1,7 +1,7 @@
 #ifndef GTS_HTTP_REQUEST_H
 #define GTS_HTTP_REQUEST_H
 
-#include <gts/http/type.h>
+#include <gts/http/cookies.h>
 
 namespace gts {
 class tcp_socket;

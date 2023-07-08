@@ -62,6 +62,6 @@ GTS_PLUGIN_REGISTRATION
 			.init_method(business::init)
 			.exit_method(business::exit)
 			.view_status_method(business::view_status)
-			.new_request_method<GET>("plugin0", business::new_request_0)
-			.new_request_method<GET>("plugin0/sub", business::new_request_1);
+			.request_handle_method<GET>("plugin0", business::new_request_0)
+			.request_handle_method<GET>("plugin0/sub", business::new_request_1);
 }

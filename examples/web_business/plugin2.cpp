@@ -95,13 +95,13 @@ GTS_PLUGIN_REGISTRATION
 			.init_method(business::init)
 			.exit_method(business::exit)
 			.view_status_method(business::view_status)
-			.new_request_method<GET>("plugin2", business::new_request_0);
+			.request_handle_method<GET>("plugin2", business::new_request_0);
 
 	registration::class_<business::plugin2>("plugin2/sub")
 			.init_method(&business::plugin2::init)
 			.exit_method(&business::plugin2::exit)
-			.new_request_method<GET>("subsub", &business::plugin2::new_request_0)
-			.new_request_method<GET>("subsub/test", &business::plugin2::new_request_1);
+			.request_handle_method<GET>("subsub", &business::plugin2::new_request_0)
+			.request_handle_method<GET>("subsub/test", &business::plugin2::new_request_1);
 
 #if 0
 	for(auto &pair : gts::get_site_infos())
