@@ -8,7 +8,7 @@ namespace gts { namespace http
 
 class cookie_value_impl;
 
-class GTSWEB_API cookie_value : public value
+class GTSWEB_API cookie_attribute : public value
 {
 public:
 	enum same_site_type {
@@ -60,8 +60,8 @@ private:
 using basic_cookie  = http::pair<value>;
 using basic_cookies = http::unordered_map<value>;
 
-using cookie  = http::pair<cookie_value>;
-using cookies = http::unordered_map<cookie_value>;
+using cookie  = http::pair<cookie_attribute>;
+using cookies = http::unordered_map<cookie_attribute>;
 
 }} //namespace gts::http
 
