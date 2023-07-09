@@ -1,8 +1,7 @@
-#ifndef GTS_HTTP_GLOBAL_H
-#define GTS_HTTP_GLOBAL_H
+#ifndef GTS_HTTP_TYPES_H
+#define GTS_HTTP_TYPES_H
 
-#include <gts/web_global.h>
-#include <unordered_map>
+#include <gts/http/cookies.h>
 
 namespace gts { namespace http
 {
@@ -72,25 +71,6 @@ enum status
 
 GTSWEB_API std::string status_description(int s);
 
-struct _ci_less : std::binary_function<std::string, std::string, bool>
-{
-	struct nocase_compare : public std::binary_function<unsigned char, unsigned char, bool>
-	{
-		bool operator()(const unsigned char c1, const unsigned char c2) const {
-			return tolower(c1) < tolower(c2);
-		}
-	};
-	bool operator()(const std::string &s1, const std::string &s2) const {
-		return std::lexicographical_compare(s1.begin(), s1.end(), s2.begin(), s2.end(), nocase_compare());
-	}
-};
-
-using header  = std::pair<std::string, std::string>;
-using headers = std::map<std::string, std::string, _ci_less>;
-
-using parameter  = std::pair<std::string, rttr::variant>;
-using parameters = std::unordered_map<std::string, rttr::variant>;
-
 enum method
 {
 	METHOD_UNKNOWN = -1,
@@ -117,7 +97,13 @@ enum class redirect_type
 	not_modified        //304
 };
 
+using header  = http::pair<value>;
+using headers = http::map<http::less_case_insensitive, value>;
+
+using parameter  = http::pair<value>;
+using parameters = http::unordered_map<value>;
+
 }} //namespace gts::http
 
 
-#endif //GTS_HTTP_GLOBAL_H
+#endif //GTS_HTTP_TYPES_H

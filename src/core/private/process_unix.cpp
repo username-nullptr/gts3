@@ -265,7 +265,6 @@ void process::join()
 
 	pid_t pid = waitpid(m_impl->m_pid, nullptr, 0);
 	m_impl->m_pid = -1;
-	std::cerr << "!!!!!!!!!!!!!!!!!! " << pid << std::endl;
 
 	if( pid > 0 )
 		m_impl->reset_writer(pid);
@@ -280,7 +279,6 @@ void process_impl::signal_hander(int signo)
 	if( signo == SIGCHLD )
 	{
 		pid_t pid = waitpid(-1, nullptr, WNOHANG);
-		std::cerr << "@@@@@@@@@@@ +++++++++  " << pid << std::endl;
 
 //		g_mutex.lock();
 		auto it = g_process_map.find(pid);

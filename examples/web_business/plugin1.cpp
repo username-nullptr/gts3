@@ -37,7 +37,7 @@ void plugin1_0::new_request(http::request &&request, http::response &&response, 
 	auto body = fmt::format("Ok!!!\npath = {}\n\n", request.path());
 
 	for(auto &para : request.parameters())
-		body += fmt::format("(p) {} = {}\n", para.first, para.second.to_string());
+		body += fmt::format("(p) {} = {}\n", para.first, para.second);
 	body += "\n";
 
 	for(auto &para : request.headers())
@@ -89,7 +89,8 @@ std::string plugin1_1::view_status()
 void plugin1_1::new_request_0(http::response &&response)
 {
 //	response.write("plugin1-1::0");
-	response.redirect("https://www.baidu.com");
+//	response.redirect("https://gitee.com/jin-xiaoqiang/gts3.git");
+	response.redirect("https://github.com/username-nullptr/gts3.git");
 }
 
 void plugin1_1::new_request_1(http::response &&response)

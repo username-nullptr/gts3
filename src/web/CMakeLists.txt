@@ -1,6 +1,6 @@
 set(web_sources
 	main.cpp
-	gts/http/type.cpp
+	gts/http/types.cpp
 	gts/http/cookies.cpp
 	gts/http/request.cpp
 	gts/http/response.cpp
@@ -20,10 +20,13 @@ set(web_headers
 	gts/web.h
 	gts/http.h
 	gts/web_global.h
-	gts/http/type.h
+	gts/http/value.h
+	gts/http/container.h
+	gts/http/types.h
 	gts/http/cookies.h
 	gts/http/request.h
 	gts/http/response.h
+	gts/web/types.h
 	gts/web/config_key.h
 	gts/web/thread_pool.h
 	gts/web/registration.h

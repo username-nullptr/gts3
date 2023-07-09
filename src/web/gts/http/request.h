@@ -1,7 +1,7 @@
 #ifndef GTS_HTTP_REQUEST_H
 #define GTS_HTTP_REQUEST_H
 
-#include <gts/http/cookies.h>
+#include <gts/http/types.h>
 
 namespace gts {
 class tcp_socket;
@@ -29,18 +29,7 @@ public:
 	std::string parameters_string() const;
 	const http::parameters &parameters() const;
 	const http::headers &headers() const;
-
-public:
-	std::string header_value(const std::string &key) const;
-	std::string header_value(const std::string &key, const rttr::variant &default_value) const;
-
-public:
-	rttr::variant parameter_value(const std::string &key) const;
-	rttr::variant parameter_value(const std::string &key, const rttr::variant &default_value) const;
-
-public: // unrealized
-	// const http::cookies &cookies() const;
-	// const http::cookie_value &cookie_value(const std::string &key) const;
+	const basic_cookies &cookies() const; //unrealized
 
 public:
 	std::string read_body(std::size_t size = 0);

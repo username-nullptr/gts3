@@ -31,6 +31,8 @@ using enable_if_t = typename std::enable_if<C,T>::type;
 template <typename T>
 using decay_t = typename std::decay<T>::type;
 
+#define gts_is_arithmetic(...)  std::is_arithmetic<__VA_ARGS__>::value
+
 #define gts_is_same(...)   std::is_same<__VA_ARGS__>::value
 
 #define gts_is_base_of(...)   std::is_base_of<__VA_ARGS__>::value
@@ -41,9 +43,9 @@ using decay_t = typename std::decay<T>::type;
 
 #define GTS_CLASS_METHOD_DECLVAL(Class, Return, ...)   (GTS_DECLVAL(Class).*GTS_DECLVAL(Return(Class::*)(__VA_ARGS__)))
 
-#define GTS_TYPE_DECLTYPE(...)   typename T = decltype(__VA_ARGS__)
+#define GTS_TYPE_DECLTYPE(...)   typename _UT_0 = decltype(__VA_ARGS__)
 
-#define GTS_TYPE_ENABLE_IF(...)   typename T = gts::enable_if_t<__VA_ARGS__>
+#define GTS_TYPE_ENABLE_IF(...)   typename _UT_0 = gts::enable_if_t<__VA_ARGS__>
 
 #define GTS_RTTR_TYPE(...)   rttr::type::get<__VA_ARGS__>()
 

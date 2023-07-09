@@ -82,6 +82,15 @@ response &response::set_header(const std::string &key, const std::string &value)
 	return *this;
 }
 
+response &response::set_header(const std::string &key, std::string &&value)
+{
+	assert(m_impl);
+	auto res = m_impl->m_headers.emplace(key, std::move(value));
+	if( res.second == false and res.first != m_impl->m_headers.end() )
+		res.first->second = std::move(value);
+	return *this;
+}
+
 std::string response::version() const
 {
 	assert(m_impl);

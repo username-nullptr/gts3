@@ -147,11 +147,7 @@ request *http_parser::next_request_ready()
 	{
 		auto it = m_cache->m_impl->m_headers.find("content-length");
 		if( it != m_cache->m_impl->m_headers.end() and not it->second.empty() )
-		{
-			std::size_t size = 0;
-			std::sscanf(it->second.c_str(), "%zu", &size);
-			m_cache->m_impl->m_body = m_buffer.substr(0, size);
-		}
+			m_cache->m_impl->m_body = m_buffer.substr(0, it->second.get<std::size_t>());
 		m_buffer.clear();
 	}
 

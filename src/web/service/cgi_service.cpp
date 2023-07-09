@@ -3,7 +3,7 @@
 
 #include "service/service_io.h"
 #include "gts/web/config_key.h"
-#include "gts/web_global.h"
+#include "gts/web/types.h"
 #include "gts/algorithm.h"
 #include "gts/settings.h"
 #include "gts/log.h"
@@ -104,7 +104,7 @@ void cgi_service::call()
 
 	auto it = m_sio.request.headers().find("content-length");
 	if( it != m_sio.request.headers().end() )
-		std::sscanf(it->second.c_str(), "%zu", &m_content_length);
+		m_content_length = it->second.get<std::size_t>();
 
 	if( m_cgi.start() == false )
 		return m_sio.return_to_null(http::hs_forbidden);

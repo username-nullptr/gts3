@@ -60,39 +60,13 @@ const headers &request::headers() const
 	return m_impl->m_headers;
 }
 
-std::string request::header_value(const std::string &key) const
-{
-	assert(m_impl);
-	return m_impl->m_headers.at(key);
-}
-
-std::string request::header_value(const std::string &key, const rttr::variant &default_value) const
-{
-	assert(m_impl);
-	auto it = m_impl->m_headers.find(key);
-	return it == m_impl->m_headers.end()? default_value.to_string() : it->second;
-}
-
-rttr::variant request::parameter_value(const std::string &key) const
-{
-	assert(m_impl);
-	return m_impl->m_parameters.at(key);
-}
-
-rttr::variant request::parameter_value(const std::string &key, const rttr::variant &default_value) const
-{
-	assert(m_impl);
-	auto it = m_impl->m_parameters.find(key);
-	return it == m_impl->m_parameters.end()? default_value : it->second;
-}
-
 std::string request::read_body(std::size_t size)
 {
 	assert(m_impl);
 	if( size == 0 )
 		size = m_impl->tcp_ip_buffer_size();
 
-	auto content_length = std::stoull(header_value("content-length", "0"));
+	auto content_length = headers().value_uint("content-length", 0);
 	if( content_length < size )
 		size = content_length;
 
@@ -129,7 +103,7 @@ std::string request::read_body(std::size_t size)
 std::size_t request::read_body(void *buf, std::size_t size)
 {
 	assert(m_impl);
-	auto content_length = std::stoull(header_value("content-length", "0"));
+	auto content_length = headers().value_uint("content-length", 0);
 	if( size == 0 )
 	{
 		log_warning("request::read_body: size is 0.");

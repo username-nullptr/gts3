@@ -1,8 +1,7 @@
 #ifndef GTS_HTTP_RESPONSE_H
 #define GTS_HTTP_RESPONSE_H
 
-#include <gts/http/cookies.h>
-#include <fmt/format.h>
+#include <gts/http/types.h>
 #include <functional>
 
 namespace gts {
@@ -10,13 +9,6 @@ class tcp_socket;
 
 namespace http
 {
-
-#define _GTS_HTTP_RESPONSE_NOT_STRING \
-	template <typename T> \
-	enable_if_t< \
-		not gts_is_same(decay_t<T>, std::string) and \
-		not gts_is_same(decay_t<T>, char*), \
-	response>&
 
 class request;
 class response_impl;
@@ -35,13 +27,22 @@ public:
 
 public:
 	response &set_status(http::status status);
-	response &set_header(const std::string &key, const std::string &value);
 	response &set_headers(const http::headers &headers);
+	response &set_cookies(const http::cookies &cookies); //unrealized
 
 public:
+	response &set_header(const std::string &key, const std::string &value);
+	response &set_header(const std::string &key, std::string &&value);
+
 	template <typename...Args>
 	response &set_header(const std::string &key, fmt::format_string<Args...> fmt, Args&&...args);
-	_GTS_HTTP_RESPONSE_NOT_STRING set_header(const std::string &key, T &&value);
+
+	template <typename T, typename U = value::not_string_t<T,int>>
+	response &set_header(const std::string &key, T &&value);
+
+public: // unrealized
+	response &set_cookie(const std::string &key, const http::cookie &cookie);
+	response &set_cookie(const std::string &key, http::cookie &&cookie);
 
 public:
 	std::string version() const;
@@ -71,8 +72,11 @@ public:
 	response &write_body(fmt::format_string<Args...> fmt, Args&&...args);
 
 public:
-	_GTS_HTTP_RESPONSE_NOT_STRING write(T &&value);
-	_GTS_HTTP_RESPONSE_NOT_STRING write_body(T &&value);
+	template <typename T, typename U = value::not_string_t<T,int>>
+	response &write(T &&value);
+
+	template <typename T, typename U = value::not_string_t<T,int>>
+	response &write_body(T &&value);
 
 public:
 	response &write_file(const std::string &file_name);
@@ -120,8 +124,9 @@ response &response::set_header(const std::string &key, fmt::format_string<Args..
 	return set_header(key, fmt::format(value_fmt, std::forward<Args>(args)...));
 }
 
-_GTS_HTTP_RESPONSE_NOT_STRING response::set_header(const std::string &key, T &&value) {
-	return set_header(key, fmt::format("{}", std::forward<T>(value)));
+template <typename T, typename U = value::not_string_t<T,int>>
+response &response::set_header(const std::string &key, T &&value) {
+	return set_header(key, "{}", std::forward<T>(value));
 }
 
 inline response &response::write_default(http::status status) {
@@ -162,11 +167,13 @@ response &response::write_body(fmt::format_string<Args...> value_fmt, Args&&...a
 	return write_body(body.size(), body.c_str());
 }
 
-_GTS_HTTP_RESPONSE_NOT_STRING response::write(T &&value) {
+template <typename T, typename U = value::not_string_t<T,int>>
+response &response::write(T &&value) {
 	return write("{}", value);
 }
 
-_GTS_HTTP_RESPONSE_NOT_STRING response::write_body(T &&value) {
+template <typename T, typename U = value::not_string_t<T,int>>
+response &response::write_body(T &&value) {
 	return write_body("{}", value);
 }
 

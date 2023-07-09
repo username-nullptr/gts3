@@ -2,11 +2,11 @@
 #define GTS_WEB_PLUGIN_INTERFACE_H
 
 #include <rttr/registration>
+#include <gts/web/types.h>
 #include <fmt/format.h>
 #include <gts/http.h>
 #include <gts/log.h>
 #include <future>
-#include <set>
 
 namespace gts
 {
