@@ -22,7 +22,10 @@ public:
 
 public:
 	value(const std::string &other) : base_type(other) {}
+	value(const http::value &other) : base_type(other) {}
 	value(std::string &&other) : base_type(std::move(other)) {}
+	value(http::value &&other) : base_type(std::move(other)) {}
+	value() = default;
 
 public:
 	int32_t     to_int    () const { return std::stoi  (*this); }

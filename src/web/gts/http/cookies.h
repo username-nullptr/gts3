@@ -19,6 +19,12 @@ public:
 	};
 
 public:
+	using value::value;
+	using value::operator+=;
+	using value::operator=;
+	using value::operator[];
+
+public:
 	std::string domain() const;
 	std::string path()   const;
 	std::size_t size()   const;

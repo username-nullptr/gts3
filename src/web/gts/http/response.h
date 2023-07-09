@@ -124,7 +124,7 @@ response &response::set_header(const std::string &key, fmt::format_string<Args..
 	return set_header(key, fmt::format(value_fmt, std::forward<Args>(args)...));
 }
 
-template <typename T, typename U = value::not_string_t<T,int>>
+template <typename T, typename U>
 response &response::set_header(const std::string &key, T &&value) {
 	return set_header(key, "{}", std::forward<T>(value));
 }
@@ -167,12 +167,12 @@ response &response::write_body(fmt::format_string<Args...> value_fmt, Args&&...a
 	return write_body(body.size(), body.c_str());
 }
 
-template <typename T, typename U = value::not_string_t<T,int>>
+template <typename T, typename U>
 response &response::write(T &&value) {
 	return write("{}", value);
 }
 
-template <typename T, typename U = value::not_string_t<T,int>>
+template <typename T, typename U>
 response &response::write_body(T &&value) {
 	return write_body("{}", value);
 }
