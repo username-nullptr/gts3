@@ -41,14 +41,29 @@ GTS_DECL_EXPORT std::string view_status()
 	return "web plugin: examples-plugin0: hello0\n";
 }
 
-GTS_DECL_EXPORT void new_request_0(http::response &&response)
+GTS_DECL_EXPORT void new_request_0(http::response &response)
 {
-	response.write("hello world").close();
+	response.write("hello world");
 }
 
-GTS_DECL_EXPORT void new_request_1(http::response &&response)
+GTS_DECL_EXPORT void new_request_1(http::response &response)
 {
 	response.write("HELLO WORLD");
+}
+
+GTS_DECL_EXPORT void save_file(http::response &response, http::request &request)
+{
+	auto it = request.headers().find("upload-file-name");
+	if( it == request.headers().end() )
+	{
+		response.set_status(http::hs_misdirected_request)
+				.write("421 HTTP_UPLOAD_FILE_NAME is null");
+	}
+	else
+	{
+		request.save_file(resource_root() + "upload/" + it->second);
+		response.write_default();
+	}
 }
 
 }}} //namespace gts::web::business
@@ -63,5 +78,6 @@ GTS_PLUGIN_REGISTRATION
 			.exit_method(business::exit)
 			.view_status_method(business::view_status)
 			.request_handle_method<GET>("plugin0", business::new_request_0)
-			.request_handle_method<GET>("plugin0/sub", business::new_request_1);
+			.request_handle_method<GET>("plugin0/sub", business::new_request_1)
+			.request_handle_method<PUT,POST>("upload", business::save_file);
 }

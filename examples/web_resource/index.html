@@ -63,7 +63,7 @@
 		return xmlHttp;
 	  }
 
-	  function uploadFileToServer()
+	  function uploadFileToServer(_path)
 	  {
 		var uploadFile = document.getElementById("upload_file_id");
 		var uploadTip = document.getElementById("upload_tip_id");
@@ -89,7 +89,7 @@
 				}
 			  }
 			  fReader.onload = function(e) {
-				xhreq.open("POST", "/cgi-bin/upload", true);
+				xhreq.open("POST", _path, true);
 				xhreq.setRequestHeader("Content-type", "application/octet-stream"); //流类型
 				xhreq.setRequestHeader("Content-length", uploadFile.files[0].size); //文件大小
 				xhreq.setRequestHeader("Upload-file-name", encodeURI(uploadFile.files[0].name)); //兼容中文
@@ -146,8 +146,11 @@
 			</div>
 		  </div>
 		  <div class="style_content_lower_div">
-			<span class="style_content_span" onmouseover="this.style.background='#cccccc'" onmouseout="this.style.background=''" onclick="hideUploadDialog()">取消</span>
-			<span class="style_content_span" onmouseover="this.style.background='#F5CCDC'" onmouseout="this.style.background=''" onclick="uploadFileToServer()">确定</span>
+			<button class="style_content_span" onmouseover="this.style.background='#cccccc'" onmouseout="this.style.background=''" onclick="hideUploadDialog()">取消</button>
+            <body>&nbsp;&nbsp;&nbsp;</body>
+			<button class="style_content_span" onmouseover="this.style.background='#F5CCDC'" onmouseout="this.style.background=''" onclick="uploadFileToServer('cgi-bin/upload')">CGI处理</button>
+            <body>&nbsp;&nbsp;&nbsp;</body>
+			<button class="style_content_span" onmouseover="this.style.background='#F5CCDC'" onmouseout="this.style.background=''" onclick="uploadFileToServer('plugin-lib/upload')">PLUGIN处理</button>
 		  </div>
 		</div>
 	  </div>

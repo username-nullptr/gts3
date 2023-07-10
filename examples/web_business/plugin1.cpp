@@ -8,95 +8,84 @@ namespace gts { namespace web { namespace business
 class GTS_DECL_EXPORT plugin1_0
 {
 public:
-	future_ptr init();
-	void exit();
-	void new_request(http::request &&request, http::response &&response, environments &&envs);
-};
-
-future_ptr plugin1_0::init()
-{
-	return make_future_ptr(std::async(std::launch::async,[]
+	future_ptr init()
 	{
-		for(int i=0; i<10; i++)
+		return make_future_ptr(std::async(std::launch::async,[]
 		{
-			std::cerr << "plugin1-0: init task ..." << std::endl;
-			std::this_thread::sleep_for(std::chrono::milliseconds(150));
-		}
-	}));
-}
+			for(int i=0; i<10; i++)
+			{
+				std::cerr << "plugin1-0: init task ..." << std::endl;
+				std::this_thread::sleep_for(std::chrono::milliseconds(150));
+			}
+		}));
+	}
 
-void plugin1_0::exit()
-{
-	std::cerr << "plugin1-0: exit task ..." << std::endl;
-}
+	void exit()
+	{
+		std::cerr << "plugin1-0: exit task ..." << std::endl;
+	}
 
-void plugin1_0::new_request(http::request &&request, http::response &&response, environments &&envs)
-{
-	std::cerr << std::endl;
+	void new_request(http::request &request, http::response &response, const environments &envs)
+	{
+		std::cerr << std::endl;
 
-	auto body = fmt::format("Ok!!!\npath = {}\n\n", request.path());
+		auto body = fmt::format("Ok!!!\npath = {}\n\n", request.path());
 
-	for(auto &para : request.parameters())
-		body += fmt::format("(p) {} = {}\n", para.first, para.second);
-	body += "\n";
+		for(auto &para : request.parameters())
+			body += fmt::format("(p) {} = {}\n", para.first, para.second);
+		body += "\n";
 
-	for(auto &para : request.headers())
-		body += fmt::format("(h) {} = {}\n", para.first, para.second);
-	body += "\n";
+		for(auto &para : request.headers())
+			body += fmt::format("(h) {} = {}\n", para.first, para.second);
+		body += "\n";
 
-	for(auto &para : envs)
-		body += fmt::format("(e) {} = {}\n", para.first, para.second);
-	body += "\n";
+		for(auto &para : envs)
+			body += fmt::format("(e) {} = {}\n", para.first, para.second);
+		body += "\n";
 
-	body.erase(body.size() - 2);
-	response.write(body);
-}
+		body.erase(body.size() - 2);
+		response.write(body);
+	}
+};
 
 class GTS_DECL_EXPORT plugin1_1
 {
 public:
-	future_ptr init();
-	void exit();
-	std::string view_status();
+	future_ptr init()
+	{
+		return make_future_ptr(std::async(std::launch::async, []
+		{
+			for(int i=0; i<4; i++)
+			{
+				std::cerr << "plugin1-1: init task ..." << std::endl;
+				std::this_thread::sleep_for(std::chrono::milliseconds(550));
+			}
+		}));
+	}
+
+	void exit()
+	{
+		std::cerr << "plugin1-1: exit task ..." << std::endl;
+	}
+
+	std::string view_status()
+	{
+		return "web plugin: examples-plugin1: hello1\n";
+	}
 
 public:
-	void new_request_0(http::response &&response);
-	void new_request_1(http::response &&response);
-};
-
-future_ptr plugin1_1::init()
-{
-	return make_future_ptr(std::async(std::launch::async, []
+	void new_request_0(http::response &response)
 	{
-		for(int i=0; i<4; i++)
-		{
-			std::cerr << "plugin1-1: init task ..." << std::endl;
-			std::this_thread::sleep_for(std::chrono::milliseconds(550));
-		}
-	}));
-}
+//		response.write("plugin1-1::0");
+//		response.redirect("https://gitee.com/jin-xiaoqiang/gts3.git");
+		response.redirect("https://github.com/username-nullptr/gts3.git");
+	}
 
-void plugin1_1::exit()
-{
-	std::cerr << "plugin1-1: exit task ..." << std::endl;
-}
-
-std::string plugin1_1::view_status()
-{
-	return "web plugin: examples-plugin1: hello1\n";
-}
-
-void plugin1_1::new_request_0(http::response &&response)
-{
-//	response.write("plugin1-1::0");
-//	response.redirect("https://gitee.com/jin-xiaoqiang/gts3.git");
-	response.redirect("https://github.com/username-nullptr/gts3.git");
-}
-
-void plugin1_1::new_request_1(http::response &&response)
-{
-	response.write("plugin1-1::1");
-}
+	void new_request_1(http::response &response)
+	{
+		response.write("plugin1-1::1");
+	}
+};
 
 }}} //namespace gts::web::business
 

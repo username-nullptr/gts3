@@ -1,5 +1,5 @@
 #include "response.h"
-#include "global.h"
+#include "gts/web_global.h"
 
 #include "service/service_io.h"
 #include "gts/http/request.h"
@@ -66,10 +66,10 @@ response::~response()
 		delete m_impl;
 }
 
-response &response::set_status(http::status status)
+response &response::set_status(int status)
 {
 	assert(m_impl);
-	m_impl->m_status = status;
+	m_impl->m_status = static_cast<http::status>(status);
 	return *this;
 }
 

@@ -12,6 +12,8 @@
 namespace gts { namespace web
 {
 
+GTSWEB_API std::string resource_root();
+
 class http_parser;
 class session;
 

@@ -1,4 +1,4 @@
-#ifndef GTS_HTTP_REQUEST_H
+﻿#ifndef GTS_HTTP_REQUEST_H
 #define GTS_HTTP_REQUEST_H
 
 #include <gts/http/types.h>
@@ -32,8 +32,14 @@ public:
 	const basic_cookies &cookies() const; //unrealized
 
 public:
+	std::string read_body(std::error_code &error, std::size_t size = 0);
+	std::size_t read_body(std::error_code &error, void *buf, std::size_t size);
 	std::string read_body(std::size_t size = 0);
 	std::size_t read_body(void *buf, std::size_t size);
+
+public:
+	bool save_file(const std::string &file_name, std::error_code &error);
+	bool save_file(const std::string &file_name);
 
 public:
 	bool keep_alive() const;
@@ -52,6 +58,24 @@ private:
 	friend class web::session;
 	request_impl *m_impl;
 };
+
+inline std::string request::read_body(std::size_t size)
+{
+	std::error_code error;
+	return read_body(error, size);
+}
+
+inline std::size_t request::read_body(void *buf, std::size_t size)
+{
+	std::error_code error;
+	return read_body(error, buf, size);
+}
+
+inline bool request::save_file(const std::string &file_name)
+{
+	std::error_code error;
+	return save_file(file_name, error);
+}
 
 }} //namespace gts::http
 

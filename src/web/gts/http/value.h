@@ -28,24 +28,33 @@ public:
 	value() = default;
 
 public:
-	int32_t     to_int    () const { return std::stoi  (*this); }
-	uint32_t    to_uint   () const { return std::stoul (*this); }
-	int64_t     to_long   () const { return std::stoll (*this); }
-	uint64_t    to_ulong  () const { return std::stoull(*this); }
-	float       to_float  () const { return std::stof  (*this); }
-	double      to_double () const { return std::stod  (*this); }
-	long double to_ldouble() const { return std::stold (*this); }
+	bool        to_bool   () const { return get<bool       >(); }
+	int32_t     to_int    () const { return get<int32_t    >(); }
+	uint32_t    to_uint   () const { return get<uint32_t   >(); }
+	int64_t     to_long   () const { return get<int64_t    >(); }
+	uint64_t    to_ulong  () const { return get<uint64_t   >(); }
+	float       to_float  () const { return get<float      >(); }
+	double      to_double () const { return get<double     >(); }
+	long double to_ldouble() const { return get<long double>(); }
 
-	bool to_bool() const
+public:
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, bool), int)>
+	bool get() const
 	{
+#ifdef _WINDOWS
+		if( stricmp(c_str(), "true") == 0 )
+			return true;
+		else if( stricmp(c_str(), "false") == 0 )
+			return true;
+#else
 		if( size() == 4 and strncasecmp(c_str(), "true", 4) == 0 )
 			return true;
 		else if( size() == 5 and strncasecmp(c_str(), "false", 5) == 0 )
 			return true;
+#endif
 		return std::stoi(*this);
 	}
 
-public:
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, signed char), int)>
 	signed char get() const { return std::stoi(*this); }
 

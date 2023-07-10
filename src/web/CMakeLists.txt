@@ -16,7 +16,6 @@ set(web_sources
 )
 
 set(web_headers
-	global.h
 	gts/web.h
 	gts/http.h
 	gts/web_global.h

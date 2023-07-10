@@ -26,7 +26,7 @@ public:
 	~response();
 
 public:
-	response &set_status(http::status status);
+	response &set_status(int status);
 	response &set_headers(const http::headers &headers);
 	response &set_cookies(const http::cookies &cookies); //unrealized
 
@@ -51,7 +51,7 @@ public:
 
 public:
 	response &write_default();
-	response &write_default(http::status status);
+	response &write_default(int status);
 
 public:
 	response &write();
@@ -129,7 +129,7 @@ response &response::set_header(const std::string &key, T &&value) {
 	return set_header(key, "{}", std::forward<T>(value));
 }
 
-inline response &response::write_default(http::status status) {
+inline response &response::write_default(int status) {
 	return set_status(status).write_default();
 }
 

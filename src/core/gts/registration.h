@@ -14,7 +14,7 @@ class registration
 	GTS_DISABLE_COPY_MOVE(registration)
 
 public:
-	template <typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)(tcp_socket_ptr()))>
+	template <typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)(GTS_DECLVAL(tcp_socket_ptr&))), int U0=0>
 	registration(Func &&func, uint16_t port = 0) {
 		rttr::registration::method(port == 0? "gts.plugin.new_connection" : fmt::format("gts.plugin.new_connection.{}", port), std::forward<Func>(func));
 	}

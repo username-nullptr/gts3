@@ -1,6 +1,6 @@
 #include "plugins_service.h"
+#include "gts/web_global.h"
 #include "app_info.h"
-#include "global.h"
 
 #include "service/service_io.h"
 #include "gts/web/registration.h"
@@ -259,7 +259,7 @@ void plugin_service::global_method_call(const rttr::method &method)
 			method.invoke({}, m_sio.request, std::move(m_sio.response));
 			return ;
 		}
-		if( t0 == GTS_RTTR_TYPE(http::response) and t0 == GTS_RTTR_TYPE(http::request) )
+		else if( t0 == GTS_RTTR_TYPE(http::response) and t1 == GTS_RTTR_TYPE(http::request) )
 		{
 			method.invoke({}, m_sio.response, m_sio.request);
 			return ;

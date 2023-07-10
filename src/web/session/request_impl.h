@@ -15,6 +15,7 @@ public:
 
 public:
 	tcp_socket_ptr m_socket;
+	std::size_t m_rclenght = 0;
 
 	http::method m_method;
 	std::string m_version;

@@ -1,8 +1,8 @@
 #include "session/session.h"
-#include "global.h"
-
 #include "gts/web/thread_pool.h"
 #include "gts/web/config_key.h"
+#include "gts/web_global.h"
+
 #include "gts/registration.h"
 #include "gts/application.h"
 #include "gts/algorithm.h"
@@ -104,7 +104,7 @@ GTS_PLUGIN_REGISTRATION
 	using namespace gts;
 	using namespace gts::web;
 
-	gts::registration([](tcp_socket_ptr socket){
+	gts::registration([](tcp_socket_ptr &socket){
 		session::new_connection(std::move(socket));
 	})
 	.view_status_method([]{

@@ -1,5 +1,5 @@
 #include "service.h"
-#include "global.h"
+#include "gts/web_global.h"
 
 #include "service/service_io.h"
 #include "gts/web/config_key.h"

@@ -1,7 +1,7 @@
 #include "task.h"
-#include "global.h"
 #include "service.h"
 #include "service_io.h"
+#include "gts/web_global.h"
 
 #include "gts/log.h"
 #include "gts/settings.h"

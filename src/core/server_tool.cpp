@@ -47,7 +47,7 @@ void exit()
 
 static bool _new_connection_method_call(const std::string &method_suffix, tcp_socket *sock)
 {
-	auto method = rttr::type::get_global_method("gts.plugin." + method_suffix, {GTS_RTTR_TYPE(tcp_socket_ptr)});
+	auto method = rttr::type::get_global_method("gts.plugin." + method_suffix, {GTS_RTTR_TYPE(tcp_socket_ptr&)});
 	if( method.is_valid() )
 	{
 		method.invoke({}, tcp_socket_ptr(sock));

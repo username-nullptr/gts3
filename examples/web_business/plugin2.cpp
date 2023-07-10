@@ -27,7 +27,7 @@ GTS_DECL_EXPORT std::string view_status()
 	return "web plugin: examples-plugin2: hello2\n";
 }
 
-GTS_DECL_EXPORT void new_request_0(http::response &&response)
+GTS_DECL_EXPORT void new_request_0(http::response &response)
 {
 	response.write("plugin2-global");
 }
@@ -35,39 +35,34 @@ GTS_DECL_EXPORT void new_request_0(http::response &&response)
 class GTS_DECL_EXPORT plugin2
 {
 public:
-	future_ptr init();
-	void exit();
-	void new_request_0(http::response &&response);
-	void new_request_1(http::response &&response);
-};
-
-future_ptr plugin2::init()
-{
-	return make_future_ptr(std::async(std::launch::async,[]
+	future_ptr init()
 	{
-		for(int i=0; i<8; i++)
+		return make_future_ptr(std::async(std::launch::async,[]
 		{
-			std::cerr << "plugin2: init task ..." << std::endl;
-			std::this_thread::sleep_for(std::chrono::milliseconds(120));
-		}
-	}));
-}
+			for(int i=0; i<8; i++)
+			{
+				std::cerr << "plugin2: init task ..." << std::endl;
+				std::this_thread::sleep_for(std::chrono::milliseconds(120));
+			}
+		}));
+	}
 
-void plugin2::exit()
-{
-	std::cerr << "plugin2: exit task ..." << std::endl;
-}
+	void exit()
+	{
+		std::cerr << "plugin2: exit task ..." << std::endl;
+	}
 
-void plugin2::new_request_0(http::response &&response)
-{
-	response.write("plugin2-0");
-}
+	void new_request_0(http::response &response)
+	{
+		response.write("plugin2-0");
+	}
 
-void plugin2::new_request_1(http::response &&response)
-{
-//	response.write("plugin2-1");
-	response.write_file("button.html");
-}
+	void new_request_1(http::response &response)
+	{
+//		response.write("plugin2-1");
+		response.write_file("button.html");
+	}
+};
 
 #if 0
 static void intercept(tcp_socket_ptr socket)
