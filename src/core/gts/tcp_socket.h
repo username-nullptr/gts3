@@ -41,6 +41,12 @@ public:
 	void async_read_some(std::string &buf, std::function<void(std::size_t)>);
 	void async_read_some(void *buf, std::size_t size, std::function<void(std::size_t)>);
 
+public: // TODO ......
+	bool wait_writeable(std::size_t ms, asio::error_code &error);
+	bool wait_readable(std::size_t ms, asio::error_code &error);
+	bool wait_writeable(std::size_t ms);
+	bool wait_readable(std::size_t ms);
+
 public:
 	tcp::endpoint remote_endpoint(asio::error_code &error);
 	tcp::endpoint remote_endpoint();

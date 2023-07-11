@@ -57,12 +57,23 @@ GTS_DECL_EXPORT void save_file(http::response &response, http::request &request)
 	if( it == request.headers().end() )
 	{
 		response.set_status(http::hs_misdirected_request)
-				.write("421 HTTP_UPLOAD_FILE_NAME is null");
+				.write("421 upload-file-name is null");
 	}
 	else
 	{
-		request.save_file(resource_root() + "upload/" + it->second);
-		response.write_default();
+		std::error_code error;
+		if( request.save_file(resource_root() + "upload/" + it->second, error) == false )
+		{
+			response.set_status(http::hs_bad_request).write(error.message());
+			return ;
+		}
+		std::string body;
+		for(auto &para : request.headers())
+			body += fmt::format("(h) {} = {}\n", para.first, para.second);
+		body += "\n";
+
+		body.erase(body.size() - 2);
+		response.write(body);
 	}
 }
 

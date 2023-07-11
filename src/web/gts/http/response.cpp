@@ -233,21 +233,37 @@ public:
 	{
 		if( check() == false )
 			return ;
+		auto &headers = m_request.headers();
 
 		// Content-Range: bytes=x-y/z
-		auto it = m_request.headers().find("content-range");
-		if( it != m_request.headers().end() )
+		auto it = headers.find("content-range");
+		if( it != headers.end() )
 		{
-			// ......
+			// TODO ......
 			m_response.write_default(http::hs_not_implemented); //tmp
 			return m_file.close();
 		}
 
 		// Range: bytes=x-y, m-n, i-j ...
-		it = m_request.headers().find("range");
-		if( it != m_request.headers().end() )
+		it = headers.find("range");
+		if( it != headers.end() )
 		{
 			range_transfer(it->second);
+			return m_file.close();
+		}
+
+		/*
+			[size]\r\n
+			[content]\r\n
+			[size]\r\n
+			[content]\r\n
+			0\r\n
+			\r\n
+		*/
+		it = headers.find("transfer-coding");
+		if( it != headers.end() and it->second == "chunked" )
+		{
+
 			return m_file.close();
 		}
 

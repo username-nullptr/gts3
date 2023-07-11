@@ -28,12 +28,12 @@ private:
 	void reset();
 
 private:
-	enum state
+	enum class state
 	{
 		waiting_request,
 		reading_headers,
 	}
-	m_state = waiting_request;
+	m_state = state::waiting_request;
 
 private:
 	std::string m_buffer;

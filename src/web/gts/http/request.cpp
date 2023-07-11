@@ -1,6 +1,9 @@
 #include "session/request_impl.h"
+#include "gts/application.h"
 #include "gts/algorithm.h"
 #include "gts/log.h"
+
+#include <cppfilesystem>
 #include <fstream>
 
 namespace gts { namespace http
@@ -128,6 +131,9 @@ std::string request::read_body(std::error_code &error, std::size_t size)
 		}
 		result = std::move(m_impl->m_body);
 		size -= result.size();
+
+		if( content_length == 0 )
+			return result;
 	}
 	char *buf = new char[size] {0};
 	auto res = m_impl->m_socket->read_some(buf, size, error);
@@ -191,6 +197,9 @@ std::size_t request::read_body(std::error_code &error, void *buf, std::size_t si
 		size -= m_impl->m_body.size();
 		offset += m_impl->m_body.size();
 		m_impl->m_body.clear();
+
+		if( content_length == 0 )
+			return offset;
 	}
 	auto res = m_impl->m_socket->read_some(static_cast<char*>(buf) + offset, size, error);
 	if( error )
@@ -201,7 +210,7 @@ std::size_t request::read_body(std::error_code &error, void *buf, std::size_t si
 	return result;
 }
 
-bool request::save_file(const std::string &file_name, asio::error_code &error)
+bool request::save_file(const std::string &_file_name, asio::error_code &error)
 {
 	if( m_impl->m_rclenght > 0 )
 	{
@@ -209,14 +218,16 @@ bool request::save_file(const std::string &file_name, asio::error_code &error)
 		error = std::make_error_code(std::errc::invalid_argument);
 		return false;
 	}
-	else if( file_name.empty() )
+	else if( _file_name.empty() )
 	{
 		log_error("request::save_file: file_name is empty.");
 		error = std::make_error_code(std::errc::invalid_argument);
 		return false;
 	}
 
+	auto file_name = app::absolute_path(_file_name);
 	std::fstream file(file_name, std::ios_base::out);
+
 	if( not file.is_open() )
 	{
 		error = std::make_error_code(static_cast<std::errc>(errno));
@@ -250,67 +261,110 @@ bool request::save_file(const std::string &file_name, asio::error_code &error)
 	else if( version() == "1.1" )
 	{
 		it = headers.find("transfer-coding");
-		if( it != headers.end() and it->second == "chunked" )
+		if( it == headers.end() or it->second != "chunked" )
 		{
-			auto tcp_buf_size = m_impl->tcp_ip_buffer_size();
-			char *buf = new char[tcp_buf_size] {0};
-			std::string abuf;
-			bool mode = false; // false:size true:content
-
-			for(;;)
-			{
-				auto res = read_body(error, buf, tcp_buf_size);
-				if( error )
-				{
-					delete[] buf;
-					return false;
-				}
-
-				abuf.append(buf, res);
-				auto list = string_split(abuf, "\r\n");
-				std::size_t _size = 0;
-
-				for(auto it2=list.begin(); it2!=list.end(); ++it2)
-				{
-					auto &line = *it2;
-					if( mode )
-					{
-						if( _size < line.size() )
-							_size = line.size();
-						else
-							mode = false;
-
-						file.write(line.c_str(), _size);
-						continue;
-					}
-
-					auto pos = line.find(";");
-					if( pos != line.npos )
-						line.erase(pos);
-
-					std::sscanf(line.c_str(), "%zu", &_size);
-					if( _size > 0 )
-					{
-						mode = true;
-						continue;
-					}
-
-					for(++it2; it2!=list.end(); ++it2)
-					{
-						pos = it2->find(":");
-						if( pos == std::string::npos )
-							m_impl->m_headers.emplace(to_lower(trimmed(*it2)), "");
-						else
-							m_impl->m_headers.emplace(to_lower(trimmed(it2->substr(0,pos))), to_lower(trimmed(it2->substr(pos+1))));
-					}
-					delete[] buf;
-					return true;
-				}
-			}
 			log_warning("http protocol format error.");
 			file.close();
-			delete[] buf;
-			return true;
+			return false;
+		}
+
+		auto tcp_buf_size = m_impl->tcp_ip_buffer_size();
+		char *buf = new char[tcp_buf_size] {0};
+		std::string abuf;
+
+		enum class status
+		{
+			wait_size,
+			wait_content,
+			wait_headers
+		}
+		_status = status::wait_size;
+
+		for(;;)
+		{
+			auto res = read_body(error, buf, tcp_buf_size);
+			if( error )
+			{
+				file.close();
+				delete[] buf;
+				return false;
+			}
+
+			abuf.append(buf, res);
+			std::size_t _size = 0;
+
+			auto lambda_reset = [&](const char *msg)
+			{
+				log_warning(msg);
+				error = std::make_error_code(std::errc::wrong_protocol_type);
+				file.close();
+				fs::remove(file_name);
+				delete[] buf;
+			};
+			while( not abuf.empty() )
+			{
+				auto pos = abuf.find("\r\n");
+				if( pos == abuf.npos )
+				{
+					if( abuf.size() >= 1024 )
+					{
+						lambda_reset("Http protocol format error.");
+						return false;
+					}
+					break;
+				}
+
+				auto line_buf = abuf.substr(0, pos + 2);
+				abuf.erase(0, pos + 2);
+
+				if( _status == status::wait_size )
+				{
+					line_buf.erase(pos);
+					auto pos = line_buf.find(";");
+					if( pos != line_buf.npos )
+						line_buf.erase(pos);
+
+					if( line_buf.size() > 16 )
+					{
+						lambda_reset("Http protocol format error.");
+						return false;
+					}
+					try {
+						_size = static_cast<std::size_t>(std::stoull(line_buf, nullptr, 16));
+					} catch(...) {
+						lambda_reset("Http protocol format error.");
+						return false;
+					}
+					_status = _size == 0 ? status::wait_headers : status::wait_content;
+				}
+				else if( _status == status::wait_content )
+				{
+					line_buf.erase(pos);
+					if( _size < line_buf.size() )
+						_size = line_buf.size();
+					else
+						_status = status::wait_size;
+					file.write(line_buf.c_str(), _size);
+				}
+				else if( _status == status::wait_headers )
+				{
+					if( line_buf == "\r\n" )
+					{
+						file.close();
+						delete[] buf;
+						return true;
+					}
+					auto colon_index = line_buf.find(':');
+					if( colon_index == line_buf.npos )
+					{
+						lambda_reset("Invalid header line.");
+						return false;
+					}
+					auto header_key = to_lower(trimmed(line_buf.substr(0, colon_index)));
+					auto header_value = from_percent_encoding(trimmed(line_buf.substr(colon_index + 1)));
+					m_impl->m_headers[header_key] = header_value;
+				}
+			}
 		}
 	}
 	log_error("request::save_file: Insufficient 'http' condition.\n"
@@ -347,7 +401,21 @@ request &request::operator=(request &&other)
 
 bool request::is_valid() const
 {
-	return m_impl and not m_impl->m_version.empty() and not m_impl->m_path.empty();
+	if( m_impl == nullptr )
+		return false;
+	else if( m_impl->m_version.empty() or m_impl->m_path.empty() )
+		return false;
+
+	if( m_impl->m_method == GET )
+	{
+		auto it = m_impl->m_headers.find("content-length");
+		if( it != m_impl->m_headers.end() )
+		{
+			if( it->second.get<std::size_t>() > 1024 )
+				return false;
+		}
+	}
+	return true;
 }
 
 const tcp_socket &request::socket() const
