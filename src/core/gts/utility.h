@@ -43,9 +43,9 @@ using decay_t = typename std::decay<T>::type;
 
 #define GTS_CLASS_METHOD_DECLVAL(Class, Return, ...)   (GTS_DECLVAL(Class).*GTS_DECLVAL(Return(Class::*)(__VA_ARGS__)))
 
-#define GTS_TYPE_DECLTYPE(...)   typename _UT_0 = decltype(__VA_ARGS__)
+#define GTS_TYPE_DECLTYPE(...)   typename _GTD_0 = decltype(__VA_ARGS__)
 
-#define GTS_TYPE_ENABLE_IF(...)   typename _UT_0 = gts::enable_if_t<__VA_ARGS__>
+#define GTS_TYPE_ENABLE_IF(...)   typename _GTEI_0 = gts::enable_if_t<__VA_ARGS__>
 
 #define GTS_RTTR_TYPE(...)   rttr::type::get<__VA_ARGS__>()
 

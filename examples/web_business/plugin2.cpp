@@ -1,4 +1,5 @@
 #include <gts/registration.h>
+#include <gts/http/fmt_formatter.h>
 #include <gts/web.h>
 #include <iostream>
 
@@ -52,6 +53,12 @@ public:
 		std::cerr << "plugin2: exit task ..." << std::endl;
 	}
 
+	bool request_filter(http::request &request)
+	{
+		std::cerr << fmt::format("plugin2: request_filter: '{} ({})'.", request.path(), request.method()) << std::endl;
+		return false;
+	}
+
 	void new_request_0(http::response &response)
 	{
 		response.write("plugin2-0");
@@ -95,6 +102,7 @@ GTS_PLUGIN_REGISTRATION
 	registration::class_<business::plugin2>("plugin2/sub")
 			.init_method(&business::plugin2::init)
 			.exit_method(&business::plugin2::exit)
+			.filter_method("/", &business::plugin2::request_filter)
 			.request_handle_method<GET>("subsub", &business::plugin2::new_request_0)
 			.request_handle_method<GET>("subsub/test", &business::plugin2::new_request_1);
 

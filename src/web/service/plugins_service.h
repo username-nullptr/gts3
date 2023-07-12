@@ -1,7 +1,7 @@
 #ifndef PLUGIN_SERVICE_H
 #define PLUGIN_SERVICE_H
 
-#include "gts/gts_global.h"
+#include "gts/web/registration.h"
 
 namespace gts { namespace web
 {
@@ -22,8 +22,9 @@ public:
 	static std::string view_status();
 
 private:
-	void global_method_call(const rttr::method &method);
-	void class_method_call(rttr::method &method, rttr::variant &obj);
+	rttr::variant global_method_call(const rttr::method &method, const rttr::type &p1_type);
+	rttr::variant class_method_call(rttr::method &method, rttr::variant &obj, const rttr::type &p1_type);
+	registration::service *find_filter(const std::string &url);
 
 private:
 	service_io &m_sio;

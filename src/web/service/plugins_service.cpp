@@ -3,7 +3,6 @@
 #include "app_info.h"
 
 #include "service/service_io.h"
-#include "gts/web/registration.h"
 #include "gts/web/config_key.h"
 #include "gts/algorithm.h"
 #include "gts/settings.h"
@@ -44,12 +43,43 @@ void plugin_service::call()
 	if( not ss.method.is_valid() )
 		return m_sio.return_to_null(http::hs_method_not_allowed);
 
+	auto lambda_call_filter = [this](registration::service &rs) -> bool
+	{
+		if( rs.method.get_return_type() != GTS_RTTR_TYPE(bool) )
+			log_fatal("*** Code bug !!! : service filter function return type error !!!");
+
+		else if( rs.class_type.is_valid() )
+		{
+			auto &obj = g_obj_hash[rs.class_type];
+			return class_method_call(rs.method, obj, GTS_RTTR_TYPE(http::request)).to_bool();
+		}
+		return global_method_call(rs.method, GTS_RTTR_TYPE(http::request)).to_bool();
+	};
+
+	for(auto &pair : registration::g_filter_path_map)
+	{
+		auto &path = pair.first;
+		auto &rs = pair.second;
+
+		if( not starts_with("/" + m_sio.url_name, path) )
+			continue ;
+
+		else if( path[path.size() - 1] == '/' )
+		{
+			if( m_sio.url_name != path and lambda_call_filter(rs) )
+				return ;
+		}
+		else if( lambda_call_filter(rs) )
+			return ;
+	}
+
 	if( ss.class_type.is_valid() )
 	{
 		auto &obj = g_obj_hash[ss.class_type];
-		return class_method_call(ss.method, obj);
+		class_method_call(ss.method, obj, GTS_RTTR_TYPE(http::response));
 	}
-	global_method_call(ss.method);
+	else
+		global_method_call(ss.method, GTS_RTTR_TYPE(http::response));
 }
 
 static std::list<rttr::library> g_library_list;
@@ -65,7 +95,7 @@ static std::list<rttr::library> g_library_list;
 })
 
 template <typename Ins>
-static void call_init(rttr::method &method, Ins obj, std::list<future_ptr> &futures)
+static void call_init(const rttr::method &method, Ins obj, std::list<future_ptr> &futures)
 {
 	auto para_list = method.get_parameter_infos();
 	if( para_list.empty() )
@@ -76,7 +106,7 @@ static void call_init(rttr::method &method, Ins obj, std::list<future_ptr> &futu
 }
 
 template <typename Ins>
-static void call_exit(rttr::method &method, Ins obj, std::list<future_ptr> &futures)
+static void call_exit(const rttr::method &method, Ins obj, std::list<future_ptr> &futures)
 {
 	auto para_list = method.get_parameter_infos();
 	if( para_list.empty() )
@@ -145,9 +175,11 @@ void plugin_service::init()
 	}
 
 	std::list<future_ptr> futures;
+	auto it = rttr::type::get_global_methods().begin();
 
-	for(auto method : rttr::type::get_global_methods())
+	for(int i=0; it!=rttr::type::get_global_methods().end(); it=std::next(rttr::type::get_global_methods().begin(), ++i))
 	{
+		auto &method = *it;
 		if( starts_with(method.get_name().to_string(), "gts.web.plugin.init.") )
 			call_init(method, rttr::instance(), futures);
 	}
@@ -181,7 +213,6 @@ void plugin_service::init()
 void plugin_service::exit()
 {
 	std::list<future_ptr> futures;
-
 	for(auto &pair : g_obj_hash)
 	{
 		auto &type = pair.first;
@@ -192,8 +223,11 @@ void plugin_service::exit()
 			call_exit(method, obj, futures);
 		obj.clear();
 	}
-	for(auto method : rttr::type::get_global_methods())
+
+	auto it = rttr::type::get_global_methods().begin();
+	for(int i=0; it!=rttr::type::get_global_methods().end(); it=std::next(rttr::type::get_global_methods().begin(), ++i))
 	{
+		auto &method = *it;
 		if( starts_with(method.get_name().to_string(), "gts.web.plugin.exit.") )
 			call_exit(method, rttr::instance(), futures);
 	}
@@ -205,8 +239,11 @@ void plugin_service::exit()
 std::string plugin_service::view_status()
 {
 	std::string result;
-	for(auto &method : rttr::type::get_global_methods())
+	auto it = rttr::type::get_global_methods().begin();
+
+	for(int i=0; it!=rttr::type::get_global_methods().end(); it=std::next(rttr::type::get_global_methods().begin(), ++i))
 	{
+		auto &method = *it;
 		if( starts_with(method.get_name().to_string(), "gts.web.plugin.view_status.") and method.get_return_type() == GTS_RTTR_TYPE(std::string) )
 			result += method.invoke({}).get_value<std::string>();
 	}
@@ -239,14 +276,18 @@ static environments make_envs(service_io &sio)
 	};
 }
 
-void plugin_service::global_method_call(const rttr::method &method)
+rttr::variant plugin_service::global_method_call(const rttr::method &method, const rttr::type &p1_type)
 {
 	auto para_array = method.get_parameter_infos();
 	if( para_array.size() == 1 )
 	{
-		if( para_array.begin()->get_type() == GTS_RTTR_TYPE(http::response) )
-			method.invoke({}, std::move(m_sio.response));
-		return ;
+		if( para_array.begin()->get_type() == p1_type )
+		{
+			if( p1_type == GTS_RTTR_TYPE(http::request) )
+				return method.invoke({}, m_sio.request);
+			else if( p1_type == GTS_RTTR_TYPE(http::response) )
+				return method.invoke({}, m_sio.response);
+		}
 	}
 	else if( para_array.size() == 2 )
 	{
@@ -255,15 +296,10 @@ void plugin_service::global_method_call(const rttr::method &method)
 		auto t1 = it->get_type();
 
 		if( t0 == GTS_RTTR_TYPE(http::request) and t1 == GTS_RTTR_TYPE(http::response) )
-		{
-			method.invoke({}, m_sio.request, std::move(m_sio.response));
-			return ;
-		}
+			return method.invoke({}, m_sio.request, m_sio.response);
+
 		else if( t0 == GTS_RTTR_TYPE(http::response) and t1 == GTS_RTTR_TYPE(http::request) )
-		{
-			method.invoke({}, m_sio.response, m_sio.request);
-			return ;
-		}
+			return method.invoke({}, m_sio.response, m_sio.request);
 	}
 	else if( para_array.size() == 3 )
 	{
@@ -273,48 +309,38 @@ void plugin_service::global_method_call(const rttr::method &method)
 		auto t2 = it->get_type();
 
 		if( t0 == GTS_RTTR_TYPE(http::request) and t1 == GTS_RTTR_TYPE(http::response) and t2 == GTS_RTTR_TYPE(environments) )
-		{
-			method.invoke({}, m_sio.request, std::move(m_sio.response), make_envs(m_sio));
-			return ;
-		}
+			return method.invoke({}, m_sio.request, m_sio.response, make_envs(m_sio));
+
 		else if( t0 == GTS_RTTR_TYPE(http::response) and t1 == GTS_RTTR_TYPE(http::request) and t2 == GTS_RTTR_TYPE(environments) )
-		{
-			method.invoke({}, std::move(m_sio.response), m_sio.request, make_envs(m_sio));
-			return ;
-		}
+			return method.invoke({}, m_sio.response, m_sio.request, make_envs(m_sio));
+
 		else if( t0 == GTS_RTTR_TYPE(http::response) and t1 == GTS_RTTR_TYPE(environments) and t2 == GTS_RTTR_TYPE(http::request) )
-		{
-			method.invoke({}, std::move(m_sio.response), make_envs(m_sio), m_sio.request);
-			return ;
-		}
+			return method.invoke({}, m_sio.response, make_envs(m_sio), m_sio.request);
+
 		else if( t0 == GTS_RTTR_TYPE(environments) and t1 == GTS_RTTR_TYPE(http::response) and t2 == GTS_RTTR_TYPE(http::request) )
-		{
-			method.invoke({}, make_envs(m_sio), std::move(m_sio.response), m_sio.request);
-			return ;
-		}
+			return method.invoke({}, make_envs(m_sio), m_sio.response, m_sio.request);
+
 		else if( t0 == GTS_RTTR_TYPE(environments) and t1 == GTS_RTTR_TYPE(http::request) and t2 == GTS_RTTR_TYPE(http::response) )
-		{
-			method.invoke({}, make_envs(m_sio), m_sio.request, std::move(m_sio.response));
-			return ;
-		}
+			return method.invoke({}, make_envs(m_sio), m_sio.request, m_sio.response);
+
 		else if( t0 == GTS_RTTR_TYPE(http::request) and t1 == GTS_RTTR_TYPE(environments) and t2 == GTS_RTTR_TYPE(http::response) )
-		{
-			method.invoke({}, m_sio.request, make_envs(m_sio), std::move(m_sio.response));
-			return ;
-		}
+			return method.invoke({}, m_sio.request, make_envs(m_sio), m_sio.response);
 	}
 	log_fatal("*** Code bug !!! : service function type error !!!");
+	return {};
 }
 
-void plugin_service::class_method_call(rttr::method &method, rttr::variant &obj)
+rttr::variant plugin_service::class_method_call(rttr::method &method, rttr::variant &obj, const rttr::type &p1_type)
 {
 	auto para_array = method.get_parameter_infos();
 	if( para_array.size() == 1 )
 	{
-		if( para_array.begin()->get_type() == GTS_RTTR_TYPE(http::response) )
+		if( para_array.begin()->get_type() == p1_type )
 		{
-			method.invoke(obj, std::move(m_sio.response));
-			return ;
+			if( p1_type == GTS_RTTR_TYPE(http::request) )
+				return method.invoke(obj, m_sio.request);
+			else if( p1_type == GTS_RTTR_TYPE(http::response) )
+				return method.invoke(obj, m_sio.response);
 		}
 	}
 	else if( para_array.size() == 2 )
@@ -324,15 +350,10 @@ void plugin_service::class_method_call(rttr::method &method, rttr::variant &obj)
 		auto t1 = it->get_type();
 
 		if( t0 == GTS_RTTR_TYPE(http::request) and t1 == GTS_RTTR_TYPE(http::response) )
-		{
-			method.invoke(obj, m_sio.request, std::move(m_sio.response));
-			return ;
-		}
+			return method.invoke(obj, m_sio.request, m_sio.response);
+
 		else if( t0 == GTS_RTTR_TYPE(http::response) and t1 == GTS_RTTR_TYPE(http::request) )
-		{
-			method.invoke(obj, std::move(m_sio.response), m_sio.request);
-			return ;
-		}
+			return method.invoke(obj, m_sio.response, m_sio.request);
 	}
 	else if( para_array.size() == 3 )
 	{
@@ -342,37 +363,40 @@ void plugin_service::class_method_call(rttr::method &method, rttr::variant &obj)
 		auto t2 = it->get_type();
 
 		if( t0 == GTS_RTTR_TYPE(http::request) and t1 == GTS_RTTR_TYPE(http::response) and t2 == GTS_RTTR_TYPE(environments) )
-		{
-			method.invoke(obj, m_sio.request, std::move(m_sio.response), make_envs(m_sio));
-			return ;
-		}
+			return method.invoke(obj, m_sio.request, m_sio.response, make_envs(m_sio));
+
 		else if( t0 == GTS_RTTR_TYPE(http::response) and t1 == GTS_RTTR_TYPE(http::request) and t2 == GTS_RTTR_TYPE(environments) )
-		{
-			method.invoke(obj, std::move(m_sio.response), m_sio.request, make_envs(m_sio));
-			return ;
-		}
+			return method.invoke(obj, m_sio.response, m_sio.request, make_envs(m_sio));
+
 		else if( t0 == GTS_RTTR_TYPE(http::response) and t1 == GTS_RTTR_TYPE(environments) and t2 == GTS_RTTR_TYPE(http::request) )
-		{
-			method.invoke(obj, std::move(m_sio.response), make_envs(m_sio), m_sio.request);
-			return ;
-		}
+			return method.invoke(obj, m_sio.response, make_envs(m_sio), m_sio.request);
+
 		else if( t0 == GTS_RTTR_TYPE(environments) and t1 == GTS_RTTR_TYPE(http::response) and t2 == GTS_RTTR_TYPE(http::request) )
-		{
-			method.invoke(obj, make_envs(m_sio), std::move(m_sio.response), m_sio.request);
-			return ;
-		}
+			return method.invoke(obj, make_envs(m_sio), m_sio.response, m_sio.request);
+
 		else if( t0 == GTS_RTTR_TYPE(environments) and t1 == GTS_RTTR_TYPE(http::request) and t2 == GTS_RTTR_TYPE(http::response) )
-		{
-			method.invoke(obj, make_envs(m_sio), m_sio.request, std::move(m_sio.response));
-			return ;
-		}
+			return method.invoke(obj, make_envs(m_sio), m_sio.request, m_sio.response);
+
 		else if( t0 == GTS_RTTR_TYPE(http::request) and t1 == GTS_RTTR_TYPE(environments) and t2 == GTS_RTTR_TYPE(http::response) )
-		{
-			method.invoke(obj, m_sio.request, make_envs(m_sio), std::move(m_sio.response));
-			return ;
-		}
+			return method.invoke(obj, m_sio.request, make_envs(m_sio), m_sio.response);
 	}
 	log_fatal("*** Code bug !!! : service function type error !!!");
+	return {};
+}
+
+registration::service *plugin_service::find_filter(const std::string &url)
+{
+	auto it = registration::g_filter_path_map.lower_bound(url);
+	if( it != registration::g_filter_path_map.begin() )
+	{
+		if( it != registration::g_filter_path_map.end() and it->first == url )
+			return &it->second;
+
+		--it;
+		if( it->first == url.substr(0, it->first.size()) )
+			return &it->second;
+	}
+	return nullptr;
 }
 
 }} //namespace gts::web

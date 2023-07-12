@@ -1,4 +1,5 @@
 #include <gts/tcp_socket.h>
+#include <gts/http/fmt_formatter.h>
 #include <gts/web.h>
 #include <iostream>
 
@@ -39,6 +40,12 @@ GTS_DECL_EXPORT void exit()
 GTS_DECL_EXPORT std::string view_status()
 {
 	return "web plugin: examples-plugin0: hello0\n";
+}
+
+GTS_DECL_EXPORT bool request_filter(http::request &request)
+{
+	std::cerr << fmt::format("plugin0: request_filter: '{} ({})'.", request.path(), request.method()) << std::endl;
+	return false;
 }
 
 GTS_DECL_EXPORT void new_request_0(http::response &response)
@@ -88,6 +95,7 @@ GTS_PLUGIN_REGISTRATION
 			.init_method(business::init)
 			.exit_method(business::exit)
 			.view_status_method(business::view_status)
+			.filter_method("/", business::request_filter)
 			.request_handle_method<GET>("plugin0", business::new_request_0)
 			.request_handle_method<GET>("plugin0/sub", business::new_request_1)
 			.request_handle_method<PUT,POST>("upload", business::save_file);

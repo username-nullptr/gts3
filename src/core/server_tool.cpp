@@ -22,8 +22,10 @@ namespace plugin_call
 
 void init(const std::string &config_file)
 {
-	for(auto &method : rttr::type::get_global_methods())
+	auto it = rttr::type::get_global_methods().begin();
+	for(int i=0; it!=rttr::type::get_global_methods().end(); it=std::next(rttr::type::get_global_methods().begin(), ++i))
 	{
+		auto &method = *it;
 		if( not starts_with(method.get_name().to_string(), "gts.plugin.init") )
 			continue;
 		auto list = method.get_parameter_infos();
@@ -38,8 +40,10 @@ void init(const std::string &config_file)
 
 void exit()
 {
-	for(auto &method : rttr::type::get_global_methods())
+	auto it = rttr::type::get_global_methods().begin();
+	for(int i=0; it!=rttr::type::get_global_methods().end(); it=std::next(rttr::type::get_global_methods().begin(), ++i))
 	{
+		auto &method = *it;
 		if( starts_with(method.get_name().to_string(), "gts.plugin.exit") and method.get_parameter_infos().empty() )
 			method.invoke({});
 	}
@@ -69,8 +73,11 @@ bool new_connection(tcp_socket *sock, bool universal)
 std::string view_status()
 {
 	std::string result;
-	for(auto &method : rttr::type::get_global_methods())
+	auto it = rttr::type::get_global_methods().begin();
+
+	for(int i=0; it!=rttr::type::get_global_methods().end(); it=std::next(rttr::type::get_global_methods().begin(), ++i))
 	{
+		auto &method = *it;
 		if( starts_with(method.get_name().to_string(), "gts.plugin.view_status") and method.get_return_type() == GTS_RTTR_TYPE(std::string) )
 			result = method.invoke({}).to_string();
 	}
@@ -84,12 +91,14 @@ namespace extension { namespace plugin_call
 
 void init(const std::string &config_file)
 {
-	for(auto &method : rttr::type::get_global_methods())
+	auto it = rttr::type::get_global_methods().begin();
+	for(int i=0; it!=rttr::type::get_global_methods().end(); it=std::next(rttr::type::get_global_methods().begin(), ++i))
 	{
+		auto &method = *it;
 		if( not starts_with(method.get_name().to_string(), "gts.extension.plugin.init") )
 			continue;
-		auto list = method.get_parameter_infos();
 
+		auto list = method.get_parameter_infos();
 		if( list.size() == 0 )
 			method.invoke({});
 
@@ -100,8 +109,10 @@ void init(const std::string &config_file)
 
 void exit()
 {
-	for(auto &method : rttr::type::get_global_methods())
+	auto it = rttr::type::get_global_methods().begin();
+	for(int i=0; it!=rttr::type::get_global_methods().end(); it=std::next(rttr::type::get_global_methods().begin(), ++i))
 	{
+		auto &method = *it;
 		if( starts_with(method.get_name().to_string(), "gts.extension.plugin.exit") and method.get_parameter_infos().empty() )
 			method.invoke({});
 	}
