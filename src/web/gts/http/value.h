@@ -2,6 +2,7 @@
 #define GTS_HTTP_VALUE_H
 
 #include <gts/web_global.h>
+#include <gts/algorithm.h>
 #include <fmt/format.h>
 
 namespace gts { namespace http
@@ -39,60 +40,46 @@ public:
 
 public:
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, bool), int)>
-	bool get() const
-	{
-#ifdef _WINDOWS
-		if( stricmp(c_str(), "true") == 0 )
-			return true;
-		else if( stricmp(c_str(), "false") == 0 )
-			return true;
-#else
-		if( size() == 4 and strncasecmp(c_str(), "true", 4) == 0 )
-			return true;
-		else if( size() == 5 and strncasecmp(c_str(), "false", 5) == 0 )
-			return true;
-#endif
-		return std::stoi(*this);
-	}
+	bool get() const { return gts::stob(*this); }
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, signed char), int)>
-	signed char get() const { return std::stoi(*this); }
+	signed char get() const { return gts::stoi8(*this); }
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned char), int)>
-	unsigned char get() const { return std::stoi(*this); }
+	unsigned char get() const { return gts::stoui8(*this); }
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, short), int)>
-	short get() const { return std::stoi(*this); }
+	short get() const { return gts::stoi16(*this); }
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned short), int)>
-	unsigned short get() const { return std::stoi(*this); }
+	unsigned short get() const { return gts::stoui16(*this); }
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, int), int)>
-	int get() const { return std::stol(*this); }
+	int get() const { return gts::stoi32(*this); }
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned int), int)>
-	unsigned int get() const { return std::stoul(*this); }
+	unsigned int get() const { return gts::stoui32(*this); }
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, long), int)>
-	long get() const { return std::stol(*this); }
+	long get() const { return gts::stoi64(*this); }
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned long), int)>
-	unsigned long get() const { return std::stoul(*this); }
+	unsigned long get() const { return gts::stoui64(*this); }
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, long long), int)>
-	long long get() const { return std::stoll(*this); }
+	long long get() const { return gts::stoui64(*this); }
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned long long), int)>
-	unsigned long long get() const { return std::stoull(*this); }
+	unsigned long long get() const { return gts::stoui64(*this); }
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, float), int)>
-	float get() const { return std::stof(*this); }
+	float get() const { return gts::stof(*this); }
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, double), int)>
-	double get() const { return std::stod(*this); }
+	double get() const { return gts::stod(*this); }
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, long double), int)>
-	long double get() const { return std::stold(*this); }
+	long double get() const { return gts::stold(*this); }
 
 public:
 	void set_value(const std::string &v) { operator=(v); }

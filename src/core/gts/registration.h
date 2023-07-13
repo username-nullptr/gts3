@@ -43,7 +43,7 @@ public:
 	}
 
 public:
-	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_same(decay_t<decltype(GTS_DECLVAL(Func)())>, std::string), int)>
+	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_same(std::string, decay_t<decltype(GTS_DECLVAL(Func)())>), int)>
 	registration &view_status_method(Func &&func, const std::string &path = "")
 	{
 		rttr::registration::method("gts.plugin.view_status." + path, std::forward<Func>(func));
@@ -85,14 +85,14 @@ public:
 	}
 
 public:
-	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_same(decay_t<decltype(GTS_DECLVAL(Func)(0,GTS_DECLVAL(const char**)))>, bool), int)>
+	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_same(bool, decay_t<decltype(GTS_DECLVAL(Func)(0,GTS_DECLVAL(const char**)))>), int)>
 	registration &args_parsing_method(Func &&func)
 	{
 		rttr::registration::method("gts.extension.plugin.args_parsing", std::forward<Func>(func));
 		return *this;
 	}
 
-	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_same(decay_t<decltype(GTS_DECLVAL(Func)(string_list()))>, bool), int), int U0=0>
+	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_same(bool, decay_t<decltype(GTS_DECLVAL(Func)(string_list()))>), int), int U0=0>
 	registration &args_parsing_method(Func &&func)
 	{
 		rttr::registration::method("gts.extension.plugin.args_parsing", std::forward<Func>(func));
@@ -100,7 +100,7 @@ public:
 	}
 
 public:
-	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_same(decay_t<decltype(GTS_DECLVAL(Func)())>, std::string), int)>
+	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_same(std::string, decay_t<decltype(GTS_DECLVAL(Func)())>), int)>
 	registration &view_version_method(Func &&func)
 	{
 		rttr::registration::method("gts.extension.plugin.view_version", std::forward<Func>(func));
@@ -108,7 +108,7 @@ public:
 	}
 
 public:
-	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_same(decay_t<decltype(GTS_DECLVAL(Func)())>, std::string), int)>
+	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_same(std::string, decay_t<decltype(GTS_DECLVAL(Func)())>), int)>
 	registration &view_help_method(Func &&func)
 	{
 		rttr::registration::method("gts.extension.plugin.view_help", std::forward<Func>(func));

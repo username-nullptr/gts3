@@ -55,7 +55,7 @@ public:
 
 	bool request_filter(http::request &request)
 	{
-		std::cerr << fmt::format("plugin2: request_filter: '{} ({})'.", request.path(), request.method()) << std::endl;
+		std::cerr << fmt::format("plugin2: request_filter: '{} ({:s})'.", request.path(), request.method()) << std::endl;
 		return false;
 	}
 

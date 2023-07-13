@@ -8,6 +8,19 @@
 namespace gts
 {
 
+GTSCORE_API int8_t   stoi8  (const std::string &str, int base = 10);
+GTSCORE_API uint8_t  stoui8 (const std::string &str, int base = 10);
+GTSCORE_API int16_t  stoi16 (const std::string &str, int base = 10);
+GTSCORE_API uint16_t stoui16(const std::string &str, int base = 10);
+GTSCORE_API int32_t  stoi32 (const std::string &str, int base = 10);
+GTSCORE_API uint32_t stoui32(const std::string &str, int base = 10);
+GTSCORE_API int64_t  stoi64 (const std::string &str, int base = 10);
+GTSCORE_API uint64_t stoui64(const std::string &str, int base = 10);
+GTSCORE_API float    stof   (const std::string &str);
+GTSCORE_API double   stod   (const std::string &str);
+GTSCORE_API double   stold  (const std::string &str);
+GTSCORE_API bool     stob   (const std::string &str);
+
 GTSCORE_API string_list string_split(const std::string &str, const std::string &splits, bool ignore_empty = true);
 GTSCORE_API std::string string_list_join(const basic_string_list &list, const std::string &splits = " ");
 

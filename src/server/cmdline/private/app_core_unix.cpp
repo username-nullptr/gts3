@@ -2,6 +2,8 @@
 
 #include "app_core_p.h"
 #include "app_info.h"
+
+#include "gts/algorithm.h"
 #include "gts/log.h"
 
 #include <cppfilesystem>
@@ -103,7 +105,7 @@ void stop_app(bool noreturn)
 	std::string str(buf);
 	trimmed(str);
 
-	pid_t pid = std::stol(str);
+	pid_t pid = stoui32(str);
 	if( pid < 1 )
 	{
 		fs::remove(appinfo::lock_file_name());

@@ -4,6 +4,88 @@
 namespace gts
 {
 
+int8_t stoi8(const std::string &str, int base)
+{
+	char *end = nullptr;
+	return std::strtol(str.c_str(), &end, base);
+}
+
+uint8_t stoui8(const std::string &str, int base)
+{
+	char *end = nullptr;
+	return std::strtoul(str.c_str(), &end, base);
+}
+
+int16_t stoi16(const std::string &str, int base)
+{
+	char *end = nullptr;
+	return std::strtol(str.c_str(), &end, base);
+}
+
+uint16_t stoui16(const std::string &str, int base)
+{
+	char *end = nullptr;
+	return std::strtoul(str.c_str(), &end, base);
+}
+
+int32_t stoi32(const std::string &str, int base)
+{
+	char *end = nullptr;
+	return std::strtol(str.c_str(), &end, base);
+}
+
+uint32_t stoui32(const std::string &str, int base)
+{
+	char *end = nullptr;
+	return std::strtoul(str.c_str(), &end, base);
+}
+
+int64_t stoi64(const std::string &str, int base)
+{
+	char *end = nullptr;
+	return std::strtoll(str.c_str(), &end, base);
+}
+
+uint64_t stoui64(const std::string &str, int base)
+{
+	char *end = nullptr;
+	return std::strtoull(str.c_str(), &end, base);
+}
+
+float stof(const std::string &str)
+{
+	char *end = nullptr;
+	return std::strtof(str.c_str(), &end);
+}
+
+double stod(const std::string &str)
+{
+	char *end = nullptr;
+	return std::strtod(str.c_str(), &end);
+}
+
+double stold(const std::string &str)
+{
+	char *end = nullptr;
+	return std::strtold(str.c_str(), &end);
+}
+
+bool stob(const std::string &str)
+{
+#ifdef _WINDOWS
+		if( stricmp(str.c_str(), "true") == 0 )
+			return true;
+		else if( stricmp(str.c_str(), "false") == 0 )
+			return true;
+#else
+		if( str.size() == 4 and strncasecmp(str.c_str(), "true", 4) == 0 )
+			return true;
+		else if( str.size() == 5 and strncasecmp(str.c_str(), "false", 5) == 0 )
+			return true;
+#endif
+		return stoi8(str);
+}
+
 string_list string_split(const std::string &str, const std::string &splits, bool ignore_empty)
 {
 	string_list result;
