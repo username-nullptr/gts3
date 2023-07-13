@@ -2,6 +2,7 @@
 #include "service.h"
 #include "service_io.h"
 #include "gts/web_global.h"
+#include "gts/http/fmt_formatter.h"
 
 #include "gts/log.h"
 #include "gts/settings.h"
@@ -152,10 +153,10 @@ static void _TRACH  (service_io &sio);
 
 void task::run()
 {
-	auto method = m_request->method();
-	log_debug() << "URL:" << m_request->path() << method;
-
 	service_io sio(*m_request);
+	auto method = m_request->method();
+
+	log_debug("URL: '{}' ({:s})", m_request->path(), method);
 
 	if(      method == http::GET     ) _GET    (sio);
 	else if( method == http::POST    ) _POST   (sio);

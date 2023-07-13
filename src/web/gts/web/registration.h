@@ -382,6 +382,9 @@ public:
 				path = m_path;
 				path.erase(path.size() - 1);
 			}
+			if( path.size() > 1 and path[0] == '/' )
+				path.erase(0,1);
+
 			auto pair = g_path_hash.emplace(path, service_array());
 			service_array_insert(path, pair.first->second, "new_request." + path + ".", std::forward<Func>(func), http_method...);
 			return *this;
@@ -427,13 +430,16 @@ public:
 
 				if( not path.empty() and path[path.size() - 1] == '/' )
 					path.erase(path.size() - 1);
-				path = "/" + m_path + path;
+				path = m_path + path;
 			}
 			else
 			{
-				path = "/" + m_path;
+				path = m_path;
 				path.erase(path.size() - 1);
 			}
+			if( path[0] != '/' )
+				path = "/" + path;
+
 			auto pair = g_filter_path_map.emplace(path, service());
 			if( pair.second == false )
 				log_fatal("service filter '{}' multiple registration.", path);

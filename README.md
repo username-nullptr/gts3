@@ -12,7 +12,7 @@ Compile the source code with cmake:
 
 ```shell
 cd gts3
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=<dir>
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=<dir>  # -DOpenSSL_DIR=<dir>
 make install
 ```
 
@@ -29,6 +29,39 @@ An ini file is used to set the running parameters of the server, and site config
 * The default path of the file is the directory where the executable program resides.
 * Detailed configuration instructions are in doc in the source directory.
 
+## Built-in command line arguments
+
+```shell
+# ./gts --help
+
+start, -start, --start :
+    Start the server.
+
+stop, -stop, --stop :
+    Stop the server.
+
+restart, -restart, --restart :
+    Restart the server.
+
+-d, --daemon :
+    Start as a daemon process.
+
+-i, --instace :
+    Specify the server instance name to start multiple instances. (default is 'gts')
+
+-f, --file :
+    Specify the configuration file (default is './config.ini').
+
+status, -status, --status :
+    Viewing server status.
+
+-v, --version:
+    Viewing server version.
+
+-h, --help:
+    Viewing help.
+```
+
 ## TCP server extension
 
 ```c++
@@ -37,7 +70,7 @@ An ini file is used to set the running parameters of the server, and site config
 
 using namespace gts;
 
-// Parameters are optional
+// Parameters are optional.
 // The return value type can be any type that can be copied, but will not be processed.
 GTS_DECL_EXPORT void plugin_init(/*const std::string &config_file*/)
 {
@@ -49,7 +82,7 @@ GTS_DECL_EXPORT void plugin_exit()
 	// do something
 }
 
-// The parameter must be 'gts::tcp_socket_ptr'
+// The parameter must be 'gts::tcp_socket_ptr'.
 GTS_DECL_EXPORT void new_connection(tcp_socket_ptr socket)
 {
 	// do something
@@ -84,7 +117,7 @@ GTS_PLUGIN_REGISTRATION
 
 using namespace gts;
 
-// Parameters are optional
+// Parameters are optional.
 GTS_DECL_EXPORT void plugin_init(/*const std::string &config_file*/)
 {
 	// do something
@@ -112,8 +145,17 @@ GTS_DECL_EXPORT std::string view_status()
     return "status information";
 }
 
-// The parameter must be 'gts::http::response'
-GTS_DECL_EXPORT void global_request(http::response &&response /*, http::request&&, environments&&*/)
+// The parameter must be 'gts::http::request'.
+// Paths that have a parent-child relationship are executed from the parent path to the child path.
+GTS_DECL_EXPORT void request_filter(http::response &request /*, http::&response, const environments&*/)
+{
+    // A return of true indicates that the request has been processed and no more actual processing is performed.
+    // return true;
+	return false;
+}
+
+// The parameter must be 'gts::http::response'.
+GTS_DECL_EXPORT void global_request(http::response &response /*, http::request&, const environments&*/)
 {
 	response.write("hello world");
 }
@@ -133,8 +175,17 @@ public:
 	    // do something
     }
     
-    // The parameter must be 'gts::http::response'
-    void request(http::response &&response /*, http::request&&, environments&&*/)
+    // The parameter must be 'gts::http::request'.
+    // Paths that have a parent-child relationship are executed from the parent path to the child path.
+    void request_filter(http::response &request /*, http::&response, const environments&*/)
+    {
+        // A return of true indicates that the request has been processed and no more actual processing is performed.
+        // return true;
+	    return false;
+    }
+    
+    // The parameter must be 'gts::http::response'.
+    void request(http::response &response /*, http::request&, const environments&*/)
     {
 	    response.write("hello world");
     }
@@ -156,13 +207,15 @@ GTS_PLUGIN_REGISTRATION
 			.init_method(plugin_init)
 			.exit_method(plugin_exit)
 			.view_status_method(view_status)
-			.new_request_method<GET,POST>("path", global_request);
+             .filter_method("/", request_filter)
+			.request_handle_method<GET,POST>("path", global_request);
         
 	registration::class_<controller>("path")
 			.init_method(controller::init)
 			.exit_method(controller::exit)
 			.view_status_method(controller::view_status)
-			.new_request_method<GET,POST>("path", controller::request);
+             .filter_method("path", controller::request_filter)
+			.request_handle_method<GET,POST>("path", controller::request);
 }
 ```
 
