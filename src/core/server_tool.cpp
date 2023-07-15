@@ -95,7 +95,7 @@ void init(const std::string &config_file)
 	for(int i=0; it!=rttr::type::get_global_methods().end(); it=std::next(rttr::type::get_global_methods().begin(), ++i))
 	{
 		auto &method = *it;
-		if( not starts_with(method.get_name().to_string(), "gts.extension.plugin.init") )
+		if( not starts_with(method.get_name().to_string(), "gts.extension.plugin.init.") )
 			continue;
 
 		auto list = method.get_parameter_infos();
@@ -113,54 +113,77 @@ void exit()
 	for(int i=0; it!=rttr::type::get_global_methods().end(); it=std::next(rttr::type::get_global_methods().begin(), ++i))
 	{
 		auto &method = *it;
-		if( starts_with(method.get_name().to_string(), "gts.extension.plugin.exit") and method.get_parameter_infos().empty() )
+		if( starts_with(method.get_name().to_string(), "gts.extension.plugin.exit.") and method.get_parameter_infos().empty() )
 			method.invoke({});
 	}
 }
 
 bool args_parsing(const string_list &args)
 {
-	auto method = rttr::type::get_global_method("gts.extension.plugin.args_parsing", {GTS_RTTR_TYPE(int), GTS_RTTR_TYPE(const char**)});
-	if( method.is_valid() )
+	std::size_t ct = 0;
+	auto it = rttr::type::get_global_methods().begin();
+
+	for(int i=0; it!=rttr::type::get_global_methods().end(); it=std::next(rttr::type::get_global_methods().begin(), ++i))
 	{
-		if( method.get_return_type() == GTS_RTTR_TYPE(bool) )
+		auto &method = *it;
+		if( not starts_with(method.get_name().to_string(), "gts.extension.plugin.args_parsing.") )
+			continue;
+
+		auto para = method.get_parameter_infos();
+
+		if( para.size() == 2 and para.begin()->get_type() == GTS_RTTR_TYPE(int) and (++para.begin())->get_type() == GTS_RTTR_TYPE(const char**) )
 		{
+			if( method.get_return_type() != GTS_RTTR_TYPE(bool) )
+				continue;
+			ct++;
 			static auto other_args_vector = args.c_str_vector();
-			return method.invoke({}, static_cast<int>(other_args_vector.size()), other_args_vector.data()).to_bool();
+			if( method.invoke({}, static_cast<int>(other_args_vector.size()), other_args_vector.data()).to_bool() == false )
+				return false;
+		}
+		else if( para.size() == 1 and para.begin()->get_type() == GTS_RTTR_TYPE(string_list) )
+		{
+			if( method.get_return_type() != GTS_RTTR_TYPE(bool) )
+				continue ;
+			ct++;
+			if( method.invoke({}, args).to_bool() == false )
+				return false;
 		}
 	}
-	method = rttr::type::get_global_method("gts.extension.plugin.args_parsing", {GTS_RTTR_TYPE(string_list)});
-	if( method.is_valid() and method.get_return_type() == GTS_RTTR_TYPE(bool) )
-		return method.invoke({}, args).to_bool();
-	return false;
+	return ct > 0;
 }
 
 static std::string view_extension(const char *method_name)
 {
 	std::string result;
-	auto method = rttr::type::get_global_method(method_name);
+	auto it = rttr::type::get_global_methods().begin();
 
-	if( method.is_valid() and method.get_parameter_infos().empty() and
-		method.get_return_type() == GTS_RTTR_TYPE(std::string) )
+	for(int i=0; it!=rttr::type::get_global_methods().end(); it=std::next(rttr::type::get_global_methods().begin(), ++i))
 	{
+		auto &method = *it;
+		if( not starts_with(method.get_name().to_string(), method_name) )
+			continue;
+
+		else if( method.get_return_type() != GTS_RTTR_TYPE(std::string) or not method.get_parameter_infos().empty() )
+			continue;
+
 		result = method.invoke({}).to_string();
 		if( result.empty() )
 			return result;
 
-		int i = result.size() - 1;
-		for(; i>=0; i--)
+		int j = result.size() - 1;
+		for(; j>=0; j--)
 		{
-			if( result[i] != '\n' )
+			if( result[j] != '\n' )
 				break;
 		}
-		result = result.substr(0, i + 1);
+		result = result.substr(0, j + 1);
 	}
 	return result;
 }
 
 std::string view_version()
 {
-	auto result = view_extension("gts.extension.plugin.view_version");
+	auto result = view_extension("gts.extension.plugin.view_version.");
 	if( not result.empty() )
 		result = "\nExtern:\n" + result;
 	return result;
@@ -168,7 +191,7 @@ std::string view_version()
 
 std::string view_help()
 {
-	auto result = view_extension("gts.extension.plugin.view_help");
+	auto result = view_extension("gts.extension.plugin.view_help.");
 	if( not result.empty() )
 		result = "Extern:\n" + result;
 	return result;

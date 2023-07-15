@@ -11,10 +11,10 @@ target_include_directories(gtsstartupextensions PRIVATE ../src/core)
 target_link_libraries(gtsstartupextensions gtscore)
 
 set_target_properties(gtsstartupextensions PROPERTIES
-	LIBRARY_OUTPUT_DIRECTORY ../${output_dir_name}/bin
+	LIBRARY_OUTPUT_DIRECTORY ../${output_dir_name}/bin/startup_extensions
 )
 
 add_subdirectory(web_business)
 
-install(TARGETS gtsstartupextensions DESTINATION bin)
+install(TARGETS gtsstartupextensions DESTINATION bin/startup_extensions)
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/web_resource/ DESTINATION resource)

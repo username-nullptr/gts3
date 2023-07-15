@@ -4,10 +4,10 @@
 #include <fmt/format.h>
 #include <gts/http/types.h>
 
-namespace fmt
+namespace gts { namespace http
 {
 
-class _gts_web_enum_formatter
+class enum_formatter
 {
 protected:
 	enum class mode {
@@ -17,7 +17,7 @@ protected:
 
 public:
 	template <typename Context>
-	inline constexpr auto parse(Context &&context) -> decltype(context.begin())
+	inline FMT_CONSTEXPR auto parse(Context &&context) -> decltype(context.begin())
 	{
 		auto it = context.begin();
 		if( it == context.end() or *it == '}' )
@@ -41,13 +41,18 @@ public:
 			}
 		}
 		if( it != context.end() and *it != '}' )
-			detail::throw_format_error("Invalid gts::http::method format specifier.");
+			fmt::detail::throw_format_error("Invalid gts::http enum format specifier.");
 		return it;
 	}
 };
 
+}} //namespace gts::http
+
+namespace fmt
+{
+
 template <>
-class formatter<gts::http::status> : public _gts_web_enum_formatter
+class formatter<gts::http::status> : public gts::http::enum_formatter
 {
 public:
 	template <typename Context>
@@ -63,7 +68,7 @@ public:
 };
 
 template <>
-class formatter<gts::http::method> : public _gts_web_enum_formatter
+class formatter<gts::http::method> : public gts::http::enum_formatter
 {
 public:
 	template <typename Context>

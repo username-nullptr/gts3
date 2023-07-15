@@ -34,45 +34,25 @@ public:
 
 public:
 	template <typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)())>
-	registration &init_method(Func &&func)
-	{
-		if( g_global_func_set.emplace(reinterpret_cast<const void*>(&func)).second )
-			rttr::registration::method(fmt::format("gts.web.plugin.init.{}", g_ggfs_counter++), std::forward<Func>(func));
-		else
-			log_fatal("registration::init_method: multiple registration.");
-		return *this;
+	registration &init_method(Func &&func) {
+		return register_method("init_method", std::forward<Func>(func));
 	}
 
 	template <typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)(std::string())), int U0=0>
-	registration &init_method(Func &&func)
-	{
-		if( g_global_func_set.emplace(reinterpret_cast<const void*>(&func)).second )
-			rttr::registration::method(fmt::format("gts.web.plugin.init.{}", g_ggfs_counter++), std::forward<Func>(func));
-		else
-			log_fatal("registration::init_method: multiple registration.");
-		return *this;
+	registration &init_method(Func &&func) {
+		return register_method("init_method", std::forward<Func>(func));
 	}
 
 public:
 	template <typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)())>
-	registration &exit_method(Func &&func)
-	{
-		if( g_global_func_set.emplace(reinterpret_cast<const void*>(&func)).second )
-			rttr::registration::method(fmt::format("gts.web.plugin.exit.{}", g_ggfs_counter++), std::forward<Func>(func));
-		else
-			log_fatal("registration::exit_method: multiple registration.");
-		return *this;
+	registration &exit_method(Func &&func) {
+		return register_method("exit_method", std::forward<Func>(func));
 	}
 
 public:
 	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_same(std::string , decay_t<decltype(GTS_DECLVAL(Func)())>), int)>
-	registration &view_status_method(Func &&func)
-	{
-		if( g_global_func_set.emplace(reinterpret_cast<const void*>(&func)).second )
-			rttr::registration::method(fmt::format("gts.web.plugin.view_status.{}", g_ggfs_counter++), std::forward<Func>(func));
-		else
-			log_fatal("registration::view_status_method: multiple registration.");
-		return *this;
+	registration &view_status_method(Func &&func) {
+		return register_method("view_status_method", std::forward<Func>(func));
 	}
 
 public:
@@ -458,6 +438,17 @@ public:
 		std::shared_ptr<rttr::registration::class_<Class>> m_class_;
 		rttr::type m_type {rttr::type::get_by_name("")};
 	};
+
+private:
+	template <typename Func>
+	registration &register_method(const std::string &name, Func &&func)
+	{
+		if( g_global_func_set.emplace(reinterpret_cast<const void*>(&func)).second )
+			rttr::registration::method(fmt::format("gts.web.plugin.{}.{}", name, g_ggfs_counter++), std::forward<Func>(func));
+		else
+			log_fatal("gts::web::registration::{}: multiple registration.", name);
+		return *this;
+	}
 
 private:
 	template <http::method...http_method, typename Func>

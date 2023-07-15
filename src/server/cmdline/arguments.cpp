@@ -2,6 +2,7 @@
 #include "server_tool.h"
 
 #include <rttr/library.h>
+#include <cppfilesystem>
 #include <iostream>
 
 #if GTS_ENABLE_SSL
@@ -11,31 +12,40 @@
 namespace gts { namespace cmdline
 {
 
+static std::list<rttr::library> g_lib_lists;
+
 static std::string view_version(bool all = false);
 
-// Modify or extend this function
 args_parser::arguments argument_check(int argc, const char *argv[], string_list &others)
 {
-	static rttr::library library("gtsstartupextensions");
-	library.load();
+	try {
+		for(auto &entry : fs::directory_iterator("./startup_extensions"))
+		{
+			if( not entry.is_regular_file() )
+				continue;
+
+			g_lib_lists.emplace_back(entry.path().string());
+			g_lib_lists.back().load();
+		}
+	} catch(...) {}
 
 	auto args_hash =
 		args_parser("GTS " GTS_VERSION_STR "\n"
 					"Description of command line parameters:")
 
-			.add_flag ("start, -start, --start"      , "Start the server."                                                               , GC_SA_START)
-			.add_flag ("stop, -stop, --stop"         , "Stop the server."                                                                , GC_SA_STOP)
+			.add_flag ("start, -start, --start"      , "Start the server."                                                               , GC_SA_START  )
+			.add_flag ("stop, -stop, --stop"         , "Stop the server."                                                                , GC_SA_STOP   )
 			.add_flag ("restart, -restart, --restart", "Restart the server."                                                             , GC_SA_RESTART)
-			.add_flag ("-d, --daemon"                , "Start as a daemon process."                                                      , GC_SA_DAEMON)
+			.add_flag ("-d, --daemon"                , "Start as a daemon process."                                                      , GC_SA_DAEMON )
 			.add_group("-i, --instace"               , "Specify the server instance name to start multiple instances. (default is 'gts')", GC_SA_INSNAME)
-			.add_group("-f, --file"                  , "Specify the configuration file (default is './config.ini')."                     , GC_SA_CFPATH)
-			.add_flag ("status, -status, --status"   , "Viewing server status."                                                          , GC_SA_STATUS)
-			.add_flag ("--view-subserver-all"        , "Viewing all subservers."                                                         , GC_SA_VASUS)
-			.add_flag ("--view-subserver"            , "Viewing running subservers."                                                     , GC_SA_VRSUS)
-			.add_flag ("--start-subserver-all"       , "Start all subservers."                                                           , GC_SA_STSSA)
-			.add_group("--start-subserver"           , "Start subservices in the list."                                                  , GC_SA_STSS)
-			.add_flag ("--stop-subserver-all"        , "Stop all subservers."                                                            , GC_SA_SPSSA)
-			.add_group("--stop-subserver"            , "Stop subservices in the list."                                                   , GC_SA_SPSS)
+			.add_group("-f, --file"                  , "Specify the configuration file (default is './config.ini')."                     , GC_SA_CFPATH )
+			.add_flag ("status, -status, --status"   , "Viewing server status."                                                          , GC_SA_STATUS )
+			.add_flag ("--view-subserver-all"        , "Viewing all subservers."                                                         , GC_SA_VASUS  )
+			.add_flag ("--view-subserver"            , "Viewing running subservers."                                                     , GC_SA_VRSUS  )
+			.add_flag ("--start-subserver-all"       , "Start all subservers."                                                           , GC_SA_STSSA  )
+			.add_group("--start-subserver"           , "Start subservices in the list."                                                  , GC_SA_STSS   )
+			.add_flag ("--stop-subserver-all"        , "Stop all subservers."                                                            , GC_SA_SPSSA  )
+			.add_group("--stop-subserver"            , "Stop subservices in the list."                                                   , GC_SA_SPSS   )
 
 			.enable_h()
 			.set_help_extension(extension::plugin_call::view_help())
@@ -44,7 +54,7 @@ args_parser::arguments argument_check(int argc, const char *argv[], string_list 
 
 			.parsing(argc, argv, others);
 
-	if( not others.empty() and not extension::plugin_call::args_parsing(others) )
+	if( not others.empty() and extension::plugin_call::args_parsing(others) == false )
 	{
 		std::cerr << "Invalid arguments." << std::endl;
 		exit(-1);

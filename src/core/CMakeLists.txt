@@ -8,6 +8,7 @@ set(core_sources
 	gts/settings.cpp
 	gts/tcp_socket.cpp
 	gts/ssl_socket.cpp
+	gts/registration.cpp
 	app_info.cpp
 	process.cpp
 	server_tool.cpp

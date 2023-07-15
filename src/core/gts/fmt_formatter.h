@@ -14,7 +14,7 @@ class formatter<std::thread::id>
 {
 public:
 	template <typename Context>
-	inline constexpr auto parse(Context &&context) -> decltype(context.begin()) {
+	inline FMT_CONSTEXPR auto parse(Context &&context) -> decltype(context.begin()) {
 		return context.begin();
 	}
 	template <typename Context>
@@ -28,7 +28,7 @@ class formatter<rttr::basic_string_view<CharT>>
 {
 public:
 	template <typename Context>
-	inline constexpr auto parse(Context &&context) -> decltype(context.begin()) {
+	inline FMT_CONSTEXPR auto parse(Context &&context) -> decltype(context.begin()) {
 		return context.begin();
 	}
 	template <typename Context>
@@ -42,7 +42,7 @@ class formatter<asio::error_code>
 {
 public:
 	template <typename Context>
-	inline constexpr auto parse(Context &&context) -> decltype(context.begin()) {
+	inline FMT_CONSTEXPR auto parse(Context &&context) -> decltype(context.begin()) {
 		return context.begin();
 	}
 	template <typename Context>
@@ -56,7 +56,7 @@ class formatter<asio::ip::tcp::endpoint>
 {
 public:
 	template <typename Context>
-	inline constexpr auto parse(Context &&context) -> decltype(context.begin()) {
+	inline FMT_CONSTEXPR auto parse(Context &&context) -> decltype(context.begin()) {
 		return context.begin();
 	}
 	template <typename Context>

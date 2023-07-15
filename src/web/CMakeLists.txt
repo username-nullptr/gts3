@@ -2,6 +2,7 @@ set(web_sources
 	main.cpp
 	gts/http/types.cpp
 	gts/http/cookies.cpp
+	gts/http/session.cpp
 	gts/http/request.cpp
 	gts/http/response.cpp
 	gts/web/registration.cpp
@@ -23,6 +24,7 @@ set(web_headers
 	gts/http/container.h
 	gts/http/types.h
 	gts/http/cookies.h
+	gts/http/session.h
 	gts/http/request.h
 	gts/http/response.h
 	gts/http/fmt_formatter.h

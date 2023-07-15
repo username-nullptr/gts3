@@ -10,6 +10,8 @@ class cookie_value_impl;
 
 class GTSWEB_API cookie_attribute : public value
 {
+	GTS_DISABLE_COPY(cookie_attribute)
+
 public:
 	enum same_site_type {
 		strict, lax, none,
@@ -21,8 +23,11 @@ public:
 public:
 	using value::value;
 	using value::operator+=;
-	using value::operator=;
 	using value::operator[];
+
+public:
+	cookie_attribute(cookie_attribute &&other);
+	~cookie_attribute();
 
 public:
 	std::string domain() const;
@@ -52,6 +57,9 @@ public:
 
 	void same_site(same_site_type sst);
 	void priority(priority_type pt);
+
+public:
+	cookie_attribute operator=(cookie_attribute &&other);
 
 private:
 	cookie_value_impl *m_impl;

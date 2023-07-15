@@ -388,7 +388,7 @@ static void _output(log_buffer::type type, const logger::context &context,
 		} break;
 
 		default:
-			std::cerr << "Error: Log: _output: Invalid message type" << std::endl;
+			std::cerr << "*** Error: Log: _output: Invalid message type" << std::endl;
 			abort();
 	}
 	log_text += "\n\n";
@@ -408,7 +408,7 @@ static void _output(log_buffer::type type, const logger::context &context,
 	}
 
 	if( res < static_cast<int>(log_text.size()) and not context.dir.empty() )
-		std::fprintf(stderr, "Error: Log: _output: The log file write error: %s.\n", strerror(errno));
+		std::fprintf(stderr, "*** Error: Log: _output: The log file write error: %s.\n", strerror(errno));
 
 	if( need_close )
 		std::fclose(fp);
@@ -454,18 +454,30 @@ static bool open_log_output_device
 	std::error_code error;
 	if( not fs::exists(dir_name) and fs::create_directories(dir_name, error) == false )
 	{
-		std::cerr << "Error: Log: open_log_output_device: Log directory make failed: " << error.message() << std::endl;
+		std::cerr << "*** Error: Log: open_log_output_device: Log directory make failed: " << error.message() << std::endl;
 		*fp = std_dev;
+		return false;
+	}
+	else if( fs::is_directory(dir_name) )
+	{
+		std::cerr << "*** Error: Log: open_log_output_device: '" << dir_name << "' exists, but it is not a directory." << std::endl;
 		return false;
 	}
 
 	else if( g_curr_log_file.name.empty() )
 	{
-		for(auto &entry : fs::directory_iterator(dir_name))
+		try {
+			for(auto &entry : fs::directory_iterator(dir_name))
+			{
+				auto file_name = entry.path().string();
+				if( ends_with(file_name, "(now)") )
+					g_curr_log_file.name = file_name;
+			}
+		}
+		catch(...)
 		{
-			auto file_name = entry.path().string();
-			if( ends_with(file_name, "(now)") )
-				g_curr_log_file.name = file_name;
+			std::cerr << "*** Error: Log: open_log_output_device: Unable to traverse directory '" << dir_name << "'." << std::endl;
+			return false;
 		}
 
 		if( g_curr_log_file.name.empty() )
@@ -484,7 +496,7 @@ static bool open_log_output_device
 	*fp = fopen(g_curr_log_file.name.c_str(), "a");
 	if( *fp == nullptr )
 	{
-		fprintf(stderr, "Error: Log: openLogOutputDevice: The log file '%s' open failed: %s.\n",
+		fprintf(stderr, "*** Error: Log: openLogOutputDevice: The log file '%s' open failed: %s.\n",
 				g_curr_log_file.name.c_str(), strerror(errno));
 		*fp = std_dev;
 		return false;
@@ -503,10 +515,17 @@ static void size_check(const logger::context &context, const std::string &dir_na
 	remove_if_too_big(file_info_list, context.max_size_one_day, log_size);
 
 	std::list<fs::directory_entry> dir_info_list;
-	for(auto &entry : fs::directory_iterator(dir_name))
+	try {
+		for(auto &entry : fs::directory_iterator(dir_name))
+		{
+			if( entry.is_directory() )
+				dir_info_list.emplace_back(std::move(entry));
+		}
+	}
+	catch(...)
 	{
-		if( entry.is_directory() )
-			dir_info_list.emplace_back(std::move(entry));
+		std::cerr << "*** Error: Log: open_log_output_device: Unable to traverse directory '" << dir_name << "'." << std::endl;
+		return ;
 	}
 
 	dir_info_list.sort([](const fs::directory_entry &info0, const fs::directory_entry &info1) {
@@ -523,7 +542,16 @@ static void size_check(const logger::context &context, const std::string &dir_na
 
 	for(auto &info : dir_info_list)
 	{
-		auto dir_iter = fs::directory_iterator(info.path());
+		if( not fs::is_directory(info.path()) )
+			continue;
+
+		fs::directory_iterator dir_iter;
+		try {
+			dir_iter = fs::directory_iterator(info.path());
+		}
+		catch(...) {
+			continue;
+		}
 		if( dir_iter == fs::end(dir_iter) )
 			fs::remove_all(info.path());
 		else
@@ -533,10 +561,17 @@ static void size_check(const logger::context &context, const std::string &dir_na
 
 static void list_push_back(std::list<fs::directory_entry> &list, const std::string &dir)
 {
-	for(auto &entry : fs::directory_iterator(dir))
+	try {
+		for(auto &entry : fs::directory_iterator(dir))
+		{
+			if( not entry.is_directory() )
+				list.emplace_back(std::move(entry));
+		}
+	}
+	catch(...)
 	{
-		if( not entry.is_directory() )
-			list.emplace_back(std::move(entry));
+		std::cerr << "*** Error: Log: open_log_output_device: Unable to traverse directory '" << dir << "'." << std::endl;
+		return ;
 	}
 
 	list.sort([](const fs::directory_entry &info0, const fs::directory_entry &info1) {
