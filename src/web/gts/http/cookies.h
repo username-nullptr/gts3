@@ -6,70 +6,89 @@
 namespace gts { namespace http
 {
 
-class cookie_value_impl;
+using cookie_attribute  = http::pair<http::value>;
+using cookie_attributes = http::unordered_map<http::value, less_case_insensitive>;
 
-class GTSWEB_API cookie_attribute : public value
+class GTSWEB_API cookie : public http::value
 {
-	GTS_DISABLE_COPY(cookie_attribute)
+public:
+	using _vbase = http::value;
+	using _vbase::value;
+	using _vbase::operator+=;
+	using _vbase::operator=;
+	using _vbase::operator[];
 
 public:
-	enum same_site_type {
-		strict, lax, none,
-	};
-	enum priority_type {
-		low, medium, high
-	};
-
-public:
-	using value::value;
-	using value::operator+=;
-	using value::operator[];
-
-public:
-	cookie_attribute(cookie_attribute &&other);
-	~cookie_attribute();
+	cookie(cookie &&other);
+	cookie &operator=(cookie &&other);
+	cookie(const cookie &other) = default;
+	cookie &operator=(const cookie &other) = default;
 
 public:
 	std::string domain() const;
-	std::string path()   const;
-	std::size_t size()   const;
+	std::string path() const;
+	std::size_t size() const;
 
-	uint64_t create_time() const;
 	uint64_t expires() const;
 	uint64_t max_age() const;
 
 	bool http_only() const;
 	bool secure() const;
 
-	same_site_type same_site() const;
-	priority_type priority() const;
+	std::string same_site() const;
+	std::string priority() const;
 
 public:
-	void set_domain(const std::string &domain);
-	void set_path(const std::string &path);
-	void set_size(std::size_t size);
+	cookie &set_domain(const std::string &domain);
+	cookie &set_path(const std::string &path);
+	cookie &set_size(std::size_t size);
 
-	void set_expires(uint64_t seconds) const;
-	void set_max_age(uint64_t seconds) const;
+	cookie &set_expires(uint64_t seconds);
+	cookie &set_max_age(uint64_t seconds);
 
-	void set_http_only(bool flag);
-	void set_secure(bool flag);
+	cookie &set_http_only(bool flag);
+	cookie &set_secure(bool flag);
 
-	void same_site(same_site_type sst);
-	void priority(priority_type pt);
+	cookie &same_site(const std::string &sst);
+	cookie &priority(const std::string &pt);
 
 public:
-	cookie_attribute operator=(cookie_attribute &&other);
+	const cookie_attributes &attributes() const;
+
+	cookie &set_attribute(const std::string &key, const std::string &value);
+	cookie &set_attribute(const std::string &key, std::string &&value);
+
+	template <typename...Args>
+	cookie &set_attribute(const std::string &key, fmt::format_string<Args...> fmt, Args&&...args);
+
+	template <typename T, typename U = value::not_string_t<T,int>>
+	cookie &set_attribute(const std::string &key, T &&value);
+
+	cookie &unset_attribute(const std::string &key);
 
 private:
-	cookie_value_impl *m_impl;
+	cookie_attributes m_attributes;
 };
 
-using basic_cookie  = http::pair<value>;
-using basic_cookies = http::unordered_map<value>;
+using basic_cookie_pair = http::pair<value>;
+using basic_cookies     = http::unordered_map<value>;
 
-using cookie  = http::pair<cookie_attribute>;
-using cookies = http::unordered_map<cookie_attribute>;
+using cookie_pair  = http::pair<cookie>;
+using cookies      = http::unordered_map<cookie>;
+
+template <typename...Args>
+cookie &cookie::set_attribute(const std::string &key, fmt::format_string<Args...> fmt_value, Args&&...args)
+{
+	m_attributes[key].set_value(fmt_value, std::forward<Args>(args)...);
+	return *this;
+}
+
+template <typename T, typename U = value::not_string_t<T,int>>
+cookie &cookie::set_attribute(const std::string &key, T &&value)
+{
+	m_attributes[key].set_value(std::forward<T>(value));
+	return *this;
+}
 
 }} //namespace gts::http
 

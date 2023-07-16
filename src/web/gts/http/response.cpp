@@ -30,9 +30,32 @@ public:
 	}
 
 public:
+	void serialize_headers_and_cookies(std::string &result)
+	{
+		m_headers.erase("set-cookie");
+		for(auto &header : m_headers)
+			result += header.first + ": " + header.second + "\r\n";
+
+		if( not m_cookies.empty() )
+		{
+			for(auto &cookie_pair : m_cookies)
+			{
+				auto &cookie = cookie_pair.second;
+				result += "set-cookie: " + cookie_pair.first + "=" + cookie + ";";
+
+				for(auto &attr_pair : cookie.attributes())
+					result += attr_pair.first + "=" + attr_pair.second + ";";
+			}
+			result.pop_back();
+			result += "\r\n";
+		}
+	}
+
+public:
 	request &m_request;
 	status m_status = hs_ok;
 
+	cookies m_cookies;
 	headers m_headers {
 		{ "content-type", "text/plain; charset=utf-8" }
 	};
@@ -91,6 +114,24 @@ response &response::set_header(const std::string &key, std::string &&value)
 	return *this;
 }
 
+response &response::set_cookie(const std::string &key, const http::cookie &cookie)
+{
+	assert(m_impl);
+	auto res = m_impl->m_cookies.emplace(key, cookie);
+	if( res.second == false and res.first != m_impl->m_cookies.end() )
+		res.first->second = cookie;
+	return *this;
+}
+
+response &response::set_cookie(const std::string &key, http::cookie &&cookie)
+{
+	assert(m_impl);
+	auto res = m_impl->m_cookies.emplace(key, std::move(cookie));
+	if( res.second == false and res.first != m_impl->m_cookies.end() )
+		res.first->second = std::move(cookie);
+	return *this;
+}
+
 std::string response::version() const
 {
 	assert(m_impl);
@@ -126,14 +167,12 @@ response &response::write_default()
 		g_write_default(*this);
 		return *this;
 	}
-	auto result = fmt::format("HTTP/{} {} {}\r\n", version(), static_cast<int>(m_impl->m_status),
-							  status_description(m_impl->m_status));
-
 	auto body = fmt::format("{} ({})", http::status_description(status()), status());
 	set_header("content-length", body.size());
 
-	for(auto &header : m_impl->m_headers)
-		result += header.first + ": " + header.second + "\r\n";
+	auto result = fmt::format("HTTP/{} {} {}\r\n", version(), static_cast<int>(m_impl->m_status),
+							  status_description(m_impl->m_status));
+	m_impl->serialize_headers_and_cookies(result);
 
 	socket().write_some(result + "\r\n");
 	socket().write_some(body);
@@ -152,9 +191,7 @@ response &response::write(std::size_t size, const void *body)
 
 	auto result = fmt::format("HTTP/{} {} {}\r\n", version(), static_cast<int>(m_impl->m_status),
 							  status_description(m_impl->m_status));
-
-	for(auto &header : m_impl->m_headers)
-		result += header.first + ": " + header.second + "\r\n";
+	m_impl->serialize_headers_and_cookies(result);
 
 	if( m_impl->m_headers.find("content-length") == m_impl->m_headers.end() )
 		result += fmt::format("content-length: {}\r\n", size);

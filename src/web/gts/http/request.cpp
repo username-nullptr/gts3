@@ -64,6 +64,12 @@ const headers &request::headers() const
 	return m_impl->m_headers;
 }
 
+const basic_cookies &request::cookies() const
+{
+	assert(m_impl);
+	return m_impl->m_cookies;
+}
+
 std::string request::read_body(std::error_code &error, std::size_t size)
 {
 	assert(m_impl);

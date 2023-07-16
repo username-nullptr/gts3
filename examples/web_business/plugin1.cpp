@@ -27,6 +27,7 @@ public:
 
 	void new_request(http::request &request, http::response &response, const environments &envs)
 	{
+		response.set_cookie("hello", http::cookie("world").set_http_only(true));
 		std::cerr << std::endl;
 
 		auto body = fmt::format("Ok!!!\npath = {}\n\n", request.path());
@@ -81,8 +82,10 @@ public:
 		response.redirect("https://github.com/username-nullptr/gts3.git");
 	}
 
-	void new_request_1(http::response &response)
+	void new_request_1(http::response &response, const http::request &request)
 	{
+		for(auto &pair : request.cookies())
+			log_info("cookie: [ {} ]", pair);
 		response.write("plugin1-1::1");
 	}
 };

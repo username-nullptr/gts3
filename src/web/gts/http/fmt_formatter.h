@@ -1,7 +1,7 @@
 #ifndef GTS_HTTP_FMT_FORMATTER_H
 #define GTS_HTTP_FMT_FORMATTER_H
 
-#include <fmt/format.h>
+#include <gts/fmt_formatter.h>
 #include <gts/http/types.h>
 
 namespace gts { namespace http
@@ -80,6 +80,32 @@ public:
 			return format_to(context.out(), "{}", gts::http::method_string(method));
 
 		return format_to(context.out(), "{}({})", gts::http::method_string(method), static_cast<int>(method));
+	}
+};
+
+template <>
+class formatter<gts::http::cookie> : public gts::no_parse_formatter
+{
+public:
+	template <typename Context>
+	inline auto format(const gts::http::cookie &cookie, Context &&context) -> decltype(context.out())
+	{
+		std::string str = cookie + "; ";
+		for(auto &attr_pair : cookie.attributes())
+			str += attr_pair.first + "=" + attr_pair.second + "; ";
+		str.pop_back();
+		str.pop_back();
+		return format_to(context.out(), "'{}'", str);
+	}
+};
+
+template <>
+class formatter<gts::http::cookie_pair> : public gts::no_parse_formatter
+{
+public:
+	template <typename Context>
+	inline auto format(const gts::http::cookie_pair &cookie_pair, Context &&context) -> decltype(context.out()) {
+		return format_to(context.out(), "'{}'-{}", cookie_pair.first, cookie_pair.second);
 	}
 };
 

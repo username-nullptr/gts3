@@ -23,6 +23,7 @@ public:
 
 	http::parameters m_parameters;
 	http::headers m_headers;
+	http::basic_cookies m_cookies;
 
 	std::string m_parameters_string;
 	std::string m_body;

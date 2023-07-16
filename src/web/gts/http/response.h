@@ -28,7 +28,7 @@ public:
 public:
 	response &set_status(int status);
 	response &set_headers(const http::headers &headers);
-	response &set_cookies(const http::cookies &cookies); //unrealized
+	response &set_cookies(const http::cookies &cookies);
 
 public:
 	response &set_header(const std::string &key, const std::string &value);
@@ -40,7 +40,7 @@ public:
 	template <typename T, typename U = value::not_string_t<T,int>>
 	response &set_header(const std::string &key, T &&value);
 
-public: // unrealized
+public:
 	response &set_cookie(const std::string &key, const http::cookie &cookie);
 	response &set_cookie(const std::string &key, http::cookie &&cookie);
 
@@ -116,6 +116,13 @@ inline response &response::set_headers(const http::headers &headers)
 {
 	for(auto &p : headers)
 		set_header(p.first, p.second);
+	return *this;
+}
+
+inline response &response::set_cookies(const http::cookies &cookies)
+{
+	for(auto &p : cookies)
+		set_cookie(p.first, p.second);
 	return *this;
 }
 

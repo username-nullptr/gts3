@@ -202,7 +202,7 @@ struct less_case_insensitive : std::binary_function<std::string, std::string, bo
 	}
 };
 
-template <typename V = http::value, typename UT = gts::enable_if_t<gts_is_base_of(http::value, V), int>>
+template <typename V = http::value, typename _UT = enable_if_t<gts_is_base_of(http::value, V), int>>
 class unordered_map : public std::unordered_map<std::string, V>
 {
 public:

@@ -29,7 +29,7 @@ public:
 	std::string parameters_string() const;
 	const http::parameters &parameters() const;
 	const http::headers &headers() const;
-	const basic_cookies &cookies() const; //unrealized
+	const basic_cookies &cookies() const;
 
 public:
 	std::string read_body(std::error_code &error, std::size_t size = 0);

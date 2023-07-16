@@ -131,10 +131,31 @@ request *http_parser::state_handler_reading_headers(const std::string &line_buf)
 		return new request();
 	}
 
-	auto header_key = to_lower(trimmed(line_buf.substr(0, colon_index)));
-	auto header_value = from_percent_encoding(trimmed(line_buf.substr(colon_index + 1)));
+	auto key = to_lower(trimmed(line_buf.substr(0, colon_index)));
+	auto value = from_percent_encoding(trimmed(line_buf.substr(colon_index + 1)));
 
-	m_cache->m_impl->m_headers[header_key] = header_value;
+	if( key != "cookie" )
+	{
+		m_cache->m_impl->m_headers[key] = value;
+		return nullptr;
+	}
+	auto list = string_split(value, ";");
+	for(auto &statement : list)
+	{
+		statement = trimmed(statement);
+		auto pos = statement.find("=");
+
+		if( pos == statement.npos )
+		{
+			log_info("Invalid header line.");
+			reset();
+			return new request();
+		}
+
+		key = trimmed(statement.substr(0,pos));
+		value = trimmed(statement.substr(pos+1));
+		m_cache->m_impl->m_cookies[key] = value;
+	}
 	return nullptr;
 }
 

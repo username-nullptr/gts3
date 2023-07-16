@@ -118,6 +118,12 @@ public:
 		operator=(std::to_string(value));
 		return *this;
 	}
+
+public:
+	value &operator=(const std::string &other) { base_type::operator=(other); return *this; }
+	value &operator=(const http::value &other) { base_type::operator=(other); return *this; }
+	value &operator=(std::string &&other) { base_type::operator=(std::move(other)); return *this; }
+	value &operator=(http::value &&other) { base_type::operator=(std::move(other)); return *this; }
 };
 
 }} //namespace gts::http
