@@ -83,7 +83,7 @@ cookie &cookie::set_attribute(const std::string &key, fmt::format_string<Args...
 	return *this;
 }
 
-template <typename T, typename U = value::not_string_t<T,int>>
+template <typename T, typename U>
 cookie &cookie::set_attribute(const std::string &key, T &&value)
 {
 	m_attributes[key].set_value(std::forward<T>(value));

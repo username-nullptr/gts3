@@ -12,7 +12,7 @@ Compile the source code with cmake:
 
 ```shell
 cd gts3
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=<dir>  # -DOpenSSL_DIR=<dir>
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=<dir>  # -DENABLE_SSL=y -DOpenSSL_DIR=<dir>
 make install
 ```
 
@@ -157,6 +157,13 @@ GTS_DECL_EXPORT void request_filter(http::response &request /*, http::&response,
 // The parameter must be 'gts::http::response'.
 GTS_DECL_EXPORT void global_request(http::response &response /*, http::request&, const environments&*/)
 {
+    // request.cookie();
+    // request.read_body();
+    // request.save_file();
+    // response.set_cookie("hello", http::cookie);
+    // response.redirect("https://github.com");
+    // response.write_body("hello world");
+    // response.write_file("path/hello.html");
 	response.write("hello world");
 }
 
@@ -187,6 +194,13 @@ public:
     // The parameter must be 'gts::http::response'.
     void request(http::response &response /*, http::request&, const environments&*/)
     {
+        // request.cookie();
+        // request.read_body();
+        // request.save_file();
+        // response.set_cookie("hello", http::cookie);
+        // response.redirect("https://github.com");
+        // response.write_body("hello world");
+        // response.write_file("path/hello.html");
 	    response.write("hello world");
     }
     
@@ -221,7 +235,7 @@ GTS_PLUGIN_REGISTRATION
 
 ## Command line extension
 
-The plug-in library must be named 'gtsstartupextensions' and placed in the directory where the server's executables reside.
+Place a directory named 'startup_extensions' in the directory where the executable program resides, and place the extension in it.
 
 ```c++
 // plugin.cpp
