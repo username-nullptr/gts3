@@ -166,7 +166,7 @@ static std::string view_extension(const char *method_name)
 		else if( method.get_return_type() != GTS_RTTR_TYPE(std::string) or not method.get_parameter_infos().empty() )
 			continue;
 
-		result = method.invoke({}).to_string();
+		result += method.invoke({}).to_string();
 		if( result.empty() )
 			return result;
 
@@ -176,25 +176,21 @@ static std::string view_extension(const char *method_name)
 			if( result[j] != '\n' )
 				break;
 		}
-		result = result.substr(0, j + 1);
+		result = result.substr(0, j + 1) + "\n";
 	}
+	if( not result.empty() )
+		result.pop_back();
 	return result;
 }
 
 std::string view_version()
 {
-	auto result = view_extension("gts.extension.plugin.view_version.");
-	if( not result.empty() )
-		result = "\nExtern:\n" + result;
-	return result;
+	return view_extension("gts.extension.plugin.view_version.");
 }
 
 std::string view_help()
 {
-	auto result = view_extension("gts.extension.plugin.view_help.");
-	if( not result.empty() )
-		result = "Extern:\n" + result;
-	return result;
+	return view_extension("gts.extension.plugin.view_help.");
 }
 
 }} //namespace extension::plugin_call

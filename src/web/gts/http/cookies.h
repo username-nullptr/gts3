@@ -14,9 +14,6 @@ class GTSWEB_API cookie : public http::value
 public:
 	using _vbase = http::value;
 	using _vbase::value;
-	using _vbase::operator+=;
-	using _vbase::operator=;
-	using _vbase::operator[];
 
 public:
 	cookie(cookie &&other);
@@ -65,6 +62,50 @@ public:
 	cookie &set_attribute(const std::string &key, T &&value);
 
 	cookie &unset_attribute(const std::string &key);
+
+public:
+	cookie &set_value(const std::string &v)
+	{
+		value::operator=(v);
+		return *this;
+	}
+
+	cookie &set_value(std::string &&v)
+	{
+		value::operator=(std::move(v));
+		return *this;
+	}
+
+	template <typename...Args>
+	cookie &set_value(fmt::format_string<Args...> fmt_value, Args&&...args)
+	{
+		value::operator=(fmt::format(fmt_value, std::forward<Args>(args)...));
+		return *this;
+	}
+
+	template <typename T, typename U = not_string_t<T,int>>
+	cookie &set_value(T &&v)
+	{
+		value::set_value(std::forward<T>(v));
+		return *this;
+	}
+
+public:
+	template <typename...Args>
+	static cookie from(fmt::format_string<Args...> fmt_value, Args&&...args)
+	{
+		cookie c;
+		c.set_value(fmt_value, std::forward<Args>(args)...);
+		return c;
+	}
+
+	template <typename T, typename U = not_string_t<T,int>>
+	static cookie from(T &&v)
+	{
+		cookie c;
+		set_value(std::forward<T>(v));
+		return c;
+	}
 
 private:
 	cookie_attributes m_attributes;

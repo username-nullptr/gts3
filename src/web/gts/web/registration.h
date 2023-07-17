@@ -35,70 +35,70 @@ public:
 public:
 	template <typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)())>
 	registration &init_method(Func &&func) {
-		return register_method("init_method", std::forward<Func>(func));
+		return register_method("init", std::forward<Func>(func));
 	}
 
 	template <typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)(std::string())), int U0=0>
 	registration &init_method(Func &&func) {
-		return register_method("init_method", std::forward<Func>(func));
+		return register_method("init", std::forward<Func>(func));
 	}
 
 public:
 	template <typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)())>
 	registration &exit_method(Func &&func) {
-		return register_method("exit_method", std::forward<Func>(func));
+		return register_method("exit", std::forward<Func>(func));
 	}
 
 public:
 	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_same(std::string , decay_t<decltype(GTS_DECLVAL(Func)())>), int)>
 	registration &view_status_method(Func &&func) {
-		return register_method("view_status_method", std::forward<Func>(func));
+		return register_method("view_status", std::forward<Func>(func));
 	}
 
 public:
 	template <http::method...http_method, typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)(GTS_DECLVAL(http::response&)))>
 	registration &request_handle_method(const std::string &path, Func &&func) {
-		return _new_request_method<http_method...>(path, std::forward<Func>(func));
+		return _request_handle_method<http_method...>(path, std::forward<Func>(func));
 	}
 
 	template <http::method...http_method, typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)(GTS_DECLVAL(http::request&), GTS_DECLVAL(http::response&))), int8_t U0=0>
 	registration &request_handle_method(const std::string &path, Func &&func) {
-		return _new_request_method<http_method...>(path, std::forward<Func>(func));
+		return _request_handle_method<http_method...>(path, std::forward<Func>(func));
 	}
 
 	template <http::method...http_method, typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)(GTS_DECLVAL(http::response&), GTS_DECLVAL(http::request&))), uint8_t U0=0>
 	registration &request_handle_method(const std::string &path, Func &&func) {
-		return _new_request_method<http_method...>(path, std::forward<Func>(func));
+		return _request_handle_method<http_method...>(path, std::forward<Func>(func));
 	}
 
 	template <http::method...http_method, typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)(GTS_DECLVAL(http::request&), GTS_DECLVAL(http::response&), environments())), int16_t U0=0>
 	registration &request_handle_method(const std::string &path, Func &&func) {
-		return _new_request_method<http_method...>(path, std::forward<Func>(func));
+		return _request_handle_method<http_method...>(path, std::forward<Func>(func));
 	}
 
 	template <http::method...http_method, typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)(GTS_DECLVAL(http::response&), GTS_DECLVAL(http::request&), environments())), uint16_t U0=0>
 	registration &request_handle_method(const std::string &path, Func &&func) {
-		return _new_request_method<http_method...>(path, std::forward<Func>(func));
+		return _request_handle_method<http_method...>(path, std::forward<Func>(func));
 	}
 
 	template <http::method...http_method, typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)(GTS_DECLVAL(http::response&), environments(), GTS_DECLVAL(http::request&))), int32_t U0=0>
 	registration &request_handle_method(const std::string &path, Func &&func) {
-		return _new_request_method<http_method...>(path, std::forward<Func>(func));
+		return _request_handle_method<http_method...>(path, std::forward<Func>(func));
 	}
 
 	template <http::method...http_method, typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)(environments(), GTS_DECLVAL(http::response&), GTS_DECLVAL(http::request&))), uint32_t U0=0>
 	registration &request_handle_method(const std::string &path, Func &&func) {
-		return _new_request_method<http_method...>(path, std::forward<Func>(func));
+		return _request_handle_method<http_method...>(path, std::forward<Func>(func));
 	}
 
 	template <http::method...http_method, typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)(environments(), GTS_DECLVAL(http::request&), GTS_DECLVAL(http::response&))), int64_t U0=0>
 	registration &request_handle_method(const std::string &path, Func &&func) {
-		return _new_request_method<http_method...>(path, std::forward<Func>(func));
+		return _request_handle_method<http_method...>(path, std::forward<Func>(func));
 	}
 
 	template <http::method...http_method, typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)(GTS_DECLVAL(http::request&), environments(), GTS_DECLVAL(http::response&))), uint64_t U0=0>
 	registration &request_handle_method(const std::string &path, Func &&func) {
-		return _new_request_method<http_method...>(path, std::forward<Func>(func));
+		return _request_handle_method<http_method...>(path, std::forward<Func>(func));
 	}
 
 public:
@@ -232,55 +232,55 @@ public:
 		template <http::method...http_method, typename Return, typename Res, GTS_TYPE_DECLTYPE
 				  (GTS_CLASS_METHOD_DECLVAL(Class, Return, Res)(GTS_DECLVAL(http::response&)))>
 		class_ &request_handle_method(const std::string &path, Return(Class::*func)(Res)) {
-			return _new_request_method<http_method...>(path, func);
+			return _request_handle_method<http_method...>(path, func);
 		}
 
 		template <http::method...http_method, typename Return, typename Req, typename Res, GTS_TYPE_DECLTYPE
 				  (GTS_CLASS_METHOD_DECLVAL(Class, Return, Req, Res)(GTS_DECLVAL(http::request&), GTS_DECLVAL(http::response&)))>
 		class_ &request_handle_method(const std::string &path, Return(Class::*func)(Req, Res)) {
-			return _new_request_method<http_method...>(path, func);
+			return _request_handle_method<http_method...>(path, func);
 		}
 
 		template <http::method...http_method, typename Return, typename Res, typename Req, GTS_TYPE_DECLTYPE
 				  (GTS_CLASS_METHOD_DECLVAL(Class, Return, Res, Req)(GTS_DECLVAL(http::response&), GTS_DECLVAL(http::request&))), int8_t U0=0>
 		class_ &request_handle_method(const std::string &path, Return(Class::*func)(Res, Req)) {
-			return _new_request_method<http_method...>(path, func);
+			return _request_handle_method<http_method...>(path, func);
 		}
 
 		template <http::method...http_method, typename Return, typename Req, typename Res, typename Env, GTS_TYPE_DECLTYPE
 				  (GTS_CLASS_METHOD_DECLVAL(Class, Return, Req, Res, Env)(GTS_DECLVAL(http::request&), GTS_DECLVAL(http::response&), environments())), uint8_t U0=0>
 		class_ &request_handle_method(const std::string &path, Return(Class::*func)(Req, Res, Env)) {
-			return _new_request_method<http_method...>(path, func);
+			return _request_handle_method<http_method...>(path, func);
 		}
 
 		template <http::method...http_method, typename Return, typename Res, typename Req, typename Env, GTS_TYPE_DECLTYPE
 				  (GTS_CLASS_METHOD_DECLVAL(Class, Return, Res, Req, Env)(GTS_DECLVAL(http::response&), GTS_DECLVAL(http::request&), environments())), int16_t U0=0>
 		class_ &request_handle_method(const std::string &path, Return(Class::*func)(Res, Req, Env)) {
-			return _new_request_method<http_method...>(path, func);
+			return _request_handle_method<http_method...>(path, func);
 		}
 
 		template <http::method...http_method, typename Return, typename Res, typename Env, typename Req, GTS_TYPE_DECLTYPE
 				  (GTS_CLASS_METHOD_DECLVAL(Class, Return, Res, Env, Req)(GTS_DECLVAL(http::response&), environments(), GTS_DECLVAL(http::request&))), uint16_t U0=0>
 		class_ &request_handle_method(const std::string &path, Return(Class::*func)(Res, Env, Req)) {
-			return _new_request_method<http_method...>(path, func);
+			return _request_handle_method<http_method...>(path, func);
 		}
 
 		template <http::method...http_method, typename Return, typename Env, typename Res, typename Req, GTS_TYPE_DECLTYPE
 				  (GTS_CLASS_METHOD_DECLVAL(Class, Return, Env, Res, Req)(environments(), GTS_DECLVAL(http::response&), GTS_DECLVAL(http::request&))), int32_t U0=0>
 		class_ &request_handle_method(const std::string &path, Return(Class::*func)(Env, Res, Req)) {
-			return _new_request_method<http_method...>(path, func);
+			return _request_handle_method<http_method...>(path, func);
 		}
 
 		template <http::method...http_method, typename Return, typename Env, typename Req, typename Res, GTS_TYPE_DECLTYPE
 				  (GTS_CLASS_METHOD_DECLVAL(Class, Return, Env, Req, Res)(environments(), GTS_DECLVAL(http::request&), GTS_DECLVAL(http::response&))), uint32_t U0=0>
 		class_ &request_handle_method(const std::string &path, Return(Class::*func)(Env, Req, Res)) {
-			return _new_request_method<http_method...>(path, func);
+			return _request_handle_method<http_method...>(path, func);
 		}
 
 		template <http::method...http_method, typename Return, typename Req, typename Env, typename Res, GTS_TYPE_DECLTYPE
 				  (GTS_CLASS_METHOD_DECLVAL(Class, Return, Req, Env, Res)(GTS_DECLVAL(http::request&), environments(), GTS_DECLVAL(http::response&))), int64_t U0=0>
 		class_ &request_handle_method(const std::string &path, Return(Class::*func)(Req, Env, Res)) {
-			return _new_request_method<http_method...>(path, func);
+			return _request_handle_method<http_method...>(path, func);
 		}
 
 	public:
@@ -340,7 +340,7 @@ public:
 
 	private:
 		template <http::method...http_method, typename Func>
-		class_ &_new_request_method(std::string path, Func &&func)
+		class_ &_request_handle_method(std::string path, Func &&func)
 		{
 			if( not path.empty() )
 			{
@@ -452,7 +452,7 @@ private:
 
 private:
 	template <http::method...http_method, typename Func>
-	inline registration &_new_request_method(std::string path, Func &&func)
+	inline registration &_request_handle_method(std::string path, Func &&func)
 	{
 		if( path.empty() )
 			path = "/";

@@ -14,19 +14,18 @@ public:
 	template <typename CT, typename T = void>
 	using not_string_t = enable_if_t<not gts_is_same(decay_t<CT>, std::string) and not gts_is_same(decay_t<CT>, char*), T>;
 	using base_type = std::string;
+	// using base_type::basic_string; // Not available in gcc ...
 
 public:
-	using base_type::basic_string;
-	using base_type::operator+=;
-	using base_type::operator=;
-	using base_type::operator[];
-
-public:
-	value(const std::string &other) : base_type(other) {}
-	value(const http::value &other) : base_type(other) {}
-	value(std::string &&other) : base_type(std::move(other)) {}
-	value(http::value &&other) : base_type(std::move(other)) {}
 	value() = default;
+	value(const std::string &str) : base_type(str) {}
+	value(const http::value &other) : base_type(other) {}
+	value(std::string &&str) : base_type(std::move(str)) {}
+	value(http::value &&other) : base_type(std::move(other)) {}
+	value(const char *str, size_type len) : base_type(str,len) {}
+
+	template <typename T, typename U = not_string_t<T,int>>
+	value(T &&v) : base_type(fmt::format("{}", std::forward<T>(v))) {}
 
 public:
 	bool        to_bool   () const { return get<bool       >(); }
@@ -82,17 +81,30 @@ public:
 	long double get() const { return gts::stold(*this); }
 
 public:
-	void set_value(const std::string &v) { operator=(v); }
-	void set_value(std::string &&v) { operator=(std::move(v)); }
+	value &set_value(const std::string &v)
+	{
+		operator=(v);
+		return *this;
+	}
+
+	value &set_value(std::string &&v)
+	{
+		operator=(std::move(v));
+		return *this;
+	}
 
 	template <typename...Args>
-	void set_value(fmt::format_string<Args...> fmt_value, Args&&...args) {
+	value &set_value(fmt::format_string<Args...> fmt_value, Args&&...args)
+	{
 		operator=(fmt::format(fmt_value, std::forward<Args>(args)...));
+		return *this;
 	}
 
 	template <typename T, typename U = not_string_t<T,int>>
-	void set_value(T &&v) {
+	value &set_value(T &&v)
+	{
 		set_value("{}", std::forward<T>(v));
+		return *this;
 	}
 
 public:
@@ -103,6 +115,7 @@ public:
 		hv.set_value(fmt::format(fmt_value, std::forward<Args>(args)...));
 		return hv;
 	}
+
 	template <typename T, typename U = not_string_t<T,int>>
 	static value from(T &&v)
 	{

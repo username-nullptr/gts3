@@ -44,6 +44,12 @@ public:
 	response &set_cookie(const std::string &key, const http::cookie &cookie);
 	response &set_cookie(const std::string &key, http::cookie &&cookie);
 
+	template <typename...Args>
+	response &set_cookie(const std::string &key, fmt::format_string<Args...> fmt, Args&&...args);
+
+	template <typename T, typename U = value::not_string_t<T,int>>
+	response &set_cookie(const std::string &key, T &&value);
+
 public:
 	std::string version() const;
 	const http::headers &headers() const;
@@ -126,7 +132,7 @@ inline response &response::set_cookies(const http::cookies &cookies)
 	return *this;
 }
 
-template <typename...Args> inline
+template <typename...Args>
 response &response::set_header(const std::string &key, fmt::format_string<Args...> value_fmt, Args&&...args) {
 	return set_header(key, fmt::format(value_fmt, std::forward<Args>(args)...));
 }
@@ -134,6 +140,16 @@ response &response::set_header(const std::string &key, fmt::format_string<Args..
 template <typename T, typename U>
 response &response::set_header(const std::string &key, T &&value) {
 	return set_header(key, "{}", std::forward<T>(value));
+}
+
+template <typename...Args>
+response &response::set_cookie(const std::string &key, fmt::format_string<Args...> value_fmt, Args&&...args) {
+	return set_cookie(key, cookie::from(value_fmt, std::forward<Args>(args)...));
+}
+
+template <typename T, typename U>
+response &response::set_cookie(const std::string &key, T &&value) {
+	return set_cookie(key, cookie(std::forward<T>(value)));
 }
 
 inline response &response::write_default(int status) {

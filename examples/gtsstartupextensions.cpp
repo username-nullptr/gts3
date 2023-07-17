@@ -23,12 +23,12 @@ GTS_DECL_EXPORT bool args_parsing(int argc, const char *argv[])
 
 GTS_DECL_EXPORT std::string view_version_info()
 {
-	return "gts cmdline extern examples. v0.0.0\n";
+	return "Extern examples: v0.0.0\n";
 }
 
 GTS_DECL_EXPORT std::string view_help()
 {
-	return "    gts cmdline extern examples: help.\n";
+	return "    -- extern examples\n";
 }
 
 }}} //gts::cmdline::business
