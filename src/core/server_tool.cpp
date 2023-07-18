@@ -166,17 +166,17 @@ static std::string view_extension(const char *method_name)
 		else if( method.get_return_type() != GTS_RTTR_TYPE(std::string) or not method.get_parameter_infos().empty() )
 			continue;
 
-		result += method.invoke({}).to_string();
-		if( result.empty() )
-			return result;
+		auto str = method.invoke({}).to_string();
+		if( str.empty() )
+			continue;
 
-		int j = result.size() - 1;
+		int j = str.size() - 1;
 		for(; j>=0; j--)
 		{
-			if( result[j] != '\n' )
+			if( str[j] != '\n' )
 				break;
 		}
-		result = result.substr(0, j + 1) + "\n";
+		result += str.substr(0, j + 1) + "\n";
 	}
 	if( not result.empty() )
 		result.pop_back();
