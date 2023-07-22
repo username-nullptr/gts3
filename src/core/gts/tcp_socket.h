@@ -90,7 +90,7 @@ protected:
 	tcp::socket *m_sock;
 };
 
-typedef std::shared_ptr<tcp_socket>  tcp_socket_ptr;
+using tcp_socket_ptr = std::shared_ptr<tcp_socket>;
 
 template <typename SettableSocketOption>
 void tcp_socket::set_option(const SettableSocketOption& option, asio::error_code &error) {

@@ -1,11 +1,11 @@
 #include "response.h"
-#include "gts/web_global.h"
-
 #include "service/service_io.h"
+
 #include "gts/http/request.h"
 #include "gts/tcp_socket.h"
 #include "gts/mime_type.h"
 #include "gts/algorithm.h"
+#include "gts/exception.h"
 #include "gts/log.h"
 
 #include <cppfilesystem>
@@ -138,16 +138,74 @@ std::string response::version() const
 	return m_impl->m_request.version();
 }
 
+status response::status() const
+{
+	assert(m_impl);
+	return m_impl->m_status;
+}
+
 const headers &response::headers() const
 {
 	assert(m_impl);
 	return m_impl->m_headers;
 }
 
-status response::status() const
+headers &response::headers()
 {
 	assert(m_impl);
-	return m_impl->m_status;
+	return m_impl->m_headers;
+}
+
+const http::cookies &response::cookies() const
+{
+	assert(m_impl);
+	return m_impl->m_cookies;
+}
+
+http::cookies &response::cookies()
+{
+	assert(m_impl);
+	return m_impl->m_cookies;
+}
+
+const value &response::header(const std::string &key) const
+{
+	auto it = m_impl->m_headers.find(key);
+	if( it == m_impl->m_headers.end() )
+		throw exception("gts::http::response::header: 'key' does not exist.");
+	return it->second;
+}
+
+value response::header_or(const std::string &key, const value &deft_value) const
+{
+	auto it = m_impl->m_headers.find(key);
+	return it == m_impl->m_headers.end()? deft_value : it->second;
+}
+
+value response::header_or(const std::string &key, value &&deft_value) const
+{
+	auto it = m_impl->m_headers.find(key);
+	return it == m_impl->m_headers.end()? std::move(deft_value) : it->second;
+}
+
+const cookie &response::cookie(const std::string &key) const
+{
+	auto it = m_impl->m_cookies.find(key);
+	if( it == m_impl->m_cookies.end() )
+		throw exception("gts::http::response::cookie: 'key' does not exist.");
+	return it->second;
+}
+
+cookie response::cookie_or(const std::string &key, const http::cookie &deft_value) const
+{
+	auto it = m_impl->m_cookies.find(key);
+	return it == m_impl->m_cookies.end()? deft_value : it->second;
+}
+
+cookie response::cookie_or(const std::string &key, http::cookie &&deft_value) const
+{
+	auto it = m_impl->m_cookies.find(key);
+	return it == m_impl->m_cookies.end()? std::move(deft_value) : it->second;
 }
 
 static std::function<void(response&)> g_write_default {nullptr};
@@ -662,6 +720,13 @@ response &response::unset_header(const std::string &key)
 {
 	assert(m_impl);
 	m_impl->m_headers.erase(key);
+	return *this;
+}
+
+response &response::unset_cookie(const std::string &key)
+{
+	assert(m_impl);
+	m_impl->m_cookies.erase(key);
 	return *this;
 }
 

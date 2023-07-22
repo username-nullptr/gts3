@@ -1,4 +1,5 @@
 #include "service_io.h"
+#include "session/request_impl.h"
 
 namespace gts { namespace web
 {
@@ -6,6 +7,8 @@ namespace gts { namespace web
 service_io::service_io(http::request &request) :
 	request(request), response(request)
 {	
+	request.m_impl->m_response = &response;
+
 	response.set_header("server", "gts3");
 	auto it = request.headers().find("origin");
 

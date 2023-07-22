@@ -1,7 +1,6 @@
 set(log_sources
 	gts/log.cpp
 	gts/log_buffer.cpp
-	private/rw_lock.cpp
 )
 
 set(log_headers
@@ -10,11 +9,7 @@ set(log_headers
 	gts/log.h
 )
 
-set(log_private_headers
-	private/rw_lock.h
-)
-
-add_library(gtslog SHARED ${log_sources} ${log_headers} ${log_private_headers})
+add_library(gtslog SHARED ${log_sources} ${log_headers})
 target_compile_definitions(gtslog PRIVATE gtslog_EXPORTS)
 
 target_include_directories(gtslog PRIVATE . ../core)

@@ -1,7 +1,7 @@
 #include "log.h"
 #include "app_info.h"
 #include "gts/algorithm.h"
-#include "private/rw_lock.h"
+#include "gts/rw_mutex.h"
 
 #include <list>
 #include <ctime>

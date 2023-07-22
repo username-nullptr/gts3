@@ -30,6 +30,22 @@ public:
 	const http::parameters &parameters() const;
 	const http::headers &headers() const;
 	const basic_cookies &cookies() const;
+	session_ptr session(bool create = true);
+
+public:
+	const value &parameter(const std::string &key) const;
+	value parameter_or(const std::string &key, const value &deft_value) const;
+	value parameter_or(const std::string &key, value &&deft_value = {}) const;
+
+public:
+	const value &header(const std::string &key) const;
+	value header_or(const std::string &key, const value &deft_value) const;
+	value header_or(const std::string &key, value &&deft_value = {}) const;
+
+public:
+	const value &cookie(const std::string &key) const;
+	value cookie_or(const std::string &key, const value &deft_value) const;
+	value cookie_or(const std::string &key, value &&deft_value = {}) const;
 
 public:
 	std::string read_body(std::error_code &error, std::size_t size = 0);
@@ -55,6 +71,7 @@ public:
 
 private:
 	friend class web::http_parser;
+	friend class web::service_io;
 	friend class web::session;
 	request_impl *m_impl;
 };

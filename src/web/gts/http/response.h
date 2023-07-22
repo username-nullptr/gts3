@@ -52,8 +52,23 @@ public:
 
 public:
 	std::string version() const;
-	const http::headers &headers() const;
 	http::status status() const;
+
+public:
+	const http::headers &headers() const;
+	http::headers &headers();
+	const http::cookies &cookies() const;
+	http::cookies &cookies();
+
+public:
+	const value &header(const std::string &key) const;
+	value header_or(const std::string &key, const value &deft_value) const;
+	value header_or(const std::string &key, value &&deft_value = {}) const;
+
+public:
+	const http::cookie &cookie(const std::string &key) const;
+	http::cookie cookie_or(const std::string &key, const http::cookie &deft_value) const;
+	http::cookie cookie_or(const std::string &key, http::cookie &&deft_value = {}) const;
 
 public:
 	response &write_default();
@@ -104,6 +119,7 @@ public:
 
 public:
 	response &unset_header(const std::string &key);
+	response &unset_cookie(const std::string &key);
 	void close(bool force = false);
 
 public:

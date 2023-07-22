@@ -74,33 +74,33 @@ using namespace gts;
 // The return value type can be any type that can be copied, but will not be processed.
 GTS_DECL_EXPORT void plugin_init(/*const std::string &config_file*/)
 {
-	// do something
+    // do something
 }
 
 GTS_DECL_EXPORT void plugin_exit()
 {
-	// do something
+    // do something
 }
 
 // The parameter must be 'gts::tcp_socket_ptr'.
 GTS_DECL_EXPORT void new_connection(tcp_socket_ptr socket)
 {
-	// do something
+    // do something
 }
 
 // The return value type must be 'std::string'.
 GTS_DECL_EXPORT std::string view_status()
 {
-	// do something
+    // do something
     return "status information";
 }
 
 GTS_PLUGIN_REGISTRATION
 {
-	gts::registration(new_connection)
-		.view_status_method(view_status)
-		.init_method(plugin_init)
-		.exit_method(plugin_exit);
+    gts::registration(new_connection)
+        .view_status_method(view_status)
+        .init_method(plugin_init)
+        .exit_method(plugin_exit);
     
     // Perform special processing on a port.
     // gts::registration(new_connection, 10000);
@@ -120,28 +120,28 @@ using namespace gts;
 // Parameters are optional.
 GTS_DECL_EXPORT void plugin_init(/*const std::string &config_file*/)
 {
-	// do something
+    // do something
 }
 
 // If the initial process is time-consuming and the result of the process does not
 // affect the subsequent process, you can use xxx to perform it asynchronously.
 GTS_DECL_EXPORT future_ptr plugin_async_init(/*const std::string &config_file*/)
 {
-	return make_future_ptr(std::async(std::launch::async, []
-	{
-		// do something
-	}));
+    return make_future_ptr(std::async(std::launch::async, []
+    {
+        // do something
+    }));
 }
 
 GTS_DECL_EXPORT void plugin_exit()
 {
-	// do something
+    // do something
 }
 
 // The return value type must be 'std::string'.
 GTS_DECL_EXPORT std::string view_status()
 {
-	// do something
+    // do something
     return "status information";
 }
 
@@ -151,7 +151,7 @@ GTS_DECL_EXPORT void request_filter(http::response &request /*, http::&response,
 {
     // A return of true indicates that the request has been processed and no more actual processing is performed.
     // return true;
-	return false;
+    return false;
 }
 
 // The parameter must be 'gts::http::response'.
@@ -160,11 +160,12 @@ GTS_DECL_EXPORT void global_request(http::response &response /*, http::request&,
     // request.cookie();
     // request.read_body();
     // request.save_file();
+    // request.session();
     // response.set_cookie("hello", http::cookie);
     // response.redirect("https://github.com");
     // response.write_body("hello world");
     // response.write_file("path/hello.html");
-	response.write("hello world");
+    response.write("hello world");
 }
 
 class GTS_DECL_EXPORT controller
@@ -188,7 +189,7 @@ public:
     {
         // A return of true indicates that the request has been processed and no more actual processing is performed.
         // return true;
-	    return false;
+        return false;
     }
     
     // The parameter must be 'gts::http::response'.
@@ -197,39 +198,40 @@ public:
         // request.cookie();
         // request.read_body();
         // request.save_file();
+        // request.session();
         // response.set_cookie("hello", http::cookie);
         // response.redirect("https://github.com");
         // response.write_body("hello world");
         // response.write_file("path/hello.html");
-	    response.write("hello world");
+        response.write("hello world");
     }
     
     // The return value type must be 'std::string'.
     std::string view_status()
     {
-	    // do something
+        // do something
         return "status information";
     }
 };
 
 GTS_PLUGIN_REGISTRATION
 {
-	using namespace gts::http;
-	using namespace gts::web;
+    using namespace gts::http;
+    using namespace gts::web;
     
-	registration()
-			.init_method(plugin_init)
-			.exit_method(plugin_exit)
-			.view_status_method(view_status)
-             .filter_method("/", request_filter)
-			.request_handle_method<GET,POST>("path", global_request);
+    registration()
+        .init_method(plugin_init)
+        .exit_method(plugin_exit)
+        .view_status_method(view_status)
+        .filter_method("/", request_filter)
+        .request_handle_method<GET,POST>("path", global_request);
         
-	registration::class_<controller>("path")
-			.init_method(controller::init)
-			.exit_method(controller::exit)
-			.view_status_method(controller::view_status)
-             .filter_method("path", controller::request_filter)
-			.request_handle_method<GET,POST>("path", controller::request);
+    registration::class_<controller>("path")
+        .init_method(controller::init)
+        .exit_method(controller::exit)
+        .view_status_method(controller::view_status)
+        .filter_method("path", controller::request_filter)
+        .request_handle_method<GET,POST>("path", controller::request);
 }
 ```
 

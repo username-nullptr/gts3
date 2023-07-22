@@ -9,6 +9,8 @@ set(core_sources
 	gts/tcp_socket.cpp
 	gts/ssl_socket.cpp
 	gts/registration.cpp
+	gts/rw_mutex.cpp
+	gts/uuid.cpp
 	app_info.cpp
 	process.cpp
 	server_tool.cpp
@@ -28,6 +30,9 @@ set(core_headers
 	gts/ssl_socket.h
 	gts/registration.h
 	gts/fmt_formatter.h
+	gts/exception.h
+	gts/rw_mutex.h
+	gts/uuid.h
 	app_info.h
 	process.h
 	server_tool.h

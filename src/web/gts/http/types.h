@@ -2,6 +2,7 @@
 #define GTS_HTTP_TYPES_H
 
 #include <gts/http/cookies.h>
+#include <gts/http/session.h>
 
 namespace gts { namespace http
 {

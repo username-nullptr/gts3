@@ -1,5 +1,6 @@
 #include "session/request_impl.h"
 #include "gts/application.h"
+#include "gts/exception.h"
 #include "gts/algorithm.h"
 #include "gts/log.h"
 
@@ -68,6 +69,88 @@ const basic_cookies &request::cookies() const
 {
 	assert(m_impl);
 	return m_impl->m_cookies;
+}
+
+session_ptr request::session(bool create)
+{
+	auto it = m_impl->m_cookies.find("session_id");
+	if( it == m_impl->m_cookies.end() )
+	{
+		if( not create )
+			return session_ptr();
+
+		auto ptr = http::session::make_shared();
+		if( m_impl->m_response )
+			m_impl->m_response->set_cookie("session_id", ptr->id());
+		return ptr;
+	}
+	auto ptr = http::session::get(it->second);
+	if( ptr )
+		return ptr;
+
+	else if( create )
+		return http::session::make_shared();
+	return session_ptr();
+}
+
+const value &request::parameter(const std::string &key) const
+{
+	auto it = m_impl->m_parameters.find(key);
+	if( it == m_impl->m_parameters.end() )
+		throw exception("gts::http::request::parameter: 'key' does not exist.");
+	return it->second;
+}
+
+value request::parameter_or(const std::string &key, const value &deft_value) const
+{
+	auto it = m_impl->m_parameters.find(key);
+	return it == m_impl->m_parameters.end()? deft_value : it->second;
+}
+
+value request::parameter_or(const std::string &key, value &&deft_value) const
+{
+	auto it = m_impl->m_parameters.find(key);
+	return it == m_impl->m_parameters.end()? std::move(deft_value) : it->second;
+}
+
+const value &request::header(const std::string &key) const
+{
+	auto it = m_impl->m_headers.find(key);
+	if( it == m_impl->m_headers.end() )
+		throw exception("gts::http::request::header: 'key' does not exist.");
+	return it->second;
+}
+
+value request::header_or(const std::string &key, const value &deft_value) const
+{
+	auto it = m_impl->m_headers.find(key);
+	return it == m_impl->m_headers.end()? deft_value : it->second;
+}
+
+value request::header_or(const std::string &key, value &&deft_value) const
+{
+	auto it = m_impl->m_headers.find(key);
+	return it == m_impl->m_headers.end()? std::move(deft_value) : it->second;
+}
+
+const value &request::cookie(const std::string &key) const
+{
+	auto it = m_impl->m_cookies.find(key);
+	if( it == m_impl->m_cookies.end() )
+		throw exception("gts::http::request::cookie: 'key' does not exist.");
+	return it->second;
+}
+
+value request::cookie_or(const std::string &key, const value &deft_value) const
+{
+	auto it = m_impl->m_cookies.find(key);
+	return it == m_impl->m_cookies.end()? deft_value : it->second;
+}
+
+value request::cookie_or(const std::string &key, value &&deft_value) const
+{
+	auto it = m_impl->m_cookies.find(key);
+	return it == m_impl->m_cookies.end()? std::move(deft_value) : it->second;
 }
 
 std::string request::read_body(std::error_code &error, std::size_t size)

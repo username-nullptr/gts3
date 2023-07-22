@@ -2,6 +2,7 @@
 #define GTS_HTTP_REQUEST_IMPL_H
 
 #include "gts/http/request.h"
+#include "gts/http/response.h"
 #include "gts/tcp_socket.h"
 
 namespace gts { namespace http
@@ -14,6 +15,8 @@ public:
 	void finish();
 
 public:
+	response *m_response = nullptr;
+
 	tcp_socket_ptr m_socket;
 	std::size_t m_rclenght = 0;
 
