@@ -71,7 +71,7 @@ const basic_cookies &request::cookies() const
 	return m_impl->m_cookies;
 }
 
-session_ptr request::session(bool create)
+session_ptr request::session(bool create) const
 {
 	auto it = m_impl->m_cookies.find("session_id");
 	if( it == m_impl->m_cookies.end() )
@@ -89,7 +89,12 @@ session_ptr request::session(bool create)
 		return ptr;
 
 	else if( create )
-		return http::session::make_shared();
+	{
+		auto ptr = http::session::make_shared();
+		if( m_impl->m_response )
+			m_impl->m_response->set_cookie("session_id", ptr->id());
+		return ptr;
+	}
 	return session_ptr();
 }
 
@@ -97,7 +102,7 @@ const value &request::parameter(const std::string &key) const
 {
 	auto it = m_impl->m_parameters.find(key);
 	if( it == m_impl->m_parameters.end() )
-		throw exception("gts::http::request::parameter: 'key' does not exist.");
+		throw exception("gts::http::request::parameter: key '{}' does not exist.", key);
 	return it->second;
 }
 
@@ -117,7 +122,7 @@ const value &request::header(const std::string &key) const
 {
 	auto it = m_impl->m_headers.find(key);
 	if( it == m_impl->m_headers.end() )
-		throw exception("gts::http::request::header: 'key' does not exist.");
+		throw exception("gts::http::request::header: key '{}' does not exist.", key);
 	return it->second;
 }
 
@@ -137,7 +142,7 @@ const value &request::cookie(const std::string &key) const
 {
 	auto it = m_impl->m_cookies.find(key);
 	if( it == m_impl->m_cookies.end() )
-		throw exception("gts::http::request::cookie: 'key' does not exist.");
+		throw exception("gts::http::request::cookie: key '{}' does not exist.", key);
 	return it->second;
 }
 

@@ -27,6 +27,9 @@ public:
 
 	void new_request(http::request &request, http::response &response, const environments &envs)
 	{
+		auto session = request.session();
+		session->set_attribute("hello", "|** http session test.");
+
 		response.set_cookie("hello", http::cookie("world").set_http_only(true));
 		std::cerr << std::endl;
 
@@ -86,6 +89,11 @@ public:
 	{
 		for(auto &pair : request.cookies())
 			log_info("cookie: [ {} ]", pair);
+
+		auto session = request.session(false);
+		if( session and session->is_valid() )
+			log_info("session attribute: [ hello - {} ]", session->attribute_or("hello").to_string());
+
 		response.write("plugin1-1::1");
 	}
 };

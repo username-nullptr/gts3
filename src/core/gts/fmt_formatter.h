@@ -7,6 +7,7 @@
 #include <fmt/chrono.h>
 #include <rttr/type>
 #include <thread>
+#include <atomic>
 
 namespace gts
 {
@@ -32,6 +33,16 @@ public:
 	template <typename Context>
 	inline auto format(const std::thread::id &tid, Context &&context) -> decltype(context.out()) {
 		return format_to(context.out(), "{}", *reinterpret_cast<const std::thread::native_handle_type*>(&tid));
+	}
+};
+
+template <typename T>
+class formatter<std::atomic<T>> : public gts::no_parse_formatter
+{
+public:
+	template <typename Context>
+	inline auto format(const std::atomic<T> &n, Context &&context) -> decltype(context.out()) {
+		return format_to(context.out(), "{}", n.load());
 	}
 };
 

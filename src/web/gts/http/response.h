@@ -160,12 +160,12 @@ response &response::set_header(const std::string &key, T &&value) {
 
 template <typename...Args>
 response &response::set_cookie(const std::string &key, fmt::format_string<Args...> value_fmt, Args&&...args) {
-	return set_cookie(key, cookie::from(value_fmt, std::forward<Args>(args)...));
+	return set_cookie(key, http::cookie::from(value_fmt, std::forward<Args>(args)...));
 }
 
 template <typename T, typename U>
 response &response::set_cookie(const std::string &key, T &&value) {
-	return set_cookie(key, cookie(std::forward<T>(value)));
+	return set_cookie(key, http::cookie(std::forward<T>(value)));
 }
 
 inline response &response::write_default(int status) {

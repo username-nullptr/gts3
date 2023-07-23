@@ -11,9 +11,12 @@ namespace gts { namespace http
 template <typename T = http::value, GTS_TYPE_ENABLE_IF(gts_is_base_of(http::value, T), int)>
 using pair = std::pair<std::string, T>;
 
-template <typename _Compare = std::less<std::string>, typename V = http::value, typename UT = gts::enable_if_t<gts_is_base_of(http::value, V), int>>
+template <typename V = http::value, typename _Compare = std::less<std::string>>
 class map : public std::map<std::string, V, _Compare>
 {
+	static_assert(gts_is_base_of(http::value, V),
+	"The template argument 'V' must be a 'gts::http::value' or derived class of 'gts::http::value'.");
+
 public:
 	using base_type = std::map<std::string, V, _Compare>;
 	using base_type::map;
@@ -202,9 +205,12 @@ struct less_case_insensitive : std::binary_function<std::string, std::string, bo
 	}
 };
 
-template <typename V = http::value, typename _UT = enable_if_t<gts_is_base_of(http::value, V), int>>
+template <typename V = http::value>
 class unordered_map : public std::unordered_map<std::string, V>
 {
+	static_assert(gts_is_base_of(http::value, V),
+	"The template argument 'V' must be a 'gts::http::value' or derived class of 'gts::http::value'.");
+
 public:
 	using base_type = std::unordered_map<std::string, V>;
 	using base_type::unordered_map;

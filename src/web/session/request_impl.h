@@ -15,7 +15,7 @@ public:
 	void finish();
 
 public:
-	response *m_response = nullptr;
+	mutable response *m_response = nullptr;
 
 	tcp_socket_ptr m_socket;
 	std::size_t m_rclenght = 0;

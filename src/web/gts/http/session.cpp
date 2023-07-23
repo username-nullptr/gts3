@@ -14,28 +14,63 @@ static std::unordered_map<std::string, session_ptr> g_session_hash;
 
 static rw_mutex g_rw_mutex;
 
+using unique_lock = std::unique_lock<rw_mutex>;
+
 class GTS_DECL_HIDDEN session_impl
 {
 	GTS_DISABLE_COPY_MOVE(session_impl)
 
 public:
-	explicit session_impl(uint64_t s)
-	{
-		if( s == 0 )
-			m_lifecycle = s;
-		else
-			m_lifecycle = g_global_lifecycle;
+	explicit session_impl(uint64_t s) {
+		set_lifecycle(s);
 	}
 
 public:
-	uint64_t m_lifecycle;
+	void set_lifecycle(uint64_t s)
+	{
+		if( s > 0 )
+			m_lifecycle = s;
+		else
+			m_lifecycle = g_global_lifecycle.load();
+	}
+
+public:
+	void start()
+	{
+		m_timer.cancel();
+		m_timer.expires_after(seconds(m_lifecycle));
+
+		m_timer.async_wait([this](const asio::error_code &was_cencel)
+		{
+			if( was_cencel )
+			{
+				if( m_is_valid )
+					return ;
+			}
+			else
+			{
+				m_is_valid = false;
+				m_attrs_mutex.lock();
+				m_attributes.clear();
+				m_attrs_mutex.unlock();
+			}
+
+			g_rw_mutex.lock();
+			g_session_hash.erase(m_id);
+			g_rw_mutex.unlock();
+		});
+	}
+
+public:
+	std::atomic<uint64_t> m_lifecycle;
 	asio::steady_timer m_timer { io_context() };
 
 	std::string m_id { uuid::generate() };
 	uint64_t m_create_time = duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
 
+	rw_mutex m_attrs_mutex;
 	session_attributes m_attributes;
-	bool m_is_valid = true;
+	std::atomic_bool m_is_valid = true;
 };
 
 /*------------------------------------------------------------------------------------------------------------*/
@@ -43,10 +78,7 @@ public:
 session::session(uint64_t s) :
 	m_impl(new session_impl(s))
 {
-	g_rw_mutex.lock();
-	g_session_hash.emplace(id(), session_ptr(this));
-	g_rw_mutex.unlock();
-	set_lifecycle(m_impl->m_lifecycle);
+
 }
 
 session::~session()
@@ -69,56 +101,96 @@ bool session::is_valid() const
 	return m_impl->m_is_valid;
 }
 
-const session_attributes &session::attributes() const
+rttr::variant session::attribute(const std::string &key) const
 {
-	return m_impl->m_attributes;
-}
-
-session_attributes &session::attributes()
-{
-	return m_impl->m_attributes;
-}
-
-const rttr::variant &session::attribute(const std::string &key) const
-{
+	shared_lock locker(m_impl->m_attrs_mutex); GTS_UNUSED(locker);
 	auto it = m_impl->m_attributes.find(key);
 	if( it == m_impl->m_attributes.end() )
-		throw exception("gts::http::session::attribute: 'key' does not exist.");
+		throw exception("gts::http::session::attribute: key '{}' does not exist.", key);
 	return it->second;
 }
 
 rttr::variant session::attribute_or(const std::string &key, const rttr::variant &deft_value) const
 {
+	shared_lock locker(m_impl->m_attrs_mutex); GTS_UNUSED(locker);
 	auto it = m_impl->m_attributes.find(key);
 	return it == m_impl->m_attributes.end()? deft_value : it->second;
 }
 
 rttr::variant session::attribute_or(const std::string &key, rttr::variant &&deft_value) const
 {
+	shared_lock locker(m_impl->m_attrs_mutex); GTS_UNUSED(locker);
 	auto it = m_impl->m_attributes.find(key);
 	return it == m_impl->m_attributes.end()? std::move(deft_value) : it->second;
 }
 
 session &session::set_attribute(const std::string &key, const rttr::variant &value)
 {
+	m_impl->m_attrs_mutex.lock();
 	auto res = m_impl->m_attributes.emplace(key, value);
+
 	if( res.second == false and res.first != m_impl->m_attributes.end() )
 		res.first->second = value;
+
+	m_impl->m_attrs_mutex.unlock();
 	return *this;
 }
 
 session &session::set_attribute(const std::string &key, rttr::variant &&value)
 {
+	m_impl->m_attrs_mutex.lock();
 	auto res = m_impl->m_attributes.emplace(key, std::move(value));
+
 	if( res.second == false and res.first != m_impl->m_attributes.end() )
 		res.first->second = std::move(value);
+
+	m_impl->m_attrs_mutex.unlock();
 	return *this;
 }
 
 session &session::unset_attribute(const std::string &key)
 {
+	m_impl->m_attrs_mutex.lock();
 	m_impl->m_attributes.erase(key);
+
+	m_impl->m_attrs_mutex.unlock();
 	return *this;
+}
+
+std::size_t session::attribute_count() const
+{
+	shared_lock locker(m_impl->m_attrs_mutex); GTS_UNUSED(locker);
+	return m_impl->m_attributes.size();
+}
+
+session_attributes session::attributes() const
+{
+	shared_lock locker(m_impl->m_attrs_mutex); GTS_UNUSED(locker);
+	return m_impl->m_attributes;
+}
+
+string_list session::attribute_key_list() const
+{
+	string_list list;
+	m_impl->m_attrs_mutex.lock_shared();
+
+	for(auto &pair : m_impl->m_attributes)
+		list.emplace_back(pair.first);
+
+	m_impl->m_attrs_mutex.unlock();
+	return list;
+}
+
+std::set<std::string> session::attribute_key_set() const
+{
+	std::set<std::string> set;
+	m_impl->m_attrs_mutex.lock_shared();
+
+	for(auto &pair : m_impl->m_attributes)
+		set.emplace(pair.first);
+
+	m_impl->m_attrs_mutex.unlock();
+	return set;
 }
 
 uint64_t session::lifecycle() const
@@ -128,44 +200,24 @@ uint64_t session::lifecycle() const
 
 session &session::set_lifecycle(uint64_t s)
 {
-	if( s == 0 )
-		m_impl->m_lifecycle = s;
-	else
-		m_impl->m_lifecycle = g_global_lifecycle;
-
-	m_impl->m_timer.cancel();
-	m_impl->m_timer.expires_after(seconds(m_impl->m_lifecycle));
-
-	m_impl->m_timer.async_wait([this](const asio::error_code &was_cencel)
-	{
-		if( was_cencel )
-		{
-			if( m_impl->m_is_valid )
-				return ;
-		}
-		else
-		{
-			m_impl->m_is_valid = false;
-			m_impl->m_attributes.clear();
-		}
-
-		g_rw_mutex.lock();
-		g_session_hash.erase(id());
-		g_rw_mutex.unlock();
-	});
+	m_impl->set_lifecycle(s);
+	m_impl->start();
 	return *this;
 }
 
 void session::invalidate()
 {
 	m_impl->m_is_valid = false;
+	m_impl->m_attrs_mutex.lock();
 	m_impl->m_attributes.clear();
+	m_impl->m_attrs_mutex.unlock();
 	m_impl->m_timer.cancel();
 }
 
-std::shared_ptr<session> session::make_shared(uint64_t seconds)
+session_ptr session::make_shared(uint64_t s)
 {
-	return std::make_shared<session>(seconds);
+	auto obj = new session(s); set(obj);
+	return session::get(obj->id());
 }
 
 session_ptr session::get(const std::string &id)
@@ -173,6 +225,18 @@ session_ptr session::get(const std::string &id)
 	shared_lock locker(g_rw_mutex); GTS_UNUSED(locker);
 	auto it = g_session_hash.find(id);
 	return it == g_session_hash.end()? session_ptr() : it->second;
+}
+
+void session::set(session *obj)
+{
+	if( obj == nullptr )
+		return ;
+
+	g_rw_mutex.lock();
+	g_session_hash.emplace(obj->id(), session_ptr(obj));
+
+	g_rw_mutex.unlock();
+	obj->m_impl->start();
 }
 
 void session::set_global_lifecycle(uint64_t seconds)

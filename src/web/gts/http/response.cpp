@@ -36,16 +36,14 @@ public:
 		for(auto &header : m_headers)
 			result += header.first + ": " + header.second + "\r\n";
 
-		if( not m_cookies.empty() )
+		for(auto &cookie_pair : m_cookies)
 		{
-			for(auto &cookie_pair : m_cookies)
-			{
-				auto &cookie = cookie_pair.second;
-				result += "set-cookie: " + cookie_pair.first + "=" + cookie + ";";
+			auto &cookie = cookie_pair.second;
+			result += "set-cookie: " + cookie_pair.first + "=" + cookie + ";";
 
-				for(auto &attr_pair : cookie.attributes())
-					result += attr_pair.first + "=" + attr_pair.second + ";";
-			}
+			for(auto &attr_pair : cookie.attributes())
+				result += attr_pair.first + "=" + attr_pair.second + ";";
+
 			result.pop_back();
 			result += "\r\n";
 		}
@@ -172,7 +170,7 @@ const value &response::header(const std::string &key) const
 {
 	auto it = m_impl->m_headers.find(key);
 	if( it == m_impl->m_headers.end() )
-		throw exception("gts::http::response::header: 'key' does not exist.");
+		throw exception("gts::http::response::header: key '{}' does not exist.", key);
 	return it->second;
 }
 
@@ -192,7 +190,7 @@ const cookie &response::cookie(const std::string &key) const
 {
 	auto it = m_impl->m_cookies.find(key);
 	if( it == m_impl->m_cookies.end() )
-		throw exception("gts::http::response::cookie: 'key' does not exist.");
+		throw exception("gts::http::response::cookie: key '{}' does not exist.", key);
 	return it->second;
 }
 

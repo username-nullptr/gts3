@@ -30,7 +30,10 @@ public:
 	const http::parameters &parameters() const;
 	const http::headers &headers() const;
 	const basic_cookies &cookies() const;
-	session_ptr session(bool create = true);
+	session_ptr session(bool create = true) const;
+
+	template <class Sesn>
+	std::shared_ptr<Sesn> session(bool create = true) const;
 
 public:
 	const value &parameter(const std::string &key) const;
@@ -75,6 +78,14 @@ private:
 	friend class web::session;
 	request_impl *m_impl;
 };
+
+template <class Sesn>
+std::shared_ptr<Sesn> request::session(bool create) const
+{
+	static_assert(gts_is_base_of(http::session, Sesn),
+	"The template argument 'Sesn' must be a 'gts::http::session' or derived class of 'gts::http::session'.");
+	std::dynamic_pointer_cast<Sesn>(session(create));
+}
 
 inline std::string request::read_body(std::size_t size)
 {

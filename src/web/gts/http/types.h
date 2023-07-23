@@ -99,7 +99,7 @@ enum class redirect_type
 };
 
 using header  = http::pair<value>;
-using headers = http::map<http::less_case_insensitive, value>;
+using headers = http::map<value, http::less_case_insensitive>;
 
 using parameter  = http::pair<value>;
 using parameters = http::unordered_map<value>;

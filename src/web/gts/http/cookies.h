@@ -7,7 +7,7 @@ namespace gts { namespace http
 {
 
 using cookie_attribute  = http::pair<http::value>;
-using cookie_attributes = http::unordered_map<http::value, less_case_insensitive>;
+using cookie_attributes = http::map<http::value, less_case_insensitive>;
 
 class GTSWEB_API cookie : public http::value
 {
