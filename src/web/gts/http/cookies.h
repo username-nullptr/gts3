@@ -16,6 +16,7 @@ public:
 	using _vbase::value;
 
 public:
+	cookie() = default;
 	cookie(cookie &&other);
 	cookie &operator=(cookie &&other);
 	cookie(const cookie &other) = default;

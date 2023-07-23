@@ -70,7 +70,7 @@ public:
 
 	rw_mutex m_attrs_mutex;
 	session_attributes m_attributes;
-	std::atomic_bool m_is_valid = true;
+	std::atomic_bool m_is_valid { true };
 };
 
 /*------------------------------------------------------------------------------------------------------------*/

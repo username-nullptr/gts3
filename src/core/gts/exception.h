@@ -10,7 +10,9 @@ namespace gts
 
 class exception : public std::exception
 {
+#if __cplusplus >= 201703L
 	GTS_DISABLE_COPY_MOVE(exception)
+#endif
 
 public:
 	explicit exception(const std::string &what) : m_what(what) {}
@@ -21,7 +23,7 @@ public:
 		m_what(fmt::format(fmt_value, std::forward<Args>(args)...)) {}
 
 public:
-	const char* what() const _GLIBCXX_TXN_SAFE_DYN _GLIBCXX_NOTHROW override {
+	const char* what() const _GLIBCXX_NOTHROW override {
 		return m_what.c_str();
 	}
 
