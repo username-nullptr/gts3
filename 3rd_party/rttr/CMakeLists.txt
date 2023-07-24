@@ -201,4 +201,4 @@ install(DIRECTORY rttr
 	FILES_MATCHING PATTERN "*.h"
 	PATTERN "*_p.h" EXCLUDE
 )
-install(FILES rttr/registration DESTINATION include/rttr)
+install(FILES rttr/type rttr/registration DESTINATION include/rttr)

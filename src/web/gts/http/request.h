@@ -30,10 +30,10 @@ public:
 	const http::parameters &parameters() const;
 	const http::headers &headers() const;
 	const basic_cookies &cookies() const;
-	session_ptr session(bool create = true) const;
+	session_ptr session(bool create = true);
 
 	template <class Sesn>
-	std::shared_ptr<Sesn> session(bool create = true) const;
+	std::shared_ptr<Sesn> session(bool create = true);
 
 public:
 	const value &parameter(const std::string &key) const;
@@ -80,7 +80,7 @@ private:
 };
 
 template <class Sesn>
-std::shared_ptr<Sesn> request::session(bool create) const
+std::shared_ptr<Sesn> request::session(bool create)
 {
 	static_assert(gts_is_base_of(http::session, Sesn),
 	"The template argument 'Sesn' must be a 'gts::http::session' or derived class of 'gts::http::session'.");

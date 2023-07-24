@@ -53,8 +53,8 @@ public:
 	}
 
 private:
-	std::atomic_uint m_reader;
-	std::atomic_bool m_writer;
+	std::atomic_uint m_reader {0};
+	std::atomic_bool m_writer {false};
 	std::condition_variable m_condition;
 	std::mutex m_mutex;
 };

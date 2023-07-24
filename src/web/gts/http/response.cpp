@@ -166,6 +166,14 @@ http::cookies &response::cookies()
 	return m_impl->m_cookies;
 }
 
+value &response::header(const std::string &key)
+{
+	auto it = m_impl->m_headers.find(key);
+	if( it == m_impl->m_headers.end() )
+		throw exception("gts::http::response::header: key '{}' does not exist.", key);
+	return it->second;
+}
+
 const value &response::header(const std::string &key) const
 {
 	auto it = m_impl->m_headers.find(key);
@@ -184,6 +192,14 @@ value response::header_or(const std::string &key, value &&deft_value) const
 {
 	auto it = m_impl->m_headers.find(key);
 	return it == m_impl->m_headers.end()? std::move(deft_value) : it->second;
+}
+
+cookie &response::cookie(const std::string &key)
+{
+	auto it = m_impl->m_cookies.find(key);
+	if( it == m_impl->m_cookies.end() )
+		throw exception("gts::http::response::cookie: key '{}' does not exist.", key);
+	return it->second;
 }
 
 const cookie &response::cookie(const std::string &key) const

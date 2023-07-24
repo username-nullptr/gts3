@@ -29,7 +29,7 @@ public:
 		return base_type::emplace(key, V(std::move(value)));
 	}
 
-	template <typename T, typename U = http::value::not_string_t<T,int>>
+	template <typename T, typename U = http::value::not_type_t<T,int>>
 	std::pair<typename base_type::iterator, bool> emplace(const std::string &key, T &&value) {
 		return base_type::emplace(key, V(std::forward<T>(value)));
 	}
@@ -223,7 +223,7 @@ public:
 		return base_type::emplace(key, V(std::move(value)));
 	}
 
-	template <typename T, typename U = http::value::not_string_t<T,int>>
+	template <typename T, typename U = http::value::not_type_t<T,int>>
 	std::pair<typename base_type::iterator, bool> emplace(const std::string &key, T &&value) {
 		return base_type::emplace(key, V(std::forward<T>(value)));
 	}

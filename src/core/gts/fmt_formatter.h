@@ -8,6 +8,7 @@
 #include <rttr/type>
 #include <thread>
 #include <atomic>
+#include <memory>
 
 namespace gts
 {
@@ -73,6 +74,16 @@ public:
 	template <typename Context>
 	inline auto format(const std::pair<Fir,Sec> &pair, Context &&context) -> decltype(context.out()) {
 		return format_to(context.out(), "'{}'-'{}'", pair.first, pair.second);
+	}
+};
+
+template <typename T>
+class formatter<std::shared_ptr<T>> : public gts::no_parse_formatter
+{
+public:
+	template <typename Context>
+	inline auto format(const std::shared_ptr<T> &ptr, Context &&context) -> decltype(context.out()) {
+		return format_to(context.out(), "{}:({})", gts::type_name<T>(), reinterpret_cast<void*>(ptr.get()));
 	}
 };
 

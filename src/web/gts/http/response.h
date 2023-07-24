@@ -17,6 +17,12 @@ class GTSWEB_API response
 {
 	GTS_DISABLE_COPY(response)
 
+	template <typename T>
+	using is_string = http::value::is_string<T>;
+
+	template <typename CT, typename V>
+	using not_type_t = enable_if_t<not gts_is_same(decay_t<CT>, V) and not is_string<CT>::value, int>;
+
 public:
 	explicit response(http::request &request, http::status status = hs_ok);
 	response(http::request &request, const http::headers &headers, http::status status = hs_ok);
@@ -37,7 +43,7 @@ public:
 	template <typename...Args>
 	response &set_header(const std::string &key, fmt::format_string<Args...> fmt, Args&&...args);
 
-	template <typename T, typename U = value::not_string_t<T,int>>
+	template <typename T, typename U = not_type_t<T,http::value>>
 	response &set_header(const std::string &key, T &&value);
 
 public:
@@ -47,7 +53,7 @@ public:
 	template <typename...Args>
 	response &set_cookie(const std::string &key, fmt::format_string<Args...> fmt, Args&&...args);
 
-	template <typename T, typename U = value::not_string_t<T,int>>
+	template <typename T, typename U = not_type_t<T,http::cookie>>
 	response &set_cookie(const std::string &key, T &&value);
 
 public:
@@ -61,11 +67,13 @@ public:
 	http::cookies &cookies();
 
 public:
+	value &header(const std::string &key);
 	const value &header(const std::string &key) const;
 	value header_or(const std::string &key, const value &deft_value) const;
 	value header_or(const std::string &key, value &&deft_value = {}) const;
 
 public:
+	http::cookie &cookie(const std::string &key);
 	const http::cookie &cookie(const std::string &key) const;
 	http::cookie cookie_or(const std::string &key, const http::cookie &deft_value) const;
 	http::cookie cookie_or(const std::string &key, http::cookie &&deft_value = {}) const;
@@ -93,10 +101,10 @@ public:
 	response &write_body(fmt::format_string<Args...> fmt, Args&&...args);
 
 public:
-	template <typename T, typename U = value::not_string_t<T,int>>
+	template <typename T, typename U = value::not_type_t<T,int>>
 	response &write(T &&value);
 
-	template <typename T, typename U = value::not_string_t<T,int>>
+	template <typename T, typename U = value::not_type_t<T,int>>
 	response &write_body(T &&value);
 
 public:

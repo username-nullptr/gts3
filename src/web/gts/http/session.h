@@ -47,6 +47,7 @@ public:
 public:
 	uint64_t lifecycle() const;
 	session &set_lifecycle(uint64_t seconds = 0);
+	session &expand(uint64_t seconds = 0);
 	void invalidate();
 
 public:
@@ -72,6 +73,11 @@ GTSWEB_API std::shared_ptr<Sesn> make_session(uint64_t seconds = 0)
 
 	auto obj = new Sesn(seconds); obj->set(obj);
 	return std::dynamic_pointer_cast<Sesn>(session::get(obj->id()));
+}
+
+template <typename...Args>
+session &session::set_attribute(const std::string &key, fmt::format_string<Args...> fmt_value, Args&&...args) {
+	return set_attribute(key, fmt::format(fmt_value, std::forward<Args>(args)...));
 }
 
 }} //namespace gts::http

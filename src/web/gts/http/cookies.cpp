@@ -3,6 +3,11 @@
 namespace gts { namespace http
 {
 
+cookie::cookie()
+{
+	m_attributes.emplace("Path", "/");
+}
+
 cookie::cookie(cookie &&other) :
 	_vbase(std::move(other))
 {
@@ -124,6 +129,11 @@ cookie &cookie::priority(const std::string &pt)
 {
 	m_attributes["Priority"] = pt;
 	return *this;
+}
+
+cookie_attributes &cookie::attributes()
+{
+	return m_attributes;
 }
 
 const cookie_attributes &cookie::attributes() const

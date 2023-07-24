@@ -12,10 +12,11 @@ class GTS_DECL_HIDDEN request_impl
 {
 public:
 	std::size_t tcp_ip_buffer_size() const;
+	session_ptr create_session();
 	void finish();
 
 public:
-	mutable response *m_response = nullptr;
+	response *m_response = nullptr;
 
 	tcp_socket_ptr m_socket;
 	std::size_t m_rclenght = 0;

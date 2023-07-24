@@ -3,6 +3,13 @@
 
 #include <rttr/variant.h>
 
+#ifdef __GNUC__
+# include <cxxabi.h>
+# define _ABI_CXA_DEMANGLE(name)  abi::__cxa_demangle(name, 0,0,0)
+#else //_MSVC
+# define _ABI_CXA_DEMANGLE(name)  name
+#endif //compiler
+
 #define GTS_UNUSED(x)  (void)(x)
 
 #if defined(_WIN64) || defined(__x86_64__) || defined(__arm64__) || defined(__aarch64__)
@@ -24,6 +31,16 @@
 
 namespace gts
 {
+
+template <typename T>
+inline const char *type_name(T &&t) {
+	return _ABI_CXA_DEMANGLE(typeid(t).name());
+}
+
+template <typename T>
+inline const char *type_name() {
+	return _ABI_CXA_DEMANGLE(typeid(T).name());
+}
 
 template <bool C, typename T = void>
 using enable_if_t = typename std::enable_if<C,T>::type;

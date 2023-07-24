@@ -11,8 +11,15 @@ namespace gts { namespace http
 class value : public std::string
 {
 public:
+	template <typename CT>
+	struct is_string {
+		static constexpr bool value = gts_is_same(decay_t<CT>, http::value) or
+									  gts_is_same(decay_t<CT>, std::string) or
+									  gts_is_same(decay_t<CT>, char*);
+	};
 	template <typename CT, typename T = void>
-	using not_string_t = enable_if_t<not gts_is_same(decay_t<CT>, std::string) and not gts_is_same(decay_t<CT>, char*), T>;
+	using not_type_t = enable_if_t<not is_string<CT>::value, T>;
+
 	using base_type = std::string;
 	// using base_type::basic_string; // Not available in gcc ...
 
@@ -24,7 +31,7 @@ public:
 	value(http::value &&other) : base_type(std::move(other)) {}
 	value(const char *str, size_type len) : base_type(str,len) {}
 
-	template <typename T, typename U = not_string_t<T,int>>
+	template <typename T, typename U = not_type_t<T,int>>
 	value(T &&v) : base_type(fmt::format("{}", std::forward<T>(v))) {}
 
 public:
@@ -100,7 +107,7 @@ public:
 		return *this;
 	}
 
-	template <typename T, typename U = not_string_t<T,int>>
+	template <typename T, typename U = not_type_t<T,int>>
 	value &set_value(T &&v)
 	{
 		set_value("{}", std::forward<T>(v));
@@ -116,7 +123,7 @@ public:
 		return hv;
 	}
 
-	template <typename T, typename U = not_string_t<T,int>>
+	template <typename T, typename U = not_type_t<T,int>>
 	static value from(T &&v)
 	{
 		value hv;

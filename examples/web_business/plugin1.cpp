@@ -85,7 +85,7 @@ public:
 		response.redirect("https://github.com/username-nullptr/gts3.git");
 	}
 
-	void new_request_1(http::response &response, const http::request &request)
+	void new_request_1(http::response &response, http::request &request)
 	{
 		for(auto &pair : request.cookies())
 			log_info("cookie: [ {} ]", pair);

@@ -71,30 +71,23 @@ const basic_cookies &request::cookies() const
 	return m_impl->m_cookies;
 }
 
-session_ptr request::session(bool create) const
+session_ptr request::session(bool create)
 {
 	auto it = m_impl->m_cookies.find("session_id");
 	if( it == m_impl->m_cookies.end() )
 	{
 		if( not create )
 			return session_ptr();
-
-		auto ptr = http::session::make_shared();
-		if( m_impl->m_response )
-			m_impl->m_response->set_cookie("session_id", ptr->id());
-		return ptr;
+		return m_impl->create_session();
 	}
 	auto ptr = http::session::get(it->second);
 	if( ptr )
-		return ptr;
-
-	else if( create )
 	{
-		auto ptr = http::session::make_shared();
-		if( m_impl->m_response )
-			m_impl->m_response->set_cookie("session_id", ptr->id());
+		ptr->expand();
 		return ptr;
 	}
+	else if( create )
+		return m_impl->create_session();
 	return session_ptr();
 }
 
