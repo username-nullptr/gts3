@@ -210,8 +210,8 @@ session &session::set_lifecycle(uint64_t s)
 
 	if( ctime < cat )
 		m_impl->restart(ctime - cat);
-    else
-        invalidate();
+	else
+		invalidate();
 	return *this;
 }
 
