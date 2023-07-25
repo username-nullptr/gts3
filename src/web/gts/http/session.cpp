@@ -35,7 +35,7 @@ public:
 	}
 
 public:
-	void start(uint64_t s = 0)
+	void restart(uint64_t s = 0)
 	{
 		m_timer.cancel();
 
@@ -208,9 +208,10 @@ session &session::set_lifecycle(uint64_t s)
 	uint64_t ctime = duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
 	uint64_t cat = m_impl->m_create_time + s;
 
-	m_impl->m_timer.cancel();
 	if( ctime < cat )
-		m_impl->start(ctime - cat);
+		m_impl->restart(ctime - cat);
+    else
+        invalidate();
 	return *this;
 }
 
@@ -218,7 +219,7 @@ session &session::expand(uint64_t s)
 {
 	if( s > 0 )
 		m_impl->m_lifecycle = s;
-	m_impl->start();
+	m_impl->restart();
 	return *this;
 }
 
@@ -253,7 +254,7 @@ void session::set(session *obj)
 	g_session_hash.emplace(obj->id(), session_ptr(obj));
 
 	g_rw_mutex.unlock();
-	obj->m_impl->start();
+	obj->m_impl->restart();
 }
 
 void session::set_global_lifecycle(uint64_t seconds)

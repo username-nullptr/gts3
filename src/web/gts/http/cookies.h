@@ -131,7 +131,7 @@ cookie &cookie::set_value(fmt::format_string<Args...> fmt_value, Args&&...args)
 template <typename T, typename U>
 cookie &cookie::set_value(T &&v)
 {
-	value::set_value(std::forward<T>(v));
+	set_value("{}", std::forward<T>(v));
 	return *this;
 }
 
