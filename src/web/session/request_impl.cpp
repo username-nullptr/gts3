@@ -27,16 +27,16 @@ void request_impl::finish()
 	if( it == m_headers.end() )
 		m_keep_alive = m_version != "1.0";
 	else
-		m_keep_alive = to_lower(it->second) != "close";
+		m_keep_alive = str_to_lower(it->second) != "close";
 
 	it = m_headers.find("accept-encoding");
 	if( it == m_headers.end() )
 		m_support_gzip = false;
 	else
 	{
-		for(auto &str : string_split(it->second, ","))
+		for(auto &str : str_split(it->second, ","))
 		{
-			if( to_lower(trimmed(str)) == "gzip" )
+			if( str_to_lower(str_trimmed(str)) == "gzip" )
 			{
 				m_support_gzip = true;
 				break;

@@ -37,16 +37,16 @@ static environments g_cgi_env;
 void cgi_service::init()
 {
 	auto &_settings = settings::global_instance();
-	auto env_list = string_split(_settings.read<std::string>(SINI_GROUP_WEB, SINI_WEB_CGI_ENV), ";");
+	auto env_list = str_split(_settings.read<std::string>(SINI_GROUP_WEB, SINI_WEB_CGI_ENV), ";");
 
 	for(auto &env : env_list)
 	{
 		auto pos = env.find("=");
 
 		if( pos == std::string::npos )
-			g_cgi_env.emplace(trimmed(env), "");
+			g_cgi_env.emplace(str_trimmed(env), "");
 		else
-			g_cgi_env.emplace(trimmed(env.substr(0, pos)), trimmed(env.substr(pos + 1)));
+			g_cgi_env.emplace(str_trimmed(env.substr(0, pos)), str_trimmed(env.substr(pos + 1)));
 	}
 
 #ifdef GTS_ENABLE_SSL
@@ -100,7 +100,7 @@ void cgi_service::call()
 		 .add_env("SERVER_SOFTWARE"  , "GTS/1.0(GTS/" GTS_VERSION_STR ")");
 
 	for(auto &pair : m_sio.request.headers())
-		m_cgi.add_env("HTTP_" + to_upper(replace_http_to_env(pair.first)), pair.second);
+		m_cgi.add_env("HTTP_" + str_to_upper(replace_http_to_env(pair.first)), pair.second);
 
 	auto it = m_sio.request.headers().find("content-length");
 	if( it != m_sio.request.headers().end() )

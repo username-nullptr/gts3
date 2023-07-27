@@ -86,7 +86,7 @@ bool stob(const std::string &str)
 		return stoi8(str);
 }
 
-string_list string_split(const std::string &str, const std::string &splits, bool ignore_empty)
+string_list str_split(const std::string &str, const std::string &splits, bool ignore_empty)
 {
 	string_list result;
 	if( str.empty() )
@@ -108,7 +108,7 @@ string_list string_split(const std::string &str, const std::string &splits, bool
 	return result;
 }
 
-std::string string_list_join(const basic_string_list &list, const std::string &splits)
+std::string str_list_join(const basic_string_list &list, const std::string &splits)
 {
 	std::string result;
 	if( list.empty() )
@@ -124,12 +124,12 @@ std::string string_list_join(const basic_string_list &list, const std::string &s
 
 #if __cplusplus > 201703L
 
-bool starts_with(const std::string &str, const std::string &prefix)
+bool str_starts_with(const std::string &str, const std::string &prefix)
 {
 	return str.starts_with(prefix);
 }
 
-bool ends_with(const std::string &str, const std::string &suffix)
+bool str_ends_with(const std::string &str, const std::string &suffix)
 {
 	return str.ends_with(suffix);
 }
@@ -164,21 +164,21 @@ bool ends_with(const std::string &str, const std::string &suffix)
 
 #endif //c++20
 
-std::string to_lower(const std::string &str)
+std::string str_to_lower(const std::string &str)
 {
 	auto tmp = str;
 	std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::tolower);
 	return tmp;
 }
 
-std::string to_upper(const std::string &str)
+std::string str_to_upper(const std::string &str)
 {
 	auto tmp = str;
 	std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
 	return tmp;
 }
 
-std::size_t replace(std::string &str, const std::string &_old, const std::string &_new)
+std::size_t str_replace(std::string &str, const std::string &_old, const std::string &_new)
 {
 	std::size_t sum = 0;
 	std::size_t old_pos = 0;
@@ -191,7 +191,7 @@ std::size_t replace(std::string &str, const std::string &_old, const std::string
 	return sum;
 }
 
-std::string trimmed(const std::string &str)
+std::string str_trimmed(const std::string &str)
 {
 	std::string result;
 
@@ -220,6 +220,22 @@ std::string trimmed(const std::string &str)
 	result = str.substr(0, right + 1);
 	result = result.substr(left);
 	return result;
+}
+
+std::string str_remove(const std::string &str, const std::string &find)
+{
+	std::string res = str;
+	str_replace(res, find, "");
+	return res;
+}
+
+std::string str_remove(const std::string &str, char find)
+{
+	std::string res = str;
+	auto it = std::remove(res.begin(), res.end(), find);
+	if( it != res.end() )
+		res.erase(it, res.end());
+	return res;
 }
 
 std::string from_percent_encoding(const std::string &str)

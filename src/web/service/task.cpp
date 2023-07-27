@@ -56,9 +56,9 @@ static void trimmed_path(std::string &str)
 static inline void access_check(std::string &str)
 {
 	trimmed_path(str);
-	replace(str, "\\", "/");
+	str_replace(str, "\\", "/");
 
-	if( not starts_with(str, "/") )
+	if( not str_starts_with(str, "/") )
 		str = "/" + str;
 
 	if( str == "/" or str == "\\" )
@@ -84,7 +84,7 @@ void task::init()
 	g_cgi_path = _setting.read<std::string>(SINI_GROUP_WEB, SINI_WEB_CGI_PATH, g_cgi_path);
 	g_cgi_path = app::absolute_path(g_cgi_path);
 
-	if( not ends_with(g_cgi_path, "/") )
+	if( not str_ends_with(g_cgi_path, "/") )
 		g_cgi_path += "/";
 
 	if( not fs::exists(g_cgi_path) )

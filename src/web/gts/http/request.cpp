@@ -464,8 +464,8 @@ bool request::save_file(const std::string &_file_name, asio::error_code &error)
 						lambda_reset("Invalid header line.");
 						return false;
 					}
-					auto header_key = to_lower(trimmed(line_buf.substr(0, colon_index)));
-					auto header_value = from_percent_encoding(trimmed(line_buf.substr(colon_index + 1)));
+					auto header_key = str_to_lower(str_trimmed(line_buf.substr(0, colon_index)));
+					auto header_value = from_percent_encoding(str_trimmed(line_buf.substr(colon_index + 1)));
 					m_impl->m_headers[header_key] = header_value;
 				}
 			}

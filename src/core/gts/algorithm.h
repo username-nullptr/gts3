@@ -21,22 +21,25 @@ GTSCORE_API double   stod   (const std::string &str);
 GTSCORE_API double   stold  (const std::string &str);
 GTSCORE_API bool     stob   (const std::string &str);
 
-GTSCORE_API string_list string_split(const std::string &str, const std::string &splits, bool ignore_empty = true);
-GTSCORE_API std::string string_list_join(const basic_string_list &list, const std::string &splits = " ");
+GTSCORE_API string_list str_split(const std::string &str, const std::string &splits, bool ignore_empty = true);
+GTSCORE_API std::string str_list_join(const basic_string_list &list, const std::string &splits = " ");
 
-GTSCORE_API bool starts_with(const std::string &str, const std::string &prefix);
-GTSCORE_API bool ends_with(const std::string &str, const std::string &suffix);
+GTSCORE_API bool str_starts_with(const std::string &str, const std::string &prefix);
+GTSCORE_API bool str_ends_with(const std::string &str, const std::string &suffix);
 
-GTSCORE_API std::string to_lower(const std::string &str);
-GTSCORE_API std::string to_upper(const std::string &str);
+GTSCORE_API std::string str_to_lower(const std::string &str);
+GTSCORE_API std::string str_to_upper(const std::string &str);
 
-GTSCORE_API std::size_t replace(std::string &str, const std::string &_old, const std::string &_new);
-GTSCORE_API std::string trimmed(const std::string &str);
+GTSCORE_API std::size_t str_replace(std::string &str, const std::string &_old, const std::string &_new);
+GTSCORE_API std::string str_trimmed(const std::string &str);
+
+GTSCORE_API std::string str_remove(const std::string &str, const std::string &find);
+GTSCORE_API std::string str_remove(const std::string &str, char find);
 
 GTSCORE_API std::string from_percent_encoding(const std::string &str);
 
-inline string_list string_split(const std::string &str, char splits, bool ignore_empty = true)
-{ return string_split(str, std::string(1,splits), ignore_empty); }
+inline string_list str_split(const std::string &str, char splits, bool ignore_empty = true)
+{ return str_split(str, std::string(1,splits), ignore_empty); }
 
 GTSCORE_API std::string file_name(const std::string &file_name);
 GTSCORE_API std::string file_path(const std::string &file_name);

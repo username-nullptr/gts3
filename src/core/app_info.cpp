@@ -9,7 +9,7 @@ static std::string g_instace_name = "gts";
 
 std::string set_instance_name(const std::string &name)
 {
-	g_instace_name = trimmed(name);
+	g_instace_name = str_trimmed(name);
 	if( g_instace_name.empty() )
 		g_instace_name = "gts";
 	else
@@ -50,9 +50,9 @@ std::string absolute_path(const std::string &path)
 #ifdef _WINDOWS
 	// ......
 #else
-	if( not starts_with(result, "/") )
+	if( not str_starts_with(result, "/") )
 	{
-		if( starts_with(result, "~/") )
+		if( str_starts_with(result, "~/") )
 		{
 			auto tmp = getenv("HOME");
 			if( tmp == nullptr )
@@ -61,7 +61,7 @@ std::string absolute_path(const std::string &path)
 				abort();
 			}
 			std::string home(tmp);
-			if( not ends_with(home, "/") )
+			if( not str_ends_with(home, "/") )
 				home += "/";
 			result = home + result.erase(0,2);
 		}
@@ -74,9 +74,9 @@ std::string absolute_path(const std::string &path)
 
 bool is_absolute_path(const std::string &path)
 {
-	return starts_with(path, "/")
+	return str_starts_with(path, "/")
 #ifdef __unix__
-			or starts_with(path, "~/")
+			or str_starts_with(path, "~/")
 #endif //unix
 			;
 }

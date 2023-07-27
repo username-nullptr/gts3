@@ -26,7 +26,7 @@ void init(const std::string &config_file)
 	for(int i=0; it!=rttr::type::get_global_methods().end(); it=std::next(rttr::type::get_global_methods().begin(), ++i))
 	{
 		auto &method = *it;
-		if( not starts_with(method.get_name().to_string(), "gts.plugin.init") )
+		if( not str_starts_with(method.get_name().to_string(), "gts.plugin.init") )
 			continue;
 		auto list = method.get_parameter_infos();
 
@@ -44,7 +44,7 @@ void exit()
 	for(int i=0; it!=rttr::type::get_global_methods().end(); it=std::next(rttr::type::get_global_methods().begin(), ++i))
 	{
 		auto &method = *it;
-		if( starts_with(method.get_name().to_string(), "gts.plugin.exit") and method.get_parameter_infos().empty() )
+		if( str_starts_with(method.get_name().to_string(), "gts.plugin.exit") and method.get_parameter_infos().empty() )
 			method.invoke({});
 	}
 }
@@ -78,7 +78,7 @@ std::string view_status()
 	for(int i=0; it!=rttr::type::get_global_methods().end(); it=std::next(rttr::type::get_global_methods().begin(), ++i))
 	{
 		auto &method = *it;
-		if( starts_with(method.get_name().to_string(), "gts.plugin.view_status") and method.get_return_type() == GTS_RTTR_TYPE(std::string) )
+		if( str_starts_with(method.get_name().to_string(), "gts.plugin.view_status") and method.get_return_type() == GTS_RTTR_TYPE(std::string) )
 			result = method.invoke({}).to_string();
 	}
 	return result;
@@ -95,7 +95,7 @@ void init(const std::string &config_file)
 	for(int i=0; it!=rttr::type::get_global_methods().end(); it=std::next(rttr::type::get_global_methods().begin(), ++i))
 	{
 		auto &method = *it;
-		if( not starts_with(method.get_name().to_string(), "gts.extension.plugin.init.") )
+		if( not str_starts_with(method.get_name().to_string(), "gts.extension.plugin.init.") )
 			continue;
 
 		auto list = method.get_parameter_infos();
@@ -113,7 +113,7 @@ void exit()
 	for(int i=0; it!=rttr::type::get_global_methods().end(); it=std::next(rttr::type::get_global_methods().begin(), ++i))
 	{
 		auto &method = *it;
-		if( starts_with(method.get_name().to_string(), "gts.extension.plugin.exit.") and method.get_parameter_infos().empty() )
+		if( str_starts_with(method.get_name().to_string(), "gts.extension.plugin.exit.") and method.get_parameter_infos().empty() )
 			method.invoke({});
 	}
 }
@@ -126,7 +126,7 @@ bool args_parsing(const string_list &args)
 	for(int i=0; it!=rttr::type::get_global_methods().end(); it=std::next(rttr::type::get_global_methods().begin(), ++i))
 	{
 		auto &method = *it;
-		if( not starts_with(method.get_name().to_string(), "gts.extension.plugin.args_parsing.") )
+		if( not str_starts_with(method.get_name().to_string(), "gts.extension.plugin.args_parsing.") )
 			continue;
 
 		auto para = method.get_parameter_infos();
@@ -160,7 +160,7 @@ static std::string view_extension(const char *method_name)
 	for(int i=0; it!=rttr::type::get_global_methods().end(); it=std::next(rttr::type::get_global_methods().begin(), ++i))
 	{
 		auto &method = *it;
-		if( not starts_with(method.get_name().to_string(), method_name) )
+		if( not str_starts_with(method.get_name().to_string(), method_name) )
 			continue;
 
 		else if( method.get_return_type() != GTS_RTTR_TYPE(std::string) or not method.get_parameter_infos().empty() )

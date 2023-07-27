@@ -132,7 +132,7 @@ void tcp_server::start()
 			info.json = obj;
 
 			if( obj.contains("address") )
-				info.addr = to_lower(obj["address"].get<std::string>());
+				info.addr = str_to_lower(obj["address"].get<std::string>());
 			else
 			{
 				log_error("Sites json: {}: address is null. (default set: ipv4)", name);

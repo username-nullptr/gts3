@@ -286,16 +286,16 @@ static std::string absolute_path(const std::string &path)
 #ifdef _WINDOWS
 	// ......
 #else
-	if( not starts_with(result, "/") )
+	if( not str_starts_with(result, "/") )
 	{
-		if( starts_with(result, "~/") )
+		if( str_starts_with(result, "~/") )
 		{
 			auto tmp = getenv("HOME");
 			if( tmp == nullptr )
 				log_fatal("System environment 'HOME' is null.");
 
 			std::string home(tmp);
-			if( not ends_with(home, "/") )
+			if( not str_ends_with(home, "/") )
 				home += "/";
 			result = home + result.erase(0,2);
 		}
@@ -442,7 +442,7 @@ public:
 		}
 
 		// (x-y) ( m-n) ( i-j) ...
-		auto range_list = string_split(range_list_str, ",");
+		auto range_list = str_split(range_list_str, ",");
 		auto mime_type = get_mime_type(m_file_name);
 
 		m_response.set_status(http::hs_partial_content);
@@ -480,7 +480,7 @@ public:
 			range_value_queue.emplace_back();
 			auto &range_value = range_value_queue.back();
 
-			if( range_parsing(trimmed(str), range_value.begin, range_value.end, range_value.size) == false )
+			if( range_parsing(str_trimmed(str), range_value.begin, range_value.end, range_value.size) == false )
 			{
 				m_response.write_default(http::hs_range_not_satisfiable);
 				return ;
@@ -524,7 +524,7 @@ private:
 private:
 	bool range_parsing(const std::string &range_str, std::size_t &begin, std::size_t &end, std::size_t &size)
 	{
-		auto list = string_split(range_str, '-', false);
+		auto list = str_split(range_str, '-', false);
 
 		if( list.size() > 2 )
 		{

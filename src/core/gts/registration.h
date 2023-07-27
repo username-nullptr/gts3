@@ -45,7 +45,7 @@ public:
 	registration() = default;
 
 public:
-	template <typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)(GTS_DECLVAL(tcp_socket_ptr&))), int U0=0>
+	template <typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)(GTS_DECLVAL(tcp_socket_ptr&)))>
 	registration &new_connection(Func &&func, uint16_t port = 0) {
 		return register_method<registration>("", port == 0? "gts.plugin.new_connection" : fmt::format("gts.plugin.new_connection.{}", port), std::forward<Func>(func));
 	}

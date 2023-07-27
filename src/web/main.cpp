@@ -68,7 +68,7 @@ GTS_DECL_EXPORT void init(const std::string &config_file)
 	g_resource_path = _settings.read<std::string>(SINI_GROUP_WEB, SINI_WEB_RC_PATH, g_resource_path);
 
 	g_resource_path = app::absolute_path(g_resource_path);
-	if( not ends_with(g_resource_path, "/") )
+	if( not str_ends_with(g_resource_path, "/") )
 		g_resource_path += "/";
 
 	g_count = _settings.read<int>(SINI_GROUP_WEB, SINI_WEB_THREAD_POOL_TC, 255);

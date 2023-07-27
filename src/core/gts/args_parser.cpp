@@ -73,9 +73,9 @@ void parser_impl::add(args_cache &cache, const rule &r, const description &d, co
 	char buf[128] = "";
 	sprintf(buf, "%zu", id_source++);
 
-	for(auto arg : string_split(r, ","))
+	for(auto arg : str_split(r, ","))
 	{
-		arg = trimmed(arg);
+		arg = str_trimmed(arg);
 		if( check(arg) == false )
 			continue;
 

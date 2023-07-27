@@ -60,7 +60,7 @@ void cmdline_server::start()
 		if( str == CCMD_VSS )
 			str = "\n" + view_pid() + m_tcp_server.view_status();
 
-		else if( starts_with(str, CCMD_STSS) )
+		else if( str_starts_with(str, CCMD_STSS) )
 		{
 			auto pos = str.find("\r\n");
 			str = str.substr(pos + 2);
@@ -68,7 +68,7 @@ void cmdline_server::start()
 //                gts_sm.start(trimmed(name));
 			str = "accepted";
 		}
-		else if( starts_with(str, CCMD_SPSS) )
+		else if( str_starts_with(str, CCMD_SPSS) )
 		{
 			int pos = str.find("\r\n");
 			str = str.substr(pos + 2);

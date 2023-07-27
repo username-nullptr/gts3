@@ -120,8 +120,8 @@ void logger::set_context(const context &con)
 	replace(g_context.dir, "/", "\\");
 	replace(g_context.category, "/", "\\");
 #else //other os
-	replace(g_context.dir, "\\", "/");
-	replace(g_context.category, "\\", "/");
+	str_replace(g_context.dir, "\\", "/");
+	str_replace(g_context.category, "\\", "/");
 #endif //os
 
 	if( not g_context.dir.empty() )
@@ -431,7 +431,7 @@ static bool open_log_output_device
 	}
 
 	std::string dir_name = context.dir;
-	if( not ends_with(dir_name, "/") )
+	if( not str_ends_with(dir_name, "/") )
 		dir_name += "/";
 
 	if( not context.category.empty() )
@@ -439,13 +439,13 @@ static bool open_log_output_device
 		if( context.time_category )
 		{
 			dir_name += fmt::format("{:%Y-%m-%d}", time) + "/" + context.category;
-			if( not ends_with(dir_name, "/") )
+			if( not str_ends_with(dir_name, "/") )
 				dir_name += "/";
 		}
 		else
 		{
 			dir_name += context.category;
-			if( not ends_with(dir_name, "/") )
+			if( not str_ends_with(dir_name, "/") )
 				dir_name += "/";
 			dir_name += fmt::format("{:%Y-%m-%d}", time) + "/";
 		}
@@ -470,7 +470,7 @@ static bool open_log_output_device
 			for(auto &entry : fs::directory_iterator(dir_name))
 			{
 				auto file_name = entry.path().string();
-				if( ends_with(file_name, "(now)") )
+				if( str_ends_with(file_name, "(now)") )
 					g_curr_log_file.name = file_name;
 			}
 		}

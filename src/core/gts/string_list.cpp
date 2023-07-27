@@ -22,7 +22,7 @@ std::vector<const char*> string_list::c_str_vector() const
 
 std::string string_list::join(const std::string &splits)
 {
-	return string_list_join(*this, splits);
+	return str_list_join(*this, splits);
 }
 
 } //namespace gts

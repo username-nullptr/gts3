@@ -61,7 +61,7 @@ void plugin_service::call()
 		auto &path = pair.first;
 		auto &rs = pair.second;
 
-		if( not starts_with("/" + m_sio.url_name, path) )
+		if( not str_starts_with("/" + m_sio.url_name, path) )
 			continue ;
 
 		else if( path[path.size() - 1] == '/' )
@@ -144,7 +144,7 @@ void plugin_service::init()
 		std::string file_name;
 		try {
 			std::string file_path = it.value().get<std::string>();
-			if( not ends_with(file_path, "/") )
+			if( not str_ends_with(file_path, "/") )
 				file_path += "/";
 
 			if( not appinfo::is_absolute_path(file_path) )
@@ -180,7 +180,7 @@ void plugin_service::init()
 	for(int i=0; it!=rttr::type::get_global_methods().end(); it=std::next(rttr::type::get_global_methods().begin(), ++i))
 	{
 		auto &method = *it;
-		if( starts_with(method.get_name().to_string(), "gts.web.plugin.init.") )
+		if( str_starts_with(method.get_name().to_string(), "gts.web.plugin.init.") )
 			call_init(method, rttr::instance(), futures);
 	}
 
@@ -228,7 +228,7 @@ void plugin_service::exit()
 	for(int i=0; it!=rttr::type::get_global_methods().end(); it=std::next(rttr::type::get_global_methods().begin(), ++i))
 	{
 		auto &method = *it;
-		if( starts_with(method.get_name().to_string(), "gts.web.plugin.exit.") )
+		if( str_starts_with(method.get_name().to_string(), "gts.web.plugin.exit.") )
 			call_exit(method, rttr::instance(), futures);
 	}
 	for(auto &future : futures)
@@ -244,7 +244,7 @@ std::string plugin_service::view_status()
 	for(int i=0; it!=rttr::type::get_global_methods().end(); it=std::next(rttr::type::get_global_methods().begin(), ++i))
 	{
 		auto &method = *it;
-		if( starts_with(method.get_name().to_string(), "gts.web.plugin.view_status.") and method.get_return_type() == GTS_RTTR_TYPE(std::string) )
+		if( str_starts_with(method.get_name().to_string(), "gts.web.plugin.view_status.") and method.get_return_type() == GTS_RTTR_TYPE(std::string) )
 			result += method.invoke({}).get_value<std::string>();
 	}
 	for(auto &pair : g_obj_hash)

@@ -32,7 +32,7 @@ std::string current_directory()
 	if( getcwd(buf, sizeof(buf)) == nullptr )
 		std::cerr << fmt::format("*** Error: appinfo::current_directory: getcwd: {}. ({})", strerror(errno), errno) << std::endl;
 	std::string str(buf);
-	if( not ends_with(str, "/") )
+	if( not str_ends_with(str, "/") )
 		str += "/";
 	return str;
 }

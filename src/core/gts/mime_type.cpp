@@ -974,7 +974,7 @@ static inline bool __is_text_file(std::fstream &file)
 	std::string data(buf, buf_size);
 
 	// UTF16 byte order marks
-	if( starts_with(data, "\xFE\xFF") or starts_with(data, "\xFF\xFE") )
+	if( str_starts_with(data, "\xFE\xFF") or str_starts_with(data, "\xFF\xFE") )
 		return true;
 
 	// Check the first 128 bytes (see shared-mime spec)
@@ -1033,7 +1033,7 @@ std::string get_mime_type(const std::string &file_name)
 	if( pos == std::string::npos )
 		return mime_from_magic(file_name);
 
-	auto it = g_suffix_hash.find(to_lower(name.substr(pos)));
+	auto it = g_suffix_hash.find(str_to_lower(name.substr(pos)));
 	if( it == g_suffix_hash.end() )
 		return mime_from_magic(file_name);
 

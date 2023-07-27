@@ -65,8 +65,8 @@ std::shared_ptr<request> http_parser::write(const std::string &data)
 
 bool http_parser::state_handler_waiting_request(const std::string &line_buf)
 {
-	auto request_line_parts = string_split(line_buf, ' ');
-	if( request_line_parts.size() != 3 or not starts_with(to_upper(request_line_parts[2]), "HTTP/") )
+	auto request_line_parts = str_split(line_buf, ' ');
+	if( request_line_parts.size() != 3 or not str_starts_with(str_to_upper(request_line_parts[2]), "HTTP/") )
 	{
 		log_info("Invalid request line.");
 		m_buffer.clear();
@@ -98,7 +98,7 @@ bool http_parser::state_handler_waiting_request(const std::string &line_buf)
 		m_cache->m_impl->m_path = resource_line.substr(0, pos);
 		m_cache->m_impl->m_parameters_string = resource_line.substr(pos + 1);
 
-		for(auto &para_str : string_split(m_cache->m_impl->m_parameters_string, "&"))
+		for(auto &para_str : str_split(m_cache->m_impl->m_parameters_string, "&"))
 		{
 			auto pos = para_str.find("=");
 			if( pos == para_str.npos )
@@ -131,18 +131,18 @@ request *http_parser::state_handler_reading_headers(const std::string &line_buf)
 		return new request();
 	}
 
-	auto key = to_lower(trimmed(line_buf.substr(0, colon_index)));
-	auto value = from_percent_encoding(trimmed(line_buf.substr(colon_index + 1)));
+	auto key = str_to_lower(str_trimmed(line_buf.substr(0, colon_index)));
+	auto value = from_percent_encoding(str_trimmed(line_buf.substr(colon_index + 1)));
 
 	if( key != "cookie" )
 	{
 		m_cache->m_impl->m_headers[key] = value;
 		return nullptr;
 	}
-	auto list = string_split(value, ";");
+	auto list = str_split(value, ";");
 	for(auto &statement : list)
 	{
-		statement = trimmed(statement);
+		statement = str_trimmed(statement);
 		auto pos = statement.find("=");
 
 		if( pos == statement.npos )
@@ -152,8 +152,8 @@ request *http_parser::state_handler_reading_headers(const std::string &line_buf)
 			return new request();
 		}
 
-		key = trimmed(statement.substr(0,pos));
-		value = trimmed(statement.substr(pos+1));
+		key = str_trimmed(statement.substr(0,pos));
+		value = str_trimmed(statement.substr(pos+1));
 		m_cache->m_impl->m_cookies[key] = value;
 	}
 	return nullptr;
