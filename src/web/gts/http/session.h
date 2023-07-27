@@ -15,6 +15,9 @@ class GTSWEB_API session
 {
 	GTS_DISABLE_COPY_MOVE(session)
 
+	template <typename T>
+	using not_variant_t = enable_if_t<not gts_is_dsame(T, rttr::variant), int>;
+
 public:
 	explicit session(uint64_t seconds = 0);
 	~session();
@@ -28,6 +31,12 @@ public:
 	rttr::variant attribute(const std::string &key) const;
 	rttr::variant attribute_or(const std::string &key, const rttr::variant &deft_value) const;
 	rttr::variant attribute_or(const std::string &key, rttr::variant &&deft_value = {}) const;
+
+	template <typename T>
+	T attribute(const std::string &key) const;
+
+	template <typename T, typename U = not_variant_t<T>>
+	T attribute_or(const std::string &key, const T &deft_value) const;
 
 public:
 	session &set_attribute(const std::string &key, const rttr::variant &value);
@@ -73,6 +82,16 @@ GTSWEB_API std::shared_ptr<Sesn> make_session(uint64_t seconds = 0)
 
 	auto obj = new Sesn(seconds); obj->set(obj);
 	return std::dynamic_pointer_cast<Sesn>(session::get(obj->id()));
+}
+
+template <typename T>
+T session::attribute(const std::string &key) const {
+	return attribute(key).get_value<T>();
+}
+
+template <typename T, typename U>
+T session::attribute_or(const std::string &key, const T &deft_value) const {
+	return attribute_or(key, rttr::variant(deft_value)).get_value<T>();
 }
 
 template <typename...Args>

@@ -13,8 +13,8 @@ namespace gts
 #define _GTS_PROCESS_NOT_STRING \
 	template <typename T> \
 	enable_if_t< \
-		not gts_is_same(decay_t<T>, std::string) and \
-		not gts_is_same(decay_t<T>, char*), \
+		not gts_is_dsame(T, std::string) and \
+		not gts_is_dsame(T, char*), \
 	process>&
 
 class process_impl;

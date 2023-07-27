@@ -50,7 +50,11 @@ using decay_t = typename std::decay<T>::type;
 
 #define gts_is_arithmetic(...)  std::is_arithmetic<__VA_ARGS__>::value
 
+#define gts_is_enum(...)   std::is_enum<__VA_ARGS__>::value
+
 #define gts_is_same(...)   std::is_same<__VA_ARGS__>::value
+
+#define gts_is_dsame(x,y)   std::is_same<gts::decay_t<x>, y>::value
 
 #define gts_is_base_of(...)   std::is_base_of<__VA_ARGS__>::value
 

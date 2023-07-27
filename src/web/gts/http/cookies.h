@@ -12,7 +12,7 @@ using cookie_attributes = http::map<http::value, less_case_insensitive>;
 class GTSWEB_API cookie : public http::value
 {
 	template <typename CT>
-	using not_ctype_t = enable_if_t<not gts_is_same(decay_t<CT>, cookie) and not is_string<CT>::value, int>;
+	using not_ctype_t = enable_if_t<not gts_is_dsame(CT, cookie) and not is_string<CT>::value, int>;
 
 public:
 	using _vbase = http::value;

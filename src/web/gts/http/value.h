@@ -87,6 +87,15 @@ public:
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, long double), int)>
 	long double get() const { return gts::stold(*this); }
 
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, std::string), int)>
+	std::string &get() { return *this; }
+
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, std::string), int)>
+	const std::string &get() const { return *this; }
+
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_enum(T), int)>
+	T get() const { return static_cast<T>(get<int>()); }
+
 public:
 	value &set_value(const std::string &v)
 	{

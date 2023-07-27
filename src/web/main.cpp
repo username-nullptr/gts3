@@ -104,12 +104,13 @@ GTS_PLUGIN_REGISTRATION
 	using namespace gts;
 	using namespace gts::web;
 
-	gts::registration([](tcp_socket_ptr &socket){
-		session::new_connection(std::move(socket));
-	})
-	.view_status_method([]{
-		return session::view_status();
-	})
-			.init_method(plugin_main::init)
-			.exit_method(plugin_main::exit);
+	gts::registration()
+		.new_connection([](tcp_socket_ptr &socket){
+			session::new_connection(std::move(socket));
+		})
+		.view_status_method([]{
+			return session::view_status();
+		})
+		.init_method(plugin_main::init)
+		.exit_method(plugin_main::exit);
 }

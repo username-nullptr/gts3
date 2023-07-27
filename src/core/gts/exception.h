@@ -10,10 +10,6 @@ namespace gts
 
 class exception : public std::exception
 {
-#if __cplusplus >= 201703L
-	GTS_DISABLE_COPY_MOVE(exception)
-#endif
-
 public:
 	explicit exception(const std::string &what) : m_what(what) {}
 	explicit exception(std::string &&what) : m_what(std::move(what)) {}
@@ -28,10 +24,31 @@ public:
 	}
 
 private:
+#if __cplusplus >= 201703L
+	GTS_DISABLE_COPY_MOVE(exception)
+#else
+	exception(const exception&) = default;
+	exception(exception &&other): m_what(std::move(other.m_what)) {}
+#endif
 	std::string m_what;
 };
 
 } //namespace gts
+
+namespace fmt
+{
+
+template <>
+class formatter<gts::exception> : public gts::no_parse_formatter
+{
+public:
+	template <typename Context>
+	inline auto format(const gts::exception &ex, Context &&context) -> decltype(context.out()) {
+		return fmt::format("{}", ex.what());
+	}
+};
+
+} //namespace fmt
 
 
 #endif //GTS_EXCEPTION_H

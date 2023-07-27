@@ -21,7 +21,10 @@ class GTSWEB_API response
 	using is_string = http::value::is_string<T>;
 
 	template <typename CT, typename V>
-	using not_type_t = enable_if_t<not gts_is_same(decay_t<CT>, V) and not is_string<CT>::value, int>;
+	using not_type_t = enable_if_t<not gts_is_dsame(CT, V) and not is_string<CT>::value, int>;
+
+	template <typename T>
+	using not_value_t = enable_if_t<not gts_is_dsame(T, http::value), int>;
 
 public:
 	explicit response(http::request &request, http::status status = hs_ok);
@@ -72,11 +75,23 @@ public:
 	value header_or(const std::string &key, const value &deft_value) const;
 	value header_or(const std::string &key, value &&deft_value = {}) const;
 
+	template <typename T>
+	T header(const std::string &key) const;
+
+	template <typename T, typename U = not_value_t<T>>
+	T header_or(const std::string &key, const T &deft_value) const;
+
 public:
 	http::cookie &cookie(const std::string &key);
 	const http::cookie &cookie(const std::string &key) const;
 	http::cookie cookie_or(const std::string &key, const http::cookie &deft_value) const;
 	http::cookie cookie_or(const std::string &key, http::cookie &&deft_value = {}) const;
+
+	template <typename T>
+	T cookie(const std::string &key) const;
+
+	template <typename T, typename U = not_value_t<T>>
+	T cookie_or(const std::string &key, const T &deft_value) const;
 
 public:
 	response &write_default();
@@ -174,6 +189,26 @@ response &response::set_cookie(const std::string &key, fmt::format_string<Args..
 template <typename T, typename U>
 response &response::set_cookie(const std::string &key, T &&value) {
 	return set_cookie(key, http::cookie(std::forward<T>(value)));
+}
+
+template <typename T>
+T response::header(const std::string &key) const {
+	return header(key).get<T>();
+}
+
+template <typename T, typename U>
+T response::header_or(const std::string &key, const T &deft_value) const {
+	return header_or(key, http::value(deft_value)).get<T>();
+}
+
+template <typename T>
+T response::cookie(const std::string &key) const {
+	return cookie(key).get<T>();
+}
+
+template <typename T, typename U>
+T response::cookie_or(const std::string &key, const T &deft_value) const {
+	return cookie_or(key, http::cookie(deft_value)).get<T>();
 }
 
 inline response &response::write_default(int status) {

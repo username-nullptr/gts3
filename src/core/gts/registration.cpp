@@ -1,10 +1,15 @@
 #include "registration.h"
 
-namespace gts { namespace extension
+namespace gts
 {
 
-std::set<const void*> registration::g_func_set;
+std::set<const void*> registration_base::g_func_set;
 
-std::size_t registration::g_gfs_counter = 0;
+std::size_t registration_base::g_gfs_counter = 0;
 
-}} //namespace gts::extension
+registration_base::~registration_base()
+{
+
+}
+
+} //namespace gts

@@ -11,12 +11,11 @@
 namespace gts
 {
 
-typedef std::future<void>  future_void;
+using future_void = std::future<void>;
 
-typedef std::shared_ptr<future_void>  future_ptr;
+using future_ptr = std::shared_ptr<future_void>;
 
-inline future_ptr make_future_ptr(future_void &&future)
-{
+inline future_ptr make_future_ptr(future_void &&future) {
 	return std::make_shared<future_void>(std::move(future));
 }
 
@@ -30,7 +29,7 @@ class registration
 	GTS_DISABLE_COPY_MOVE(registration)
 
 public:
-	registration() {}
+	registration() = default;
 
 public:
 	template <typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)())>
@@ -50,7 +49,7 @@ public:
 	}
 
 public:
-	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_same(std::string , decay_t<decltype(GTS_DECLVAL(Func)())>), int)>
+	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_dsame(decltype(GTS_DECLVAL(Func)()), std::string), int)>
 	registration &view_status_method(Func &&func) {
 		return register_method("view_status", std::forward<Func>(func));
 	}
@@ -102,56 +101,56 @@ public:
 	}
 
 public:
-	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_same(bool,
-			  decay_t<decltype(GTS_DECLVAL(Func)(GTS_DECLVAL(http::request&)))>), int)>
+	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_dsame(
+			  decltype(GTS_DECLVAL(Func)(GTS_DECLVAL(http::request&))), bool), int)>
 	registration &filter_method(const std::string &path, Func &&func) {
 		return _filter_method(path, std::forward<Func>(func));
 	}
 
-	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_same(bool,
-			  decay_t<decltype(GTS_DECLVAL(Func)(GTS_DECLVAL(http::request&), GTS_DECLVAL(http::response&)))>), int), int8_t U0=0>
+	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_dsame(
+			  decltype(GTS_DECLVAL(Func)(GTS_DECLVAL(http::request&), GTS_DECLVAL(http::response&))), bool), int), int8_t U0=0>
 	registration &filter_method(const std::string &path, Func &&func) {
 		return _filter_method(path, std::forward<Func>(func));
 	}
 
-	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_same(bool,
-			  decay_t<decltype(GTS_DECLVAL(Func)(GTS_DECLVAL(http::response&), GTS_DECLVAL(http::request&)))>), int), uint8_t U0=0>
+	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_dsame(
+			  decltype(GTS_DECLVAL(Func)(GTS_DECLVAL(http::response&), GTS_DECLVAL(http::request&))), bool), int), uint8_t U0=0>
 	registration &filter_method(const std::string &path, Func &&func) {
 		return _filter_method(path, std::forward<Func>(func));
 	}
 
-	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_same(bool,
-			  decay_t<decltype(GTS_DECLVAL(Func)(GTS_DECLVAL(http::request&), GTS_DECLVAL(http::response&), environments()))>), int), int16_t U0=0>
+	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_dsame(
+			  decltype(GTS_DECLVAL(Func)(GTS_DECLVAL(http::request&), GTS_DECLVAL(http::response&), environments())), bool), int), int16_t U0=0>
 	registration &filter_method(const std::string &path, Func &&func) {
 		return _filter_method(path, std::forward<Func>(func));
 	}
 
-	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_same(bool,
-			  decay_t<decltype(GTS_DECLVAL(Func)(GTS_DECLVAL(http::response&), GTS_DECLVAL(http::request&), environments()))>), int), uint16_t U0=0>
+	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_dsame(
+			  decltype(GTS_DECLVAL(Func)(GTS_DECLVAL(http::response&), GTS_DECLVAL(http::request&), environments())), bool), int), uint16_t U0=0>
 	registration &filter_method(const std::string &path, Func &&func) {
 		return _filter_method(path, std::forward<Func>(func));
 	}
 
-	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_same(bool,
-			  decay_t<decltype(GTS_DECLVAL(Func)(GTS_DECLVAL(http::response&), environments(), GTS_DECLVAL(http::request&)))>), int), int32_t U0=0>
+	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_dsame(
+			  decltype(GTS_DECLVAL(Func)(GTS_DECLVAL(http::response&), environments(), GTS_DECLVAL(http::request&))), bool), int), int32_t U0=0>
 	registration &filter_method(const std::string &path, Func &&func) {
 		return _filter_method(path, std::forward<Func>(func));
 	}
 
-	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_same(bool,
-			  decay_t<decltype(GTS_DECLVAL(Func)(environments(), GTS_DECLVAL(http::response&), GTS_DECLVAL(http::request&)))>), int), uint32_t U0=0>
+	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_dsame(
+			  decltype(GTS_DECLVAL(Func)(environments(), GTS_DECLVAL(http::response&), GTS_DECLVAL(http::request&))), bool), int), uint32_t U0=0>
 	registration &filter_method(const std::string &path, Func &&func) {
 		return _filter_method(path, std::forward<Func>(func));
 	}
 
-	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_same(bool,
-			  decay_t<decltype(GTS_DECLVAL(Func)(environments(), GTS_DECLVAL(http::request&), GTS_DECLVAL(http::response&)))>), int), int64_t U0=0>
+	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_dsame(
+			  decltype(GTS_DECLVAL(Func)(environments(), GTS_DECLVAL(http::request&), GTS_DECLVAL(http::response&))), bool), int), int64_t U0=0>
 	registration &filter_method(const std::string &path, Func &&func) {
 		return _filter_method(path, std::forward<Func>(func));
 	}
 
-	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_same(bool,
-			  decay_t<decltype(GTS_DECLVAL(Func)(GTS_DECLVAL(http::request&), environments(), GTS_DECLVAL(http::response&)))>), int), uint64_t U0=0>
+	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_dsame(
+			  decltype(GTS_DECLVAL(Func)(GTS_DECLVAL(http::request&), environments(), GTS_DECLVAL(http::response&))), bool), int), uint64_t U0=0>
 	registration &filter_method(const std::string &path, Func &&func) {
 		return _filter_method(path, std::forward<Func>(func));
 	}

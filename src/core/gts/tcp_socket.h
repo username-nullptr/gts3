@@ -41,6 +41,10 @@ public:
 	void async_read_some(std::string &buf, std::function<void(std::size_t)>);
 	void async_read_some(void *buf, std::size_t size, std::function<void(std::size_t)>);
 
+public:
+	void write_some_nonblock(const std::string &buf);
+	void write_some_nonblock(const void *buf, std::size_t size);
+
 public: // TODO ......
 	bool wait_writeable(std::size_t ms, asio::error_code &error);
 	bool wait_readable(std::size_t ms, asio::error_code &error);
@@ -91,6 +95,14 @@ protected:
 };
 
 using tcp_socket_ptr = std::shared_ptr<tcp_socket>;
+
+inline void tcp_socket::write_some_nonblock(const std::string &buf) {
+	async_write_some(buf, [](std::size_t){});
+}
+
+inline void tcp_socket::write_some_nonblock(const void *buf, std::size_t size) {
+	async_write_some(buf, size, [](std::size_t){});
+}
 
 template <typename SettableSocketOption>
 void tcp_socket::set_option(const SettableSocketOption& option, asio::error_code &error) {

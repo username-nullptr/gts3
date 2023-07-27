@@ -71,6 +71,22 @@ const basic_cookies &request::cookies() const
 	return m_impl->m_cookies;
 }
 
+session_ptr request::session() const
+{
+	auto it = m_impl->m_cookies.find("session_id");
+	if( it == m_impl->m_cookies.end() )
+		return session_ptr();
+
+	auto ptr = http::session::get(it->second);
+	if( ptr )
+	{
+		if( ptr->is_valid() )
+			ptr->expand();
+		return ptr;
+	}
+	return session_ptr();
+}
+
 session_ptr request::session(bool create)
 {
 	auto it = m_impl->m_cookies.find("session_id");
@@ -83,7 +99,8 @@ session_ptr request::session(bool create)
 	auto ptr = http::session::get(it->second);
 	if( ptr )
 	{
-		ptr->expand();
+		if( ptr->is_valid() )
+			ptr->expand();
 		return ptr;
 	}
 	else if( create )
