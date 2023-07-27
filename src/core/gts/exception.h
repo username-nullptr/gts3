@@ -22,14 +22,14 @@ public:
 	const char* what() const _GLIBCXX_NOTHROW override {
 		return m_what.c_str();
 	}
-
-private:
 #if __cplusplus >= 201703L
-	GTS_DISABLE_COPY_MOVE(exception)
+private: GTS_DISABLE_COPY_MOVE(exception)
 #else
+public:
 	exception(const exception&) = default;
 	exception(exception &&other): m_what(std::move(other.m_what)) {}
 #endif
+private:
 	std::string m_what;
 };
 
