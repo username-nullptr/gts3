@@ -2,7 +2,7 @@
 #include "service.h"
 #include "service_io.h"
 #include "gts/web_global.h"
-#include "gts/http/fmt_formatter.h"
+#include "gts/http/formatter.h"
 
 #include "gts/log.h"
 #include "gts/settings.h"

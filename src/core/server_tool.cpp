@@ -1,6 +1,6 @@
 #include "server_tool.h"
 #include "gts/algorithm.h"
-#include <fmt/format.h>
+#include <cppformat>
 
 namespace gts
 {

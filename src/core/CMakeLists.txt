@@ -17,8 +17,9 @@ set(core_sources
 )
 
 set(core_headers
-	gts/gts_global.h
+	gts/cplusplus.hpp
 	gts/utility.h
+	gts/gts_global.h
 	gts/args_parser.h
 	gts/application.h
 	gts/string_list.h
@@ -29,7 +30,7 @@ set(core_headers
 	gts/tcp_socket.h
 	gts/ssl_socket.h
 	gts/registration.h
-	gts/fmt_formatter.h
+	gts/formatter.h
 	gts/exception.h
 	gts/rw_mutex.h
 	gts/uuid.h

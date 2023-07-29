@@ -1,8 +1,8 @@
-#ifndef GTS_HTTP_FMT_FORMATTER_H
-#define GTS_HTTP_FMT_FORMATTER_H
+#ifndef GTS_HTTP_FORMATTER_H
+#define GTS_HTTP_FORMATTER_H
 
-#include <gts/fmt_formatter.h>
 #include <gts/http/types.h>
+#include <gts/formatter.h>
 
 namespace gts { namespace http
 {
@@ -112,4 +112,4 @@ public:
 } //namespace fmt
 
 
-#endif //GTS_HTTP_FMT_FORMATTER_H
+#endif //GTS_HTTP_FORMATTER_H

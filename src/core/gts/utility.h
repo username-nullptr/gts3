@@ -2,6 +2,7 @@
 #define GTS_UTILITY_H
 
 #include <rttr/variant.h>
+#include <gts/cplusplus.hpp>
 
 #ifdef __GNUC__
 # include <cxxabi.h>

@@ -3,9 +3,10 @@
 #include "app_info.h"
 #include "gts/algorithm.h"
 
-#include <fmt/format.h>
+#include <cppformat>
 #include <iostream>
 #include <cstring>
+
 #include <unistd.h>
 
 namespace gts { namespace appinfo

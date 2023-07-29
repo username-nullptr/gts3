@@ -29,3 +29,4 @@ set_target_properties(fmt PROPERTIES
 
 install(TARGETS fmt DESTINATION bin)
 install(FILES ${fmt_headers} DESTINATION include/fmt)
+install(FILES cppformat DESTINATION include)

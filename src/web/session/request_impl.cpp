@@ -1,6 +1,5 @@
 #include "request_impl.h"
 #include "gts/algorithm.h"
-#include "gts/http/session.h"
 
 namespace gts { namespace http
 {
@@ -10,15 +9,6 @@ std::size_t request_impl::tcp_ip_buffer_size() const
 	tcp::socket::send_buffer_size attr;
 	m_socket->get_option(attr);
 	return attr.value();
-}
-
-session_ptr request_impl::create_session()
-{
-	auto ptr = http::session::make_shared();
-	m_cookies["session_id"] = ptr->id();
-	if( m_response )
-		m_response->set_cookie("session_id", ptr->id());
-	return ptr;
 }
 
 void request_impl::finish()

@@ -13,7 +13,7 @@
 #include <cppfilesystem>
 #include <fmt/chrono.h>
 
-#if __cplusplus <= 201703L
+#if GTS_CPLUSPLUS < 202002L
 namespace std { namespace chrono {
 using days   = std::chrono::duration<int64_t, std::ratio<86400>>;
 using weeks  = std::chrono::duration<int64_t, std::ratio<604800>>;

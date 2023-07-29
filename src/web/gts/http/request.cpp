@@ -71,43 +71,6 @@ const basic_cookies &request::cookies() const
 	return m_impl->m_cookies;
 }
 
-session_ptr request::session() const
-{
-	auto it = m_impl->m_cookies.find("session_id");
-	if( it == m_impl->m_cookies.end() )
-		return session_ptr();
-
-	auto ptr = http::session::get(it->second);
-	if( ptr )
-	{
-		if( ptr->is_valid() )
-			ptr->expand();
-		return ptr;
-	}
-	return session_ptr();
-}
-
-session_ptr request::session(bool create)
-{
-	auto it = m_impl->m_cookies.find("session_id");
-	if( it == m_impl->m_cookies.end() )
-	{
-		if( not create )
-			return session_ptr();
-		return m_impl->create_session();
-	}
-	auto ptr = http::session::get(it->second);
-	if( ptr )
-	{
-		if( ptr->is_valid() )
-			ptr->expand();
-		return ptr;
-	}
-	else if( create )
-		return m_impl->create_session();
-	return session_ptr();
-}
-
 const value &request::parameter(const std::string &key) const
 {
 	auto it = m_impl->m_parameters.find(key);
@@ -174,6 +137,9 @@ std::string request::read_body(std::error_code &error, std::size_t size)
 	std::size_t content_length = 0;
 	auto &headers = this->headers();
 
+	if( size == 0 )
+		size = m_impl->tcp_ip_buffer_size();
+
 	std::string result;
 	auto it = headers.find("content-length");
 
@@ -215,9 +181,12 @@ std::string request::read_body(std::error_code &error, std::size_t size)
 			return result;
 		}
 	}
-	else if( size == 0 )
-		size = m_impl->tcp_ip_buffer_size();
-
+	else
+	{
+		it = headers.find("transfer-coding");
+		if( it == headers.end() or it->second != "chunked" )
+			return result;
+	}
 	if( not m_impl->m_body.empty() )
 	{
 		if( size < m_impl->m_body.size() )
@@ -280,7 +249,12 @@ std::size_t request::read_body(std::error_code &error, void *buf, std::size_t si
 		if( size == 0 )
 			return 0;
 	}
-
+	else
+	{
+		it = headers.find("transfer-coding");
+		if( it == headers.end() or it->second != "chunked" )
+			return 0;
+	}
 	std::size_t offset = 0;
 	if( not m_impl->m_body.empty() )
 	{
@@ -532,6 +506,13 @@ tcp_socket &request::socket()
 {
 	assert(m_impl);
 	return *m_impl->m_socket;
+}
+
+void request::set_cookie_session_id(const std::string &id)
+{
+	m_impl->m_cookies["session_id"] = id;
+	if( m_impl->m_response )
+		m_impl->m_response->set_cookie("session_id", id);
 }
 
 }} //namespace gts::http

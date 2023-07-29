@@ -1,11 +1,12 @@
-#ifndef GTS_WEB_PLUGIN_INTERFACE_H
-#define GTS_WEB_PLUGIN_INTERFACE_H
+#ifndef GTS_WEB_REGISTRATION_H
+#define GTS_WEB_REGISTRATION_H
 
 #include <rttr/registration>
 #include <gts/web/types.h>
-#include <fmt/format.h>
 #include <gts/http.h>
 #include <gts/log.h>
+
+#include <cppformat>
 #include <future>
 
 namespace gts
@@ -539,4 +540,4 @@ private:
 #endif //GTS_PLUGIN_REGISTRATION
 
 
-#endif //GTS_WEB_PLUGIN_INTERFACE_H
+#endif //GTS_WEB_REGISTRATION_H

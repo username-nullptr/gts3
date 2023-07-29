@@ -1,11 +1,11 @@
-#ifndef GTS_FMT_FORMATTER_H
-#define GTS_FMT_FORMATTER_H
+#ifndef GTS_FORMATTER_H
+#define GTS_FORMATTER_H
 
-#include <asio.hpp>
 #include <gts/utility.h>
-#include <fmt/format.h>
-#include <fmt/chrono.h>
 #include <rttr/type>
+#include <asio.hpp>
+
+#include <cppformat>
 #include <thread>
 #include <atomic>
 #include <memory>
@@ -206,4 +206,4 @@ public:
 } //namespace fmt
 
 
-#endif //GTS_FMT_FORMATTER_H
+#endif //GTS_FORMATTER_H

@@ -27,7 +27,7 @@ set(web_headers
 	gts/http/session.h
 	gts/http/request.h
 	gts/http/response.h
-	gts/http/fmt_formatter.h
+	gts/http/formatter.h
 	gts/web/types.h
 	gts/web/config_key.h
 	gts/web/thread_pool.h

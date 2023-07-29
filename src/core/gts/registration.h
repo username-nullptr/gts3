@@ -4,7 +4,7 @@
 #include <gts/tcp_socket.h>
 #include <gts/string_list.h>
 #include <rttr/registration>
-#include <fmt/format.h>
+#include <cppformat>
 #include <iostream>
 
 namespace gts
@@ -46,8 +46,16 @@ public:
 
 public:
 	template <typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)(GTS_DECLVAL(tcp_socket_ptr&)))>
-	registration &new_connection(Func &&func, uint16_t port = 0) {
-		return register_method<registration>("", port == 0? "gts.plugin.new_connection" : fmt::format("gts.plugin.new_connection.{}", port), std::forward<Func>(func));
+	registration &new_connection(Func &&func, uint16_t port = 0)
+	{
+		if( g_func_set.emplace(reinterpret_cast<const void*>(&func)).second )
+			rttr::registration::method(port == 0? "gts.plugin.new_connection" : fmt::format("gts.plugin.new_connection.{}", port), std::forward<Func>(func));
+		else
+		{
+			std::cerr << "*** Error: gts::registration::new_connection: multiple registration." << std::endl;
+			abort();
+		}
+		return *this;
 	}
 
 public:

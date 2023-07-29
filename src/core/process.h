@@ -2,9 +2,9 @@
 #define PROCESS_H
 
 #include "gts/string_list.h"
-#include <fmt/format.h>
 #include <unordered_map>
 #include <functional>
+#include <cppformat>
 #include <asio.hpp>
 
 namespace gts

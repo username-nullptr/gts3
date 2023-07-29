@@ -2,7 +2,7 @@
 #define GTS_EXCEPTION_H
 
 #include <gts/gts_global.h>
-#include <gts/fmt_formatter.h>
+#include <gts/formatter.h>
 #include <exception>
 
 namespace gts

@@ -76,12 +76,12 @@ bool stob(const std::string &str)
 		if( stricmp(str.c_str(), "true") == 0 )
 			return true;
 		else if( stricmp(str.c_str(), "false") == 0 )
-			return true;
+			return false;
 #else
 		if( str.size() == 4 and strncasecmp(str.c_str(), "true", 4) == 0 )
 			return true;
 		else if( str.size() == 5 and strncasecmp(str.c_str(), "false", 5) == 0 )
-			return true;
+			return false;
 #endif
 		return stoi8(str);
 }
@@ -122,7 +122,7 @@ std::string str_list_join(const basic_string_list &list, const std::string &spli
 	return result;
 }
 
-#if __cplusplus > 201703L
+#if GTS_CPLUSPLUS >= 202002L
 
 bool str_starts_with(const std::string &str, const std::string &prefix)
 {
@@ -136,7 +136,7 @@ bool str_ends_with(const std::string &str, const std::string &suffix)
 
 #else //<c++20
 
-bool starts_with(const std::string &str, const std::string &prefix)
+bool str_starts_with(const std::string &str, const std::string &prefix)
 {
 	if( str.size() < prefix.size() )
 		return false;
@@ -149,7 +149,7 @@ bool starts_with(const std::string &str, const std::string &prefix)
 	return true;
 }
 
-bool ends_with(const std::string &str, const std::string &suffix)
+bool str_ends_with(const std::string &str, const std::string &suffix)
 {
 	if( str.size() < suffix.size() )
 		return false;

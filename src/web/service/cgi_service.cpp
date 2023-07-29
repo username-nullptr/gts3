@@ -102,6 +102,9 @@ void cgi_service::call()
 	for(auto &pair : m_sio.request.headers())
 		m_cgi.add_env("HTTP_" + str_to_upper(replace_http_to_env(pair.first)), pair.second);
 
+	for(auto &pair : m_sio.request.cookies())
+		m_cgi.add_env("COOKIE_" + str_to_upper(replace_http_to_env(pair.first)), pair.second);
+
 	auto it = m_sio.request.headers().find("content-length");
 	if( it != m_sio.request.headers().end() )
 		m_content_length = it->second.get<std::size_t>();
@@ -163,9 +166,11 @@ void cgi_service::async_read_socket()
 	else if( buf_size == 0 )
 		return ;
 
+	log_error("000000000000000000000000000000");
 	++m_counter;
 	m_sio.response.socket().async_read_some(m_sock_read_buf, buf_size, [this](const asio::error_code &error, std::size_t size)
 	{
+		log_error("11111111111111111111111111111111111");
 		--m_counter;
 		if( error or size == 0 or not m_cgi.is_running() )
 		{

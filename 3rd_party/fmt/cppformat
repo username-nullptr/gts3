@@ -1,0 +1,20 @@
+#if ((defined(_MSVC_LANG) && _MSVC_LANG >= 202002L) || (defined(__cplusplus) && __cplusplus >= 202002L)) && defined(__has_include)
+# if __has_include(<format>)
+#  define CORE_USE_STD_FORMAT
+#  include <format>
+namespace fmt = std;
+# endif
+#endif
+
+#ifndef CORE_USE_STD_FORMAT
+# include <fmt/compile.h>
+# include <fmt/ostream.h>
+# include <fmt/format.h>
+# include <fmt/chrono.h>
+# include <fmt/xchar.h>
+# include <fmt/color.h>
+# include <fmt/args.h>
+# include <fmt/core.h>
+# include <fmt/std.h>
+# include <fmt/os.h>
+#endif

@@ -3,6 +3,7 @@
 
 #include "gts/http/request.h"
 #include "gts/http/response.h"
+#include "gts/http/session.h"
 #include "gts/tcp_socket.h"
 
 namespace gts { namespace http
@@ -12,8 +13,18 @@ class GTS_DECL_HIDDEN request_impl
 {
 public:
 	std::size_t tcp_ip_buffer_size() const;
-	session_ptr create_session();
 	void finish();
+
+public:
+	template <typename Sesn>
+	std::shared_ptr<Sesn> create_session()
+	{
+		auto ptr = http::make_session<Sesn>();
+		m_cookies["session_id"] = ptr->id();
+		if( m_response )
+			m_response->set_cookie("session_id", ptr->id());
+		return ptr;
+	}
 
 public:
 	response *m_response = nullptr;

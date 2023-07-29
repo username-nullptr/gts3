@@ -1,7 +1,7 @@
 #include "tcp_socket.h"
-#include "gts/fmt_formatter.h"
+#include "gts/formatter.h"
 
-#include <fmt/format.h>
+#include <cppformat>
 #include <iostream>
 
 namespace gts

@@ -2,6 +2,7 @@
 #define GTS_HTTP_REQUEST_H
 
 #include <gts/http/types.h>
+#include <gts/exception.h>
 
 namespace gts {
 class tcp_socket;
@@ -35,13 +36,10 @@ public:
 	const basic_cookies &cookies() const;
 
 public:
-	session_ptr session() const;
-	session_ptr session(bool create = true);
-
-	template <class Sesn>
+	template <class Sesn = http::session>
 	std::shared_ptr<Sesn> session() const;
 
-	template <class Sesn>
+	template <class Sesn = http::session>
 	std::shared_ptr<Sesn> session(bool create = true);
 
 public:
@@ -100,6 +98,11 @@ public:
 	tcp_socket &socket();
 
 private:
+	template <class Sesn>
+	std::shared_ptr<Sesn> session_type_check(session_ptr &ptr) const;
+	void set_cookie_session_id(const std::string&);
+
+private:
 	friend class web::http_parser;
 	friend class web::service_io;
 	friend class web::session;
@@ -111,7 +114,21 @@ std::shared_ptr<Sesn> request::session() const
 {
 	static_assert(gts_is_base_of(http::session, Sesn),
 	"The template argument 'Sesn' must be a 'gts::http::session' or derived class of 'gts::http::session'.");
-	std::dynamic_pointer_cast<Sesn>(session());
+
+	using sesn_ptr = std::shared_ptr<Sesn>;
+	auto it = cookies().find("session_id");
+
+	if( it == cookies().end() )
+		return sesn_ptr();
+
+	auto ptr = http::session::get(it->second);
+	if( ptr )
+	{
+		if( ptr->is_valid() )
+			ptr->expand();
+		return session_type_check<Sesn>(ptr);
+	}
+	return sesn_ptr();
 }
 
 template <class Sesn>
@@ -119,7 +136,33 @@ std::shared_ptr<Sesn> request::session(bool create)
 {
 	static_assert(gts_is_base_of(http::session, Sesn),
 	"The template argument 'Sesn' must be a 'gts::http::session' or derived class of 'gts::http::session'.");
-	std::dynamic_pointer_cast<Sesn>(session(create));
+
+	using sesn_ptr = std::shared_ptr<Sesn>;
+	auto it = cookies().find("session_id");
+
+	if( it == cookies().end() )
+	{
+		if( not create )
+			return sesn_ptr();
+
+		auto ptr = http::make_session<Sesn>();
+		set_cookie_session_id(ptr->id());
+		return session_type_check<Sesn>(ptr);
+	}
+	auto ptr = http::session::get(it->second);
+	if( ptr )
+	{
+		if( ptr->is_valid() )
+			ptr->expand();
+		return ptr;
+	}
+	else if( create )
+	{
+		auto ptr = http::make_session<Sesn>();
+		set_cookie_session_id(ptr->id());
+		return session_type_check<Sesn>(ptr);
+	}
+	return sesn_ptr();
 }
 
 template <typename T>
@@ -168,6 +211,15 @@ inline bool request::save_file(const std::string &file_name)
 {
 	std::error_code error;
 	return save_file(file_name, error);
+}
+
+template <typename Sesn>
+std::shared_ptr<Sesn> request::session_type_check(session_ptr &ptr) const
+{
+	auto dy_ptr = std::dynamic_pointer_cast<Sesn>(ptr);
+	if( dy_ptr == nullptr )
+		throw exception("gts::http::request::session<{}>: The type of 'session' is incorrect.", type_name<Sesn>());
+	return dy_ptr;
 }
 
 }} //namespace gts::http

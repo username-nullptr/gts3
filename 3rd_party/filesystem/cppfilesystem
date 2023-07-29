@@ -2,11 +2,11 @@
 # if __has_include(<filesystem>) && (!defined(__MAC_OS_X_VERSION_MIN_REQUIRED) || __MAC_OS_X_VERSION_MIN_REQUIRED >= 101500)
 #  define CORE_USE_STD_FS
 #  include <filesystem>
-   namespace fs = std::filesystem;
+namespace fs = std::filesystem;
 # endif
 #endif
 
 #ifndef CORE_USE_STD_FS
 # include <filesystem.hpp>
-  namespace fs = core::filesystem;
+namespace fs = core::filesystem;
 #endif

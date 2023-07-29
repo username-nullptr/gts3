@@ -3,7 +3,7 @@
 
 #include <gts/web_global.h>
 #include <gts/algorithm.h>
-#include <fmt/format.h>
+#include <cppformat>
 
 namespace gts { namespace http
 {
