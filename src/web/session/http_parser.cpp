@@ -162,23 +162,10 @@ request *http_parser::state_handler_reading_headers(const std::string &line_buf)
 request *http_parser::next_request_ready()
 {
 	m_state = state::waiting_request;
-
-	if( not m_buffer.empty() )
-	{
-		auto it = m_cache->m_impl->m_headers.find("content-length");
-		if( it != m_cache->m_impl->m_headers.end() and not it->second.empty() )
-		{
-			m_cache->m_impl->m_body = m_buffer.substr(0, it->second.get<std::size_t>());
-			m_buffer.clear();
-		}
-		else
-			m_cache->m_impl->m_body = std::move(m_buffer);
-	}
-
 	auto request = m_cache;
 	m_cache = nullptr;
 
-	request->m_impl->finish();
+	request->m_impl->finish(m_buffer);
 	return request;
 }
 

@@ -88,6 +88,7 @@ public:
 public:
 	bool keep_alive() const;
 	bool support_gzip() const;
+	bool can_read_body() const;
 
 public:
 	request &operator=(request &&other);

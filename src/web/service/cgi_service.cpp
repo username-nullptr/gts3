@@ -166,11 +166,9 @@ void cgi_service::async_read_socket()
 	else if( buf_size == 0 )
 		return ;
 
-	log_error("000000000000000000000000000000");
 	++m_counter;
 	m_sio.response.socket().async_read_some(m_sock_read_buf, buf_size, [this](const asio::error_code &error, std::size_t size)
 	{
-		log_error("11111111111111111111111111111111111");
 		--m_counter;
 		if( error or size == 0 or not m_cgi.is_running() )
 		{

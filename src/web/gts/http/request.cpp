@@ -131,95 +131,27 @@ value request::cookie_or(const std::string &key, value &&deft_value) const
 	return it == m_impl->m_cookies.end()? std::move(deft_value) : it->second;
 }
 
+using rb_status = request_impl::rb_status;
+
 std::string request::read_body(std::error_code &error, std::size_t size)
 {
 	assert(m_impl);
-	std::size_t content_length = 0;
-	auto &headers = this->headers();
+	std::string result;
+	error = std::error_code();
 
-	if( size == 0 )
+	if( m_impl->m_rb_status == rb_status::finished )
+		return result;
+
+	else if( size == 0 )
 		size = m_impl->tcp_ip_buffer_size();
 
-	std::string result;
-	auto it = headers.find("content-length");
-
-	if( it != headers.end() )
-	{
-		content_length = it->second.get<std::size_t>();
-		if( m_impl->m_rclenght >= content_length )
-			return 0;
-
-		content_length -= m_impl->m_rclenght;
-		if( size == 0 )
-		{
-			if( not m_impl->m_body.empty() )
-			{
-				result += m_impl->m_body;
-				m_impl->m_body.clear();
-			}
-			if( result.size() > content_length )
-				result.erase(content_length);
-			else if( result.size() < content_length )
-			{
-				auto buf_size = m_impl->tcp_ip_buffer_size();
-				char *buf = new char[buf_size] {0};
-
-				for(;;)
-				{
-					auto res = m_impl->m_socket->read_some(buf, buf_size, error);
-					if( error )
-					{
-						delete[] buf;
-						return 0;
-					}
-					else if( res > 0 )
-						result += std::string(buf, res);
-				}
-				delete[] buf;
-			}
-			m_impl->m_rclenght += result.size();
-			return result;
-		}
-	}
-	else
-	{
-		it = headers.find("transfer-coding");
-		if( it == headers.end() or it->second != "chunked" )
-			return result;
-	}
-	if( not m_impl->m_body.empty() )
-	{
-		if( size < m_impl->m_body.size() )
-		{
-			result = m_impl->m_body.substr(0, size);
-			m_impl->m_body.erase(0, size);
-			m_impl->m_rclenght += size;
-			return result;
-		}
-		else if( size == m_impl->m_body.size() )
-		{
-			result = std::move(m_impl->m_body);
-			m_impl->m_rclenght += size;
-			return result;
-		}
-		result = std::move(m_impl->m_body);
-		size -= result.size();
-
-		if( content_length == 0 )
-			return result;
-	}
 	char *buf = new char[size] {0};
-	auto res = m_impl->m_socket->read_some(buf, size, error);
-	if( error )
-	{
-		delete[] buf;
-		return 0;
-	}
-	else if( res > 0 )
-	{
-		result += std::string(buf, res);
-		m_impl->m_rclenght += res;
-	}
+	if( m_impl->m_rb_status == rb_status::length )
+		size = m_impl->read_body_length_mode(error, buf, size);
+	else
+		size = m_impl->read_body_chunked_mode(error, buf, size);
+
+	result = std::string(buf, size);
 	delete[] buf;
 	return result;
 }
@@ -227,76 +159,26 @@ std::string request::read_body(std::error_code &error, std::size_t size)
 std::size_t request::read_body(std::error_code &error, void *buf, std::size_t size)
 {
 	assert(m_impl);
+	error = std::error_code();
+
 	if( size == 0 )
 	{
 		log_warning("request::read_body: size is 0.");
 		return 0;
 	}
-
-	std::size_t content_length = 0;
-	auto &headers = this->headers();
-
-	auto it = headers.find("content-length");
-	if( it != headers.end() )
-	{
-		content_length = it->second.get<std::size_t>();
-		if( m_impl->m_rclenght >= content_length )
-			return 0;
-
-		content_length -= m_impl->m_rclenght;
-		if( content_length < size )
-			size = content_length;
-		if( size == 0 )
-			return 0;
-	}
-	else
-	{
-		it = headers.find("transfer-coding");
-		if( it == headers.end() or it->second != "chunked" )
-			return 0;
-	}
-	std::size_t offset = 0;
-	if( not m_impl->m_body.empty() )
-	{
-		if( size < m_impl->m_body.size() )
-		{
-			memcpy(buf, m_impl->m_body.c_str(), size);
-			m_impl->m_body.erase(0, size);
-			m_impl->m_rclenght += size;
-			return size;
-		}
-		memcpy(buf, m_impl->m_body.c_str(), m_impl->m_body.size());
-		if( size == m_impl->m_body.size() )
-		{
-			m_impl->m_body.clear();
-			m_impl->m_rclenght += size;
-			return size;
-		}
-		size -= m_impl->m_body.size();
-		offset += m_impl->m_body.size();
-		m_impl->m_body.clear();
-
-		if( content_length == 0 )
-			return offset;
-	}
-	auto res = m_impl->m_socket->read_some(static_cast<char*>(buf) + offset, size, error);
-	if( error )
+	else if( m_impl->m_rb_status == rb_status::finished )
 		return 0;
 
-	auto result =  offset + (res > 0 ? res : 0);
-	m_impl->m_rclenght += result;
-	return result;
+	else if( m_impl->m_rb_status == rb_status::length )
+		size = m_impl->read_body_length_mode(error, buf, size);
+	else
+		size = m_impl->read_body_chunked_mode(error, buf, size);
+	return size;
 }
 
 bool request::save_file(const std::string &_file_name, asio::error_code &error)
 {
-	if( m_impl->m_rclenght > 0 )
-	{
-		log_error("request::save_file: 'read_body' has been called.");
-		error = std::make_error_code(std::errc::invalid_argument);
-		return false;
-	}
-	else if( _file_name.empty() )
+	if( _file_name.empty() )
 	{
 		log_error("request::save_file: file_name is empty.");
 		error = std::make_error_code(std::errc::invalid_argument);
@@ -312,146 +194,23 @@ bool request::save_file(const std::string &_file_name, asio::error_code &error)
 		return false;
 	}
 
-	auto &headers = this->headers();
-	auto it = headers.find("content-length");
+	auto tcp_buf_size = m_impl->tcp_ip_buffer_size();
+	char *buf = new char[tcp_buf_size] {0};
 
-	if( it != headers.end() )
+	while( can_read_body() )
 	{
-		auto tcp_buf_size = m_impl->tcp_ip_buffer_size();
-		auto asize = it->second.get<std::size_t>();
-		char *buf = new char[tcp_buf_size] {0};
-
-		while( asize > 0 )
+		auto res = read_body(error, buf, tcp_buf_size);
+		if( error )
 		{
-			auto res = read_body(error, buf, asize > tcp_buf_size ? tcp_buf_size : asize);
-			if( error )
-			{
-				delete[] buf;
-				return false;
-			}
-			asize -= res;
-			file.write(buf, res);
-		}
-		file.close();
-		delete[] buf;
-		return true;
-	}
-	else if( version() == "1.1" )
-	{
-		it = headers.find("transfer-coding");
-		if( it == headers.end() or it->second != "chunked" )
-		{
-			log_warning("http protocol format error.");
 			file.close();
+			delete[] buf;
 			return false;
 		}
-
-		auto tcp_buf_size = m_impl->tcp_ip_buffer_size();
-		char *buf = new char[tcp_buf_size] {0};
-		std::string abuf;
-
-		enum class status
-		{
-			wait_size,
-			wait_content,
-			wait_headers
-		}
-		_status = status::wait_size;
-
-		for(;;)
-		{
-			auto res = read_body(error, buf, tcp_buf_size);
-			if( error )
-			{
-				file.close();
-				delete[] buf;
-				return false;
-			}
-
-			abuf.append(buf, res);
-			std::size_t _size = 0;
-
-			auto lambda_reset = [&](const char *msg)
-			{
-				log_warning(msg);
-				error = std::make_error_code(std::errc::wrong_protocol_type);
-				file.close();
-				fs::remove(file_name);
-				delete[] buf;
-			};
-			while( not abuf.empty() )
-			{
-				auto pos = abuf.find("\r\n");
-				if( pos == abuf.npos )
-				{
-					if( abuf.size() >= 1024 )
-					{
-						lambda_reset("Http protocol format error.");
-						return false;
-					}
-					break;
-				}
-
-				auto line_buf = abuf.substr(0, pos + 2);
-				abuf.erase(0, pos + 2);
-
-				if( _status == status::wait_size )
-				{
-					line_buf.erase(pos);
-					auto pos = line_buf.find(";");
-					if( pos != line_buf.npos )
-						line_buf.erase(pos);
-
-					if( line_buf.size() > 16 )
-					{
-						lambda_reset("Http protocol format error.");
-						return false;
-					}
-					try {
-						_size = static_cast<std::size_t>(std::stoull(line_buf, nullptr, 16));
-					} catch(...) {
-						lambda_reset("Http protocol format error.");
-						return false;
-					}
-					_status = _size == 0 ? status::wait_headers : status::wait_content;
-				}
-				else if( _status == status::wait_content )
-				{
-					line_buf.erase(pos);
-					if( _size < line_buf.size() )
-						_size = line_buf.size();
-					else
-						_status = status::wait_size;
-					file.write(line_buf.c_str(), _size);
-				}
-				else if( _status == status::wait_headers )
-				{
-					if( line_buf == "\r\n" )
-					{
-						file.close();
-						delete[] buf;
-						return true;
-					}
-					auto colon_index = line_buf.find(':');
-					if( colon_index == line_buf.npos )
-					{
-						lambda_reset("Invalid header line.");
-						return false;
-					}
-					auto header_key = str_to_lower(str_trimmed(line_buf.substr(0, colon_index)));
-					auto header_value = from_percent_encoding(str_trimmed(line_buf.substr(colon_index + 1)));
-					m_impl->m_headers[header_key] = header_value;
-				}
-			}
-		}
+		file.write(buf, res);
 	}
-	log_error("request::save_file: Insufficient 'http' condition.\n"
-			  "    version: {}\n"
-			  "    content-length: not found\n"
-			  "    transfer-coding: chunked: not found", version());
-	error = std::make_error_code(std::errc::invalid_argument);
 	file.close();
-	return false;
+	delete[] buf;
+	return true;
 }
 
 bool request::keep_alive() const
@@ -464,6 +223,12 @@ bool request::support_gzip() const
 {
 	assert(m_impl);
 	return m_impl->m_support_gzip;
+}
+
+bool request::can_read_body() const
+{
+	assert(m_impl);
+	return m_impl->m_rb_status != rb_status::finished;
 }
 
 request &request::operator=(request &&other)

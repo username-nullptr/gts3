@@ -69,6 +69,19 @@ GTS_DECL_EXPORT void save_file(http::response &response, http::request &request)
 	else
 	{
 		std::error_code error;
+#if 0
+		while( request.can_read_body() )
+		{
+			auto buf = request.read_body(error);
+			if( error )
+			{
+				response.set_status(http::hs_bad_request).write(error.message());
+				return;
+			}
+			std::cerr << buf << std::endl << std::endl;
+		}
+		response.write("OK");
+#else
 		if( request.save_file(resource_root() + "upload/" + it->second, error) == false )
 		{
 			response.set_status(http::hs_bad_request).write(error.message());
@@ -81,6 +94,7 @@ GTS_DECL_EXPORT void save_file(http::response &response, http::request &request)
 
 		body.erase(body.size() - 2);
 		response.write(body);
+#endif
 	}
 }
 
