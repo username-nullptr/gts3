@@ -44,7 +44,7 @@ class formatter<gts::exception> : public gts::no_parse_formatter
 public:
 	template <typename Context>
 	inline auto format(const gts::exception &ex, Context &&context) -> decltype(context.out()) {
-		return fmt::format("{}", ex.what());
+		return format_to(context.out(), "{}", ex.what());
 	}
 };
 

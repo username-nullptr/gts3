@@ -83,8 +83,11 @@ response::response(response &&other) :
 
 response::~response()
 {
-	if( m_impl )
-		delete m_impl;
+	if( m_impl == nullptr )
+		return ;
+	else if( not m_impl->m_headers_writed )
+		write_default();
+	delete m_impl;
 }
 
 response &response::set_status(int status)

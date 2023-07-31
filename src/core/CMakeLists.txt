@@ -71,5 +71,5 @@ install(TARGETS gtscore DESTINATION bin)
 
 install(DIRECTORY gts
 	DESTINATION include
-	FILES_MATCHING PATTERN "*.h"
+	FILES_MATCHING PATTERN "*.h*"
 )
