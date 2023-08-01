@@ -14,14 +14,13 @@ class request_impl;
 
 class GTSWEB_API request
 {
-	GTS_DISABLE_COPY(request)
+	GTS_DISABLE_COPY_MOVE(request)
 
 	template <typename T>
 	using not_value_t = enable_if_t<not gts_is_dsame(T, http::value), int>;
 
 public:
 	request();
-	request(request &&other);
 	~request();
 
 public:
@@ -91,7 +90,6 @@ public:
 	bool can_read_body() const;
 
 public:
-	request &operator=(request &&other);
 	bool is_valid() const;
 
 public:

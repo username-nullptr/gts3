@@ -14,6 +14,8 @@ static std::unordered_map<std::string, session_ptr> g_session_hash;
 
 static rw_mutex g_rw_mutex;
 
+using duration = std::chrono::seconds;
+
 using unique_lock = std::unique_lock<rw_mutex>;
 
 class GTS_DECL_HIDDEN session_impl
@@ -21,15 +23,15 @@ class GTS_DECL_HIDDEN session_impl
 	GTS_DISABLE_COPY_MOVE(session_impl)
 
 public:
-	explicit session_impl(uint64_t s) {
+	explicit session_impl(const duration &s) {
 		set_lifecycle(s);
 	}
 
 public:
-	void set_lifecycle(uint64_t s)
+	void set_lifecycle(const duration &s)
 	{
-		if( s > 0 )
-			m_lifecycle = s;
+		if( s.count() > 0 )
+			m_lifecycle = s.count();
 		else
 			m_lifecycle = g_global_lifecycle.load();
 	}
@@ -79,7 +81,7 @@ public:
 
 /*------------------------------------------------------------------------------------------------------------*/
 
-session::session(uint64_t s) :
+session::session(const duration &s) :
 	m_impl(new session_impl(s))
 {
 
@@ -202,11 +204,11 @@ uint64_t session::lifecycle() const
 	return m_impl->m_lifecycle;
 }
 
-session &session::set_lifecycle(uint64_t s)
+session &session::set_lifecycle(const duration &s)
 {
 	m_impl->set_lifecycle(s);
 	uint64_t ctime = duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
-	uint64_t cat = m_impl->m_create_time + s;
+	uint64_t cat = m_impl->m_create_time + s.count();
 
 	if( ctime < cat )
 		m_impl->restart(ctime - cat);
@@ -215,10 +217,10 @@ session &session::set_lifecycle(uint64_t s)
 	return *this;
 }
 
-session &session::expand(uint64_t s)
+session &session::expand(const duration &s)
 {
-	if( s > 0 )
-		m_impl->m_lifecycle = s;
+	if( s.count() > 0 )
+		m_impl->m_lifecycle = s.count();
 	m_impl->restart();
 	return *this;
 }
@@ -232,7 +234,7 @@ void session::invalidate()
 	m_impl->m_timer.cancel();
 }
 
-session_ptr session::make_shared(uint64_t s)
+session_ptr session::make_shared(const duration &s)
 {
 	auto obj = new session(s); set(obj);
 	return session::get(obj->id());
@@ -257,15 +259,15 @@ void session::set(session *obj)
 	obj->m_impl->restart();
 }
 
-void session::set_global_lifecycle(uint64_t seconds)
+void session::set_global_lifecycle(const duration &seconds)
 {
-	if( seconds > 0 )
-		g_global_lifecycle = seconds;
+	if( seconds.count() > 0 )
+		g_global_lifecycle = seconds.count();
 }
 
-uint64_t session::global_lifecycle()
+duration session::global_lifecycle()
 {
-	return g_global_lifecycle;
+	return duration(g_global_lifecycle);
 }
 
 }} //namespace gts::http

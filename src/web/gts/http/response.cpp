@@ -74,13 +74,6 @@ response::response(http::request &request, const http::headers &headers, http::s
 	m_impl->m_headers = headers;
 }
 
-response::response(response &&other) :
-	m_impl(other.m_impl)
-{
-	assert(other.m_impl);
-	other.m_impl = nullptr;
-}
-
 response::~response()
 {
 	if( m_impl == nullptr )
@@ -92,14 +85,12 @@ response::~response()
 
 response &response::set_status(int status)
 {
-	assert(m_impl);
 	m_impl->m_status = static_cast<http::status>(status);
 	return *this;
 }
 
 response &response::set_header(const std::string &key, const std::string &value)
 {
-	assert(m_impl);
 	auto res = m_impl->m_headers.emplace(key, value);
 	if( res.second == false and res.first != m_impl->m_headers.end() )
 		res.first->second = value;
@@ -108,7 +99,6 @@ response &response::set_header(const std::string &key, const std::string &value)
 
 response &response::set_header(const std::string &key, std::string &&value)
 {
-	assert(m_impl);
 	auto res = m_impl->m_headers.emplace(key, std::move(value));
 	if( res.second == false and res.first != m_impl->m_headers.end() )
 		res.first->second = std::move(value);
@@ -117,7 +107,6 @@ response &response::set_header(const std::string &key, std::string &&value)
 
 response &response::set_cookie(const std::string &key, const http::cookie &cookie)
 {
-	assert(m_impl);
 	auto res = m_impl->m_cookies.emplace(key, cookie);
 	if( res.second == false and res.first != m_impl->m_cookies.end() )
 		res.first->second = cookie;
@@ -126,7 +115,6 @@ response &response::set_cookie(const std::string &key, const http::cookie &cooki
 
 response &response::set_cookie(const std::string &key, http::cookie &&cookie)
 {
-	assert(m_impl);
 	auto res = m_impl->m_cookies.emplace(key, std::move(cookie));
 	if( res.second == false and res.first != m_impl->m_cookies.end() )
 		res.first->second = std::move(cookie);
@@ -135,37 +123,31 @@ response &response::set_cookie(const std::string &key, http::cookie &&cookie)
 
 std::string response::version() const
 {
-	assert(m_impl);
 	return m_impl->m_request.version();
 }
 
 status response::status() const
 {
-	assert(m_impl);
 	return m_impl->m_status;
 }
 
 const headers &response::headers() const
 {
-	assert(m_impl);
 	return m_impl->m_headers;
 }
 
 headers &response::headers()
 {
-	assert(m_impl);
 	return m_impl->m_headers;
 }
 
 const http::cookies &response::cookies() const
 {
-	assert(m_impl);
 	return m_impl->m_cookies;
 }
 
 http::cookies &response::cookies()
 {
-	assert(m_impl);
 	return m_impl->m_cookies;
 }
 
@@ -229,7 +211,6 @@ static std::function<void(response&)> g_write_default {nullptr};
 
 response &response::write_default()
 {
-	assert(m_impl);
 	if( m_impl->m_headers_writed )
 	{
 		log_warning("The http protocol header is sent repeatedly. (auto ignore)");
@@ -256,7 +237,6 @@ response &response::write_default()
 
 response &response::write(std::size_t size, const void *body)
 {
-	assert(m_impl);
 	if( m_impl->m_headers_writed )
 	{
 		log_warning("The http protocol header is sent repeatedly. (auto ignore)");
@@ -680,7 +660,6 @@ private:
 
 response &response::write_file(const std::string &file_name)
 {
-	assert(m_impl);
 	if( m_impl->m_headers_writed )
 	{
 		log_warning("The http protocol header is sent repeatedly. (auto ignore)");
@@ -692,7 +671,6 @@ response &response::write_file(const std::string &file_name)
 
 response &response::write_file(const std::string &file_name, const std::string &range_http_value)
 {
-	assert(m_impl);
 	if( m_impl->m_headers_writed )
 	{
 		log_warning("The http protocol header is sent repeatedly. (auto ignore)");
@@ -735,14 +713,12 @@ response &response::redirect(const std::string &url, redirect_type type)
 
 response &response::unset_header(const std::string &key)
 {
-	assert(m_impl);
 	m_impl->m_headers.erase(key);
 	return *this;
 }
 
 response &response::unset_cookie(const std::string &key)
 {
-	assert(m_impl);
 	m_impl->m_cookies.erase(key);
 	return *this;
 }
@@ -754,25 +730,12 @@ void response::close(bool force)
 
 const tcp_socket &response::socket() const
 {
-	assert(m_impl);
 	return m_impl->m_request.socket();
 }
 
 tcp_socket &response::socket()
 {
-	assert(m_impl);
 	return m_impl->m_request.socket();
-}
-
-response &response::operator=(response &&other)
-{
-	assert(other.m_impl);
-	if( m_impl )
-		delete m_impl;
-
-	m_impl = other.m_impl;
-	other.m_impl = nullptr;
-	return *this;
 }
 
 void response::set_default_write(std::function<void(response&)> func)

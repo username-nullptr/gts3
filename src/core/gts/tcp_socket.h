@@ -12,6 +12,7 @@ namespace gts
 class GTSCORE_API tcp_socket
 {
 	GTS_DISABLE_COPY_MOVE(tcp_socket)
+	using duration = std::chrono::milliseconds;
 
 public:
 	explicit tcp_socket(tcp::socket *sock);
@@ -45,11 +46,17 @@ public:
 	void write_some_nonblock(const std::string &buf);
 	void write_some_nonblock(const void *buf, std::size_t size);
 
-public: // TODO ......
-	bool wait_writeable(std::size_t ms, asio::error_code &error);
-	bool wait_readable(std::size_t ms, asio::error_code &error);
-	bool wait_writeable(std::size_t ms);
-	bool wait_readable(std::size_t ms);
+public:
+	std::size_t read_some(std::string &buf, const duration &timeout, asio::error_code &error);
+	std::size_t read_some(void *buf, std::size_t size, const duration &timeout, asio::error_code &error);
+	std::size_t read_some(std::string &buf, const duration &timeout);
+	std::size_t read_some(void *buf, std::size_t size, const duration &timeout);
+
+public:
+	bool wait_writeable(const duration &ms, asio::error_code &error);
+	bool wait_readable(const duration &ms, asio::error_code &error);
+	bool wait_writeable(const duration &ms);
+	bool wait_readable(const duration &ms);
 
 public:
 	tcp::endpoint remote_endpoint(asio::error_code &error);
@@ -91,6 +98,7 @@ public:
 	tcp::socket &native();
 
 protected:
+	static void error(const asio::error_code &error, const char *func);
 	tcp::socket *m_sock;
 };
 
@@ -110,8 +118,12 @@ void tcp_socket::set_option(const SettableSocketOption& option, asio::error_code
 }
 
 template <typename SettableSocketOption>
-void tcp_socket::set_option(const SettableSocketOption& option) {
-	m_sock->set_option(option);
+void tcp_socket::set_option(const SettableSocketOption& option)
+{
+	asio::error_code error;
+	m_sock->set_option(option, error);
+	if( error )
+		this->error(error, "set_option");
 }
 
 template <typename GettableSocketOption>
@@ -120,8 +132,12 @@ void tcp_socket::get_option(GettableSocketOption& option, asio::error_code &erro
 }
 
 template <typename GettableSocketOption>
-void tcp_socket::get_option(GettableSocketOption& option) const {
-	m_sock->get_option(option);
+void tcp_socket::get_option(GettableSocketOption& option) const
+{
+	asio::error_code error;
+	m_sock->get_option(option, error);
+	if( error )
+		this->error(error, "get_option");
 }
 
 } //namespace gts

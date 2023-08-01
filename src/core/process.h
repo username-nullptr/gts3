@@ -49,7 +49,7 @@ public:
 	bool is_running() const;
 	void join();
 
-public:
+public: // TODO...
 	int write(const char *buf, int size, int timeout = -1);
 	int read(const char *buf, int size, int timeout = -1);
 

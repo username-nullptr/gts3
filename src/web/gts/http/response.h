@@ -15,7 +15,7 @@ class response_impl;
 
 class GTSWEB_API response
 {
-	GTS_DISABLE_COPY(response)
+	GTS_DISABLE_COPY_MOVE(response)
 
 	template <typename T>
 	using is_string = http::value::is_string<T>;
@@ -29,9 +29,6 @@ class GTSWEB_API response
 public:
 	explicit response(http::request &request, http::status status = hs_ok);
 	response(http::request &request, const http::headers &headers, http::status status = hs_ok);
-
-public:
-	response(response &&other);
 	~response();
 
 public:
@@ -150,7 +147,6 @@ public:
 	tcp_socket &socket();
 
 public:
-	response &operator=(response &&other);
 	static void set_default_write(std::function<void(response&)>);
 
 private:

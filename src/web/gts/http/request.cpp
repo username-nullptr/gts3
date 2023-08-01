@@ -16,13 +16,6 @@ request::request() :
 
 }
 
-request::request(request &&other) :
-	m_impl(other.m_impl)
-{
-	assert(other.m_impl);
-	other.m_impl = nullptr;
-}
-
 request::~request()
 {
 	if( m_impl )
@@ -31,43 +24,36 @@ request::~request()
 
 method request::method() const
 {
-	assert(m_impl);
 	return m_impl->m_method;
 }
 
 std::string request::version() const
 {
-	assert(m_impl);
 	return m_impl->m_version;
 }
 
 std::string request::path() const
 {
-	assert(m_impl);
 	return m_impl->m_path;
 }
 
 std::string request::parameters_string() const
 {
-	assert(m_impl);
 	return m_impl->m_parameters_string;
 }
 
 const parameters &request::parameters() const
 {
-	assert(m_impl);
 	return m_impl->m_parameters;
 }
 
 const headers &request::headers() const
 {
-	assert(m_impl);
 	return m_impl->m_headers;
 }
 
 const basic_cookies &request::cookies() const
 {
-	assert(m_impl);
 	return m_impl->m_cookies;
 }
 
@@ -135,7 +121,6 @@ using rb_status = request_impl::rb_status;
 
 std::string request::read_body(std::error_code &error, std::size_t size)
 {
-	assert(m_impl);
 	std::string result;
 	error = std::error_code();
 
@@ -158,9 +143,7 @@ std::string request::read_body(std::error_code &error, std::size_t size)
 
 std::size_t request::read_body(std::error_code &error, void *buf, std::size_t size)
 {
-	assert(m_impl);
 	error = std::error_code();
-
 	if( size == 0 )
 	{
 		log_warning("request::read_body: size is 0.");
@@ -184,7 +167,6 @@ bool request::save_file(const std::string &_file_name, asio::error_code &error)
 		error = std::make_error_code(std::errc::invalid_argument);
 		return false;
 	}
-
 	auto file_name = app::absolute_path(_file_name);
 	std::fstream file(file_name, std::ios_base::out);
 
@@ -193,9 +175,8 @@ bool request::save_file(const std::string &_file_name, asio::error_code &error)
 		error = std::make_error_code(static_cast<std::errc>(errno));
 		return false;
 	}
-
 	auto tcp_buf_size = m_impl->tcp_ip_buffer_size();
-	char *buf = new char[tcp_buf_size] {0};
+	char *buf = new char[65536] {0};
 
 	while( can_read_body() )
 	{
@@ -206,6 +187,8 @@ bool request::save_file(const std::string &_file_name, asio::error_code &error)
 			delete[] buf;
 			return false;
 		}
+		else if( res == 0 )
+			continue;
 		file.write(buf, res);
 	}
 	file.close();
@@ -215,31 +198,17 @@ bool request::save_file(const std::string &_file_name, asio::error_code &error)
 
 bool request::keep_alive() const
 {
-	assert(m_impl);
 	return m_impl->m_keep_alive;
 }
 
 bool request::support_gzip() const
 {
-	assert(m_impl);
 	return m_impl->m_support_gzip;
 }
 
 bool request::can_read_body() const
 {
-	assert(m_impl);
 	return m_impl->m_rb_status != rb_status::finished;
-}
-
-request &request::operator=(request &&other)
-{
-	assert(other.m_impl);
-	if( m_impl )
-		delete m_impl;
-
-	m_impl = other.m_impl;
-	other.m_impl = nullptr;
-	return *this;
 }
 
 bool request::is_valid() const
@@ -263,13 +232,11 @@ bool request::is_valid() const
 
 const tcp_socket &request::socket() const
 {
-	assert(m_impl);
 	return *m_impl->m_socket;
 }
 
 tcp_socket &request::socket()
 {
-	assert(m_impl);
 	return *m_impl->m_socket;
 }
 

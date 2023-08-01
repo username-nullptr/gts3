@@ -86,7 +86,7 @@ std::size_t tcp_socket::write_some(const std::string &buf)
 	asio::error_code error;
 	auto res = write_some(buf, error);
 	if( error )
-		std::cerr << fmt::format("*** Error: tcp_socket::write_some(std::string) error: {}", error) << std::endl;
+		this->error(error, "write_some(std::string)");
 	return res;
 }
 
@@ -95,7 +95,7 @@ std::size_t tcp_socket::write_some(const void *buf, std::size_t size)
 	asio::error_code error;
 	auto res = write_some(buf, size, error);
 	if( error )
-		std::cerr << fmt::format("*** Error: tcp_socket::write_some(void*) error: {}", error) << std::endl;
+		this->error(error, "write_some(void*)");
 	return res;
 }
 
@@ -104,7 +104,7 @@ std::size_t tcp_socket::read_some(std::string &buf)
 	asio::error_code error;
 	auto res = read_some(buf, error);
 	if( error )
-		std::cerr << fmt::format("*** Error: tcp_socket::read_some(std::string) error: {}", error) << std::endl;
+		this->error(error, "read_some(std::string)");
 	return res;
 }
 
@@ -113,7 +113,7 @@ std::size_t tcp_socket::read_some(void *buf, std::size_t size)
 	asio::error_code error;
 	auto res = read_some(buf, size, error);
 	if( error )
-		std::cerr << fmt::format("*** Error: tcp_socket::read_some(void*) error: {}", error) << std::endl;
+		this->error(error, "read_some(void*)");
 	return res;
 }
 
@@ -122,7 +122,7 @@ void tcp_socket::async_write_some(const std::string &buf, std::function<void(std
 	async_write_some(buf, [callback](const asio::error_code &error, std::size_t size)
 	{
 		if( error )
-			std::cerr << fmt::format("*** Error: tcp_socket::async_write_some(std::string) error: {}", error) << std::endl;
+			tcp_socket::error(error, "async_write_some(std::string)");
 		callback(size);
 	});
 }
@@ -132,7 +132,7 @@ void tcp_socket::async_write_some(const void *buf, std::size_t size, std::functi
 	async_write_some(buf, size, [callback](const asio::error_code &error, std::size_t size)
 	{
 		if( error )
-			std::cerr << fmt::format("*** Error: tcp_socket::async_write_some(void*) error: {}", error) << std::endl;
+			tcp_socket::error(error, "async_write_some(void*)");
 		callback(size);
 	});
 }
@@ -142,7 +142,7 @@ void tcp_socket::async_read_some(std::string &buf, std::function<void(std::size_
 	async_read_some(buf, [callback](const asio::error_code &error, std::size_t size)
 	{
 		if( error )
-			std::cerr << fmt::format("*** Error: tcp_socket::async_read_some(std::string) error: {}", error) << std::endl;
+			tcp_socket::error(error, "async_read_some(std::string)");
 		callback(size);
 	});
 }
@@ -152,9 +152,43 @@ void tcp_socket::async_read_some(void *buf, std::size_t size, std::function<void
 	async_read_some(buf, size, [callback](const asio::error_code &error, std::size_t size)
 	{
 		if( error )
-			std::cerr << fmt::format("*** Error: tcp_socket::async_read_some(void*) error: {}", error) << std::endl;
+			tcp_socket::error(error, "async_read_some(void*)");
 		callback(size);
 	});
+}
+
+std::size_t tcp_socket::read_some(std::string &buf, const duration &timeout, asio::error_code &error)
+{
+	if( wait_readable(timeout, error) )
+		return read_some(buf, error);
+	return 0;
+}
+
+std::size_t tcp_socket::read_some(void *buf, std::size_t size, const duration &timeout, asio::error_code &error)
+{
+	if( wait_readable(timeout, error) )
+		return read_some(buf, size, error);
+	return 0;
+}
+
+std::size_t tcp_socket::read_some(std::string &buf, const duration &timeout)
+{
+	asio::error_code error;
+	if( wait_readable(timeout, error) )
+		return read_some(buf);
+	else if( error )
+		this->error(error, "read_some: wait_readable");
+	return 0;
+}
+
+std::size_t tcp_socket::read_some(void *buf, std::size_t size, const duration &timeout)
+{
+	asio::error_code error;
+	if( wait_readable(timeout, error) )
+		return read_some(buf, size);
+	else if( error )
+		this->error(error, "read_some: wait_readable");
+	return 0;
 }
 
 tcp::endpoint tcp_socket::remote_endpoint(asio::error_code &error)
@@ -164,7 +198,11 @@ tcp::endpoint tcp_socket::remote_endpoint(asio::error_code &error)
 
 tcp::endpoint tcp_socket::remote_endpoint()
 {
-	return m_sock->remote_endpoint();
+	asio::error_code error;
+	auto res = m_sock->remote_endpoint(error);
+	if( error )
+		this->error(error, "remote_endpoint");
+	return res;
 }
 
 tcp::endpoint tcp_socket::local_endpoint(asio::error_code &error)
@@ -174,7 +212,11 @@ tcp::endpoint tcp_socket::local_endpoint(asio::error_code &error)
 
 tcp::endpoint tcp_socket::local_endpoint()
 {
-	return m_sock->local_endpoint();
+	asio::error_code error;
+	auto res = m_sock->local_endpoint(error);
+	if( error )
+		this->error(error, "local_endpoint");
+	return res;
 }
 
 void tcp_socket::shutdown(asio::error_code &error, tcp::socket::shutdown_type what)
@@ -184,7 +226,10 @@ void tcp_socket::shutdown(asio::error_code &error, tcp::socket::shutdown_type wh
 
 void tcp_socket::shutdown(tcp::socket::shutdown_type what)
 {
-	m_sock->shutdown(what);
+	asio::error_code error;
+	m_sock->shutdown(what, error);
+	if( error )
+		this->error(error, "shutdown");
 }
 
 bool tcp_socket::is_open() const
@@ -201,9 +246,16 @@ void tcp_socket::close(asio::error_code &error, bool _shutdown)
 
 void tcp_socket::close(bool _shutdown)
 {
+	asio::error_code error;
 	if( _shutdown )
-		shutdown(tcp::socket::shutdown_both);
-	m_sock->close();
+	{
+		shutdown(error, tcp::socket::shutdown_both);
+		if( error )
+			this->error(error, "close: shutdown");
+	}
+	m_sock->close(error);
+	if( error )
+		this->error(error, "close");
 }
 
 void tcp_socket::non_blocking(bool mode, asio::error_code &error)
@@ -213,7 +265,10 @@ void tcp_socket::non_blocking(bool mode, asio::error_code &error)
 
 void tcp_socket::non_blocking(bool mode)
 {
-	m_sock->non_blocking(mode);
+	asio::error_code error;
+	m_sock->non_blocking(mode, error);
+	if( error )
+		this->error(error, "non_blocking");
 }
 
 bool tcp_socket::non_blocking() const
@@ -229,6 +284,11 @@ const tcp::socket &tcp_socket::native() const
 tcp::socket &tcp_socket::native()
 {
 	return *m_sock;
+}
+
+void tcp_socket::error(const asio::error_code &error, const char *func)
+{
+	std::cerr << fmt::format("*** Error: tcp_socket::{}: {}", func, error) << std::endl;
 }
 
 } //namespace gts

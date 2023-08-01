@@ -14,12 +14,13 @@ using session_attributes = std::unordered_map<std::string, rttr::variant>;
 class GTSWEB_API session
 {
 	GTS_DISABLE_COPY_MOVE(session)
+	using duration = std::chrono::seconds;
 
 	template <typename T>
 	using not_variant_t = enable_if_t<not gts_is_dsame(T, rttr::variant), int>;
 
 public:
-	explicit session(uint64_t seconds = 0);
+	explicit session(const duration &seconds = duration(0));
 	~session();
 
 public:
@@ -55,18 +56,18 @@ public:
 
 public:
 	uint64_t lifecycle() const;
-	session &set_lifecycle(uint64_t seconds = 0);
-	session &expand(uint64_t seconds = 0);
+	session &set_lifecycle(const duration &seconds = duration(0));
+	session &expand(const duration &seconds = duration(0));
 	void invalidate();
 
 public:
-	static std::shared_ptr<session> make_shared(uint64_t seconds = 0);
+	static std::shared_ptr<session> make_shared(const duration &seconds = duration(0));
 	static std::shared_ptr<session> get(const std::string &id);
 	static void set(session *obj);
 
 public:
-	static void set_global_lifecycle(uint64_t seconds);
-	static uint64_t global_lifecycle();
+	static void set_global_lifecycle(const duration &seconds);
+	static duration global_lifecycle();
 
 private:
 	session_impl *m_impl;
@@ -75,7 +76,7 @@ private:
 using session_ptr = std::shared_ptr<session>;
 
 template <class Sesn = session>
-GTSWEB_API std::shared_ptr<Sesn> make_session(uint64_t seconds = 0)
+GTSWEB_API std::shared_ptr<Sesn> make_session(const std::chrono::seconds &seconds = std::chrono::seconds(0))
 {
 	static_assert(gts_is_base_of(session, Sesn),
 	"The template argument 'Sesn' must be a 'gts::http::session' or derived class of 'gts::http::session'.");

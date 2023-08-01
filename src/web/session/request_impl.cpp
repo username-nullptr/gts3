@@ -2,6 +2,8 @@
 #include "gts/algorithm.h"
 #include "gts/log.h"
 
+using namespace std::chrono;
+
 namespace gts { namespace http
 {
 
@@ -74,25 +76,27 @@ std::size_t request_impl::read_body_length_mode(std::error_code &error, void *bu
 	std::size_t sum = 0;
 	if( size > m_body.size() )
 	{
-		memcpy(buf, m_body.c_str(), m_body.size());
-		tplen -= m_body.size();
-		size -= m_body.size();
-
-		sum += m_body.size();
-		m_body.clear();
-
-		while( tplen > 0 and sum < size )
+		if( not m_body.empty() )
 		{
-			auto res = m_socket->read_some(reinterpret_cast<char*>(buf) + sum, size, error);
+			memcpy(buf, m_body.c_str(), m_body.size());
+			tplen -= m_body.size();
+			size -= m_body.size();
+
+			sum += m_body.size();
+			m_body.clear();
+		}
+		char *cbuf = reinterpret_cast<char*>(buf) + sum;
+		while( tplen > 0 and size > 0 )
+		{
+			auto res = m_socket->read_some(cbuf, size, seconds(30), error);
+
+			cbuf += res;
 			sum += res;
 
-			if( sum >= tplen )
-			{
-				tplen = 0;
-				break;
-			}
-			tplen -= sum;
-			if( error )
+			size -= res;
+			tplen -= res;
+
+			if( tplen == 0 or error )
 				break;
 		}
 	}
@@ -116,7 +120,6 @@ std::size_t request_impl::read_body_chunked_mode(std::error_code &error, void *b
 		m_body.erase(0,size);
 		return size;
 	}
-
 	std::size_t sum = 0;
 	memcpy(buf, m_body.c_str(), m_body.size());
 
@@ -135,7 +138,7 @@ std::size_t request_impl::read_body_chunked_mode(std::error_code &error, void *b
 		auto tcp_size = tcp_ip_buffer_size();
 		char *tmpbuf = new char[tcp_size] {0};
 
-		auto res = m_socket->read_some(tmpbuf, tcp_size, error);
+		auto res = m_socket->read_some(tmpbuf, tcp_size, seconds(30), error);
 		abuf.append(tmpbuf, res);
 
 		delete[] tmpbuf;
@@ -162,7 +165,6 @@ std::size_t request_impl::read_body_chunked_mode(std::error_code &error, void *b
 			}
 			break;
 		}
-
 		auto line_buf = abuf.substr(0, pos + 2);
 		abuf.erase(0, pos + 2);
 
@@ -239,7 +241,6 @@ std::size_t request_impl::read_body_chunked_mode(std::error_code &error, void *b
 		m_body.erase(0,size);
 		return sum + size;
 	}
-
 	memcpy(buf, m_body.c_str(), m_body.size());
 	size -= m_body.size();
 	sum += m_body.size();

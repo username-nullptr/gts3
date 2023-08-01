@@ -1,3 +1,9 @@
+if (WIN32)
+	set(OS_CPP win)
+elseif (UNIX)
+	set(OS_CPP unix)
+endif()
+
 set(core_sources
 	gts/gts_global.cpp
 	gts/args_parser.cpp
@@ -14,6 +20,9 @@ set(core_sources
 	app_info.cpp
 	process.cpp
 	server_tool.cpp
+	private/app_info_${OS_CPP}.cpp
+	private/process_${OS_CPP}.cpp
+	private/tcp_socket_${OS_CPP}.cpp
 )
 
 set(core_headers
@@ -39,18 +48,6 @@ set(core_headers
 	server_tool.h
 	private/process_p.h
 )
-
-if (WIN32)
-	list(APPEND core_sources
-		private/app_info_win.cpp
-		private/process_win.cpp
-	)
-elseif (UNIX)
-	list(APPEND core_sources
-		private/app_info_unix.cpp
-		private/process_unix.cpp
-	)
-endif()
 
 add_library(gtscore SHARED ${core_sources} ${core_headers})
 target_compile_definitions(gtscore PRIVATE gtscore_EXPORTS)
