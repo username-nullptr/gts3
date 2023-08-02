@@ -23,7 +23,7 @@ protected:
 	This &register_method(const std::string &prefix, const std::string &name, Func &&func)
 	{
 		if( g_func_set.emplace(reinterpret_cast<const void*>(&func)).second )
-			rttr::registration::method(fmt::format("gts{}.plugin.{}.{}", prefix, name, g_gfs_counter++), std::forward<Func>(func));
+			rttr::registration::method(fmt::format("gts{}.plugin{}.{}", prefix, name, g_gfs_counter++), std::forward<Func>(func));
 		else
 		{
 			std::cerr << "*** Error: gts::registration_base::" << name << ": multiple registration." << std::endl;
@@ -61,24 +61,24 @@ public:
 public:
 	template <typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)())>
 	registration &init_method(Func &&func) {
-		return register_method<registration>("", "init", std::forward<Func>(func));
+		return register_method<registration>("", ".init", std::forward<Func>(func));
 	}
 
 	template <typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)(std::string())), int U0=0>
 	registration &init_method(Func &&func) {
-		return register_method<registration>("", "init", std::forward<Func>(func));
+		return register_method<registration>("", ".init", std::forward<Func>(func));
 	}
 
 public:
 	template <typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)())>
 	registration &exit_method(Func &&func) {
-		return register_method<registration>("", "exit", std::forward<Func>(func));
+		return register_method<registration>("", ".exit", std::forward<Func>(func));
 	}
 
 public:
 	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_dsame(decltype(GTS_DECLVAL(Func)()), std::string), int)>
 	registration &view_status_method(Func &&func) {
-		return register_method<registration>("", "view_status", std::forward<Func>(func));
+		return register_method<registration>("", ".view_status", std::forward<Func>(func));
 	}
 };
 
@@ -95,41 +95,41 @@ public:
 public:
 	template <typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)())>
 	registration &init_method(Func &&func) {
-		return register_method<registration>("extension", "init", std::forward<Func>(func));
+		return register_method<registration>(".extension", ".init", std::forward<Func>(func));
 	}
 
 	template <typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)(std::string())), int U0=0>
 	registration &init_method(Func &&func) {
-		return register_method<registration>("extension", "init", std::forward<Func>(func));
+		return register_method<registration>(".extension", ".init", std::forward<Func>(func));
 	}
 
 public:
 	template <typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)())>
 	registration &exit_method(Func &&func) {
-		return register_method<registration>("extension", "exit", std::forward<Func>(func));
+		return register_method<registration>(".extension", ".exit", std::forward<Func>(func));
 	}
 
 public:
 	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_dsame(decltype(GTS_DECLVAL(Func)(0,GTS_DECLVAL(const char**))), bool), int)>
 	registration &args_parsing_method(Func &&func) {
-		return register_method<registration>("extension", "args_parsing", std::forward<Func>(func));
+		return register_method<registration>(".extension", ".args_parsing", std::forward<Func>(func));
 	}
 
 	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_dsame(decltype(GTS_DECLVAL(Func)(string_list())), bool), int), int U0=0>
 	registration &args_parsing_method(Func &&func) {
-		return register_method<registration>("extension", "args_parsing", std::forward<Func>(func));
+		return register_method<registration>(".extension", ".args_parsing", std::forward<Func>(func));
 	}
 
 public:
 	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_dsame(decltype(GTS_DECLVAL(Func)()), std::string), int)>
 	registration &view_version_method(Func &&func) {
-		return register_method<registration>("extension", "view_version", std::forward<Func>(func));
+		return register_method<registration>(".extension", ".view_version", std::forward<Func>(func));
 	}
 
 public:
 	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_dsame(decltype(GTS_DECLVAL(Func)()), std::string), int)>
 	registration &view_help_method(Func &&func) {
-		return register_method<registration>("extension", "view_help", std::forward<Func>(func));
+		return register_method<registration>(".extension", ".view_help", std::forward<Func>(func));
 	}
 };
 
