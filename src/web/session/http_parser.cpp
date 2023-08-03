@@ -35,13 +35,13 @@ std::shared_ptr<request> http_parser::write(const std::string &data)
 
 			else if( m_state == state::waiting_request )
 			{
-				log_info("Request line too long.");
+				gts_log_info("Request line too long.");
 				m_buffer.clear();
 			}
 
 			else if( m_state == state::reading_headers )
 			{
-				log_info("Header line too long.");
+				gts_log_info("Header line too long.");
 				reset();
 			}
 			return std::make_shared<request>();
@@ -68,7 +68,7 @@ bool http_parser::state_handler_waiting_request(const std::string &line_buf)
 	auto request_line_parts = str_split(line_buf, ' ');
 	if( request_line_parts.size() != 3 or not str_starts_with(str_to_upper(request_line_parts[2]), "HTTP/") )
 	{
-		log_info("Invalid request line.");
+		gts_log_info("Invalid request line.");
 		m_buffer.clear();
 		return false;
 	}
@@ -76,7 +76,7 @@ bool http_parser::state_handler_waiting_request(const std::string &line_buf)
 	auto method = from_method_string(request_line_parts[0]);
 	if( method == METHOD_UNKNOWN )
 	{
-		log_info("Invalid http method.");
+		gts_log_info("Invalid http method.");
 		m_buffer.clear();
 		return false;
 	}
@@ -126,7 +126,7 @@ request *http_parser::state_handler_reading_headers(const std::string &line_buf)
 	auto colon_index = line_buf.find(':');
 	if( colon_index == line_buf.npos )
 	{
-		log_info("Invalid header line.");
+		gts_log_info("Invalid header line.");
 		reset();
 		return new request();
 	}
@@ -147,7 +147,7 @@ request *http_parser::state_handler_reading_headers(const std::string &line_buf)
 
 		if( pos == statement.npos )
 		{
-			log_info("Invalid header line.");
+			gts_log_info("Invalid header line.");
 			reset();
 			return new request();
 		}

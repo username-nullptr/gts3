@@ -46,7 +46,7 @@ void plugin_service::call()
 	auto lambda_call_filter = [this](registration::service &rs) -> bool
 	{
 		if( rs.method.get_return_type() != GTS_RTTR_TYPE(bool) )
-			log_fatal("*** Code bug !!! : service filter function return type error !!!");
+			gts_log_fatal("*** Code bug !!! : service filter function return type error !!!");
 
 		else if( rs.class_type.is_valid() )
 		{
@@ -125,7 +125,7 @@ void plugin_service::init()
 	json_file = appinfo::absolute_path(json_file);
 	if( not fs::exists(json_file) )
 	{
-		log_error("Web plugins json file is not exists.");
+		gts_log_error("Web plugins json file is not exists.");
 		return ;
 	}
 
@@ -134,7 +134,7 @@ void plugin_service::init()
 
 	if( json.is_null() )
 	{
-		log_error("Web plugins json file read error.");
+		gts_log_error("Web plugins json file read error.");
 		return ;
 	}
 	auto json_file_path = file_path(json_file);
@@ -160,7 +160,7 @@ void plugin_service::init()
 			file_name = file_path + file_name;
 		}
 		catch(...) {
-			log_warning("Web plugins config format(json) error.");
+			gts_log_warning("Web plugins config format(json) error.");
 			continue;
 		}
 
@@ -169,7 +169,7 @@ void plugin_service::init()
 
 		if( library.load() == false )
 		{
-			log_error("gts.web.plugin load failed: {}.", library.get_error_string());
+			gts_log_error("gts.web.plugin load failed: {}.", library.get_error_string());
 			g_library_list.pop_back(); //!!!library!!! -> null
 		}
 	}
@@ -199,7 +199,7 @@ void plugin_service::init()
 			auto &obj = pair.first->second;
 
 			if( not obj.is_valid() )
-				log_fatal("service class create failed.");
+				gts_log_fatal("service class create failed.");
 
 			auto method = ss.class_type.get_method(fmt::format("init.{}", ss.class_type.get_id()));
 			if( method.is_valid() )
@@ -326,7 +326,7 @@ rttr::variant plugin_service::global_method_call(const rttr::method &method, con
 		else if( t0 == GTS_RTTR_TYPE(http::request) and t1 == GTS_RTTR_TYPE(environments) and t2 == GTS_RTTR_TYPE(http::response) )
 			return method.invoke({}, m_sio.request, make_envs(m_sio), m_sio.response);
 	}
-	log_fatal("*** Code bug !!! : service function type error !!!");
+	gts_log_fatal("*** Code bug !!! : service function type error !!!");
 	return {};
 }
 
@@ -380,7 +380,7 @@ rttr::variant plugin_service::class_method_call(rttr::method &method, rttr::vari
 		else if( t0 == GTS_RTTR_TYPE(http::request) and t1 == GTS_RTTR_TYPE(environments) and t2 == GTS_RTTR_TYPE(http::response) )
 			return method.invoke(obj, m_sio.request, make_envs(m_sio), m_sio.response);
 	}
-	log_fatal("*** Code bug !!! : service function type error !!!");
+	gts_log_fatal("*** Code bug !!! : service function type error !!!");
 	return {};
 }
 

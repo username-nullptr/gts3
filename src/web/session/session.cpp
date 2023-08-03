@@ -33,7 +33,7 @@ session::session(tcp_socket_ptr socket) :
 session::~session()
 {
 	g_counter--;
-	log_debug("Session deleted ({}).", g_counter);
+	gts_log_debug("Session deleted ({}).", g_counter);
 
 	m_task.cancel();
 	m_timer.cancel();
@@ -59,23 +59,23 @@ void session::init()
 
 	if( g_idle_time_tv < 1 )
 	{
-		log_warning("Config: idle time threshold value setting error.");
+		gts_log_warning("Config: idle time threshold value setting error.");
 		g_idle_time_tv = 1;
 	}
 	if( g_max_idle_time <= g_idle_time_tv )
 	{
-		log_warning("Config: max idle time setting error.");
+		gts_log_warning("Config: max idle time setting error.");
 		g_max_idle_time = g_idle_time_tv + 1;
 	}
 	if( g_max_count < 1 )
 	{
-		log_warning("Config: max session count setting error.");
+		gts_log_warning("Config: max session count setting error.");
 		g_max_count = 1;
 	}
 
-	log_debug("Web: idle time threshold value: {}", g_idle_time_tv);
-	log_debug("Web: max idle time: {}", g_max_idle_time);
-	log_debug("Web: max connetion count: {}", g_max_count);
+	gts_log_debug("Web: idle time threshold value: {}", g_idle_time_tv);
+	gts_log_debug("Web: max idle time: {}", g_max_idle_time);
+	gts_log_debug("Web: max connetion count: {}", g_max_count);
 	task::init();
 }
 
@@ -93,7 +93,7 @@ void session::new_connection(tcp_socket_ptr socket)
 		new session(std::move(socket));
 		return ;
 	}
-	log_info("Connection resource exhaustion, attempts to reclaim idle connection resources.");
+	gts_log_info("Connection resource exhaustion, attempts to reclaim idle connection resources.");
 
 	auto it = g_timeout_set.begin();
 	if( it != g_timeout_set.end() )
@@ -103,7 +103,7 @@ void session::new_connection(tcp_socket_ptr socket)
 		new session(std::move(socket));
 		return ;
 	}
-	log_warning("No connection resources are available and the server is overloaded.");
+	gts_log_warning("No connection resources are available and the server is overloaded.");
 
 	asio::error_code error;
 	socket->non_blocking(false, error);
@@ -173,7 +173,7 @@ void session::time_out_allow_preemptionx(const asio::error_code &was_cancel)
 	if( was_cancel )
 		return ;
 
-	log_debug("Session enters the idle state. (client: {})", m_socket->remote_endpoint());
+	gts_log_debug("Session enters the idle state. (client: {})", m_socket->remote_endpoint());
 	g_timeout_set.emplace(this);
 
 	m_timer.expires_after(std::chrono::milliseconds(g_max_idle_time));
@@ -185,7 +185,7 @@ void session::time_out_destory(const asio::error_code &was_cancel)
 	if( was_cancel )
 		return ;
 
-	log_debug("The life cycle of session ends. (client: {})", m_socket->remote_endpoint());
+	gts_log_debug("The life cycle of session ends. (client: {})", m_socket->remote_endpoint());
 	g_timeout_set.erase(this);
 	cancel();
 }

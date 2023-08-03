@@ -150,7 +150,7 @@ std::size_t request_impl::read_body_chunked_mode(std::error_code &error, void *b
 	{
 		m_rb_status = rb_status::finished;
 		error = std::make_error_code(std::errc::wrong_protocol_type);
-		log_warning(msg);
+		gts_log_warning(msg);
 	};
 
 	while( not abuf.empty() )

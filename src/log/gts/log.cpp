@@ -151,11 +151,11 @@ void logger::wait()
 }
 
 #ifdef __NO_DEBUG__
-# define LOG_OUTPUT(_type)  return output(log_buffer::_type)
+# define LOG_OUTPUT(_type, _category)  return log_buffer(log_buffer::_type, _category)
 #else //DEBUG
-#define LOG_OUTPUT(_type) \
+#define LOG_OUTPUT(_type, _category) \
 ({ \
-	log_buffer o(log_buffer::_type); \
+	log_buffer o(log_buffer::_type, std::move(_category)); \
 	o.m_data->context = m_impl->m_runtime_context; \
 	return o; \
 })
@@ -163,33 +163,54 @@ void logger::wait()
 
 log_buffer logger::debug()
 {
-	LOG_OUTPUT(debug);
+	LOG_OUTPUT(debug, "");
 }
 
 log_buffer logger::info()
 {
-	LOG_OUTPUT(info);
+	LOG_OUTPUT(info, "");
 }
 
 log_buffer logger::warning()
 {
-	LOG_OUTPUT(warning);
+	LOG_OUTPUT(warning, "");
 }
 
 log_buffer logger::error()
 {
-	LOG_OUTPUT(error);
+	LOG_OUTPUT(error, "");
+}
+
+log_buffer logger::cdebug(std::string category)
+{
+	LOG_OUTPUT(debug, category);
+}
+
+log_buffer logger::cinfo(std::string category)
+{
+	LOG_OUTPUT(info, category);
+}
+
+log_buffer logger::cwarning(std::string category)
+{
+	LOG_OUTPUT(warning, category);
+}
+
+log_buffer logger::cerror(std::string category)
+{
+	LOG_OUTPUT(error, category);
 }
 
 static void _output(log_buffer::type type, const logger::context &context,
 					const log_buffer::context &runtime_context, const std::string &msg, bool async = false);
 
-void logger::_fatal(const std::string &msg)
+void logger::_fatal(const std::string &msg, std::string category)
 {
 	g_context_rwlock.lock_shared();
 	auto context = g_context;
 	g_context_rwlock.unlock();
 
+	m_impl->m_runtime_context.category = std::move(category);
 	_output(log_buffer::fetal, context, m_impl->m_runtime_context, msg);
 	abort();
 }
@@ -264,7 +285,7 @@ private:
 		log_buffer::context runtime_context;
 		std::string msg;
 
-		node(log_buffer::type type, context_ptr context, const log_buffer::context &runtime_context, const std::string &msg) :
+		node(log_buffer::type type, context_ptr context, log_buffer::context &&runtime_context, std::string &&msg) :
 			type(type), context(context), runtime_context(runtime_context), msg(msg) {}
 	};
 
@@ -273,10 +294,9 @@ private:
 	std::list<node_ptr> m_message_qeueue;
 
 public:
-	void produce(log_buffer::type type, context_ptr context,
-				 const log_buffer::context &runtime_context, const std::string &msg)
+	void produce(log_buffer::type type, context_ptr context, log_buffer::context &&runtime_context, std::string &&msg)
 	{
-		auto _node = std::make_shared<node>(type, context, runtime_context, msg);
+		auto _node = std::make_shared<node>(type, context, std::move(runtime_context), std::move(msg));
 
 		m_mutex.lock();
 		m_message_qeueue.emplace_back(_node);
@@ -310,17 +330,16 @@ void logger::reload()
 	task_thread::reload();
 }
 
-GTS_DECL_HIDDEN void message_handler
-(log_buffer::type type, const log_buffer::context &runtime_context, const std::string &msg)
+GTS_DECL_HIDDEN void message_handler(log_buffer::type type, log_buffer::context &&runtime_context, std::string &&msg)
 {
 	g_context_rwlock.lock_shared();
 	auto context = std::make_shared<logger::context>(g_context);
 	g_context_rwlock.unlock();
 
 	if( context->async and type != log_buffer::fetal )
-		task_thread::instance().produce(type, std::move(context), runtime_context, msg);
+		task_thread::instance().produce(type, std::move(context), std::move(runtime_context), std::move(msg));
 	else
-		_output(type, *context, runtime_context, msg);
+		_output(type, *context, std::move(runtime_context), std::move(msg));
 }
 
 static struct GTS_DECL_HIDDEN curr_log_file
@@ -341,7 +360,7 @@ static struct GTS_DECL_HIDDEN curr_log_file
 g_curr_log_file;
 
 static bool open_log_output_device
-(const logger::context &info, const log_buffer::otime &time, int log_size, FILE *std_dev, FILE **fp);
+(const std::string &category, const logger::context &info, const log_buffer::otime &time, int log_size, FILE *std_dev, FILE **fp);
 
 static void _output(log_buffer::type type, const logger::context &context,
 					const log_buffer::context &runtime_context, const std::string &msg, bool async)
@@ -349,7 +368,7 @@ static void _output(log_buffer::type type, const logger::context &context,
 	std::string log_text;
 	FILE *fp = nullptr;
 	bool need_close = false;
-	auto category = context.category == "default" ? "" : context.category;
+	auto &category = runtime_context.category.empty()? context.category == "default" ? "" : context.category : runtime_context.category;
 
 #define SET_LOG(level, type, stdfp) \
 ({ \
@@ -358,7 +377,7 @@ static void _output(log_buffer::type type, const logger::context &context,
 	log_text = fmt::format("[{}::" type "]-[{:%Y-%m-%d %H:%M:%S}]-[{}:{}]:{}", \
 							category, runtime_context.time, runtime_context.file, runtime_context.line, \
 							g_header_breaks_aline? "\n" : " ") + msg; \
-	need_close = open_log_output_device(context, runtime_context.time, log_text.size(), stdfp, &fp); \
+	need_close = open_log_output_device(category, context, runtime_context.time, log_text.size(), stdfp, &fp); \
 })
 
 	static std::mutex g_file_mutex;
@@ -417,7 +436,7 @@ static void _output(log_buffer::type type, const logger::context &context,
 static void size_check(const logger::context &context, const std::string &dir_name, int log_size);
 
 static bool open_log_output_device
-(const logger::context &context, const log_buffer::otime &time, int log_size, FILE *std_dev, FILE **fp)
+(const std::string &category, const logger::context &context, const log_buffer::otime &time, int log_size, FILE *std_dev, FILE **fp)
 {
 	if( context.dir.empty() )
 	{
@@ -434,17 +453,17 @@ static bool open_log_output_device
 	if( not str_ends_with(dir_name, "/") )
 		dir_name += "/";
 
-	if( not context.category.empty() )
+	if( not category.empty() )
 	{
 		if( context.time_category )
 		{
-			dir_name += fmt::format("{:%Y-%m-%d}", time) + "/" + context.category;
+			dir_name += fmt::format("{:%Y-%m-%d}", time) + "/" + category;
 			if( not str_ends_with(dir_name, "/") )
 				dir_name += "/";
 		}
 		else
 		{
-			dir_name += context.category;
+			dir_name += category;
 			if( not str_ends_with(dir_name, "/") )
 				dir_name += "/";
 			dir_name += fmt::format("{:%Y-%m-%d}", time) + "/";

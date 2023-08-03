@@ -46,7 +46,7 @@ tcp_server::tcp_server()
 		return settings::global_instance().read<std::string>(SINI_GROUP_GTS, SINI_GTS_SSL_KEY);
 	}, error);
 	if( error )
-		log_fatal("asio: ssl password failed: {}. ({})\n", error.message(), error.value());
+		gts_log_fatal("asio: ssl password failed: {}. ({})\n", error.message(), error.value());
 
 	auto &_settings = settings::global_instance();
 
@@ -54,22 +54,22 @@ tcp_server::tcp_server()
 	if( not crt_file.empty() )
 	{
 		crt_file = appinfo::absolute_path(crt_file);
-		log_debug("ssl crt file: {}", crt_file);
+		gts_log_debug("ssl crt file: {}", crt_file);
 
 		ssl_context.use_certificate_chain_file(crt_file, error);
 		if( error )
-			log_fatal("asio: ssl certificate file load failed: {}. ({})\n", error.message(), error.value());
+			gts_log_fatal("asio: ssl certificate file load failed: {}. ({})\n", error.message(), error.value());
 	}
 
 	auto key_file = _settings.read<std::string>(SINI_GROUP_GTS, SINI_GTS_SSL_KEY_FILE, _GTS_SSL_KEY_DEFAULT_FILE);
 	if( not key_file.empty() )
 	{
 		key_file = appinfo::absolute_path(key_file);
-		log_debug("ssl key file: {}", key_file);
+		gts_log_debug("ssl key file: {}", key_file);
 
 		ssl_context.use_private_key_file(key_file, ssl::context::pem, error);
 		if( error )
-			log_fatal("asio: ssl private key file file load failed: {}. ({})\n", error.message(), error.value());
+			gts_log_fatal("asio: ssl private key file file load failed: {}. ({})\n", error.message(), error.value());
 	}
 
 	if( not crt_file.empty() and not key_file.empty() )
@@ -85,7 +85,7 @@ tcp_server::~tcp_server()
 void tcp_server::start()
 {
 	if( m_plugin_lib->load() == false )
-		log_fatal("gts.plugin load failed: {}.\n", m_plugin_lib->get_error_string());
+		gts_log_fatal("gts.plugin load failed: {}.\n", m_plugin_lib->get_error_string());
 
 	auto &_settings = settings::global_instance();
 	m_buffer_size = READ_CONFIG(int, SINI_GTS_TCP_BUF_SIZE, m_buffer_size);
@@ -96,7 +96,7 @@ void tcp_server::start()
 	auto json_file = _settings.read<std::string>(SINI_GROUP_GTS, SINI_GTS_SITES_CONFIG);
 	if( json_file.empty() )
 	{
-		log_warning("Sites is not configured, using default. (http:80)");
+		gts_log_warning("Sites is not configured, using default. (http:80)");
 		site_info info
 		{
 			"ipv4", 80, true
@@ -110,7 +110,7 @@ void tcp_server::start()
 	json_file = appinfo::absolute_path(json_file);
 
 	if( not fs::exists(json_file) )
-		log_fatal("Sites json file is not exists.");
+		gts_log_fatal("Sites json file is not exists.");
 
 	std::ifstream file(json_file);
 	auto &si_map = server_get_site_infos();
@@ -124,7 +124,7 @@ void tcp_server::start()
 
 			if( pair.second == false )
 			{
-				log_error("Site '{}' exists.", pair.first->first);
+				gts_log_error("Site '{}' exists.", pair.first->first);
 				continue;
 			}
 			auto &info = pair.first->second;
@@ -135,14 +135,14 @@ void tcp_server::start()
 				info.addr = str_to_lower(obj["address"].get<std::string>());
 			else
 			{
-				log_error("Sites json: {}: address is null. (default set: ipv4)", name);
+				gts_log_error("Sites json: {}: address is null. (default set: ipv4)", name);
 				info.addr = "ipv4";
 			}
 
 			if( obj.contains("port") )
 				info.port = obj["port"].get<int>();
 			else
-				log_fatal("Sites json: {}: port is null.", name);
+				gts_log_fatal("Sites json: {}: port is null.", name);
 
 			if( obj.contains("universal") )
 				info.universal = obj["universal"].get<bool>();
@@ -166,7 +166,7 @@ void tcp_server::start()
 		}
 	}
 	catch(...) {
-		log_fatal("Sites json file load failed: 'The file does not exist or is in the wrong format' ?");
+		gts_log_fatal("Sites json file load failed: 'The file does not exist or is in the wrong format' ?");
 	}
 
 	plugin_call::init(settings::global_instance().file_name());
@@ -184,16 +184,16 @@ void tcp_server::start()
 		if( site->start() )
 		{
 			auto &info = pair.second;
-			log_info("Site '{}' start ...\n"
+			gts_log_info("Site '{}' start ...\n"
 					 "    addr: '{}';  port: {};  universal: {};  ssl: {}",
 					 pair.first, info.addr, info.port, info.universal, info.ssl);
 			m_sites.emplace(std::move(pair.first), std::move(site));
 		}
 		else
-			log_error("Site '{}' start failed.", pair.first);
+			gts_log_error("Site '{}' start failed.", pair.first);
 	}
 	if( m_sites.empty() )
-		log_fatal("No site is available.");
+		gts_log_fatal("No site is available.");
 }
 
 void tcp_server::stop()
@@ -223,14 +223,14 @@ void tcp_server::service(tcp_socket *sock, bool universal)
 	asio::error_code error;
 	sock->set_option(tcp::socket::send_buffer_size(m_buffer_size), error);
 	if( error )
-		log_error("asio: set socket send buffer error: {}. ({})\n", error.message(), error.value());
+		gts_log_error("asio: set socket send buffer error: {}. ({})\n", error.message(), error.value());
 
 	sock->set_option(tcp::socket::receive_buffer_size(m_buffer_size), error);
 	if( error )
-		log_error("asio: set socket receive buffer error: {}. ({})\n", error.message(), error.value());
+		gts_log_error("asio: set socket receive buffer error: {}. ({})\n", error.message(), error.value());
 
 	if( plugin_call::new_connection(sock, universal) == false )
-		log_fatal("gts.plugin error: new connection method is null.");
+		gts_log_fatal("gts.plugin error: new connection method is null.");
 }
 
 #define ERROR_CHECK(_error) \
@@ -239,7 +239,7 @@ void tcp_server::service(tcp_socket *sock, bool universal)
 		if( error.value() == asio::error::operation_aborted ) \
 			return ; \
 		else if ERR_VAL(error) \
-			log_fatal("asio: accept error: {}. ({})\n", error.message(), error.value()); \
+			gts_log_fatal("asio: accept error: {}. ({})\n", error.message(), error.value()); \
 	} \
 })
 
@@ -266,7 +266,7 @@ tcp_server::basic_site::basic_site(tcp_server *q_ptr, asio::io_context &io, cons
 		m_endpoint = tcp::endpoint(ip::make_address(info.addr, error), info.port);
 		if( error )
 		{
-			log_error("Site: invalid bind address.");
+			gts_log_error("Site: invalid bind address.");
 			m_endpoint = tcp::endpoint(tcp::v4(), info.port);
 		}
 	}
@@ -288,7 +288,7 @@ tcp_server::basic_site::~basic_site()
 ({ \
 	m_acceptor._method(arg, error); \
 	if( error ) { \
-		log_error("asio: socket " #_method " error: {}\n", error); \
+		gts_log_error("asio: socket " #_method " error: {}\n", error); \
 		return false; \
 	} \
 })
@@ -352,7 +352,7 @@ bool tcp_server::ssl_site::start()
 {
 	if( q_ptr->m_no_ck_file )
 	{
-		log_error("SSL: certificate or private-key is not configured.");
+		gts_log_error("SSL: certificate or private-key is not configured.");
 		return false;
 	}
 	else if( basic_site::start() )
@@ -373,7 +373,7 @@ void tcp_server::ssl_site::do_accept()
 		{
 			if( error )
 			{
-				log_warning("asio: ssl_stream handshake error: {}.", error);
+				gts_log_warning("asio: ssl_stream handshake error: {}.", error);
 				sock->next_layer().close();
 			}
 			else

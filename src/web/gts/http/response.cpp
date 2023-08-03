@@ -213,7 +213,7 @@ response &response::write_default()
 {
 	if( m_impl->m_headers_writed )
 	{
-		log_warning("The http protocol header is sent repeatedly. (auto ignore)");
+		gts_log_warning("The http protocol header is sent repeatedly. (auto ignore)");
 		return *this;
 	}
 	m_impl->m_headers_writed = true;
@@ -239,7 +239,7 @@ response &response::write(std::size_t size, const void *body)
 {
 	if( m_impl->m_headers_writed )
 	{
-		log_warning("The http protocol header is sent repeatedly. (auto ignore)");
+		gts_log_warning("The http protocol header is sent repeatedly. (auto ignore)");
 		return *this;
 	}
 	m_impl->m_headers_writed = true;
@@ -275,7 +275,7 @@ static std::string absolute_path(const std::string &path)
 		{
 			auto tmp = getenv("HOME");
 			if( tmp == nullptr )
-				log_fatal("System environment 'HOME' is null.");
+				gts_log_fatal("System environment 'HOME' is null.");
 
 			std::string home(tmp);
 			if( not str_ends_with(home, "/") )
@@ -305,7 +305,7 @@ public:
 			m_file_name += ".html";
 			if( not fs::exists(m_file_name) )
 			{
-				log_info("The resource '{}' not exist.", m_file_name);
+				gts_log_info("The resource '{}' not exist.", m_file_name);
 				m_response.write_default(http::hs_not_found);
 				return false;
 			}
@@ -314,7 +314,7 @@ public:
 		m_file.open(m_file_name);
 		if( not m_file.is_open() )
 		{
-			log_warning("Can't open resource '{}'.", m_file_name);
+			gts_log_warning("Can't open resource '{}'.", m_file_name);
 			m_response.write_default(http::hs_forbidden);
 			return false;
 		}
@@ -367,7 +367,7 @@ public:
 	void default_transfer()
 	{
 		auto mime_type = get_mime_type(m_file_name);
-		log_debug("resource mime-type: {}.", mime_type);
+		gts_log_debug("resource mime-type: {}.", mime_type);
 
 		auto file_size = fs::file_size(m_file_name);
 		if( file_size == 0 )
@@ -511,7 +511,7 @@ private:
 
 		if( list.size() > 2 )
 		{
-			log_debug("Range format error: {}.", range_str);
+			gts_log_debug("Range format error: {}.", range_str);
 			return false;
 		}
 
@@ -521,14 +521,14 @@ private:
 		{
 			if( list[1].empty() )
 			{
-				log_debug("Range format error.");
+				gts_log_debug("Range format error.");
 				return false;
 			}
 
 			std::sscanf(list[1].c_str(), "%zu", &size);
 			if( size == 0 or size > file_size )
 			{
-				log_debug("Range size is invalid.");
+				gts_log_debug("Range size is invalid.");
 				return false;
 			}
 
@@ -540,7 +540,7 @@ private:
 		{
 			if( list[0].empty() )
 			{
-				log_debug("Range format error.");
+				gts_log_debug("Range format error.");
 				return false;
 			}
 
@@ -549,7 +549,7 @@ private:
 
 			if( begin > end )
 			{
-				log_debug("Range is invalid.");
+				gts_log_debug("Range is invalid.");
 				return false;
 			}
 			size  = file_size - begin;
@@ -562,7 +562,7 @@ private:
 
 			if( begin > end or end >= file_size )
 			{
-				log_debug("Range is invalid.");
+				gts_log_debug("Range is invalid.");
 				return false;
 			}
 			size  = end - begin + 1;
@@ -662,7 +662,7 @@ response &response::write_file(const std::string &file_name)
 {
 	if( m_impl->m_headers_writed )
 	{
-		log_warning("The http protocol header is sent repeatedly. (auto ignore)");
+		gts_log_warning("The http protocol header is sent repeatedly. (auto ignore)");
 		return *this;
 	}
 	file_transfer(m_impl->m_request, *this, file_name).call();
@@ -673,7 +673,7 @@ response &response::write_file(const std::string &file_name, const std::string &
 {
 	if( m_impl->m_headers_writed )
 	{
-		log_warning("The http protocol header is sent repeatedly. (auto ignore)");
+		gts_log_warning("The http protocol header is sent repeatedly. (auto ignore)");
 		return *this;
 	}
 	file_transfer ft(m_impl->m_request, *this, file_name);
@@ -706,7 +706,7 @@ response &response::redirect(const std::string &url, redirect_type type)
 	case redirect_type::temporary_redirect : set_status(http::hs_temporary_redirect); break;
 	case redirect_type::multiple_choices   : set_status(http::hs_multiple_choices  ); break;
 	case redirect_type::not_modified       : set_status(http::hs_not_modified      ); break;
-	default: log_fatal("Invalid redirect type.");
+	default: gts_log_fatal("Invalid redirect type.");
 	}
 	return set_header("location", url).write();
 }

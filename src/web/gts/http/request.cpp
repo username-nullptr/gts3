@@ -146,7 +146,7 @@ std::size_t request::read_body(std::error_code &error, void *buf, std::size_t si
 	error = std::error_code();
 	if( size == 0 )
 	{
-		log_warning("request::read_body: size is 0.");
+		gts_log_warning("request::read_body: size is 0.");
 		return 0;
 	}
 	else if( m_impl->m_rb_status == rb_status::finished )
@@ -163,7 +163,7 @@ bool request::save_file(const std::string &_file_name, asio::error_code &error)
 {
 	if( _file_name.empty() )
 	{
-		log_error("request::save_file: file_name is empty.");
+		gts_log_error("request::save_file: file_name is empty.");
 		error = std::make_error_code(std::errc::invalid_argument);
 		return false;
 	}

@@ -85,7 +85,7 @@ bool pipe_ope::open()
 	{
 		if( not fs::exists(m_file_names[i]) and mkfifo(m_file_names[i].c_str(), 0644) < 0 )
 		{
-			log_error("pipe[0] '{}' create failed: {}.", m_file_names[i], strerror(errno));
+			gts_log_error("pipe[0] '{}' create failed: {}.", m_file_names[i], strerror(errno));
 			return false;
 		}
 	}
@@ -93,14 +93,14 @@ bool pipe_ope::open()
 	m_pipe[0] = ::open(m_file_names[0].c_str(), O_RDWR);
 	if( m_pipe[0] < 0 )
 	{
-		log_error("pipe '{}' open failed: {}.", m_file_names[0], strerror(errno));
+		gts_log_error("pipe '{}' open failed: {}.", m_file_names[0], strerror(errno));
 		return false;
 	}
 
 	m_pipe[1] = ::open(m_file_names[1].c_str(), O_RDWR);
 	if( m_pipe[1] < 0 )
 	{
-		log_error("pipe '{}' open failed: {}.", m_file_names[1], strerror(errno));
+		gts_log_error("pipe '{}' open failed: {}.", m_file_names[1], strerror(errno));
 		::close(m_pipe[0]);
 		return false;
 	}
@@ -151,7 +151,7 @@ int pipe_ope::read(char *buf, int len, int timeout)
 	GTS_UNUSED(timeout);
 	if( not is_open() )
 	{
-		log_error("pipe not open.");
+		gts_log_error("pipe not open.");
 		return -1;
 	}
 
@@ -176,7 +176,7 @@ int pipe_ope::read(char *buf, int len, int timeout)
 		if( errno == EINTR )
 			return 0;
 
-		log_error("read: poll error: {}", strerror(errno));
+		gts_log_error("read: poll error: {}", strerror(errno));
 		return res;
 	}
 
@@ -185,7 +185,7 @@ int pipe_ope::read(char *buf, int len, int timeout)
 
 	if( res < 0 )
 	{
-		log_error("read: {}.", strerror(errno));
+		gts_log_error("read: {}.", strerror(errno));
 		return -errno;
 	}
 	else if( buf[0] == '_' and buf[1] == '_' and buf[2] == 'c' )
@@ -201,7 +201,7 @@ int pipe_ope::write(const char *buf, int len, int timeout)
 	GTS_UNUSED(timeout);
 	if( not is_open() )
 	{
-		log_error("pipe not open.");
+		gts_log_error("pipe not open.");
 		return -1;
 	}
 
@@ -225,13 +225,13 @@ int pipe_ope::write(const char *buf, int len, int timeout)
 		if( errno == EINTR )
 			return 0;
 
-		log_error("write: poll error: {}", strerror(errno));
+		gts_log_error("write: poll error: {}", strerror(errno));
 		return res;
 	}
 
 	res = ::write(fds.fd, buf, len);
 	if( res < len )
-		log_error("write: {}.", strerror(errno));
+		gts_log_error("write: {}.", strerror(errno));
 	return res;
 }
 
@@ -239,7 +239,7 @@ void pipe_ope::async_read(char *buf, int len, std::function<void(int)> call_back
 {
 	if( not is_open() )
 	{
-		log_error("pipe not open.");
+		gts_log_error("pipe not open.");
 		gts::io_context().post([call_back]{
 			call_back(0);
 		});
@@ -261,7 +261,7 @@ void pipe_ope::async_read(char *buf, int len, std::function<void(int)> call_back
 				call_back(0);
 			else
 			{
-				log_error("read: {}.", error.value());
+				gts_log_error("read: {}.", error.value());
 				call_back(-1);
 			}
 		}
@@ -274,7 +274,7 @@ void pipe_ope::async_write(char *buf, int len, std::function<void(int)> call_bac
 {
 	if( not is_open() )
 	{
-		log_error("pipe not open.");
+		gts_log_error("pipe not open.");
 		gts::io_context().post([call_back]{
 			call_back(0);
 		});
@@ -296,7 +296,7 @@ void pipe_ope::async_write(char *buf, int len, std::function<void(int)> call_bac
 				call_back(0);
 			else
 			{
-				log_error("write: {}.", error.value());
+				gts_log_error("write: {}.", error.value());
 				call_back(-1);
 			}
 		}

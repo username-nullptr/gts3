@@ -383,7 +383,7 @@ public:
 		inline void service_array_insert(const std::string &path, service_array &method_array, std::string method_name, Func &&func, http::method http_method)
 		{
 			if( method_array[http_method].method.is_valid() )
-				log_fatal("service '{} ({})' multiple registration.", path, http::method_string(http_method));
+				gts_log_fatal("service '{} ({})' multiple registration.", path, http::method_string(http_method));
 			else
 			{
 				method_array[http_method].class_type = m_type;
@@ -422,7 +422,7 @@ public:
 
 			auto pair = g_filter_path_map.emplace(path, service());
 			if( pair.second == false )
-				log_fatal("service filter '{}' multiple registration.", path);
+				gts_log_fatal("service filter '{}' multiple registration.", path);
 
 			auto method_name = "filter_method." + path;
 			m_class_->method(method_name, std::forward<Func>(func));
@@ -446,7 +446,7 @@ private:
 		if( g_global_func_set.emplace(reinterpret_cast<const void*>(&func)).second )
 			rttr::registration::method(fmt::format("gts.web.plugin.{}.{}", name, g_ggfs_counter++), std::forward<Func>(func));
 		else
-			log_fatal("gts::web::registration::{}: multiple registration.", name);
+			gts_log_fatal("gts::web::registration::{}: multiple registration.", name);
 		return *this;
 	}
 
@@ -486,7 +486,7 @@ private:
 	inline void service_array_insert(const std::string &path, service_array &method_array, std::string method_name, Func &&func, http::method http_method)
 	{
 		if( method_array[http_method].method.is_valid() )
-			log_fatal("service '{} ({})' multiple registration.", path, http::method_string(http_method));
+			gts_log_fatal("service '{} ({})' multiple registration.", path, http::method_string(http_method));
 		else
 		{
 			method_name += http::method_string(http_method);
@@ -514,7 +514,7 @@ private:
 		}
 		auto pair = g_filter_path_map.emplace(path, service());
 		if( pair.second == false )
-			log_fatal("service filter '{}' multiple registration.", path);
+			gts_log_fatal("service filter '{}' multiple registration.", path);
 
 		auto method_name = "gts.web.plugin.filter_method." + path;
 		rttr::registration::method(method_name, std::forward<Func>(func));

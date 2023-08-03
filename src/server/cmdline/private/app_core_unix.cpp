@@ -26,7 +26,7 @@ args_parser::arguments startup(int argc, const char *argv[])
 {
 	static bool isInit = false;
 	if( isInit )
-		log_fatal("cmdline_handle repeat call.");
+		gts_log_fatal("cmdline_handle repeat call.");
 	isInit = true;
 
 	args_parser::arguments args_hash;
@@ -39,7 +39,7 @@ args_parser::arguments startup(int argc, const char *argv[])
 	auto lock_file = appinfo::lock_file_name();
 	g_lock_file_fd = open(lock_file.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0644);
 	if( g_lock_file_fd < 0 )
-		log_fatal("Lock file '{}' open failed: {}.", lock_file, strerror(errno));
+		gts_log_fatal("Lock file '{}' open failed: {}.", lock_file, strerror(errno));
 
 	else if( flock(g_lock_file_fd, LOCK_EX | LOCK_NB) < 0 )
 	{
@@ -49,16 +49,16 @@ args_parser::arguments startup(int argc, const char *argv[])
 
 	auto str = fmt::format("{}", getpid());
 	if( write(g_lock_file_fd, str.c_str(), str.size()) < 0 )
-		log_fatal("Lock file '{}' write failed: {}.", lock_file, strerror(errno));
+		gts_log_fatal("Lock file '{}' write failed: {}.", lock_file, strerror(errno));
 
 	if( pipefd > 0 )
 	{
 		if( setsid() < 0 )
-			log_fatal("setsid: {}.", strerror(errno));
-		log_info("Daemon process running.");
+			gts_log_fatal("setsid: {}.", strerror(errno));
+		gts_log_info("Daemon process running.");
 
 		if( write(pipefd, "ok", 2) < 0 )
-			log_error("Child process: pipe write failed: {}.", strerror(errno));
+			gts_log_error("Child process: pipe write failed: {}.", strerror(errno));
 		close(pipefd);
 	}
 	return args_hash;
@@ -90,7 +90,7 @@ void stop_app(bool noreturn)
 
 	std::fstream file(appinfo::lock_file_name(), std::ios_base::in);
 	if( not file.is_open() )
-		log_fatal("The file '{}' open failed: {}.", appinfo::lock_file_name(), strerror(errno));
+		gts_log_fatal("The file '{}' open failed: {}.", appinfo::lock_file_name(), strerror(errno));
 
 	char buf[1024] = "";
 	file.read(buf, sizeof(buf));
@@ -109,7 +109,7 @@ void stop_app(bool noreturn)
 	if( pid < 1 )
 	{
 		fs::remove(appinfo::lock_file_name());
-		log_fatal("PID error, server may have stopped. (auto rm pid-file)");
+		gts_log_fatal("PID error, server may have stopped. (auto rm pid-file)");
 	}
 
 	std::cout << "server pid is " << pid << "." << std::endl;
@@ -144,7 +144,7 @@ void stop_app(bool noreturn)
 /*------------------------------------------------------------------------------------------------------------------*/
 
 #define P_ERROR(str) \
-	log_fatal(str ": %s.", strerror(errno))
+	gts_log_fatal(str ": %s.", strerror(errno))
 
 static void signal_handler(int signo);
 
@@ -166,17 +166,17 @@ static int become_child_process()
 		char buf[64] = {};
 		int res = read(pipefd[0], buf, 64);
 
-		log_info("\nParent process exit. child PID = {}.", pid);
+		gts_log_info("\nParent process exit. child PID = {}.", pid);
 
 		if( res < 0 )
 			P_ERROR("Parent process: pipe read");
 
 		else if( res == 0 )
-			log_fatal("Child process exit, daemon not start.");
+			gts_log_fatal("Child process exit, daemon not start.");
 
 		else if( strcmp(buf, "ok") )
 		{
-			log_warning() << "Code error:" << __FILE__ << __LINE__;
+			gts_log_warning() << "Code error:" << __FILE__ << __LINE__;
 			exit(1);
 		}
 		else
@@ -188,7 +188,7 @@ static int become_child_process()
 static void signal_handler(int signo)
 {
 	if( signo == SIGCHLD )
-		log_fatal("Child process exit, daemon not start.");
+		gts_log_fatal("Child process exit, daemon not start.");
 }
 
 static void trimmed(std::string &str)

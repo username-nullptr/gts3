@@ -32,7 +32,7 @@ cmdline_server::cmdline_server(tcp_server &_tcp_server) :
 	m_buf(new char[_BUF_SIZE])
 {
 	if( m_interaction->open() == false )
-		log_fatal("cmd line iteraction open failed.");
+		gts_log_fatal("cmd line iteraction open failed.");
 }
 
 cmdline_server::~cmdline_server()
@@ -52,10 +52,10 @@ void cmdline_server::start()
 			return ;
 
 		else if( size < 0 )
-			log_fatal("cmd line iteraction read error.");
+			gts_log_fatal("cmd line iteraction read error.");
 
 		std::string str(m_buf, size);
-		log_debug("cmdline_server: read: {}", str);
+		gts_log_debug("cmdline_server: read: {}", str);
 
 		if( str == CCMD_VSS )
 			str = "\n" + view_pid() + m_tcp_server.view_status();

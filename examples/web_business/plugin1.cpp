@@ -88,11 +88,11 @@ public:
 	void new_request_1(http::response &response, http::request &request)
 	{
 		for(auto &pair : request.cookies())
-			log_info("cookie: [ {} ]", pair);
+			gts_log_info("cookie: [ {} ]", pair);
 
 		auto session = request.session(false);
 		if( session and session->is_valid() )
-			log_info("session attribute: [ hello - {} ]", session->attribute_or("hello").to_string());
+			gts_log_info("session attribute: [ hello - {} ]", session->attribute_or("hello").to_string());
 
 		response.write("plugin1-1::1");
 	}

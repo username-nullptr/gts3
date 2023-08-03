@@ -106,9 +106,13 @@ bool process::start(const string_list &args)
 	m_impl->m_write_fd = std::make_shared<process_impl::descriptor>(m_impl->m_io, m_impl->m_pwcr_fd[1]);
 
 //	g_mutex.lock();
-	g_process_map.emplace(m_impl->m_pid, this);
+	if( m_impl->m_pid > 0 )
+	{
+		g_process_map.emplace(m_impl->m_pid, this);
+		return true;
+	}
 //	g_mutex.unlock();
-	return true;
+	return false;
 }
 
 void process::terminate()

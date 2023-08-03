@@ -20,7 +20,7 @@ void cmdline_handle(int argc, const char *argv[], args_parser::arguments &args_h
 {
 	static bool isInit = false;
 	if( isInit )
-		log_fatal("cmdline_handle repeat call.");
+		gts_log_fatal("cmdline_handle repeat call.");
 	isInit = true;
 
 	string_list others;
@@ -46,7 +46,7 @@ void cmdline_handle(int argc, const char *argv[], args_parser::arguments &args_h
 			if( not fs::exists(appinfo::tmp_dir_path()) )
 			{
 				if( fs::create_directories(appinfo::tmp_dir_path()) == false )
-					log_fatal("Run(tmp) diractory make failed!");
+					gts_log_fatal("Run(tmp) diractory make failed!");
 			}
 			break;
 		}
@@ -59,7 +59,7 @@ void cmdline_handle(int argc, const char *argv[], args_parser::arguments &args_h
 		else if( _args_hash & GC_SA_STOP )
 		{
 			if( _args_hash.size() > 1 )
-				log_fatal("Too many arguments.");
+				gts_log_fatal("Too many arguments.");
 			server_is_running_check();
 			stop_app(true); //exit
 		}
@@ -122,7 +122,7 @@ static void server_is_running_check()
 
 	interaction _interaction(false);
 	if( _interaction.open() == false )
-		log_fatal("cmd line interaction open failed.");
+		gts_log_fatal("cmd line interaction open failed.");
 
 	int res = _interaction.write(cmd_str.c_str(), cmd_str.size(), 5000);
 	if( res == 0 )

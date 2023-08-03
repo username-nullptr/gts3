@@ -133,7 +133,7 @@ void cgi_service::call()
 		std::unique_lock<std::mutex> locker(m_mutex);
 		m_condition.wait(locker);
 	}
-	log_debug("cgi '{}' finished.", m_cgi.file());
+	gts_log_debug("cgi '{}' finished.", m_cgi.file());
 }
 
 void cgi_service::async_write_socket(const char *buf, std::size_t buf_size)

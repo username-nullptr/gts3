@@ -42,7 +42,7 @@ namespace plugin_main
 
 GTS_DECL_EXPORT void init(const std::string &config_file)
 {
-	log_debug("gts web plugin init. (config file: {})", config_file);
+	gts_log_debug("gts web plugin init. (config file: {})", config_file);
 
 	settings::ini_hash sample_gts =
 	{
@@ -74,11 +74,11 @@ GTS_DECL_EXPORT void init(const std::string &config_file)
 	g_count = _settings.read<int>(SINI_GROUP_WEB, SINI_WEB_THREAD_POOL_TC, 255);
 	if( g_count < 1 )
 	{
-		log_warning("Config: max thread count setting error.");
+		gts_log_warning("Config: max thread count setting error.");
 		g_count = 1;
 	}
 
-	log_debug("Web: max thread count: {}", g_count);
+	gts_log_debug("Web: max thread count: {}", g_count);
 	g_pool = new asio::thread_pool(g_count);
 
 	session::init();
@@ -86,7 +86,7 @@ GTS_DECL_EXPORT void init(const std::string &config_file)
 
 GTS_DECL_EXPORT void exit()
 {
-	log_debug("web plugin exit.");
+	gts_log_debug("web plugin exit.");
 	session::exit();
 
 	if( g_pool == nullptr )

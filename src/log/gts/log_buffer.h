@@ -23,17 +23,24 @@ public:
 		fetal    //stderr-sync
 	};
 
-	typedef std::chrono::time_point<std::chrono::system_clock, std::chrono::milliseconds>  otime;
+	using otime = std::chrono::time_point<std::chrono::system_clock, std::chrono::milliseconds>;
 	struct context
 	{
 		otime time;
+		std::string category;
 		const char *file;
 		const char *func;
 		int line;
+
+		context() = default;
+		context(const context &other) = default;
+		context &operator=(const context &other) = default;
+		context(context &&other);
+		context &operator=(context &&other);
 	};
 
 public:
-	explicit log_buffer(type t);
+	explicit log_buffer(type t, std::string category = "");
 	log_buffer(const log_buffer &other);
 	log_buffer(log_buffer &&other);
 	~log_buffer();
@@ -53,6 +60,7 @@ private:
 	struct data
 	{
 		log_buffer::type type;
+		std::string category;
 		log_buffer::context context;
 		std::string buffer;
 	}
@@ -61,35 +69,6 @@ private:
 private:
 	friend class logger;
 };
-
-inline log_buffer::log_buffer(type t) : m_data(new data) {
-	m_data->type = t;
-}
-
-inline log_buffer::log_buffer(const log_buffer &other) : m_data(new data) {
-	operator=(other);
-}
-
-inline log_buffer::log_buffer(log_buffer &&other)
-{
-	m_data = other.m_data;
-	other.m_data = nullptr;
-}
-
-inline log_buffer &log_buffer::operator=(const log_buffer &other)
-{
-	*m_data = *other.m_data;
-	return *this;
-}
-
-inline log_buffer &log_buffer::operator=(log_buffer &&other)
-{
-	if( m_data )
-		delete m_data;
-	m_data = other.m_data;
-	other.m_data = nullptr;
-	return *this;
-}
 
 template <typename T>
 inline log_buffer &log_buffer::write(T &&msg)

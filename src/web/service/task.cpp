@@ -43,7 +43,7 @@ static void trimmed_path(std::string &str)
 		break;
 	}
 	if( start == str.size() )
-		log_fatal("access extensions is empty.");
+		gts_log_fatal("access extensions is empty.");
 
 	std::size_t end = start + 1;
 	for(; end < str.size() and
@@ -62,7 +62,7 @@ static inline void access_check(std::string &str)
 		str = "/" + str;
 
 	if( str == "/" or str == "\\" )
-		log_fatal("Default resource or access extensions is empty.");
+		gts_log_fatal("Default resource or access extensions is empty.");
 }
 
 void task::init()
@@ -79,7 +79,7 @@ void task::init()
 	access_check(g_cgi_access);
 
 	if( g_default_resource == g_plugins_access or g_default_resource == g_cgi_access or g_plugins_access == g_cgi_access )
-		log_fatal("Config error: 'default_resource', 'plugins_access', 'cgi_access' cannot be equal.");
+		gts_log_fatal("Config error: 'default_resource', 'plugins_access', 'cgi_access' cannot be equal.");
 
 	g_cgi_path = _setting.read<std::string>(SINI_GROUP_WEB, SINI_WEB_CGI_PATH, g_cgi_path);
 	g_cgi_path = app::absolute_path(g_cgi_path);
@@ -90,7 +90,7 @@ void task::init()
 	if( not fs::exists(g_cgi_path) )
 		fs::create_directories(g_cgi_path);
 
-	log_debug("web task config:\n"
+	gts_log_debug("web task config:\n"
 			  "    default_resource: {}\n"
 			  "    plugins_access  : {}\n"
 			  "    cgi_access      : {}\n"
@@ -156,7 +156,7 @@ void task::run()
 	service_io sio(*m_request);
 	auto method = m_request->method();
 
-	log_debug("URL: '{}' ({:s})", m_request->path(), method);
+	gts_log_debug("URL: '{}' ({:s})", m_request->path(), method);
 
 	if(      method == http::GET     ) _GET    (sio);
 	else if( method == http::POST    ) _POST   (sio);

@@ -62,11 +62,11 @@ applictaion_impl::applictaion_impl(int argc, const char *argv[])
 #endif //__unix__
 {
 	if( appinfo::set_current_directory(appinfo::dir_path()) == false )
-		log_fatal("set_current_directory failed: {}. ({})", strerror(errno), errno);
+		gts_log_fatal("set_current_directory failed: {}. ({})", strerror(errno), errno);
 
 	cmdline::args_parser::arguments args_hash = cmdline::startup(argc, argv);
 	set_config_file(args_hash);
-	log_info("Server instance name: '{}'.", appinfo::instance_name());
+	gts_log_info("Server instance name: '{}'.", appinfo::instance_name());
 
 	auto &_settings = gts::settings::global_instance();
 	log::logger::context context;
@@ -103,7 +103,7 @@ applictaion_impl::applictaion_impl(int argc, const char *argv[])
 
 	m_sigs.async_wait([this](const asio::error_code&, int signo)
 	{
-		log_info("system signal: {}.", signo);
+		gts_log_info("system signal: {}.", signo);
 
 		if( signo == SIGINT or signo == SIGTERM )
 		{
@@ -112,7 +112,7 @@ applictaion_impl::applictaion_impl(int argc, const char *argv[])
 		}
 
 		else if( signo == SIGPIPE )
-			log_info("pipe rupture. (ignore)");
+			gts_log_info("pipe rupture. (ignore)");
 	});
 #endif //__unix__
 }
@@ -132,23 +132,23 @@ void applictaion_impl::set_config_file(const cmdline::args_parser::arguments &ar
 	else
 		file_name = appinfo::absolute_path(it->second);
 
-	log_debug("Using config file '{}' ...", file_name);
+	gts_log_debug("Using config file '{}' ...", file_name);
 
 	if( not fs::exists(file_name) )
 	{
-		log_warning("Config file '{}' not exists. (auto create)", file_name);
+		gts_log_warning("Config file '{}' not exists. (auto create)", file_name);
 
 		if( fs::create_directories(file_path(file_name)) )
 		{
 			auto fp = std::fopen(file_name.c_str(), "w");
 
 			if( fp == nullptr )
-				log_error("Config file '{}' create failed: {}.", file_name, strerror(errno));
+				gts_log_error("Config file '{}' create failed: {}.", file_name, strerror(errno));
 			else
 				std::fclose(fp);
 		}
 		else
-			log_error("Config file '{}' create failed: {}.", file_name, strerror(errno));
+			gts_log_error("Config file '{}' create failed: {}.", file_name, strerror(errno));
 	}
 
 	auto &_settings = settings::global_instance();
@@ -198,7 +198,7 @@ applictaion::~applictaion()
 {
 	if( --g_counter == 0 )
 	{
-		log_debug("class 'application' exit.");
+		gts_log_debug("class 'application' exit.");
 		delete g_impl;
 		g_instance = nullptr;
 		g_impl = nullptr;

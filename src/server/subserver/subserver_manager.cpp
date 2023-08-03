@@ -39,7 +39,7 @@ manager::~manager()
 {
 	if( --g_counter == 0 )
 	{
-		log_debug("class 'subserver::manager' exit.");
+		gts_log_debug("class 'subserver::manager' exit.");
 		delete g_impl;
 		g_instance = nullptr;
 		g_impl = nullptr;
