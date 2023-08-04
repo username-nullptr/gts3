@@ -89,35 +89,15 @@ response &response::set_status(int status)
 	return *this;
 }
 
-response &response::set_header(const std::string &key, const std::string &value)
+response &response::set_header(std::string key, std::string value)
 {
-	auto res = m_impl->m_headers.emplace(key, value);
-	if( res.second == false and res.first != m_impl->m_headers.end() )
-		res.first->second = value;
+	m_impl->m_headers[std::move(key)] = std::move(value);
 	return *this;
 }
 
-response &response::set_header(const std::string &key, std::string &&value)
+response &response::set_cookie(std::string key, http::cookie cookie)
 {
-	auto res = m_impl->m_headers.emplace(key, std::move(value));
-	if( res.second == false and res.first != m_impl->m_headers.end() )
-		res.first->second = std::move(value);
-	return *this;
-}
-
-response &response::set_cookie(const std::string &key, const http::cookie &cookie)
-{
-	auto res = m_impl->m_cookies.emplace(key, cookie);
-	if( res.second == false and res.first != m_impl->m_cookies.end() )
-		res.first->second = cookie;
-	return *this;
-}
-
-response &response::set_cookie(const std::string &key, http::cookie &&cookie)
-{
-	auto res = m_impl->m_cookies.emplace(key, std::move(cookie));
-	if( res.second == false and res.first != m_impl->m_cookies.end() )
-		res.first->second = std::move(cookie);
+	m_impl->m_cookies[std::move(key)] = std::move(cookie);
 	return *this;
 }
 
@@ -167,13 +147,7 @@ const value &response::header(const std::string &key) const
 	return it->second;
 }
 
-value response::header_or(const std::string &key, const value &deft_value) const
-{
-	auto it = m_impl->m_headers.find(key);
-	return it == m_impl->m_headers.end()? deft_value : it->second;
-}
-
-value response::header_or(const std::string &key, value &&deft_value) const
+value response::header_or(const std::string &key, value deft_value) const
 {
 	auto it = m_impl->m_headers.find(key);
 	return it == m_impl->m_headers.end()? std::move(deft_value) : it->second;
@@ -195,13 +169,7 @@ const cookie &response::cookie(const std::string &key) const
 	return it->second;
 }
 
-cookie response::cookie_or(const std::string &key, const http::cookie &deft_value) const
-{
-	auto it = m_impl->m_cookies.find(key);
-	return it == m_impl->m_cookies.end()? deft_value : it->second;
-}
-
-cookie response::cookie_or(const std::string &key, http::cookie &&deft_value) const
+cookie response::cookie_or(const std::string &key, http::cookie deft_value) const
 {
 	auto it = m_impl->m_cookies.find(key);
 	return it == m_impl->m_cookies.end()? std::move(deft_value) : it->second;
@@ -741,6 +709,11 @@ tcp_socket &response::socket()
 void response::set_default_write(std::function<void(response&)> func)
 {
 	g_write_default = func;
+}
+
+bool response::is_writed() const
+{
+	return m_impl->m_headers_writed;
 }
 
 }} //namespace gts::http

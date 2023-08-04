@@ -127,13 +127,16 @@ void cgi_service::call()
 	else
 		async_read_socket();
 
-	m_cgi.join();
+	bool pro_is_nor = m_cgi.join();
 	if( m_counter > 0 )
 	{
 		std::unique_lock<std::mutex> locker(m_mutex);
 		m_condition.wait(locker);
 	}
 	gts_log_debug("cgi '{}' finished.", m_cgi.file());
+
+	if( not m_sio.response.is_writed() and not pro_is_nor )
+		return m_sio.return_to_null(http::hs_internal_server_error);
 }
 
 void cgi_service::async_write_socket(const char *buf, std::size_t buf_size)

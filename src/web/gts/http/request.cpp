@@ -65,13 +65,7 @@ const value &request::parameter(const std::string &key) const
 	return it->second;
 }
 
-value request::parameter_or(const std::string &key, const value &deft_value) const
-{
-	auto it = m_impl->m_parameters.find(key);
-	return it == m_impl->m_parameters.end()? deft_value : it->second;
-}
-
-value request::parameter_or(const std::string &key, value &&deft_value) const
+value request::parameter_or(const std::string &key, value deft_value) const
 {
 	auto it = m_impl->m_parameters.find(key);
 	return it == m_impl->m_parameters.end()? std::move(deft_value) : it->second;
@@ -85,13 +79,7 @@ const value &request::header(const std::string &key) const
 	return it->second;
 }
 
-value request::header_or(const std::string &key, const value &deft_value) const
-{
-	auto it = m_impl->m_headers.find(key);
-	return it == m_impl->m_headers.end()? deft_value : it->second;
-}
-
-value request::header_or(const std::string &key, value &&deft_value) const
+value request::header_or(const std::string &key, value deft_value) const
 {
 	auto it = m_impl->m_headers.find(key);
 	return it == m_impl->m_headers.end()? std::move(deft_value) : it->second;
@@ -105,13 +93,7 @@ const value &request::cookie(const std::string &key) const
 	return it->second;
 }
 
-value request::cookie_or(const std::string &key, const value &deft_value) const
-{
-	auto it = m_impl->m_cookies.find(key);
-	return it == m_impl->m_cookies.end()? deft_value : it->second;
-}
-
-value request::cookie_or(const std::string &key, value &&deft_value) const
+value request::cookie_or(const std::string &key, value deft_value) const
 {
 	auto it = m_impl->m_cookies.find(key);
 	return it == m_impl->m_cookies.end()? std::move(deft_value) : it->second;
@@ -240,11 +222,15 @@ tcp_socket &request::socket()
 	return *m_impl->m_socket;
 }
 
-void request::set_cookie_session_id(const std::string &id)
+void request::set_cookie_session_id(std::string id)
 {
-	m_impl->m_cookies["session_id"] = id;
 	if( m_impl->m_response )
-		m_impl->m_response->set_cookie("session_id", id);
+	{
+		m_impl->m_cookies["session_id"] = id;
+		m_impl->m_response->set_cookie("session_id", std::move(id));
+	}
+	else
+		m_impl->m_cookies["session_id"] = std::move(id);
 }
 
 }} //namespace gts::http

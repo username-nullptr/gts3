@@ -262,16 +262,27 @@ bool process::is_running() const
 	return m_impl->m_pid > 0;
 }
 
-void process::join()
+bool process::join(int *ret_val)
 {
 	if( m_impl->m_pid <= 0 )
-		return ;
-
-	pid_t pid = waitpid(m_impl->m_pid, nullptr, 0);
+	{
+		if( ret_val )
+			*ret_val = 0;
+		return false;
+	}
+	int status = 0;
+	pid_t pid = waitpid(m_impl->m_pid, &status, 0);
 	m_impl->m_pid = -1;
 
 	if( pid > 0 )
 		m_impl->reset_writer(pid);
+	if( WIFEXITED(status) )
+	{
+		if( ret_val )
+			*ret_val = WEXITSTATUS(status);
+		return true;
+	}
+	return false;
 }
 
 /*---------------------------------------------------------------------------------------------------------------*/
@@ -282,7 +293,8 @@ void process_impl::signal_hander(int signo)
 {
 	if( signo == SIGCHLD )
 	{
-		pid_t pid = waitpid(-1, nullptr, WNOHANG);
+		int status = 0;
+		pid_t pid = waitpid(-1, &status, WNOHANG);
 
 //		g_mutex.lock();
 		auto it = g_process_map.find(pid);

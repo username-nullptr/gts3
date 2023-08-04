@@ -116,40 +116,17 @@ rttr::variant session::attribute(const std::string &key) const
 	return it->second;
 }
 
-rttr::variant session::attribute_or(const std::string &key, const rttr::variant &deft_value) const
-{
-	shared_lock locker(m_impl->m_attrs_mutex); GTS_UNUSED(locker);
-	auto it = m_impl->m_attributes.find(key);
-	return it == m_impl->m_attributes.end()? deft_value : it->second;
-}
-
-rttr::variant session::attribute_or(const std::string &key, rttr::variant &&deft_value) const
+rttr::variant session::attribute_or(const std::string &key, rttr::variant deft_value) const
 {
 	shared_lock locker(m_impl->m_attrs_mutex); GTS_UNUSED(locker);
 	auto it = m_impl->m_attributes.find(key);
 	return it == m_impl->m_attributes.end()? std::move(deft_value) : it->second;
 }
 
-session &session::set_attribute(const std::string &key, const rttr::variant &value)
+session &session::set_attribute(std::string key, rttr::variant value)
 {
 	m_impl->m_attrs_mutex.lock();
-	auto res = m_impl->m_attributes.emplace(key, value);
-
-	if( res.second == false and res.first != m_impl->m_attributes.end() )
-		res.first->second = value;
-
-	m_impl->m_attrs_mutex.unlock();
-	return *this;
-}
-
-session &session::set_attribute(const std::string &key, rttr::variant &&value)
-{
-	m_impl->m_attrs_mutex.lock();
-	auto res = m_impl->m_attributes.emplace(key, std::move(value));
-
-	if( res.second == false and res.first != m_impl->m_attributes.end() )
-		res.first->second = std::move(value);
-
+	m_impl->m_attributes[std::move(key)] = std::move(value);
 	m_impl->m_attrs_mutex.unlock();
 	return *this;
 }
@@ -158,7 +135,6 @@ session &session::unset_attribute(const std::string &key)
 {
 	m_impl->m_attrs_mutex.lock();
 	m_impl->m_attributes.erase(key);
-
 	m_impl->m_attrs_mutex.unlock();
 	return *this;
 }

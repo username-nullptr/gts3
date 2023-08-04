@@ -47,7 +47,7 @@ public:
 
 public:
 	bool is_running() const;
-	void join();
+	bool join(int *ret_val = nullptr);
 
 public: // TODO...
 	int write(const char *buf, int size, int timeout = -1);

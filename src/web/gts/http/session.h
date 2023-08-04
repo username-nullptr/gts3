@@ -30,21 +30,19 @@ public:
 
 public:
 	rttr::variant attribute(const std::string &key) const;
-	rttr::variant attribute_or(const std::string &key, const rttr::variant &deft_value) const;
-	rttr::variant attribute_or(const std::string &key, rttr::variant &&deft_value = {}) const;
+	rttr::variant attribute_or(const std::string &key, rttr::variant deft_value = {}) const;
 
 	template <typename T>
 	T attribute(const std::string &key) const;
 
 	template <typename T, typename U = not_variant_t<T>>
-	T attribute_or(const std::string &key, const T &deft_value) const;
+	T attribute_or(const std::string &key, T deft_value = {}) const;
 
 public:
-	session &set_attribute(const std::string &key, const rttr::variant &value);
-	session &set_attribute(const std::string &key, rttr::variant &&value);
+	session &set_attribute(std::string key, rttr::variant value);
 
 	template <typename...Args>
-	session &set_attribute(const std::string &key, fmt::format_string<Args...> fmt, Args&&...args);
+	session &set_attribute(std::string key, fmt::format_string<Args...> fmt, Args&&...args);
 
 	session &unset_attribute(const std::string &key);
 
@@ -91,13 +89,13 @@ T session::attribute(const std::string &key) const {
 }
 
 template <typename T, typename U>
-T session::attribute_or(const std::string &key, const T &deft_value) const {
-	return attribute_or(key, rttr::variant(deft_value)).get_value<T>();
+T session::attribute_or(const std::string &key, T deft_value) const {
+	return attribute_or(key, rttr::variant(std::move(deft_value))).get_value<T>();
 }
 
 template <typename...Args>
-session &session::set_attribute(const std::string &key, fmt::format_string<Args...> fmt_value, Args&&...args) {
-	return set_attribute(key, fmt::format(fmt_value, std::forward<Args>(args)...));
+session &session::set_attribute(std::string key, fmt::format_string<Args...> fmt_value, Args&&...args) {
+	return set_attribute(std::move(key), fmt::format(fmt_value, std::forward<Args>(args)...));
 }
 
 }} //namespace gts::http

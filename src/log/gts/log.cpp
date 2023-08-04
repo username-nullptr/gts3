@@ -155,8 +155,9 @@ void logger::wait()
 #else //DEBUG
 #define LOG_OUTPUT(_type, _category) \
 ({ \
-	log_buffer o(log_buffer::_type, std::move(_category)); \
+	log_buffer o(log_buffer::_type); \
 	o.m_data->context = m_impl->m_runtime_context; \
+	o.m_data->context.category = std::move(_category); \
 	return o; \
 })
 #endif //__NO_DEBUG__

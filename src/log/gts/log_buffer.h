@@ -40,7 +40,7 @@ public:
 	};
 
 public:
-	explicit log_buffer(type t, std::string category = "");
+	explicit log_buffer(type t);
 	log_buffer(const log_buffer &other);
 	log_buffer(log_buffer &&other);
 	~log_buffer();
@@ -60,7 +60,6 @@ private:
 	struct data
 	{
 		log_buffer::type type;
-		std::string category;
 		log_buffer::context context;
 		std::string buffer;
 	}

@@ -43,36 +43,33 @@ public:
 
 public:
 	const value &parameter(const std::string &key) const;
-	value parameter_or(const std::string &key, const value &deft_value) const;
-	value parameter_or(const std::string &key, value &&deft_value = {}) const;
+	value parameter_or(const std::string &key, value deft_value = {}) const;
 
 	template <typename T>
 	T parameter(const std::string &key) const;
 
 	template <typename T, typename U = not_value_t<T>>
-	T parameter_or(const std::string &key, const T &deft_value) const;
+	T parameter_or(const std::string &key, T deft_value = {}) const;
 
 public:
 	const value &header(const std::string &key) const;
-	value header_or(const std::string &key, const value &deft_value) const;
-	value header_or(const std::string &key, value &&deft_value = {}) const;
+	value header_or(const std::string &key, value deft_value = {}) const;
 
 	template <typename T>
 	T header(const std::string &key) const;
 
 	template <typename T, typename U = not_value_t<T>>
-	T header_or(const std::string &key, const T &deft_value) const;
+	T header_or(const std::string &key, T deft_value = {}) const;
 
 public:
 	const value &cookie(const std::string &key) const;
-	value cookie_or(const std::string &key, const value &deft_value) const;
-	value cookie_or(const std::string &key, value &&deft_value = {}) const;
+	value cookie_or(const std::string &key, value deft_value = {}) const;
 
 	template <typename T>
 	T cookie(const std::string &key) const;
 
 	template <typename T, typename U = not_value_t<T>>
-	T cookie_or(const std::string &key, const T &deft_value) const;
+	T cookie_or(const std::string &key, T deft_value = {}) const;
 
 public:
 	std::string read_body(std::error_code &error, std::size_t size = 0);
@@ -99,7 +96,7 @@ public:
 private:
 	template <class Sesn>
 	std::shared_ptr<Sesn> session_type_check(session_ptr &ptr) const;
-	void set_cookie_session_id(const std::string&);
+	void set_cookie_session_id(std::string id);
 
 private:
 	friend class web::http_parser;
@@ -170,8 +167,8 @@ T request::parameter(const std::string &key) const {
 }
 
 template <typename T, typename U>
-T request::parameter_or(const std::string &key, const T &deft_value) const {
-	return parameter_or(key, http::value(deft_value)).get<T>();
+T request::parameter_or(const std::string &key, T deft_value) const {
+	return parameter_or(key, http::value(std::move(deft_value))).get<T>();
 }
 
 template <typename T>
@@ -180,8 +177,8 @@ T request::header(const std::string &key) const {
 }
 
 template <typename T, typename U>
-T request::header_or(const std::string &key, const T &deft_value) const {
-	return header_or(key, http::value(deft_value)).get<T>();
+T request::header_or(const std::string &key, T deft_value) const {
+	return header_or(key, http::value(std::move(deft_value))).get<T>();
 }
 
 template <typename T>
@@ -190,8 +187,8 @@ T request::cookie(const std::string &key) const {
 }
 
 template <typename T, typename U>
-T request::cookie_or(const std::string &key, const T &deft_value) const {
-	return cookie_or(key, http::value(deft_value)).get<T>();
+T request::cookie_or(const std::string &key, T deft_value) const {
+	return cookie_or(key, http::value(std::move(deft_value))).get<T>();
 }
 
 inline std::string request::read_body(std::size_t size)

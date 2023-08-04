@@ -37,24 +37,22 @@ public:
 	response &set_cookies(const http::cookies &cookies);
 
 public:
-	response &set_header(const std::string &key, const std::string &value);
-	response &set_header(const std::string &key, std::string &&value);
+	response &set_header(std::string key, std::string value);
 
 	template <typename...Args>
-	response &set_header(const std::string &key, fmt::format_string<Args...> fmt, Args&&...args);
+	response &set_header(std::string key, fmt::format_string<Args...> fmt, Args&&...args);
 
 	template <typename T, typename U = not_type_t<T,http::value>>
-	response &set_header(const std::string &key, T &&value);
+	response &set_header(std::string key, T &&value);
 
 public:
-	response &set_cookie(const std::string &key, const http::cookie &cookie);
-	response &set_cookie(const std::string &key, http::cookie &&cookie);
+	response &set_cookie(std::string key, http::cookie cookie);
 
 	template <typename...Args>
-	response &set_cookie(const std::string &key, fmt::format_string<Args...> fmt, Args&&...args);
+	response &set_cookie(std::string key, fmt::format_string<Args...> fmt, Args&&...args);
 
 	template <typename T, typename U = not_type_t<T,http::cookie>>
-	response &set_cookie(const std::string &key, T &&value);
+	response &set_cookie(std::string key, T &&value);
 
 public:
 	std::string version() const;
@@ -69,26 +67,24 @@ public:
 public:
 	value &header(const std::string &key);
 	const value &header(const std::string &key) const;
-	value header_or(const std::string &key, const value &deft_value) const;
-	value header_or(const std::string &key, value &&deft_value = {}) const;
+	value header_or(const std::string &key, value deft_value = {}) const;
 
 	template <typename T>
 	T header(const std::string &key) const;
 
 	template <typename T, typename U = not_value_t<T>>
-	T header_or(const std::string &key, const T &deft_value) const;
+	T header_or(const std::string &key, T deft_value = {}) const;
 
 public:
 	http::cookie &cookie(const std::string &key);
 	const http::cookie &cookie(const std::string &key) const;
-	http::cookie cookie_or(const std::string &key, const http::cookie &deft_value) const;
-	http::cookie cookie_or(const std::string &key, http::cookie &&deft_value = {}) const;
+	http::cookie cookie_or(const std::string &key, http::cookie deft_value = {}) const;
 
 	template <typename T>
 	T cookie(const std::string &key) const;
 
 	template <typename T, typename U = not_value_t<T>>
-	T cookie_or(const std::string &key, const T &deft_value) const;
+	T cookie_or(const std::string &key, T deft_value = {}) const;
 
 public:
 	response &write_default();
@@ -148,6 +144,7 @@ public:
 
 public:
 	static void set_default_write(std::function<void(response&)>);
+	bool is_writed() const;
 
 private:
 	response_impl *m_impl;
@@ -168,23 +165,23 @@ inline response &response::set_cookies(const http::cookies &cookies)
 }
 
 template <typename...Args>
-response &response::set_header(const std::string &key, fmt::format_string<Args...> value_fmt, Args&&...args) {
-	return set_header(key, fmt::format(value_fmt, std::forward<Args>(args)...));
+response &response::set_header(std::string key, fmt::format_string<Args...> value_fmt, Args&&...args) {
+	return set_header(std::move(key), fmt::format(value_fmt, std::forward<Args>(args)...));
 }
 
 template <typename T, typename U>
-response &response::set_header(const std::string &key, T &&value) {
-	return set_header(key, "{}", std::forward<T>(value));
+response &response::set_header(std::string key, T &&value) {
+	return set_header(std::move(key), "{}", std::forward<T>(value));
 }
 
 template <typename...Args>
-response &response::set_cookie(const std::string &key, fmt::format_string<Args...> value_fmt, Args&&...args) {
-	return set_cookie(key, http::cookie::from(value_fmt, std::forward<Args>(args)...));
+response &response::set_cookie(std::string key, fmt::format_string<Args...> value_fmt, Args&&...args) {
+	return set_cookie(std::move(key), http::cookie::from(value_fmt, std::forward<Args>(args)...));
 }
 
 template <typename T, typename U>
-response &response::set_cookie(const std::string &key, T &&value) {
-	return set_cookie(key, http::cookie(std::forward<T>(value)));
+response &response::set_cookie(std::string key, T &&value) {
+	return set_cookie(std::move(key), http::cookie(std::forward<T>(value)));
 }
 
 template <typename T>
@@ -193,8 +190,8 @@ T response::header(const std::string &key) const {
 }
 
 template <typename T, typename U>
-T response::header_or(const std::string &key, const T &deft_value) const {
-	return header_or(key, http::value(deft_value)).get<T>();
+T response::header_or(const std::string &key, T deft_value) const {
+	return header_or(key, http::value(std::move(deft_value))).get<T>();
 }
 
 template <typename T>
@@ -203,8 +200,8 @@ T response::cookie(const std::string &key) const {
 }
 
 template <typename T, typename U>
-T response::cookie_or(const std::string &key, const T &deft_value) const {
-	return cookie_or(key, http::cookie(deft_value)).get<T>();
+T response::cookie_or(const std::string &key, T deft_value) const {
+	return cookie_or(key, http::cookie(std::move(deft_value))).get<T>();
 }
 
 inline response &response::write_default(int status) {

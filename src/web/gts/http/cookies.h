@@ -40,8 +40,8 @@ public:
 	std::string priority() const;
 
 public:
-	cookie &set_domain(const std::string &domain);
-	cookie &set_path(const std::string &path);
+	cookie &set_domain(std::string domain);
+	cookie &set_path(std::string path);
 	cookie &set_size(std::size_t size);
 
 	cookie &set_expires(uint64_t seconds);
@@ -50,27 +50,25 @@ public:
 	cookie &set_http_only(bool flag);
 	cookie &set_secure(bool flag);
 
-	cookie &same_site(const std::string &sst);
-	cookie &priority(const std::string &pt);
+	cookie &same_site(std::string sst);
+	cookie &priority(std::string pt);
 
 public:
 	cookie_attributes &attributes();
 	const cookie_attributes &attributes() const;
 
-	cookie &set_attribute(const std::string &key, const std::string &value);
-	cookie &set_attribute(const std::string &key, std::string &&value);
+	cookie &set_attribute(std::string key, std::string value);
 
 	template <typename...Args>
-	cookie &set_attribute(const std::string &key, fmt::format_string<Args...> fmt, Args&&...args);
+	cookie &set_attribute(std::string key, fmt::format_string<Args...> fmt, Args&&...args);
 
 	template <typename T, typename U = not_ctype_t<T>>
-	cookie &set_attribute(const std::string &key, T &&value);
+	cookie &set_attribute(std::string key, T &&value);
 
 	cookie &unset_attribute(const std::string &key);
 
 public:
-	cookie &set_value(const std::string &v);
-	cookie &set_value(std::string &&v);
+	cookie &set_value(std::string v);
 
 	template <typename...Args>
 	cookie &set_value(fmt::format_string<Args...> fmt_value, Args&&...args);
@@ -96,26 +94,20 @@ using cookie_pair  = http::pair<cookie>;
 using cookies      = http::unordered_map<cookie>;
 
 template <typename...Args>
-cookie &cookie::set_attribute(const std::string &key, fmt::format_string<Args...> fmt_value, Args&&...args)
+cookie &cookie::set_attribute(std::string key, fmt::format_string<Args...> fmt_value, Args&&...args)
 {
-	m_attributes[key].set_value(fmt_value, std::forward<Args>(args)...);
+	m_attributes[std::move(key)].set_value(fmt_value, std::forward<Args>(args)...);
 	return *this;
 }
 
 template <typename T, typename U>
-cookie &cookie::set_attribute(const std::string &key, T &&value)
+cookie &cookie::set_attribute(std::string key, T &&value)
 {
-	m_attributes[key].set_value(std::forward<T>(value));
+	m_attributes[std::move(key)].set_value(std::forward<T>(value));
 	return *this;
 }
 
-inline cookie &cookie::set_value(const std::string &v)
-{
-	value::operator=(v);
-	return *this;
-}
-
-inline cookie &cookie::set_value(std::string &&v)
+inline cookie &cookie::set_value(std::string v)
 {
 	value::operator=(std::move(v));
 	return *this;

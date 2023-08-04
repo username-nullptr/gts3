@@ -75,15 +75,15 @@ std::string cookie::priority() const
 	return it == m_attributes.end()? "" : it->second;
 }
 
-cookie &cookie::set_domain(const std::string &domain)
+cookie &cookie::set_domain(std::string domain)
 {
-	m_attributes["Domain"] = domain;
+	m_attributes["Domain"] = std::move(domain);
 	return *this;
 }
 
-cookie &cookie::set_path(const std::string &path)
+cookie &cookie::set_path(std::string path)
 {
-	m_attributes["Path"] = path;
+	m_attributes["Path"] = std::move(path);
 	return *this;
 }
 
@@ -119,15 +119,15 @@ cookie &cookie::set_secure(bool flag)
 	return *this;
 }
 
-cookie &cookie::same_site(const std::string &sst)
+cookie &cookie::same_site(std::string sst)
 {
-	m_attributes["SameSite"] = sst;
+	m_attributes["SameSite"] = std::move(sst);
 	return *this;
 }
 
-cookie &cookie::priority(const std::string &pt)
+cookie &cookie::priority(std::string pt)
 {
-	m_attributes["Priority"] = pt;
+	m_attributes["Priority"] = std::move(pt);
 	return *this;
 }
 
@@ -141,15 +141,9 @@ const cookie_attributes &cookie::attributes() const
 	return m_attributes;
 }
 
-cookie &cookie::set_attribute(const std::string &key, const std::string &value)
+cookie &cookie::set_attribute(std::string key, std::string value)
 {
-	m_attributes[key] = value;
-	return *this;
-}
-
-cookie &cookie::set_attribute(const std::string &key, std::string &&value)
-{
-	m_attributes[key] = std::move(value);
+	m_attributes[std::move(key)] = std::move(value);
 	return *this;
 }
 

@@ -18,9 +18,8 @@ log_buffer::context &log_buffer::context::operator=(context &&other)
 	return *this;
 }
 
-log_buffer::log_buffer(type t, std::string category) : m_data(new data)
+log_buffer::log_buffer(type t) : m_data(new data)
 {
-	m_data->category = std::move(category);
 	m_data->type = t;
 }
 
