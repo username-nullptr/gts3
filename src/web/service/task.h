@@ -29,7 +29,7 @@ public:
 
 public:
 	void start(std::shared_ptr<http::request> request);
-	void async_wait_next(std::function<void()> call_back);
+	void async_wait_next(std::function<void(bool)> call_back);
 	void cancel();
 
 private:
@@ -38,7 +38,7 @@ private:
 private:
 	tcp_socket_ptr m_socket;
 	std::shared_ptr<http::request> m_request;
-	std::function<void()> m_call_back;
+	std::function<void(bool)> m_call_back;
 };
 
 }} //namespace gts::web

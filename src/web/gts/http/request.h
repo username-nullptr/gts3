@@ -42,6 +42,7 @@ public:
 	std::shared_ptr<Sesn> session(bool create = true);
 
 public:
+	bool parameters_contains(const std::string &key) const;
 	const value &parameter(const std::string &key) const;
 	value parameter_or(const std::string &key, value deft_value = {}) const;
 
@@ -52,6 +53,7 @@ public:
 	T parameter_or(const std::string &key, T deft_value = {}) const;
 
 public:
+	bool headers_contains(const std::string &key) const;
 	const value &header(const std::string &key) const;
 	value header_or(const std::string &key, value deft_value = {}) const;
 
@@ -62,6 +64,7 @@ public:
 	T header_or(const std::string &key, T deft_value = {}) const;
 
 public:
+	bool cookies_contains(const std::string &key) const;
 	const value &cookie(const std::string &key) const;
 	value cookie_or(const std::string &key, value deft_value = {}) const;
 

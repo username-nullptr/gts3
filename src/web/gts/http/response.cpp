@@ -131,6 +131,11 @@ http::cookies &response::cookies()
 	return m_impl->m_cookies;
 }
 
+bool response::headers_contains(const std::string &key) const
+{
+	return m_impl->m_headers.find(key) != m_impl->m_headers.end();
+}
+
 value &response::header(const std::string &key)
 {
 	auto it = m_impl->m_headers.find(key);
@@ -151,6 +156,11 @@ value response::header_or(const std::string &key, value deft_value) const
 {
 	auto it = m_impl->m_headers.find(key);
 	return it == m_impl->m_headers.end()? std::move(deft_value) : it->second;
+}
+
+bool response::cookies_contains(const std::string &key) const
+{
+	return m_impl->m_cookies.find(key) != m_impl->m_cookies.end();
 }
 
 cookie &response::cookie(const std::string &key)

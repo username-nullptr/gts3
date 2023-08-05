@@ -1,4 +1,4 @@
-#include "service.h"
+#include "cgi_service.h"
 #include "gts/web_global.h"
 
 #include "service/service_io.h"

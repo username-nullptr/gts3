@@ -65,6 +65,7 @@ public:
 	http::cookies &cookies();
 
 public:
+	bool headers_contains(const std::string &key) const;
 	value &header(const std::string &key);
 	const value &header(const std::string &key) const;
 	value header_or(const std::string &key, value deft_value = {}) const;
@@ -76,6 +77,7 @@ public:
 	T header_or(const std::string &key, T deft_value = {}) const;
 
 public:
+	bool cookies_contains(const std::string &key) const;
 	http::cookie &cookie(const std::string &key);
 	const http::cookie &cookie(const std::string &key) const;
 	http::cookie cookie_or(const std::string &key, http::cookie deft_value = {}) const;

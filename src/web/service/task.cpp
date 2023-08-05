@@ -1,14 +1,16 @@
 #include "task.h"
-#include "service.h"
 #include "service_io.h"
-#include "gts/web_global.h"
-#include "gts/http/formatter.h"
+#include "cgi_service.h"
+#include "plugins_service.h"
 
 #include "gts/log.h"
 #include "gts/settings.h"
 #include "gts/algorithm.h"
 #include "gts/tcp_socket.h"
 #include "gts/application.h"
+#include "gts/http/formatter.h"
+
+#include "gts/web_global.h"
 #include "gts/web/config_key.h"
 #include "gts/web/thread_pool.h"
 
@@ -99,12 +101,14 @@ void task::init()
 			  g_plugins_access,
 			  g_cgi_access,
 			  g_cgi_path);
-	service::init();
+
+	plugin_service::init();
+	cgi_service::init();
 }
 
 void task::exit()
 {
-	service::exit();
+	plugin_service::exit();
 }
 
 std::string task::view_status()
@@ -114,9 +118,24 @@ std::string task::view_status()
 
 void task::start(std::shared_ptr<http::request> request)
 {
-	m_request = std::move(request);
 	m_socket->non_blocking(false);
+	auto &headers = request->headers();
 
+	auto it = headers.find("connection");
+	if( it != headers.end() and it->second == "upgrade" )
+	{
+		it = headers.find("upgrade");
+		if( it != headers.end() and it->second == "websocket" )
+		{
+			plugin_service::new_websocket(*request);
+			if( m_call_back )
+			{
+				m_request.reset();
+				return m_call_back(false);
+			}
+		}
+	}
+	m_request = std::move(request);
 	asio::post(thread_pool(), [this]
 	{
 		run();
@@ -125,13 +144,13 @@ void task::start(std::shared_ptr<http::request> request)
 			if( m_call_back )
 			{
 				m_request.reset();
-				m_call_back();
+				m_call_back(true);
 			}
 		});
 	});
 }
 
-void task::async_wait_next(std::function<void()> call_back)
+void task::async_wait_next(std::function<void(bool)> call_back)
 {
 	assert(call_back != nullptr);
 	m_call_back = std::move(call_back);
@@ -183,10 +202,10 @@ void task::run()
 			auto prefix = sio.url_name.substr(0,pos); \
 			if( prefix == g_cgi_access ) { \
 				sio.url_name = g_cgi_path + sio.url_name.substr(pos+1); \
-				return service::call_cgi_service(sio); \
+				return cgi_service(sio).call(); \
 			} else if ( prefix == g_plugins_access ) { \
 				sio.url_name.erase(0, pos+1); \
-				return service::call_plugin_service(sio); \
+				return plugin_service(sio).call(); \
 			} \
 		} \
 	} \
@@ -236,7 +255,7 @@ static void _HEAD(service_io &sio)
 		else if ( prefix == g_plugins_access )
 		{
 			sio.url_name.erase(0, pos+1);
-			return service::call_plugin_service(sio);
+			return plugin_service(sio).call();
 		}
 	}
 

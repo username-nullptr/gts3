@@ -261,6 +261,17 @@ std::string plugin_service::view_status()
 	return result;
 }
 
+void plugin_service::new_websocket(http::request &request)
+{
+	// TODO ...
+	request.socket().write_some("HTTP/1.1 501 Not Implemented\r\n"
+								"content-length: 19\r\n"
+								"connection: close\r\n"
+								"\r\n"
+								"Being developed ...");
+	request.socket().close(true);
+}
+
 static environments make_envs(service_io &sio)
 {
 	return environments{

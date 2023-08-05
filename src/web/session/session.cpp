@@ -160,8 +160,12 @@ void session::do_recv()
 			return delete_later(this);
 		}
 
-		m_task.async_wait_next([this]{
-			do_recv();
+		m_task.async_wait_next([this](bool cont)
+		{
+			if( cont )
+				do_recv();
+			else
+				return delete_later(this);
 		});
 		request->m_impl->m_socket = m_socket;
 		m_task.start(std::move(request));

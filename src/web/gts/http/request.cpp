@@ -57,6 +57,11 @@ const basic_cookies &request::cookies() const
 	return m_impl->m_cookies;
 }
 
+bool request::parameters_contains(const std::string &key) const
+{
+	return m_impl->m_parameters.find(key) != m_impl->m_parameters.end();
+}
+
 const value &request::parameter(const std::string &key) const
 {
 	auto it = m_impl->m_parameters.find(key);
@@ -71,6 +76,11 @@ value request::parameter_or(const std::string &key, value deft_value) const
 	return it == m_impl->m_parameters.end()? std::move(deft_value) : it->second;
 }
 
+bool request::headers_contains(const std::string &key) const
+{
+	return m_impl->m_headers.find(key) != m_impl->m_headers.end();
+}
+
 const value &request::header(const std::string &key) const
 {
 	auto it = m_impl->m_headers.find(key);
@@ -83,6 +93,11 @@ value request::header_or(const std::string &key, value deft_value) const
 {
 	auto it = m_impl->m_headers.find(key);
 	return it == m_impl->m_headers.end()? std::move(deft_value) : it->second;
+}
+
+bool request::cookies_contains(const std::string &key) const
+{
+	return m_impl->m_cookies.find(key) != m_impl->m_cookies.end();
 }
 
 const value &request::cookie(const std::string &key) const
