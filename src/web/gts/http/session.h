@@ -2,6 +2,7 @@
 #define GTS_HTTP_SESSION_H
 
 #include <gts/http/container.h>
+#include <gts/exception.h>
 
 namespace gts { namespace http
 {
@@ -63,6 +64,9 @@ public:
 	static std::shared_ptr<session> get(const std::string &id);
 	static void set(session *obj);
 
+    template <class Sesn>
+	static std::shared_ptr<Sesn> get(const std::string &id);
+
 public:
 	static void set_global_lifecycle(const duration &seconds);
 	static duration global_lifecycle();
@@ -96,6 +100,22 @@ T session::attribute_or(const std::string &key, T deft_value) const {
 template <typename...Args>
 session &session::set_attribute(std::string key, fmt::format_string<Args...> fmt_value, Args&&...args) {
 	return set_attribute(std::move(key), fmt::format(fmt_value, std::forward<Args>(args)...));
+}
+
+template <class Sesn>
+std::shared_ptr<Sesn> session::get(const std::string &id)
+{
+	static_assert(gts_is_base_of(http::session, Sesn),
+	"The template argument 'Sesn' must be a 'gts::http::session' or derived class of 'gts::http::session'.");
+
+    auto ptr = get(id);
+    if( ptr == nullptr )
+        return std::shared_ptr<Sesn>();
+
+    auto dy_ptr = std::dynamic_pointer_cast<Sesn>(ptr);
+    if( dy_ptr == nullptr )
+        throw exception("gts::http::session::get<{}>: The type of 'session' is incorrect.", type_name<Sesn>());
+    return dy_ptr;
 }
 
 }} //namespace gts::http
