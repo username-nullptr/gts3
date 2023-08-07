@@ -156,6 +156,28 @@ std::size_t request::read_body(std::error_code &error, void *buf, std::size_t si
 	return size;
 }
 
+std::string request::read_all_body(std::error_code &error)
+{
+    std::string result;
+    auto tcp_buf_size = m_impl->tcp_ip_buffer_size();
+	char *buf = new char[65536] {0};
+
+	while( can_read_body() )
+	{
+		auto res = read_body(error, buf, tcp_buf_size);
+		if( error )
+		{
+			delete[] buf;
+			return result;
+		}
+		else if( res == 0 )
+			continue;
+		result.append(buf, res);
+	}
+	delete[] buf;
+	return result;
+}
+
 bool request::save_file(const std::string &_file_name, asio::error_code &error)
 {
 	if( _file_name.empty() )

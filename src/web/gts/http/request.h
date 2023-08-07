@@ -81,6 +81,10 @@ public:
 	std::size_t read_body(void *buf, std::size_t size);
 
 public:
+    std::string read_all_body(std::error_code &error);
+    std::string read_all_body();
+
+public:
 	bool save_file(const std::string &file_name, std::error_code &error);
 	bool save_file(const std::string &file_name);
 
@@ -204,6 +208,12 @@ inline std::size_t request::read_body(void *buf, std::size_t size)
 {
 	std::error_code error;
 	return read_body(error, buf, size);
+}
+
+inline std::string request::read_all_body()
+{
+	std::error_code error;
+	return read_all_body(error);
 }
 
 inline bool request::save_file(const std::string &file_name)
