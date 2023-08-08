@@ -22,7 +22,7 @@ class GTSWEB_API session
 
 public:
 	explicit session(const duration &seconds = duration(0));
-	~session();
+	virtual ~session();
 
 public:
 	std::string id() const;
