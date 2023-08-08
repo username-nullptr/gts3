@@ -15,7 +15,8 @@ public:
 	struct is_string {
 		static constexpr bool value = gts_is_same(decay_t<CT>, http::value) or
 									  gts_is_same(decay_t<CT>, std::string) or
-									  gts_is_same(decay_t<CT>, char*);
+									  gts_is_same(CT, const char*) or
+									  gts_is_same(CT, char*);
 	};
 	template <typename CT, typename T = void>
 	using not_type_t = enable_if_t<not is_string<CT>::value, T>;

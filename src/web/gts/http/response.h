@@ -20,11 +20,11 @@ class GTSWEB_API response
 	template <typename T>
 	using is_string = http::value::is_string<T>;
 
-	template <typename CT, typename V>
-	using not_type_t = enable_if_t<not gts_is_dsame(CT, V) and not is_string<CT>::value, int>;
+	template <typename CT>
+	using not_value_t = enable_if_t<not is_string<CT>::value, int>;
 
-	template <typename T>
-	using not_value_t = enable_if_t<not gts_is_dsame(T, http::value), int>;
+	template <typename CT>
+	using not_cookie_t = enable_if_t<not gts_is_dsame(CT, http::cookie) and not is_string<CT>::value, int>;
 
 public:
 	explicit response(http::request &request, http::status status = hs_ok);
@@ -42,7 +42,7 @@ public:
 	template <typename...Args>
 	response &set_header(std::string key, fmt::format_string<Args...> fmt, Args&&...args);
 
-	template <typename T, typename U = not_type_t<T,http::value>>
+	template <typename T, typename U = not_cookie_t<T>>
 	response &set_header(std::string key, T &&value);
 
 public:
@@ -51,7 +51,7 @@ public:
 	template <typename...Args>
 	response &set_cookie(std::string key, fmt::format_string<Args...> fmt, Args&&...args);
 
-	template <typename T, typename U = not_type_t<T,http::cookie>>
+	template <typename T, typename U = not_cookie_t<T>>
 	response &set_cookie(std::string key, T &&value);
 
 public:
@@ -74,7 +74,7 @@ public:
 	T header(const std::string &key) const;
 
 	template <typename T, typename U = not_value_t<T>>
-	T header_or(const std::string &key, T deft_value = {}) const;
+	T header_or(const std::string &key, T deft_value) const;
 
 public:
 	bool cookies_contains(const std::string &key) const;
@@ -85,8 +85,8 @@ public:
 	template <typename T>
 	T cookie(const std::string &key) const;
 
-	template <typename T, typename U = not_value_t<T>>
-	T cookie_or(const std::string &key, T deft_value = {}) const;
+	template <typename T, typename U = not_cookie_t<T>>
+	T cookie_or(const std::string &key, T deft_value) const;
 
 public:
 	response &write_default();
@@ -111,10 +111,10 @@ public:
 	response &write_body(fmt::format_string<Args...> fmt, Args&&...args);
 
 public:
-	template <typename T, typename U = value::not_type_t<T,int>>
+	template <typename T, typename U = not_cookie_t<T>>
 	response &write(T &&value);
 
-	template <typename T, typename U = value::not_type_t<T,int>>
+	template <typename T, typename U = not_cookie_t<T>>
 	response &write_body(T &&value);
 
 public:

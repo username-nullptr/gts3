@@ -12,7 +12,7 @@ using cookie_attributes = http::map<http::value, less_case_insensitive>;
 class GTSWEB_API cookie : public http::value
 {
 	template <typename CT>
-	using not_ctype_t = enable_if_t<not gts_is_dsame(CT, cookie) and not is_string<CT>::value, int>;
+	using not_cookie_t = enable_if_t<not gts_is_dsame(CT, cookie) and not is_string<CT>::value, int>;
 
 public:
 	using _vbase = http::value;
@@ -62,7 +62,7 @@ public:
 	template <typename...Args>
 	cookie &set_attribute(std::string key, fmt::format_string<Args...> fmt, Args&&...args);
 
-	template <typename T, typename U = not_ctype_t<T>>
+	template <typename T, typename U = not_cookie_t<T>>
 	cookie &set_attribute(std::string key, T &&value);
 
 	cookie &unset_attribute(const std::string &key);
@@ -73,14 +73,14 @@ public:
 	template <typename...Args>
 	cookie &set_value(fmt::format_string<Args...> fmt_value, Args&&...args);
 
-	template <typename T, typename U = not_ctype_t<T>>
+	template <typename T, typename U = not_cookie_t<T>>
 	cookie &set_value(T &&v);
 
 public:
 	template <typename...Args>
 	static cookie from(fmt::format_string<Args...> fmt_value, Args&&...args);
 
-	template <typename T, typename U = not_ctype_t<T>>
+	template <typename T, typename U = not_cookie_t<T>>
 	static cookie from(T &&v);
 
 private:

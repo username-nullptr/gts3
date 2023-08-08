@@ -102,7 +102,7 @@ bool http_parser::state_handler_waiting_request(const std::string &line_buf)
 		{
 			auto pos = para_str.find("=");
 			if( pos == para_str.npos )
-				m_cache->m_impl->m_parameters.emplace(para_str, "");
+				m_cache->m_impl->m_parameters.emplace(para_str, para_str);
 			else
 				m_cache->m_impl->m_parameters.emplace(para_str.substr(0, pos), para_str.substr(pos+1));
 		}

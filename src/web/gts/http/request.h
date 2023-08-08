@@ -16,7 +16,10 @@ class GTSWEB_API request
 	GTS_DISABLE_COPY_MOVE(request)
 
 	template <typename T>
-	using not_value_t = enable_if_t<not gts_is_dsame(T, http::value), int>;
+	using is_string = http::value::is_string<T>;
+
+	template <typename CT>
+	using not_value_t = enable_if_t<not is_string<CT>::value, int>;
 
 public:
 	request();
@@ -49,7 +52,7 @@ public:
 	T parameter(const std::string &key) const;
 
 	template <typename T, typename U = not_value_t<T>>
-	T parameter_or(const std::string &key, T deft_value = {}) const;
+	T parameter_or(const std::string &key, T deft_value) const;
 
 public:
 	bool headers_contains(const std::string &key) const;
@@ -60,18 +63,18 @@ public:
 	T header(const std::string &key) const;
 
 	template <typename T, typename U = not_value_t<T>>
-	T header_or(const std::string &key, T deft_value = {}) const;
+	T header_or(const std::string &key, T deft_value) const;
 
 public:
 	bool cookies_contains(const std::string &key) const;
 	const value &cookie(const std::string &key) const;
-	value cookie_or(const std::string &key, value deft_value = {}) const;
+	value cookie_or(const std::string &key, value deft_value) const;
 
 	template <typename T>
 	T cookie(const std::string &key) const;
 
 	template <typename T, typename U = not_value_t<T>>
-	T cookie_or(const std::string &key, T deft_value = {}) const;
+	T cookie_or(const std::string &key, T deft_value) const;
 
 public:
 	std::string read_body(std::error_code &error, std::size_t size = 0);

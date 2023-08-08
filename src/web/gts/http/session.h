@@ -37,7 +37,7 @@ public:
 	T attribute(const std::string &key) const;
 
 	template <typename T, typename U = not_variant_t<T>>
-	T attribute_or(const std::string &key, T deft_value = {}) const;
+	T attribute_or(const std::string &key, T deft_value) const;
 
 public:
 	session &set_attribute(std::string key, rttr::variant value);
@@ -89,12 +89,12 @@ GTSWEB_API std::shared_ptr<Sesn> make_session(const std::chrono::seconds &second
 
 template <typename T>
 T session::attribute(const std::string &key) const {
-	return attribute(key).get_value<T>();
+	return attribute(key).convert<T>();
 }
 
 template <typename T, typename U>
 T session::attribute_or(const std::string &key, T deft_value) const {
-	return attribute_or(key, rttr::variant(std::move(deft_value))).get_value<T>();
+	return attribute_or(key, rttr::variant(std::move(deft_value))).convert<T>();
 }
 
 template <typename...Args>

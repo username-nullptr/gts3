@@ -104,4 +104,21 @@ gts::http::method from_method_string(const std::string &m)
 	return METHOD_UNKNOWN;
 }
 
+std::string std_header_string(std_header h)
+{
+	switch(h)
+	{
+	case content_length : return "Content-Length";
+	default: break;
+	}
+	assert(false);
+	return "Unkown";
+}
+
+std_header from_std_header_string(const std::string &h)
+{
+	if( str_to_lower(h) == "content-length" ) return content_length;
+	return STD_HEADER_UNKNOWN;
+}
+
 }} //namespace gts::http

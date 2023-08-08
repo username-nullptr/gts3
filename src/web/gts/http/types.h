@@ -69,7 +69,6 @@ enum status
 	hs_not_extended                    = 510, // Not Extended
 	hs_network_authentication_required = 511, // Network Authentication Required
 };
-
 GTSWEB_API std::string status_description(int s);
 
 enum method
@@ -86,6 +85,14 @@ enum method
 };
 GTSWEB_API std::string method_string(method m);
 GTSWEB_API method from_method_string(const std::string &m);
+
+enum std_header
+{
+	STD_HEADER_UNKNOWN = -1,
+	content_length,
+};
+GTSWEB_API std::string std_header_string(std_header h);
+GTSWEB_API std_header from_std_header_string(const std::string &h);
 
 enum class redirect_type
 {
