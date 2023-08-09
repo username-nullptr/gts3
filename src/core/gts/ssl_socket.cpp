@@ -42,7 +42,8 @@ std::size_t ssl_socket::write_some(const void *buf, std::size_t size, asio::erro
 std::size_t ssl_socket::read_some(std::string &buf, asio::error_code &error)
 {
 	m_sock->non_blocking(false);
-	return m_ssl_sock->read_some(asio::buffer(buf), error);
+	tcp::socket::receive_buffer_size option; get_option(option);
+	return m_ssl_sock->read_some(asio::buffer(buf, option.value()), error);
 }
 
 std::size_t ssl_socket::read_some(void *buf, std::size_t size, asio::error_code &error)
@@ -61,9 +62,18 @@ void ssl_socket::async_write_some(const void *buf, std::size_t size, std::functi
 	m_ssl_sock->async_write_some(asio::buffer(buf, size), callback);
 }
 
-void ssl_socket::async_read_some(std::string &buf, std::function<void(asio::error_code, std::size_t)> callback)
+void ssl_socket::async_read_some(std::string &buf, std::function<void(asio::error_code)> callback)
 {
-	m_ssl_sock->async_read_some(asio::buffer(buf), callback);
+	tcp::socket::receive_buffer_size option;
+	get_option(option);
+
+	char *tmp = new char[option.value()] {0};
+	m_ssl_sock->async_read_some(asio::buffer(tmp, option.value()), [&buf, callback, tmp](const asio::error_code &error, std::size_t size)
+	{
+		buf = std::string(tmp,size);
+		delete[] tmp;
+		callback(error);
+	});
 }
 
 void ssl_socket::async_read_some(void *buf, std::size_t size, std::function<void(asio::error_code, std::size_t)> callback)

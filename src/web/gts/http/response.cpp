@@ -55,7 +55,7 @@ public:
 
 	cookies m_cookies;
 	headers m_headers {
-		{ "content-type", "text/plain; charset=utf-8" }
+		{ header::content_type, "text/plain; charset=utf-8" }
 	};
 	bool m_headers_writed = false;
 };
@@ -202,7 +202,7 @@ response &response::write_default()
 		return *this;
 	}
 	auto body = fmt::format("{} ({})", http::status_description(status()), status());
-	set_header("content-length", body.size());
+	set_header(header::content_length, body.size());
 
 	auto result = fmt::format("HTTP/{} {} {}\r\n", version(), static_cast<int>(m_impl->m_status),
 							  status_description(m_impl->m_status));
@@ -226,8 +226,8 @@ response &response::write(std::size_t size, const void *body)
 							  status_description(m_impl->m_status));
 	m_impl->serialize_headers_and_cookies(result);
 
-	if( m_impl->m_headers.find("content-length") == m_impl->m_headers.end() )
-		result += fmt::format("content-length: {}\r\n", size);
+	if( m_impl->m_headers.find(header::content_length) == m_impl->m_headers.end() )
+		result += fmt::format("{}: {}\r\n", header::content_length, size);
 
 	socket().write_some(result + "\r\n");
 	if( size > 0 )
@@ -306,7 +306,7 @@ public:
 		auto &headers = m_request.headers();
 
 		// Content-Range: bytes=x-y/z
-		auto it = headers.find("content-range");
+		auto it = headers.find(header::content_range);
 		if( it != headers.end() )
 		{
 			// TODO ......
@@ -330,7 +330,7 @@ public:
 			0\r\n
 			\r\n
 		*/
-		it = headers.find("transfer-coding");
+		it = headers.find(header::transfer_coding);
 		if( it != headers.end() and it->second == "chunked" )
 		{
 
@@ -351,8 +351,8 @@ public:
 		if( file_size == 0 )
 			return ;
 
-		m_response.set_header("content-length", file_size)
-				  .set_header("content-type"  , mime_type)
+		m_response.set_header(header::content_length, file_size)
+				  .set_header(header::content_type  , mime_type)
 				  .write();
 
 		auto buf_size = tcp_ip_buffer_size();
@@ -420,10 +420,10 @@ public:
 				return ;
 			}
 
-			m_response.set_header("accept-ranges" , "bytes")
-					  .set_header("content-type"  , mime_type)
-					  .set_header("content-length", range_value.size)
-					  .set_header("content-range" , "{}-{}/{}", range_value.begin, range_value.end, range_value.size);
+			m_response.set_header(header::accept_ranges , "bytes")
+					  .set_header(header::content_type  , mime_type)
+					  .set_header(header::content_length, range_value.size)
+					  .set_header(header::content_range , "{}-{}/{}", range_value.begin, range_value.end, range_value.size);
 
 			return send_range("", "", range_value_queue);
 		} // if( rangeList.size() == 1 )
@@ -431,9 +431,9 @@ public:
 		auto boundary = fmt::format("{}_{}", __func__, duration_cast<milliseconds>
 									(system_clock::now().time_since_epoch()).count());
 
-		m_response.set_header("content-type", "multipart/byteranges; boundary=" + boundary);
+		m_response.set_header(header::content_type, "multipart/byteranges; boundary=" + boundary);
 
-		auto ct_line = "content-type: " + mime_type;
+		auto ct_line = fmt::format("{}: {}", header::content_type, mime_type);
 		std::size_t content_length = 0;
 
 		for(auto &str : range_list)
@@ -447,7 +447,7 @@ public:
 				return ;
 			}
 
-			range_value.cr_line = fmt::format("content-range: bytes {}-{}/{}",
+			range_value.cr_line = fmt::format("{}: bytes {}-{}/{}", header::content_range,
 											  range_value.begin, range_value.end, fs::file_size(m_file_name));
 			/*
 				--boundary<CR><LF>
@@ -470,8 +470,8 @@ public:
 		}
 		content_length += 2 + boundary.size() + 2 + 2;         // --boundary--<CR><LF>
 
-		m_response.set_header("content-length", content_length)
-				  .set_header("accept-ranges" , "bytes");
+		m_response.set_header(header::content_length, content_length)
+				  .set_header(header::accept_ranges , "bytes");
 		send_range(boundary, ct_line, range_value_queue);
 	}
 
@@ -686,7 +686,7 @@ response &response::redirect(const std::string &url, redirect_type type)
 	case redirect_type::not_modified       : set_status(http::hs_not_modified      ); break;
 	default: gts_log_fatal("Invalid redirect type.");
 	}
-	return set_header("location", url).write();
+	return set_header(header::location, url).write();
 }
 
 response &response::unset_header(const std::string &key)

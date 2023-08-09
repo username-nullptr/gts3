@@ -27,7 +27,7 @@ public:
 public:
 	virtual void async_write_some(const std::string &buf, std::function<void(asio::error_code, std::size_t)>);
 	virtual void async_write_some(const void *buf, std::size_t size, std::function<void(asio::error_code, std::size_t)>);
-	virtual void async_read_some(std::string &buf, std::function<void(asio::error_code, std::size_t)>);
+	virtual void async_read_some(std::string &buf, std::function<void(asio::error_code)>);
 	virtual void async_read_some(void *buf, std::size_t size, std::function<void(asio::error_code, std::size_t)>);
 
 public:
@@ -39,7 +39,7 @@ public:
 public:
 	void async_write_some(const std::string &buf, std::function<void(std::size_t)>);
 	void async_write_some(const void *buf, std::size_t size, std::function<void(std::size_t)>);
-	void async_read_some(std::string &buf, std::function<void(std::size_t)>);
+	void async_read_some(std::string &buf, std::function<void()>);
 	void async_read_some(void *buf, std::size_t size, std::function<void(std::size_t)>);
 
 public:

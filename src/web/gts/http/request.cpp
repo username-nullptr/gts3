@@ -239,7 +239,7 @@ bool request::is_valid() const
 
 	if( m_impl->m_method == GET )
 	{
-		auto it = m_impl->m_headers.find("content-length");
+		auto it = m_impl->m_headers.find(header::content_length);
 		if( it != m_impl->m_headers.end() )
 		{
 			if( it->second.get<std::size_t>() > 1024 )

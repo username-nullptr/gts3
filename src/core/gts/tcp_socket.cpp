@@ -51,8 +51,16 @@ std::size_t tcp_socket::write_some(const void *buf, std::size_t size, asio::erro
 
 std::size_t tcp_socket::read_some(std::string &buf, asio::error_code &error)
 {
+	tcp::socket::receive_buffer_size option;
+	get_option(option);
+
 	m_sock->non_blocking(false);
-	return m_sock->read_some(asio::buffer(buf), error);
+	char *tmp = new char[option.value()] {0};
+	auto res = m_sock->read_some(asio::buffer(tmp, option.value()), error);
+
+	buf = std::string(tmp,res);
+	delete[] tmp;
+	return res;
 }
 
 std::size_t tcp_socket::read_some(void *buf, std::size_t size, asio::error_code &error)
@@ -71,9 +79,18 @@ void tcp_socket::async_write_some(const void *buf, std::size_t size, std::functi
 	m_sock->async_write_some(asio::buffer(buf, size), callback);
 }
 
-void tcp_socket::async_read_some(std::string &buf, std::function<void(asio::error_code, std::size_t)> callback)
+void tcp_socket::async_read_some(std::string &buf, std::function<void(asio::error_code)> callback)
 {
-	m_sock->async_read_some(asio::buffer(buf), callback);
+	tcp::socket::receive_buffer_size option;
+	get_option(option);
+
+	char *tmp = new char[option.value()] {0};
+	m_sock->async_read_some(asio::buffer(tmp, option.value()), [&buf, callback, tmp](const asio::error_code &error, std::size_t size)
+	{
+		buf = std::string(tmp,size);
+		delete[] tmp;
+		callback(error);
+	});
 }
 
 void tcp_socket::async_read_some(void *buf, std::size_t size, std::function<void(asio::error_code, std::size_t)> callback)
@@ -137,13 +154,13 @@ void tcp_socket::async_write_some(const void *buf, std::size_t size, std::functi
 	});
 }
 
-void tcp_socket::async_read_some(std::string &buf, std::function<void(std::size_t)> callback)
+void tcp_socket::async_read_some(std::string &buf, std::function<void()> callback)
 {
-	async_read_some(buf, [callback](const asio::error_code &error, std::size_t size)
+	async_read_some(buf, [callback](const asio::error_code &error)
 	{
 		if( error )
 			tcp_socket::error(error, "async_read_some(std::string)");
-		callback(size);
+		callback();
 	});
 }
 

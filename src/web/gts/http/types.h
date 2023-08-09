@@ -86,14 +86,6 @@ enum method
 GTSWEB_API std::string method_string(method m);
 GTSWEB_API method from_method_string(const std::string &m);
 
-enum std_header
-{
-	STD_HEADER_UNKNOWN = -1,
-	content_length,
-};
-GTSWEB_API std::string std_header_string(std_header h);
-GTSWEB_API std_header from_std_header_string(const std::string &h);
-
 enum class redirect_type
 {
 	moved_permanently,  //301
@@ -105,7 +97,30 @@ enum class redirect_type
 	not_modified        //304
 };
 
-using header  = http::pair<value>;
+struct header : http::pair<value>
+{
+	using http::pair<value>::pair;
+	static constexpr const char *accept_language  = "Accept-Language";
+	static constexpr const char *accept_encoding  = "Accept-Encoding";
+	static constexpr const char *accept_ranges    = "Accept-Ranges";
+	static constexpr const char *accept           = "Accept";
+	static constexpr const char *age              = "Age";
+	static constexpr const char *content_encoding = "Content-Encoding";
+	static constexpr const char *content_length   = "Content-Length";
+	static constexpr const char *cache_control    = "Cache-Control";
+	static constexpr const char *content_range    = "Content-Range";
+	static constexpr const char *content_type     = "Content-Type";
+	static constexpr const char *connection       = "Connection";
+	static constexpr const char *expires          = "Expires";
+	static constexpr const char *host             = "Host";
+	static constexpr const char *last_modified    = "Last-Modified";
+	static constexpr const char *location         = "Location";
+	static constexpr const char *referer          = "Referer";
+	static constexpr const char *range            = "Range";
+	static constexpr const char *transfer_coding  = "Transfer-Coding";
+	static constexpr const char *user_agent       = "User-Agent";
+
+};
 using headers = http::map<value, http::less_case_insensitive>;
 
 using parameter  = http::pair<value>;

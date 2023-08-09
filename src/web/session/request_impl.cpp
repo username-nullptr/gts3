@@ -16,13 +16,13 @@ std::size_t request_impl::tcp_ip_buffer_size() const
 
 void request_impl::finish(std::string &body)
 {
-	auto it = m_headers.find("connection");
+	auto it = m_headers.find(header::connection);
 	if( it == m_headers.end() )
 		m_keep_alive = m_version != "1.0";
 	else
 		m_keep_alive = str_to_lower(it->second) != "close";
 
-	it = m_headers.find("accept-encoding");
+	it = m_headers.find(header::accept_encoding);
 	if( it == m_headers.end() )
 		m_support_gzip = false;
 	else
@@ -37,7 +37,7 @@ void request_impl::finish(std::string &body)
 		}
 	}
 	m_body = std::move(body);
-	it = m_headers.find("content-length");
+	it = m_headers.find(header::content_length);
 
 	if( it != m_headers.end() )
 	{
@@ -50,7 +50,7 @@ void request_impl::finish(std::string &body)
 	}
 	else if( m_version == "1.1" )
 	{
-		it = m_headers.find("transfer-coding");
+		it = m_headers.find(header::transfer_coding);
 		if( it == m_headers.end() or it->second != "chunked" )
 			m_rb_status = rb_status::finished;
 		else
