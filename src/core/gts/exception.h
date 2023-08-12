@@ -11,8 +11,7 @@ namespace gts
 class exception : public std::exception
 {
 public:
-	explicit exception(const std::string &what) : m_what(what) {}
-	explicit exception(std::string &&what) : m_what(std::move(what)) {}
+	explicit exception(std::string what) : m_what(std::move(what)) {}
 
 	template <typename...Args>
 	explicit exception(fmt::format_string<Args...> fmt_value, Args&&...args) :

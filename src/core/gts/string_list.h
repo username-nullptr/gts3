@@ -9,7 +9,7 @@
 namespace gts
 {
 
-typedef std::deque<std::string>  basic_string_list;
+using basic_string_list = std::deque<std::string>;
 
 class GTSCORE_API string_list : public basic_string_list
 {

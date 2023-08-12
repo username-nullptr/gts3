@@ -87,8 +87,8 @@ public:
     std::string read_all_body();
 
 public:
-	bool save_file(const std::string &file_name, std::error_code &error);
-	bool save_file(const std::string &file_name);
+	bool save_file(const std::string &file_name, std::error_code &error, std::size_t begin = 0);
+	bool save_file(const std::string &file_name, std::size_t begin = 0);
 
 public:
 	bool keep_alive() const;
@@ -216,10 +216,10 @@ inline std::string request::read_all_body()
 	return read_all_body(error);
 }
 
-inline bool request::save_file(const std::string &file_name)
+inline bool request::save_file(const std::string &file_name, std::size_t begin)
 {
 	std::error_code error;
-	return save_file(file_name, error);
+	return save_file(file_name, error, begin);
 }
 
 }} //namespace gts::http

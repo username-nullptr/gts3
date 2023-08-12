@@ -178,7 +178,7 @@ std::string request::read_all_body(std::error_code &error)
 	return result;
 }
 
-bool request::save_file(const std::string &_file_name, asio::error_code &error)
+bool request::save_file(const std::string &_file_name, asio::error_code &error, std::size_t begin)
 {
 	if( _file_name.empty() )
 	{
@@ -187,13 +187,18 @@ bool request::save_file(const std::string &_file_name, asio::error_code &error)
 		return false;
 	}
 	auto file_name = app::absolute_path(_file_name);
+	if( begin > 0 and not fs::exists(file_name) )
+	{
+		error = std::make_error_code(std::errc::no_such_file_or_directory);
+		return false;
+	}
 	std::fstream file(file_name, std::ios_base::out);
-
 	if( not file.is_open() )
 	{
 		error = std::make_error_code(static_cast<std::errc>(errno));
 		return false;
 	}
+	file.seekp(begin);
 	auto tcp_buf_size = m_impl->tcp_ip_buffer_size();
 	char *buf = new char[65536] {0};
 

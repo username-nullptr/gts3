@@ -79,7 +79,7 @@ std::string view_status()
 	{
 		auto &method = *it;
 		if( str_starts_with(method.get_name().to_string(), "gts.plugin.view_status") and method.get_return_type() == GTS_RTTR_TYPE(std::string) )
-			result = method.invoke({}).to_string();
+			result += method.invoke({}).to_string();
 	}
 	return result;
 }

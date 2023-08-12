@@ -156,6 +156,8 @@ public:
 	value &operator=(http::value &&other) { base_type::operator=(std::move(other)); return *this; }
 };
 
+using value_list = std::deque<http::value>;
+
 }} //namespace gts::http
 
 namespace std

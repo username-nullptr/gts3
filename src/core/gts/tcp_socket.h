@@ -68,16 +68,16 @@ public:
 
 public:
 	template <typename SettableSocketOption>
-	void set_option(const SettableSocketOption& option, asio::error_code &error);
+	void set_option(const SettableSocketOption &option, asio::error_code &error);
 
 	template <typename SettableSocketOption>
-	void set_option(const SettableSocketOption& option);
+	void set_option(const SettableSocketOption &option);
 
 	template <typename GettableSocketOption>
-	void get_option(GettableSocketOption& option, asio::error_code &error) const;
+	void get_option(GettableSocketOption &option, asio::error_code &error) const;
 
 	template <typename GettableSocketOption>
-	void get_option(GettableSocketOption& option) const;
+	void get_option(GettableSocketOption &option) const;
 
 public:
 	void shutdown(asio::error_code &error, tcp::socket::shutdown_type what = tcp::socket::shutdown_both);
@@ -113,12 +113,12 @@ inline void tcp_socket::write_some_nonblock(const void *buf, std::size_t size) {
 }
 
 template <typename SettableSocketOption>
-void tcp_socket::set_option(const SettableSocketOption& option, asio::error_code &error) {
+void tcp_socket::set_option(const SettableSocketOption &option, asio::error_code &error) {
 	m_sock->set_option(option, error);
 }
 
 template <typename SettableSocketOption>
-void tcp_socket::set_option(const SettableSocketOption& option)
+void tcp_socket::set_option(const SettableSocketOption &option)
 {
 	asio::error_code error;
 	m_sock->set_option(option, error);
@@ -127,12 +127,12 @@ void tcp_socket::set_option(const SettableSocketOption& option)
 }
 
 template <typename GettableSocketOption>
-void tcp_socket::get_option(GettableSocketOption& option, asio::error_code &error) const {
+void tcp_socket::get_option(GettableSocketOption &option, asio::error_code &error) const {
 	m_sock->get_option(option, error);
 }
 
 template <typename GettableSocketOption>
-void tcp_socket::get_option(GettableSocketOption& option) const
+void tcp_socket::get_option(GettableSocketOption &option) const
 {
 	asio::error_code error;
 	m_sock->get_option(option, error);

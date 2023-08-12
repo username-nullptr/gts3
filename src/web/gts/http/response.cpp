@@ -57,6 +57,7 @@ public:
 	headers m_headers {
 		{ header::content_type, "text/plain; charset=utf-8" }
 	};
+	value_list m_chunk_attributes;
 	bool m_headers_writed = false;
 };
 
@@ -89,7 +90,21 @@ response &response::set_status(int status)
 	return *this;
 }
 
-response &response::set_header(std::string key, std::string value)
+response &response::set_headers(const http::headers &headers)
+{
+	for(auto &p : headers)
+		set_header(p.first, p.second);
+	return *this;
+}
+
+response &response::set_cookies(const http::cookies &cookies)
+{
+	for(auto &p : cookies)
+		set_cookie(p.first, p.second);
+	return *this;
+}
+
+response &response::set_header(std::string key, http::value value)
 {
 	m_impl->m_headers[std::move(key)] = std::move(value);
 	return *this;
@@ -235,9 +250,72 @@ response &response::write(std::size_t size, const void *body)
 	return *this;
 }
 
+response &response::set_chunk_attribute(value attribute)
+{
+	m_impl->m_chunk_attributes.emplace_back(std::move(attribute));
+	return *this;
+}
+
+response &response::set_chunk_attributes(value_list attributes)
+{
+	for(auto &value : attributes)
+		set_chunk_attribute(std::move(value));
+	return *this;
+}
+
 response &response::write_body(std::size_t size, const void *body)
 {
-	socket().write_some(body, size);
+	if( size == 0 )
+		return *this;
+	else if( not m_impl->m_headers_writed )
+		write();
+
+	auto &sock = socket();
+	if( version() == "1.1" )
+	{
+		auto it = m_impl->m_headers.find(header::transfer_coding);
+		if( it != m_impl->m_headers.end() and str_to_lower(it->second) == "chunked" )
+		{
+			if( m_impl->m_chunk_attributes.empty() )
+				sock.write_some(fmt::format("{:X}\r\n", size));
+			else
+			{
+				std::string attributes;
+				for(auto &attr : m_impl->m_chunk_attributes)
+					attributes += attr + ";";
+
+				m_impl->m_chunk_attributes.clear();
+				attributes.pop_back();
+				sock.write_some(fmt::format("{:X}; {}\r\n", size, attributes));
+			}
+			sock.write_some(body, size);
+			sock.write_some("\r\n");
+		}
+		else
+			sock.write_some(body, size);
+	}
+	else
+		sock.write_some(body, size);
+	return *this;
+}
+
+response &response::chunk_end(const http::headers &headers)
+{
+	if( version() != "1.1" )
+		throw exception("gts::response::chunk_end: Only HTTP/1.1 supports 'Transfer-Coding: chunked'.");
+
+	auto it = m_impl->m_headers.find(header::transfer_coding);
+	if( it == m_impl->m_headers.end() or str_to_lower(it->second) != "chunked" )
+		throw exception("gts::response::write_file: 'Transfer-Coding: chunked' not set.");
+
+	auto &sock = socket();
+	sock.write_some("0\r\n");
+
+	std::string buf;
+	for(auto &header : headers)
+		buf += header.first + ": " + header.second + "\r\n";
+
+	sock.write_some(buf + "\r\n");
 	return *this;
 }
 
@@ -321,22 +399,6 @@ public:
 			range_transfer(it->second);
 			return m_file.close();
 		}
-
-		/*
-			[size]\r\n
-			[content]\r\n
-			[size]\r\n
-			[content]\r\n
-			0\r\n
-			\r\n
-		*/
-		it = headers.find(header::transfer_coding);
-		if( it != headers.end() and it->second == "chunked" )
-		{
-
-			return m_file.close();
-		}
-
 		default_transfer();
 		m_file.close();
 	}
@@ -667,8 +729,12 @@ response &response::write_file(const std::string &file_name, const range_vector 
 
 	std::string str = "bytes=";
 	for(auto &range : vector)
-		str += fmt::format("{}-{},", range.begin, range.end);
-
+	{
+		if( range.begin >= range.end )
+			str += fmt::format("{}-{},", range.begin, range.end);
+		else
+			throw exception("gts::response::write_file: range error: begin > end.");
+	}
 	str.pop_back();
 	return write_file(file_name, str);
 }

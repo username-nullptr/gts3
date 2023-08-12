@@ -37,22 +37,16 @@ public:
 	response &set_cookies(const http::cookies &cookies);
 
 public:
-	response &set_header(std::string key, std::string value);
+	response &set_header(std::string key, http::value value);
 
 	template <typename...Args>
 	response &set_header(std::string key, fmt::format_string<Args...> fmt, Args&&...args);
-
-	template <typename T, typename U = not_cookie_t<T>>
-	response &set_header(std::string key, T &&value);
 
 public:
 	response &set_cookie(std::string key, http::cookie cookie);
 
 	template <typename...Args>
 	response &set_cookie(std::string key, fmt::format_string<Args...> fmt, Args&&...args);
-
-	template <typename T, typename U = not_cookie_t<T>>
-	response &set_cookie(std::string key, T &&value);
 
 public:
 	std::string version() const;
@@ -98,24 +92,31 @@ public:
 	response &write(const std::string &body);
 	response &write(const char *body);
 
+	template <typename...Args>
+	response &write(fmt::format_string<Args...> fmt, Args&&...args);
+
+	template <typename T, typename U = not_cookie_t<T>>
+	response &write(T &&value);
+
+public:
+	response &set_chunk_attribute(http::value attribute);
+	response &set_chunk_attributes(value_list attributes);
+
+	template <typename...Args>
+	response &set_chunk_attribute(fmt::format_string<Args...> fmt, Args&&...args);
+
 public:
 	response &write_body(std::size_t size, const void *body);
 	response &write_body(const std::string &body);
 	response &write_body(const char *body);
 
-public:
-	template <typename...Args>
-	response &write(fmt::format_string<Args...> fmt, Args&&...args);
-
 	template <typename...Args>
 	response &write_body(fmt::format_string<Args...> fmt, Args&&...args);
 
-public:
-	template <typename T, typename U = not_cookie_t<T>>
-	response &write(T &&value);
-
 	template <typename T, typename U = not_cookie_t<T>>
 	response &write_body(T &&value);
+
+	response &chunk_end(const http::headers &headers = {});
 
 public:
 	response &write_file(const std::string &file_name);
@@ -152,38 +153,14 @@ private:
 	response_impl *m_impl;
 };
 
-inline response &response::set_headers(const http::headers &headers)
-{
-	for(auto &p : headers)
-		set_header(p.first, p.second);
-	return *this;
-}
-
-inline response &response::set_cookies(const http::cookies &cookies)
-{
-	for(auto &p : cookies)
-		set_cookie(p.first, p.second);
-	return *this;
-}
-
 template <typename...Args>
 response &response::set_header(std::string key, fmt::format_string<Args...> value_fmt, Args&&...args) {
 	return set_header(std::move(key), fmt::format(value_fmt, std::forward<Args>(args)...));
 }
 
-template <typename T, typename U>
-response &response::set_header(std::string key, T &&value) {
-	return set_header(std::move(key), "{}", std::forward<T>(value));
-}
-
 template <typename...Args>
 response &response::set_cookie(std::string key, fmt::format_string<Args...> value_fmt, Args&&...args) {
 	return set_cookie(std::move(key), http::cookie::from(value_fmt, std::forward<Args>(args)...));
-}
-
-template <typename T, typename U>
-response &response::set_cookie(std::string key, T &&value) {
-	return set_cookie(std::move(key), http::cookie(std::forward<T>(value)));
 }
 
 template <typename T>
@@ -222,6 +199,23 @@ inline response &response::write(const char *body) {
 	return write(strlen(body), body);
 }
 
+template <typename...Args>
+response &response::write(fmt::format_string<Args...> value_fmt, Args&&...args)
+{
+	auto body = fmt::format(value_fmt, std::forward<Args>(args)...);
+	return write(body.size(), body.c_str());
+}
+
+template <typename T, typename U>
+response &response::write(T &&value) {
+	return write("{}", value);
+}
+
+template <typename...Args>
+response &response::set_chunk_attribute(fmt::format_string<Args...> value_fmt, Args&&...args) {
+	return set_chunk_attribute(fmt::format(value_fmt, std::forward<Args>(args)...));
+}
+
 inline response &response::write_body(const std::string &body) {
 	return write_body(body.size(), body.c_str());
 }
@@ -231,22 +225,10 @@ inline response &response::write_body(const char *body) {
 }
 
 template <typename...Args>
-response &response::write(fmt::format_string<Args...> value_fmt, Args&&...args)
-{
-	auto body = fmt::format(value_fmt, std::forward<Args>(args)...);
-	return write(body.size(), body.c_str());
-}
-
-template <typename...Args>
 response &response::write_body(fmt::format_string<Args...> value_fmt, Args&&...args)
 {
 	auto body = fmt::format(value_fmt, std::forward<Args>(args)...);
 	return write_body(body.size(), body.c_str());
-}
-
-template <typename T, typename U>
-response &response::write(T &&value) {
-	return write("{}", value);
 }
 
 template <typename T, typename U>
