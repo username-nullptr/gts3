@@ -393,7 +393,7 @@ public:
 		}
 
 		// Range: bytes=x-y, m-n, i-j ...
-		it = headers.find("range");
+		it = headers.find(header::range);
 		if( it != headers.end() )
 		{
 			range_transfer(it->second);
