@@ -1,5 +1,6 @@
 #include "cgi_service.h"
 #include "gts/web_global.h"
+#include "session/request_impl.h"
 
 #include "service/service_io.h"
 #include "gts/web/config_key.h"
@@ -85,19 +86,18 @@ void cgi_service::call()
 		parameter = "/";
 
 	auto file_path = gts::file_path(m_sio.url_name);
-
 	m_cgi.set_work_path(file_path)
-		 .add_env("REQUEST_METHOD"   , m_sio.request.method())
-		 .add_env("QUERY_STRING"     , parameter)
-		 .add_env("SCRIPT_NAME"      , m_sio.url_name)
-		 .add_env("SCRIPT_FILENAME"  , file_path)
-		 .add_env("REMOTE_ADDR"      , m_sio.response.socket().remote_endpoint().address().to_string())
-		 .add_env("GATEWAY_INTERFACE", "CGI/1.1")
-		 .add_env("SERVER_NAME"      , m_sio.response.socket().local_endpoint().address().to_string())
-		 .add_env("SERVER_PORT"      , m_sio.response.socket().local_endpoint().port())
-		 .add_env("SERVER_PROTOCOL"  , "HTTP/" + m_sio.request.version())
-		 .add_env("DOCUMENT_ROOT"    , resource_root())
-		 .add_env("SERVER_SOFTWARE"  , "GTS/1.0(GTS/" GTS_VERSION_STR ")");
+		 .add_env("REQUEST_METHOD"   , m_sio.request.method()                              )
+		 .add_env("QUERY_STRING"     , parameter                                           )
+		 .add_env("SCRIPT_NAME"      , m_sio.url_name                                      )
+		 .add_env("SCRIPT_FILENAME"  , file_path                                           )
+		 .add_env("REMOTE_ADDR"      , m_sio.socket.remote_endpoint().address().to_string())
+		 .add_env("GATEWAY_INTERFACE", "CGI/1.1"                                           )
+		 .add_env("SERVER_NAME"      , m_sio.socket.local_endpoint().address().to_string() )
+		 .add_env("SERVER_PORT"      , m_sio.socket.local_endpoint().port()                )
+		 .add_env("SERVER_PROTOCOL"  , "HTTP/" + m_sio.request.version()                   )
+		 .add_env("DOCUMENT_ROOT"    , resource_root()                                     )
+		 .add_env("SERVER_SOFTWARE"  , "GTS/1.0(GTS/" GTS_VERSION_STR ")"                  );
 
 	for(auto &pair : m_sio.request.headers())
 		m_cgi.add_env("HTTP_" + str_to_upper(replace_http_to_env(pair.first)), pair.second);
@@ -114,7 +114,7 @@ void cgi_service::call()
 	async_read_cgi();
 
 	tcp::socket::send_buffer_size attr;
-	m_sio.request.socket().get_option(attr);
+	m_sio.socket.get_option(attr);
 	m_tcp_buf_size = attr.value();
 	m_sock_read_buf = new char[m_tcp_buf_size] {0};
 
@@ -142,7 +142,7 @@ void cgi_service::call()
 void cgi_service::async_write_socket(const char *buf, std::size_t buf_size)
 {
 	++m_counter;
-	m_sio.response.socket().async_write_some(buf, buf_size, [this, buf, buf_size](const asio::error_code &error, std::size_t size)
+	m_sio.socket.async_write_some(buf, buf_size, [this, buf, buf_size](const asio::error_code &error, std::size_t size)
 	{
 		--m_counter;
 		if( error )
@@ -170,7 +170,7 @@ void cgi_service::async_read_socket()
 		return ;
 
 	++m_counter;
-	m_sio.response.socket().async_read_some(m_sock_read_buf, buf_size, [this](const asio::error_code &error, std::size_t size)
+	m_sio.socket.async_read_some(m_sock_read_buf, buf_size, [this](const asio::error_code &error, std::size_t size)
 	{
 		--m_counter;
 		if( error or size == 0 or not m_cgi.is_running() )

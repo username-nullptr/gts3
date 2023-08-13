@@ -127,7 +127,8 @@ void task::start(std::shared_ptr<http::request> request)
 		it = headers.find("upgrade");
 		if( it != headers.end() and it->second == "websocket" )
 		{
-			plugin_service::new_websocket(*request);
+			service_io sio(*m_request);
+			plugin_service::new_websocket(sio);
 			if( m_call_back )
 			{
 				m_request.reset();

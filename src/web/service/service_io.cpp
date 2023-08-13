@@ -5,7 +5,7 @@ namespace gts { namespace web
 {
 
 service_io::service_io(http::request &request) :
-	request(request), response(request)
+	request(request), response(request), socket(*request.m_impl->m_socket)
 {	
 	request.m_impl->m_response = &response;
 

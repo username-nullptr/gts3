@@ -2,16 +2,15 @@
 #define GTS_HTTP_RESPONSE_H
 
 #include <gts/http/types.h>
+#include <gts/tcp_socket.h>
 #include <functional>
 
-namespace gts {
-class tcp_socket;
-
-namespace http
+namespace gts { namespace http
 {
 
 class request;
 class response_impl;
+class file_transfer;
 
 class GTSWEB_API response
 {
@@ -104,18 +103,6 @@ public:
 
 	template <typename...Args>
 	response &set_chunk_attribute(fmt::format_string<Args...> fmt, Args&&...args);
-
-public:
-	response &write_body(std::size_t size, const void *body);
-	response &write_body(const std::string &body);
-	response &write_body(const char *body);
-
-	template <typename...Args>
-	response &write_body(fmt::format_string<Args...> fmt, Args&&...args);
-
-	template <typename T, typename U = not_cookie_t<T>>
-	response &write_body(T &&value);
-
 	response &chunk_end(const http::headers &headers = {});
 
 public:
@@ -142,14 +129,12 @@ public:
 	void close(bool force = false);
 
 public:
-	const tcp_socket &socket() const;
-	tcp_socket &socket();
-
-public:
 	static void set_default_write(std::function<void(response&)>);
 	bool is_writed() const;
+	tcp_socket_ptr take() const;
 
 private:
+	friend class file_transfer;
 	response_impl *m_impl;
 };
 
@@ -214,26 +199,6 @@ response &response::write(T &&value) {
 template <typename...Args>
 response &response::set_chunk_attribute(fmt::format_string<Args...> value_fmt, Args&&...args) {
 	return set_chunk_attribute(fmt::format(value_fmt, std::forward<Args>(args)...));
-}
-
-inline response &response::write_body(const std::string &body) {
-	return write_body(body.size(), body.c_str());
-}
-
-inline response &response::write_body(const char *body) {
-	return write_body(strlen(body), body);
-}
-
-template <typename...Args>
-response &response::write_body(fmt::format_string<Args...> value_fmt, Args&&...args)
-{
-	auto body = fmt::format(value_fmt, std::forward<Args>(args)...);
-	return write_body(body.size(), body.c_str());
-}
-
-template <typename T, typename U>
-response &response::write_body(T &&value) {
-	return write_body("{}", value);
 }
 
 inline response &response::write_file(const std::string &file_name, const range &_range) {

@@ -58,6 +58,16 @@ GTS_DECL_EXPORT void new_request_1(http::response &response)
 	response.write("HELLO WORLD");
 }
 
+GTS_DECL_EXPORT void new_request_2(http::response &response)
+{
+	response.set_header(http::header::transfer_encoding, "chunked")
+//			.set_chunk_attribute("aaa")
+			.write("first -----\r\n")
+//			.set_chunk_attributes({"bbb", 666})
+			.write("second -----\r\n");
+//			.chunk_end({{"aaa", "bbb"},{"ccc", 666}});
+}
+
 GTS_DECL_EXPORT void save_file(http::response &response, http::request &request)
 {
 	auto it = request.headers().find("upload-file-name");
@@ -111,6 +121,7 @@ GTS_PLUGIN_REGISTRATION
 			.view_status_method(business::view_status)
 			.filter_method("/", business::request_filter)
 			.request_handle_method<GET>("plugin0", business::new_request_0)
-			.request_handle_method<GET>("plugin0/sub", business::new_request_1)
+			.request_handle_method<GET>("plugin0/sub0", business::new_request_1)
+			.request_handle_method<GET>("plugin0/sub1", business::new_request_2)
 			.request_handle_method<PUT,POST>("upload", business::save_file);
 }

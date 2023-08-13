@@ -11,6 +11,8 @@ namespace gts { namespace web
 
 class GTS_DECL_HIDDEN service_io
 {
+	GTS_DISABLE_COPY_MOVE(service_io)
+
 public:
 	explicit service_io(http::request &request);
 	void return_to_null(http::status status = http::hs_ok);
@@ -19,6 +21,7 @@ public:
 	http::request &request;
 	http::response response;
 	std::string url_name;
+	tcp_socket &socket;
 };
 
 }} //namespace gts::web

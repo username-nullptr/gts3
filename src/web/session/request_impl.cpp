@@ -50,7 +50,7 @@ void request_impl::finish(std::string &body)
 	}
 	else if( m_version == "1.1" )
 	{
-		it = m_headers.find(header::transfer_coding);
+		it = m_headers.find(header::transfer_encoding);
 		if( it == m_headers.end() or it->second != "chunked" )
 			m_rb_status = rb_status::finished;
 		else

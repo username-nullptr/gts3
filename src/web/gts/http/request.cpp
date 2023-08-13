@@ -254,16 +254,6 @@ bool request::is_valid() const
 	return true;
 }
 
-const tcp_socket &request::socket() const
-{
-	return *m_impl->m_socket;
-}
-
-tcp_socket &request::socket()
-{
-	return *m_impl->m_socket;
-}
-
 void request::set_cookie_session_id(std::string id)
 {
 	if( m_impl->m_response )

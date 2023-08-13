@@ -3,13 +3,11 @@
 
 #include <gts/http/types.h>
 
-namespace gts {
-class tcp_socket;
-
-namespace http
+namespace gts { namespace http
 {
 
 class request_impl;
+class response_impl;
 
 class GTSWEB_API request
 {
@@ -94,18 +92,14 @@ public:
 	bool keep_alive() const;
 	bool support_gzip() const;
 	bool can_read_body() const;
-
-public:
 	bool is_valid() const;
-
-public:
-	const tcp_socket &socket() const;
-	tcp_socket &socket();
 
 private:
 	void set_cookie_session_id(std::string id);
 
 private:
+	friend class request_impl;
+	friend class response_impl;
 	friend class web::http_parser;
 	friend class web::service_io;
 	friend class web::session;

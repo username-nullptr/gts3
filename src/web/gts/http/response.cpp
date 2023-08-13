@@ -1,7 +1,7 @@
 #include "response.h"
 #include "service/service_io.h"
+#include "session/request_impl.h"
 
-#include "gts/http/request.h"
 #include "gts/tcp_socket.h"
 #include "gts/mime_type.h"
 #include "gts/algorithm.h"
@@ -19,13 +19,20 @@ class GTS_DECL_HIDDEN response_impl
 {
 public:
 	explicit response_impl(http::request &request) :
-		m_request(request) {}
+		m_request(request), m_socket(request.m_impl->m_socket) {}
 
 public:
+	inline tcp_socket &socket() const
+	{
+		if( m_socket == nullptr )
+			gts_log_fatal("gts::http::response: xxx has been taken away. (gts::http::response::take)");
+		return *m_socket;
+	}
+
 	std::size_t tcp_ip_buffer_size() const
 	{
 		tcp::socket::send_buffer_size attr;
-		m_request.socket().get_option(attr);
+		socket().get_option(attr);
 		return attr.value();
 	}
 
@@ -49,8 +56,45 @@ public:
 		}
 	}
 
+	bool is_chunked() const
+	{
+		if( m_request.version() != "1.1" )
+			return false;
+		auto it = m_headers.find(header::transfer_encoding);
+		return it != m_headers.end() and str_to_lower(it->second) == "chunked";
+	}
+
+	void write_body(const void *body, std::size_t size, bool is_chunked)
+	{
+		auto &sock = socket();
+		if( is_chunked )
+		{
+			if( m_chunk_attributes.empty() )
+				sock.write_some(fmt::format("{:X}\r\n", size));
+			else
+			{
+				std::string attributes;
+				for(auto &attr : m_chunk_attributes)
+					attributes += attr + ";";
+
+				m_chunk_attributes.clear();
+				attributes.pop_back();
+				sock.write_some(fmt::format("{:X}; {}\r\n", size, attributes));
+			}
+			sock.write_some(body, size);
+			sock.write_some("\r\n");
+		}
+		else
+			sock.write_some(body, size);
+	}
+
+	void write_body(const std::string &body, bool is_chunked) {
+		write_body(body.c_str(), body.size(), is_chunked);
+	}
+
 public:
 	request &m_request;
+	tcp_socket_ptr m_socket;
 	status m_status = hs_ok;
 
 	cookies m_cookies;
@@ -59,6 +103,7 @@ public:
 	};
 	value_list m_chunk_attributes;
 	bool m_headers_writed = false;
+	bool m_chunk_end_writed = false;
 };
 
 /*---------------------------------------------------------------------------------------------------------------*/
@@ -77,10 +122,11 @@ response::response(http::request &request, const http::headers &headers, http::s
 
 response::~response()
 {
-	if( m_impl == nullptr )
+	if( m_impl->m_socket == nullptr )
 		return ;
 	else if( not m_impl->m_headers_writed )
 		write_default();
+	chunk_end();
 	delete m_impl;
 }
 
@@ -218,35 +264,42 @@ response &response::write_default()
 	}
 	auto body = fmt::format("{} ({})", http::status_description(status()), status());
 	set_header(header::content_length, body.size());
+	unset_header(header::transfer_encoding);
 
 	auto result = fmt::format("HTTP/{} {} {}\r\n", version(), static_cast<int>(m_impl->m_status),
 							  status_description(m_impl->m_status));
 	m_impl->serialize_headers_and_cookies(result);
 
-	socket().write_some(result + "\r\n");
-	socket().write_some(body);
+	m_impl->socket().write_some(result + "\r\n");
+	m_impl->socket().write_some(body);
 	return *this;
 }
 
 response &response::write(std::size_t size, const void *body)
 {
-	if( m_impl->m_headers_writed )
+	if( not m_impl->m_headers_writed )
 	{
-		gts_log_warning("The http protocol header is sent repeatedly. (auto ignore)");
-		return *this;
+		m_impl->m_headers_writed = true;
+		auto version = this->version();
+
+		auto result = fmt::format("HTTP/{} {} {}\r\n", version, static_cast<int>(m_impl->m_status),
+								  status_description(m_impl->m_status));
+		if( not headers_contains(header::content_length) )
+		{
+			if( version == "1.1" )
+			{
+				auto it = m_impl->m_headers.find(header::transfer_encoding);
+				if( it == m_impl->m_headers.end() or str_to_lower(it->second) != "chunked" )
+					set_header(header::content_length, size);
+			}
+			else
+				set_header(header::content_length, size);
+		}
+		m_impl->serialize_headers_and_cookies(result);
+		m_impl->socket().write_some(result + "\r\n");
 	}
-	m_impl->m_headers_writed = true;
-
-	auto result = fmt::format("HTTP/{} {} {}\r\n", version(), static_cast<int>(m_impl->m_status),
-							  status_description(m_impl->m_status));
-	m_impl->serialize_headers_and_cookies(result);
-
-	if( m_impl->m_headers.find(header::content_length) == m_impl->m_headers.end() )
-		result += fmt::format("{}: {}\r\n", header::content_length, size);
-
-	socket().write_some(result + "\r\n");
 	if( size > 0 )
-		socket().write_some(body, size);
+		m_impl->write_body(body, size, m_impl->is_chunked());
 	return *this;
 }
 
@@ -263,52 +316,23 @@ response &response::set_chunk_attributes(value_list attributes)
 	return *this;
 }
 
-response &response::write_body(std::size_t size, const void *body)
-{
-	if( size == 0 )
-		return *this;
-	else if( not m_impl->m_headers_writed )
-		write();
-
-	auto &sock = socket();
-	if( version() == "1.1" )
-	{
-		auto it = m_impl->m_headers.find(header::transfer_coding);
-		if( it != m_impl->m_headers.end() and str_to_lower(it->second) == "chunked" )
-		{
-			if( m_impl->m_chunk_attributes.empty() )
-				sock.write_some(fmt::format("{:X}\r\n", size));
-			else
-			{
-				std::string attributes;
-				for(auto &attr : m_impl->m_chunk_attributes)
-					attributes += attr + ";";
-
-				m_impl->m_chunk_attributes.clear();
-				attributes.pop_back();
-				sock.write_some(fmt::format("{:X}; {}\r\n", size, attributes));
-			}
-			sock.write_some(body, size);
-			sock.write_some("\r\n");
-		}
-		else
-			sock.write_some(body, size);
-	}
-	else
-		sock.write_some(body, size);
-	return *this;
-}
-
 response &response::chunk_end(const http::headers &headers)
 {
-	if( version() != "1.1" )
-		throw exception("gts::response::chunk_end: Only HTTP/1.1 supports 'Transfer-Coding: chunked'.");
-
-	auto it = m_impl->m_headers.find(header::transfer_coding);
+	if( headers_contains(header::content_length) or m_impl->m_chunk_end_writed )
+		return *this;
+	else if( version() != "1.1" )
+	{
+		gts_log_warning("gts::response::chunk_end: Only HTTP/1.1 supports 'Transfer-Coding: chunked'.");
+		return *this;
+	}
+	auto it = m_impl->m_headers.find(header::transfer_encoding);
 	if( it == m_impl->m_headers.end() or str_to_lower(it->second) != "chunked" )
-		throw exception("gts::response::write_file: 'Transfer-Coding: chunked' not set.");
-
-	auto &sock = socket();
+	{
+		gts_log_warning("gts::response::write_file: 'Transfer-Coding: chunked' not set.");
+		return *this;
+	}
+	m_impl->m_chunk_end_writed = true;
+	auto &sock = m_impl->socket();
 	sock.write_some("0\r\n");
 
 	std::string buf;
@@ -420,13 +444,14 @@ public:
 		auto buf_size = tcp_ip_buffer_size();
 		char *fr_buf = new char[buf_size] {0};
 
+		auto is_chunked = m_response.m_impl->is_chunked();
 		for(;;)
 		{
 			std::size_t size = m_file.readsome(fr_buf, buf_size);
 			if( size == 0 )
 				break;
 
-			m_response.write_body(size, fr_buf);
+			m_response.m_impl->write_body(fr_buf, size, is_chunked);
 			if( size < buf_size )
 				break;
 		}
@@ -615,6 +640,7 @@ private:
 		assert(not range_value_queue.empty());
 		m_response.write();
 
+		auto is_chunked = m_response.m_impl->is_chunked();
 		auto buf_size = tcp_ip_buffer_size();
 		bool flag = true;
 
@@ -629,7 +655,7 @@ private:
 					auto buf = new char[value.size] {0};
 					auto s = m_file.readsome(buf, value.size);
 
-					m_response.write_body(s, buf);
+					m_response.m_impl->write_body(buf, s, is_chunked);
 					delete[] buf;
 					flag = false;
 				}
@@ -638,7 +664,7 @@ private:
 					auto buf = new char[buf_size] {0};
 					auto s = m_file.readsome(buf, buf_size);
 
-					m_response.write_body(s, buf);
+					m_response.m_impl->write_body(buf, s, is_chunked);
 					value.size -= buf_size;
 					delete[] buf;
 				}
@@ -646,14 +672,13 @@ private:
 			while(flag);
 			return ;
 		}
-
 		for(auto &value : range_value_queue)
 		{
-			m_response.write_body("--" + boundary + "\r\n" +
-								  ct_line + "\r\n" +
-								  value.cr_line + "\r\n" +
-								  "\r\n");
-
+			m_response.m_impl->write_body("--" + boundary + "\r\n" +
+										  ct_line + "\r\n" +
+										  value.cr_line + "\r\n" +
+										  "\r\n",
+										  is_chunked);
 			m_file.seekg(value.begin, std::ios_base::beg);
 			do {
 				if( value.size <= buf_size )
@@ -664,7 +689,7 @@ private:
 					buf[s + 0] = '\r';
 					buf[s + 1] = '\n';
 
-					m_response.write_body(s + 2, buf);
+					m_response.m_impl->write_body(buf, s + 2, is_chunked);
 					delete[] buf;
 					flag = false;
 				}
@@ -673,21 +698,21 @@ private:
 					auto buf = new char[buf_size] {0};
 					auto s = m_file.readsome(buf, buf_size);
 
-					m_response.write_body(s, buf);
+					m_response.m_impl->write_body(buf, s);
 					value.size -= buf_size;
 					delete[] buf;
 				}
 			}
 			while(flag);
 		}
-		m_response.write_body("--" + boundary + "--\r\n");
+		m_response.m_impl->write_body("--" + boundary + "--\r\n", is_chunked);
 	}
 
 private:
 	std::size_t tcp_ip_buffer_size() const
 	{
 		tcp::socket::send_buffer_size attr;
-		m_request.socket().get_option(attr);
+		m_response.m_impl->socket().get_option(attr);
 		return attr.value();
 	}
 
@@ -769,17 +794,7 @@ response &response::unset_cookie(const std::string &key)
 
 void response::close(bool force)
 {
-	socket().close(force);
-}
-
-const tcp_socket &response::socket() const
-{
-	return m_impl->m_request.socket();
-}
-
-tcp_socket &response::socket()
-{
-	return m_impl->m_request.socket();
+	m_impl->socket().close(force);
 }
 
 void response::set_default_write(std::function<void(response&)> func)
@@ -790,6 +805,13 @@ void response::set_default_write(std::function<void(response&)> func)
 bool response::is_writed() const
 {
 	return m_impl->m_headers_writed;
+}
+
+tcp_socket_ptr response::take() const
+{
+	auto socket = m_impl->m_socket;
+	m_impl->m_socket = nullptr;
+	return socket;
 }
 
 }} //namespace gts::http

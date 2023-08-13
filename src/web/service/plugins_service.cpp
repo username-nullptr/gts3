@@ -22,7 +22,7 @@ using njson = nlohmann::json;
 plugin_service::plugin_service(service_io &sio) :
 	m_sio(sio)
 {
-	m_sio.response.socket().non_blocking(false);
+	m_sio.socket.non_blocking(false);
 }
 
 static std::unordered_map<rttr::type, rttr::variant> g_obj_hash;
@@ -261,29 +261,30 @@ std::string plugin_service::view_status()
 	return result;
 }
 
-void plugin_service::new_websocket(http::request &request)
+void plugin_service::new_websocket(service_io &sio)
 {
 	// TODO ...
-	request.socket().write_some("HTTP/1.1 501 Not Implemented\r\n"
-								"content-length: 19\r\n"
-								"connection: close\r\n"
-								"\r\n"
-								"Being developed ...");
-	request.socket().close(true);
+	auto socket = sio.response.take();
+	socket->write_some("HTTP/1.1 501 Not Implemented\r\n"
+					   "content-length: 19\r\n"
+					   "connection: close\r\n"
+					   "\r\n"
+					   "Being developed ...");
+	socket->close(true);
 }
 
 static environments make_envs(service_io &sio)
 {
 	return environments{
-		{ "REQUEST_METHOD"   , http::method_string(sio.request.method())                        },
-		{ "QUERY_STRING"     , sio.request.parameters_string()                                  },
-		{ "REMOTE_ADDR"      , sio.response.socket().remote_endpoint().address().to_string()    },
-		{ "GATEWAY_INTERFACE", "RTTR/" RTTR_VERSION_STR                                         },
-		{ "SERVER_NAME"      , sio.response.socket().local_endpoint().address().to_string()     },
-		{ "SERVER_PORT"      , fmt::format("{}", sio.response.socket().local_endpoint().port()) },
-		{ "SERVER_PROTOCOL"  , "HTTP/" + sio.request.version()                                  },
-		{ "DOCUMENT_ROOT"    , resource_root()                                                  },
-		{ "SERVER_SOFTWARE"  , "GTS/1.0(GTS/" GTS_VERSION_STR ")"                               }
+		{ "REQUEST_METHOD"   , http::method_string(sio.request.method())             },
+		{ "QUERY_STRING"     , sio.request.parameters_string()                       },
+		{ "REMOTE_ADDR"      , sio.socket.remote_endpoint().address().to_string()    },
+		{ "GATEWAY_INTERFACE", "RTTR/" RTTR_VERSION_STR                              },
+		{ "SERVER_NAME"      , sio.socket.local_endpoint().address().to_string()     },
+		{ "SERVER_PORT"      , fmt::format("{}", sio.socket.local_endpoint().port()) },
+		{ "SERVER_PROTOCOL"  , "HTTP/" + sio.request.version()                       },
+		{ "DOCUMENT_ROOT"    , resource_root()                                       },
+		{ "SERVER_SOFTWARE"  , "GTS/1.0(GTS/" GTS_VERSION_STR ")"                    }
 	};
 }
 
