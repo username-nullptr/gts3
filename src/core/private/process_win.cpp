@@ -1,4 +1,4 @@
-#ifdef _WINDOWS
+#if defined(__WINNT__) || defined(_WINDOWS)
 
 #include "process_p.h"
 #include <cassert>
@@ -66,5 +66,4 @@ void process::join()
 
 } //namespace gts
 
-
-#endif //_WINDOWS
+#endif //__WINNT__ || _WINDOWS

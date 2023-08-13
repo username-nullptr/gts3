@@ -1,4 +1,4 @@
-#ifdef _WINDOWS
+#if defined(__WINNT__) || defined(_WINDOWS)
 
 #include "app_core_p.h"
 #include "app_info.h"
@@ -29,4 +29,4 @@ void stop_app(bool noreturn)
 
 }} // namespace gts::cmdline
 
-#endif //_WINDOWS
+#endif //__WINNT__ || _WINDOWS

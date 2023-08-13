@@ -1,4 +1,4 @@
-#ifdef _WINDOWS
+#if defined(__WINNT__) || defined(_WINDOWS)
 
 #include "interaction_p.h"
 #include "application.h"
@@ -63,4 +63,4 @@ void interaction::cancel()
 
 }} // namespace gts::cmdline
 
-#endif //_WINDOWS
+#endif //__WINNT__ || _WINDOWS
