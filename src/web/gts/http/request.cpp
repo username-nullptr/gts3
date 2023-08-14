@@ -254,6 +254,16 @@ bool request::is_valid() const
 	return true;
 }
 
+tcp::endpoint request::remote_endpoint() const
+{
+	return m_impl->m_socket->remote_endpoint();
+}
+
+tcp::endpoint request::local_endpoint() const
+{
+	return m_impl->m_socket->local_endpoint();
+}
+
 void request::set_cookie_session_id(std::string id)
 {
 	if( m_impl->m_response )

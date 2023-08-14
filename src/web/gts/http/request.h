@@ -2,6 +2,7 @@
 #define GTS_HTTP_REQUEST_H
 
 #include <gts/http/types.h>
+#include <asio.hpp>
 
 namespace gts { namespace http
 {
@@ -93,6 +94,10 @@ public:
 	bool support_gzip() const;
 	bool can_read_body() const;
 	bool is_valid() const;
+
+public:
+	asio::ip::tcp::endpoint remote_endpoint() const;
+	asio::ip::tcp::endpoint local_endpoint() const;
 
 private:
 	void set_cookie_session_id(std::string id);
