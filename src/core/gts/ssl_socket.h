@@ -30,6 +30,7 @@ public:
 	void async_write_some(const std::string &buf, std::function<void(asio::error_code, std::size_t)>) override;
 	void async_write_some(const void *buf, std::size_t size, std::function<void(asio::error_code, std::size_t)>) override;
 	void async_read_some(std::string &buf, std::function<void(asio::error_code)>) override;
+	void async_read_some(std::string &buf, std::size_t size, std::function<void(asio::error_code)>) override;
 	void async_read_some(void *buf, std::size_t size, std::function<void(asio::error_code, std::size_t)>) override;
 
 public:
