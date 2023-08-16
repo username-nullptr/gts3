@@ -19,7 +19,7 @@ class map : public std::map<std::string, V, _Compare>
 
 public:
 	using base_type = std::map<std::string, V, _Compare>;
-	using base_type::map;
+	using base_type::base_type;
 
 public:
 	std::pair<typename base_type::iterator, bool> emplace(const std::string &key, const std::string &value) {
@@ -192,9 +192,9 @@ public:
 	}
 };
 
-struct less_case_insensitive : std::binary_function<std::string, std::string, bool>
+struct less_case_insensitive
 {
-	struct nocase_compare : public std::binary_function<unsigned char, unsigned char, bool>
+	struct nocase_compare
 	{
 		bool operator()(const unsigned char c1, const unsigned char c2) const {
 			return tolower(c1) < tolower(c2);
@@ -213,7 +213,7 @@ class unordered_map : public std::unordered_map<std::string, V>
 
 public:
 	using base_type = std::unordered_map<std::string, V>;
-	using base_type::unordered_map;
+	using base_type::base_type;
 
 public:
 	std::pair<typename base_type::iterator, bool> emplace(const std::string &key, const std::string &value) {

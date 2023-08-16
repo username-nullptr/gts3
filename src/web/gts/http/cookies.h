@@ -139,7 +139,7 @@ template <typename T, typename U>
 cookie cookie::from(T &&v)
 {
 	cookie c;
-	set_value(std::forward<T>(v));
+	c.set_value(std::forward<T>(v));
 	return c;
 }
 

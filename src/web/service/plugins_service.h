@@ -29,8 +29,6 @@ private:
 
 private:
 	service_io &m_sio;
-	bool m_direct_pass_request = true;
-	int m_call_method_id = 0;
 };
 
 }} //namespace gts::web

@@ -71,12 +71,24 @@ std::size_t tcp_socket::read_some(void *buf, std::size_t size, asio::error_code 
 
 void tcp_socket::async_write_some(const std::string &buf, std::function<void(asio::error_code, std::size_t)> callback)
 {
-	m_sock->async_write_some(asio::buffer(buf), callback);
+	m_sock->async_write_some(asio::buffer(buf), [this, &buf, callback](const asio::error_code &error, std::size_t size)
+	{
+		if( error or size >= buf.size() )
+			callback(error, size);
+		else
+			async_write_some(buf.c_str() + size, buf.size() - size, std::move(callback));
+	});
 }
 
 void tcp_socket::async_write_some(const void *buf, std::size_t size, std::function<void(asio::error_code, std::size_t)> callback)
 {
-	m_sock->async_write_some(asio::buffer(buf, size), callback);
+	m_sock->async_write_some(asio::buffer(buf, size), [this, buf, size, callback](const asio::error_code &error, std::size_t rsize)
+	{
+		if( error or rsize >= size )
+			callback(error, rsize);
+		else
+			async_write_some(reinterpret_cast<const char*>(buf) + rsize, size - rsize, std::move(callback));
+	});
 }
 
 void tcp_socket::async_read_some(std::string &buf, std::function<void(asio::error_code)> callback)

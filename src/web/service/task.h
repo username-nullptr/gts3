@@ -9,7 +9,7 @@ namespace gts
 {
 
 namespace http {
-struct request;
+class request;
 } //namespace http
 
 namespace web

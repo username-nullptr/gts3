@@ -137,7 +137,7 @@ public:
 	static value from(T &&v)
 	{
 		value hv;
-		set_value("{}", std::forward<T>(v));
+		hv.set_value("{}", std::forward<T>(v));
 		return hv;
 	}
 
