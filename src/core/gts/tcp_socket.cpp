@@ -210,6 +210,18 @@ void tcp_socket::async_read_some(void *buf, std::size_t size, std::function<void
 	});
 }
 
+void tcp_socket::write_some_nonblock(std::string buf)
+{
+	auto buf_ptr = std::make_shared<std::string>(std::move(buf));
+	async_write_some(*buf_ptr, [buf_ptr](std::size_t){});
+}
+
+void tcp_socket::write_some_nonblock(const void *buf, std::size_t size)
+{
+	auto buf_ptr = std::make_shared<std::string>(reinterpret_cast<const char*>(buf), size);
+	async_write_some(*buf_ptr, [buf_ptr](std::size_t){});
+}
+
 std::size_t tcp_socket::read_some(std::string &buf, const duration &timeout, asio::error_code &error)
 {
 	if( wait_readable(timeout, error) )
