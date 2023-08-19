@@ -33,11 +33,10 @@ public:
 
 	void lock()
 	{
-		while( m_writer or m_reader > 0 )
-		{
-			std::unique_lock<std::mutex> locker(m_mutex);
-			m_condition.wait(locker);
-		}
+		std::unique_lock<std::mutex> locker(m_mutex);
+		m_condition.wait(locker, [this]()->bool{
+			return not m_writer and m_reader == 0;
+		});
 		m_writer = true;
 	}
 

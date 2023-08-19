@@ -407,17 +407,8 @@ public:
 			return ;
 		auto &headers = m_request.headers();
 
-		// Content-Range: bytes=x-y/z
-		auto it = headers.find(header::content_range);
-		if( it != headers.end() )
-		{
-			// TODO ......
-			m_response.write_default(http::hs_not_implemented); //tmp
-			return m_file.close();
-		}
-
 		// Range: bytes=x-y, m-n, i-j ...
-		it = headers.find(header::range);
+		auto it = headers.find(header::range);
 		if( it != headers.end() )
 		{
 			range_transfer(it->second);

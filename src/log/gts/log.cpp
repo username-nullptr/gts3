@@ -41,7 +41,7 @@ static time_t create_time(const std::string &/*file*/)
 	return 0;
 }
 
-}} //namespace std::filesystem
+}} //namespace xxx::filesystem
 
 #else //other os
 
@@ -63,7 +63,7 @@ static time_t create_time(const std::string &file)
 	return buf.st_ctime;
 }
 
-}} //namespace std::filesystem
+}} //namespace xxx::filesystem
 
 #endif //os
 
@@ -145,11 +145,6 @@ bool logger::get_header_breaks_aline()
 	return g_header_breaks_aline;
 }
 
-void logger::wait()
-{
-
-}
-
 #ifdef __NO_DEBUG__
 # define LOG_OUTPUT(_type, _category)  return log_buffer(log_buffer::_type, _category)
 #else //DEBUG
@@ -223,7 +218,7 @@ class GTS_DECL_HIDDEN task_thread
 	GTS_DISABLE_COPY_MOVE(task_thread)
 
 public:
-	static inline task_thread &instance()
+	static task_thread &instance()
 	{
 		if( g_instance == nullptr )
 			g_instance = new task_thread();
@@ -231,7 +226,16 @@ public:
 	}
 
 public:
-	static inline void reload()
+	using duration = std::chrono::milliseconds;
+	void wait(const duration &ms)
+	{
+		std::unique_lock<std::mutex> locker(m_wtif_mutex);
+		m_wtif_condition.wait_for(locker, ms, [this]()->bool{
+			return not m_wait_flag;
+		});
+	}
+
+	static void reload()
 	{
 		if( g_instance )
 			delete g_instance;
@@ -248,18 +252,20 @@ private:
 				std::unique_lock<std::mutex> locker(m_mutex);
 				while( m_message_qeueue.empty() )
 				{
+					m_wait_flag = false;
+					m_wtif_condition.notify_all();
+
 					m_condition.wait(locker);
 					if( m_stop_flag )
 						return shutdown();
+					m_wait_flag = true;
 				}
-
 				auto _node = m_message_qeueue.front();
 				m_message_qeueue.pop_front();
 
 				locker.unlock();
 				_output(_node->type, *_node->context, _node->runtime_context, _node->msg, true);
 			}
-
 			m_mutex.lock();
 			shutdown();
 		});
@@ -278,7 +284,7 @@ public:
 	}
 
 private:
-	typedef std::shared_ptr<logger::context>  context_ptr;
+	using context_ptr = std::shared_ptr<logger::context>;
 	struct node
 	{
 		log_buffer::type type;
@@ -291,7 +297,7 @@ private:
 	};
 
 private:
-	typedef std::shared_ptr<node>  node_ptr;
+	using node_ptr = std::shared_ptr<node>;
 	std::list<node_ptr> m_message_qeueue;
 
 public:
@@ -320,11 +326,21 @@ private:
 private:
 	static task_thread *g_instance;
 	std::thread m_thread;
+
 	std::atomic_bool m_stop_flag {false};
 	std::condition_variable m_condition;
 	std::mutex m_mutex;
+
+	std::atomic_bool m_wait_flag {false};
+	std::condition_variable m_wtif_condition;
+	std::mutex m_wtif_mutex;
 };
 task_thread *task_thread::g_instance = nullptr;
+
+void logger::wait(const duration &ms)
+{
+	task_thread::instance().wait(ms);
+}
 
 void logger::reload()
 {

@@ -34,7 +34,7 @@ public:
 	env m_env;
 
 public:
-#ifdef _WINDOWS
+#if defined(WINNT) || defined(_WINDOWS)
 
 	HANDLE m_pwcr_fd[2] {0,0};
 	HANDLE m_cwpr_fd[2] {0,0};
@@ -42,10 +42,11 @@ public:
 
 #else //posix
 
-	typedef asio::posix::stream_descriptor  descriptor;
+	using descriptor = asio::posix::stream_descriptor;
+	using descriptor_ptr = std::shared_ptr<descriptor>;
 
-	std::shared_ptr<descriptor> m_write_fd;
-	std::shared_ptr<descriptor> m_read_fd;
+	descriptor_ptr m_write_fd;
+	descriptor_ptr m_read_fd;
 
 	int m_pwcr_fd[2] {-1,-1};
 	int m_cwpr_fd[2] {-1,-1};

@@ -22,6 +22,14 @@ class process_impl;
 class GTSCORE_API process
 {
 	GTS_DISABLE_COPY_MOVE(process)
+	using duration = std::chrono::milliseconds;
+
+	template <typename T>
+	using ns_type = enable_if_t<
+			not gts_is_dsame(T, std::string) and
+			not gts_is_same(T, const char*) and
+			not gts_is_same(T, char*),
+		process>;
 
 public:
 	explicit process(asio::io_context &io, const std::string &file_name = std::string());
@@ -34,7 +42,9 @@ public:
 public:
 	template <typename...Args>
 	process &add_env(const std::string &key, fmt::format_string<Args...> fmt, Args&&...args);
-	_GTS_PROCESS_NOT_STRING	add_env(const std::string &key, T &&value);
+
+	template <typename T>
+	ns_type<T> &add_env(const std::string &key, T &&value);
 
 public:
 	process &add_env(const std::string &key, const std::string &value);
@@ -49,26 +59,36 @@ public:
 	bool is_running() const;
 	bool join(int *ret_val = nullptr);
 
-public: // TODO...
-	int write(const char *buf, int size, int timeout = -1);
-	int read(const char *buf, int size, int timeout = -1);
+public:
+	bool wait_writeable(const duration &ms, asio::error_code &error);
+	bool wait_readable(const duration &ms, asio::error_code &error);
+	bool wait_writeable(const duration &ms);
+	bool wait_readable(const duration &ms);
 
 public:
-	void async_write(const char *buf, int size, std::function<void(asio::error_code,std::size_t)> call_back);
-	void async_read(char *buf, int size, std::function<void(asio::error_code,std::size_t)> call_back);
+	std::size_t read_some(void *buf, std::size_t size, const duration &timeout, asio::error_code &error);
+	std::size_t read_some(void *buf, std::size_t size, const duration &timeout);
+	std::size_t read_some(void *buf, std::size_t size, asio::error_code &error);
+	std::size_t read_some(void *buf, std::size_t size);
+
+public:
+	void async_write_some(const char *buf, std::size_t size, std::function<void(asio::error_code,std::size_t)> call_back);
+	void async_read_some(char *buf, std::size_t size, std::function<void(asio::error_code,std::size_t)> call_back);
 	void cancel();
 
 private:
+	static void error(const asio::error_code &error, const char *func);
 	friend class process_impl;
 	process_impl *m_impl;
 };
 
-template <typename...Args> inline
+template <typename...Args>
 process &process::add_env(const std::string &key, fmt::format_string<Args...> value_fmt, Args&&...args) {
 	return add_env(key, fmt::format(value_fmt, std::forward<Args>(args)...));
 }
 
-_GTS_PROCESS_NOT_STRING process::add_env(const std::string &key, T &&value) {
+template <typename T>
+process::ns_type<T> &process::add_env(const std::string &key, T &&value) {
 	return add_env(key, fmt::format("{}", std::forward<T>(value)));
 }
 

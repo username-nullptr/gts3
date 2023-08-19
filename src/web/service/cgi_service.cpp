@@ -188,7 +188,7 @@ void cgi_service::async_read_socket()
 void cgi_service::async_write_cgi(const char *buf, std::size_t buf_size)
 {
 	++m_counter;
-	m_cgi.async_write(buf, buf_size, [this, buf, buf_size](const asio::error_code &error, std::size_t size)
+	m_cgi.async_write_some(buf, buf_size, [this, buf, buf_size](const asio::error_code &error, std::size_t size)
 	{
 		--m_counter;
 		if( error )
@@ -212,8 +212,8 @@ void cgi_service::async_write_cgi(const char *buf, std::size_t buf_size)
 void cgi_service::async_read_cgi()
 {
 	++m_counter;
-	m_cgi.async_read(m_cgi_read_buf, _BUF_SIZE,
-					 [this](const asio::error_code&, std::size_t size)
+	m_cgi.async_read_some(m_cgi_read_buf, _BUF_SIZE,
+						  [this](const asio::error_code&, std::size_t size)
 	{
 		--m_counter;
 		if( size > 0 )

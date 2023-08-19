@@ -24,6 +24,7 @@ class logger_impl;
 class GTSLOG_API logger
 {
 	GTS_DISABLE_COPY_MOVE(logger)
+	using duration = std::chrono::milliseconds;
 
 public:
 	struct context
@@ -52,7 +53,6 @@ public:
 public:
 	static context get_context();
 	static bool get_header_breaks_aline();
-	static void wait(); //TODO...
 
 public:
 	template <typename...Args>
@@ -105,6 +105,7 @@ public:
 	void cfatal(std::string category, const std::string &msg);
 
 public:
+	static void wait(const duration &ms);
 	static void reload();
 
 private:

@@ -264,13 +264,9 @@ std::string plugin_service::view_status()
 void plugin_service::new_websocket(service_io &sio)
 {
 	// TODO ...
-	auto socket = sio.response.take();
-	socket->write_some("HTTP/1.1 501 Not Implemented\r\n"
-					   "content-length: 19\r\n"
-					   "connection: close\r\n"
-					   "\r\n"
-					   "Being developed ...");
-	socket->close(true);
+	sio.response.set_status(http::hs_not_implemented)
+			.write("Being developed ...")
+			.close(true);
 }
 
 static environments make_envs(service_io &sio)

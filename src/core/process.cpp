@@ -67,4 +67,35 @@ process &process::set_work_path(const std::string &path)
 	return *this;
 }
 
+std::size_t process::read_some(void *buf, std::size_t size, const duration &timeout, asio::error_code &error)
+{
+	if( wait_readable(timeout, error) )
+		return read_some(buf, size, error);
+	return 0;
+}
+
+std::size_t process::read_some(void *buf, std::size_t size, const duration &timeout)
+{
+	asio::error_code error;
+	if( wait_readable(timeout, error) )
+		return read_some(buf, size);
+	else if( error )
+		this->error(error, "read_some: wait_readable");
+	return 0;
+}
+
+std::size_t process::read_some(void *buf, std::size_t size)
+{
+	asio::error_code error;
+	auto res = read_some(buf, size, error);
+	if( error )
+		this->error(error, "read_some");
+	return res;
+}
+
+void process::error(const asio::error_code &error, const char *func)
+{
+	std::cerr << fmt::format("*** Error: process::{}: {}", func, error) << std::endl;
+}
+
 } //namespace gts

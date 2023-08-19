@@ -127,23 +127,71 @@ void process::kill()
 		::kill(m_impl->m_pid, SIGKILL);
 }
 
-int process::write(const char *buf, int size, int timeout)
+static bool wait(int fd, int event, const std::chrono::milliseconds &ms, asio::error_code &error)
 {
-	GTS_UNUSED(buf);
-	GTS_UNUSED(size);
-	GTS_UNUSED(timeout);
-	return -1;
+	struct pollfd fds;
+	fds.fd = fd;
+	fds.events = event;
+
+	int tt = ms.count() > 0? ms.count() : -1;
+	error == std::make_error_code(static_cast<std::errc>(0));
+
+	for(;;)
+	{
+		int res = poll(&fds, 1, tt);
+		if( res < 0 )
+		{
+			error == std::make_error_code(static_cast<std::errc>(errno));
+			return false;
+		}
+		else if( res == 0 )
+			return false;
+		else if( res == 1 and fds.revents == event )
+			break;
+	}
+	return true;
 }
 
-int process::read(const char *buf, int size, int timeout)
+bool process::wait_writeable(const duration &ms, asio::error_code &error)
 {
-	GTS_UNUSED(buf);
-	GTS_UNUSED(size);
-	GTS_UNUSED(timeout);
-	return -1;
+	return wait(m_impl->m_write_fd->native_handle(), POLLOUT, ms, error);
 }
 
-void process::async_write(const char *buf, int size, std::function<void(asio::error_code,std::size_t)> call_back)
+bool process::wait_readable(const duration &ms, asio::error_code &error)
+{
+	return wait(m_impl->m_read_fd->native_handle(), POLLIN, ms, error);
+}
+
+bool process::wait_writeable(const duration &ms)
+{
+	asio::error_code error ;
+	bool res = wait(m_impl->m_write_fd->native_handle(), POLLOUT, ms, error);
+	if( error )
+		this->error(error, "wait_writeable");
+	return res;
+}
+
+bool process::wait_readable(const duration &ms)
+{
+	asio::error_code error ;
+	bool res = wait(m_impl->m_read_fd->native_handle(), POLLIN, ms, error);
+	if( error )
+		this->error(error, "wait_readable");
+	return res;
+}
+
+std::size_t process::read_some(void *buf, std::size_t size, asio::error_code &error)
+{
+	if( m_impl->m_pid > 0 )
+	{
+		m_impl->m_read_fd->non_blocking(false);
+		return m_impl->m_read_fd->write_some(asio::buffer(buf, size), error);
+	}
+	error = std::make_error_code(std::errc::bad_file_descriptor);
+	return 0;
+}
+
+void process::async_write_some(const char *buf, std::size_t size, std::function<void(asio::error_code,std::size_t)> call_back)
 {
 	if( m_impl->m_pid > 0 )
 	{
@@ -158,7 +206,7 @@ void process::async_write(const char *buf, int size, std::function<void(asio::er
 	}
 }
 
-void process::async_read(char *buf, int size, std::function<void(asio::error_code,std::size_t)> call_back)
+void process::async_read_some(char *buf, std::size_t size, std::function<void(asio::error_code,std::size_t)> call_back)
 {
 	if( m_impl->m_read_fd == nullptr )
 	{
