@@ -2,7 +2,7 @@
 #define GTS_CPLUSPLUS_H
 
 #ifdef _MSVC
-#define _CPP_STD  _MSVC_LANG
+#define GTS_CPLUSPLUS  _MSVC_LANG
 #else
 #define GTS_CPLUSPLUS  __cplusplus
 #endif

@@ -48,7 +48,7 @@ public:
 	template <typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)(GTS_DECLVAL(tcp_socket_ptr&)))>
 	registration &new_connection(Func &&func, uint16_t port = 0)
 	{
-		if( g_func_set.emplace(reinterpret_cast<const void*>(&func)).second )
+		if( g_func_set.emplace(reinterpret_cast<const void*>(reinterpret_cast<const char*>(&func) + port)).second )
 			rttr::registration::method(port == 0? "gts.plugin.new_connection" : fmt::format("gts.plugin.new_connection.{}", port), std::forward<Func>(func));
 		else
 		{
