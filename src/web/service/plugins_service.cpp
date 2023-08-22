@@ -128,35 +128,44 @@ void plugin_service::init()
 		gts_log_error("Web plugins json file is not exists.");
 		return ;
 	}
-
 	std::ifstream file(json_file);
-	auto json = njson::parse(file, nullptr, false);
+	auto array = njson::parse(file, nullptr, false);
 
-	if( json.is_null() )
+	if( array.is_null() )
 	{
 		gts_log_error("Web plugins json file read error.");
 		return ;
 	}
+	else if( not array.is_array() )
+	{
+		gts_log_error("Web plugins json format error. (not array)");
+		return ;
+	}
 	auto json_file_path = file_path(json_file);
 
-	for(auto &it : json.items())
+	for(auto &json : array)
 	{
 		std::string file_name;
 		try {
-			std::string file_path = it.value().get<std::string>();
-			if( not str_ends_with(file_path, "/") )
-				file_path += "/";
-
-			if( not appinfo::is_absolute_path(file_path) )
-				file_path = json_file_path + file_path;
-
 #ifdef _WINDOWS
-			file_name = it.key() + std::string(".dll");
+			file_name = json["name"].get<std::string>() + std::string(".dll");
 #elif defined(__unix__)
-			file_name = std::string("lib") + it.key() + ".so";
+			file_name = std::string("lib") + json["name"].get<std::string>() + ".so";
 #else
 			file_name += ".???";
 #endif
+			std::string file_path = "./";
+			auto it = json.find("path");
+
+			if( it != json.end() )
+			{
+				file_path = it->get<std::string>();
+				if( not str_ends_with(file_path, "/") )
+					file_path += "/";
+
+				if( not appinfo::is_absolute_path(file_path) )
+					file_path = json_file_path + file_path;
+			}
 			file_name = file_path + file_name;
 		}
 		catch(...) {
@@ -173,7 +182,6 @@ void plugin_service::init()
 			g_library_list.pop_back(); //!!!library!!! -> null
 		}
 	}
-
 	std::list<future_ptr> futures;
 	auto it = rttr::type::get_global_methods().begin();
 
@@ -183,7 +191,6 @@ void plugin_service::init()
 		if( str_starts_with(method.get_name().to_string(), "gts.web.plugin.init.") )
 			call_init(method, rttr::instance(), futures);
 	}
-
 	for(auto &pair : registration::g_path_hash)
 	{
 		for(auto &ss : pair.second)
@@ -223,7 +230,6 @@ void plugin_service::exit()
 			call_exit(method, obj, futures);
 		obj.clear();
 	}
-
 	auto it = rttr::type::get_global_methods().begin();
 	for(int i=0; it!=rttr::type::get_global_methods().end(); it=std::next(rttr::type::get_global_methods().begin(), ++i))
 	{

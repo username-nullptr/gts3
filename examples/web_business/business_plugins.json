@@ -1,5 +1,14 @@
-{
-    "plugin0": ".",
-    "plugin1": ".",
-    "plugin2": "."
-}
+[
+    {
+        "name": "plugin0",
+        "path": "."
+    },
+    {
+        "name": "plugin1",
+        "path": "."
+    },
+    {
+        "name": "plugin2",
+        "path": "."
+    }
+]
