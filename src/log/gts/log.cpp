@@ -361,11 +361,12 @@ GTS_DECL_HIDDEN void message_handler(log_buffer::type type, log_buffer::context 
 
 static struct GTS_DECL_HIDDEN curr_log_file
 {
-	std::string name;
+	std::map<std::string, std::string> name_map;
 	log_buffer::otime last;
 
-	void save_last_name()
+	void save_last_name(const std::string &category)
 	{
+		auto &name = name_map[category];
 		if( name.empty() )
 			return ;
 		auto old_name = name;
@@ -460,33 +461,28 @@ static bool open_log_output_device
 		*fp = std_dev;
 		return false;
 	}
-	else if( dt::time_point_cast<dt::days>(time) > g_curr_log_file.last )
+	auto &curr_file_name = g_curr_log_file.name_map[category];
+	if( dt::time_point_cast<dt::days>(time) > g_curr_log_file.last )
 	{
-		g_curr_log_file.save_last_name();
-		g_curr_log_file.name = "";
+		g_curr_log_file.save_last_name(category);
+		curr_file_name = "";
 	}
-
 	std::string dir_name = context.dir;
 	if( not str_ends_with(dir_name, "/") )
 		dir_name += "/";
-
-	if( not category.empty() )
+	if( context.time_category )
 	{
-		if( context.time_category )
-		{
-			dir_name += fmt::format("{:%Y-%m-%d}", time) + "/" + category;
-			if( not str_ends_with(dir_name, "/") )
-				dir_name += "/";
-		}
-		else
-		{
-			dir_name += category;
-			if( not str_ends_with(dir_name, "/") )
-				dir_name += "/";
-			dir_name += fmt::format("{:%Y-%m-%d}", time) + "/";
-		}
+		dir_name += fmt::format("{:%Y-%m-%d}", time) + "/" + category;
+		if( not str_ends_with(dir_name, "/") )
+			dir_name += "/";
 	}
-
+	else
+	{
+		dir_name += category;
+		if( not str_ends_with(dir_name, "/") )
+			dir_name += "/";
+		dir_name += fmt::format("{:%Y-%m-%d}", time) + "/";
+	}
 	std::error_code error;
 	if( not fs::exists(dir_name) and fs::create_directories(dir_name, error) == false )
 	{
@@ -494,20 +490,19 @@ static bool open_log_output_device
 		*fp = std_dev;
 		return false;
 	}
-	else if( fs::is_directory(dir_name) )
+	else if( not fs::is_directory(dir_name) )
 	{
 		std::cerr << "*** Error: Log: open_log_output_device: '" << dir_name << "' exists, but it is not a directory." << std::endl;
 		return false;
 	}
-
-	else if( g_curr_log_file.name.empty() )
+	else if( curr_file_name.empty() )
 	{
 		try {
 			for(auto &entry : fs::directory_iterator(dir_name))
 			{
 				auto file_name = entry.path().string();
 				if( str_ends_with(file_name, "(now)") )
-					g_curr_log_file.name = file_name;
+					curr_file_name = file_name;
 			}
 		}
 		catch(...)
@@ -516,24 +511,22 @@ static bool open_log_output_device
 			return false;
 		}
 
-		if( g_curr_log_file.name.empty() )
-			g_curr_log_file.name = dir_name + fmt::format("{:%H:%M:%S}-(now)", time);
+		if( curr_file_name.empty() )
+			curr_file_name = dir_name + fmt::format("{:%H:%M:%S}-(now)", time);
 	}
-
-	else if( fs::file_size(g_curr_log_file.name) + log_size > context.max_size_one_file )
+	else if( fs::file_size(curr_file_name) + log_size > context.max_size_one_file )
 	{
-		g_curr_log_file.save_last_name();
-		g_curr_log_file.name = dir_name + fmt::format("{:%H:%M:%S}-(now)", time);
+		g_curr_log_file.save_last_name(category);
+		curr_file_name = dir_name + fmt::format("{:%H:%M:%S}-(now)", time);
 	}
-
 	size_check(context, dir_name, log_size);
 	g_curr_log_file.last = time;
 
-	*fp = fopen(g_curr_log_file.name.c_str(), "a");
+	*fp = fopen(curr_file_name.c_str(), "a");
 	if( *fp == nullptr )
 	{
 		fprintf(stderr, "*** Error: Log: openLogOutputDevice: The log file '%s' open failed: %s.\n",
-				g_curr_log_file.name.c_str(), strerror(errno));
+				curr_file_name.c_str(), strerror(errno));
 		*fp = std_dev;
 		return false;
 	}
@@ -563,7 +556,6 @@ static void size_check(const logger::context &context, const std::string &dir_na
 		std::cerr << "*** Error: Log: open_log_output_device: Unable to traverse directory '" << dir_name << "'." << std::endl;
 		return ;
 	}
-
 	dir_info_list.sort([](const fs::directory_entry &info0, const fs::directory_entry &info1) {
 		return fs::create_time(info0.path()) < fs::create_time(info1.path());
 	});
@@ -575,7 +567,6 @@ static void size_check(const logger::context &context, const std::string &dir_na
 
 	if( dir_info_list.size() == 1 )
 		return ;
-
 	for(auto &info : dir_info_list)
 	{
 		if( not fs::is_directory(info.path()) )
@@ -609,7 +600,6 @@ static void list_push_back(std::list<fs::directory_entry> &list, const std::stri
 		std::cerr << "*** Error: Log: open_log_output_device: Unable to traverse directory '" << dir << "'." << std::endl;
 		return ;
 	}
-
 	list.sort([](const fs::directory_entry &info0, const fs::directory_entry &info1) {
 		return fs::create_time(info0.path()) < fs::create_time(info1.path());
 	});

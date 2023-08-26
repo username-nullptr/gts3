@@ -50,6 +50,7 @@ GTS_DECL_EXPORT bool request_filter(http::request &request)
 
 GTS_DECL_EXPORT void new_request_0(http::response &response)
 {
+	gts_custom_log_error("test", "==================== 000000000000");
 	response.write("hello world");
 }
 
