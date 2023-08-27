@@ -20,7 +20,6 @@ public:
 	static void init();
 	static void exit();
 	static std::string view_status();
-	static void new_websocket(service_io &sio);
 
 private:
 	rttr::variant global_method_call(const rttr::method &method, const rttr::type &p1_type);

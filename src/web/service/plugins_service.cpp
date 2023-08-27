@@ -55,7 +55,6 @@ void plugin_service::call()
 		}
 		return global_method_call(rs.method, GTS_RTTR_TYPE(http::request)).to_bool();
 	};
-
 	for(auto &pair : registration::g_filter_path_map)
 	{
 		auto &path = pair.first;
@@ -72,7 +71,6 @@ void plugin_service::call()
 		else if( lambda_call_filter(rs) )
 			return ;
 	}
-
 	if( ss.class_type.is_valid() )
 	{
 		auto &obj = g_obj_hash[ss.class_type];
@@ -265,14 +263,6 @@ std::string plugin_service::view_status()
 	if( not result.empty() and result[0] != '\n' )
 		result = "\n" + result;
 	return result;
-}
-
-void plugin_service::new_websocket(service_io &sio)
-{
-	// TODO ...
-	sio.response.set_status(http::hs_not_implemented)
-			.write("Being developed ...")
-			.close(true);
 }
 
 static environments make_envs(service_io &sio)

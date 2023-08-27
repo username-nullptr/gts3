@@ -220,6 +220,11 @@ bool request::save_file(const std::string &_file_name, asio::error_code &error, 
 	return true;
 }
 
+bool request::is_websocket_handshake() const
+{
+	return m_impl->m_websocket;
+}
+
 bool request::keep_alive() const
 {
 	return m_impl->m_keep_alive;
@@ -237,7 +242,7 @@ bool request::can_read_body() const
 
 bool request::is_valid() const
 {
-	if( m_impl == nullptr )
+	if( m_impl->m_socket == nullptr )
 		return false;
 	else if( m_impl->m_version.empty() or m_impl->m_path.empty() )
 		return false;
@@ -256,12 +261,12 @@ bool request::is_valid() const
 
 tcp::endpoint request::remote_endpoint() const
 {
-	return m_impl->m_socket->remote_endpoint();
+	return m_impl->socket().remote_endpoint();
 }
 
 tcp::endpoint request::local_endpoint() const
 {
-	return m_impl->m_socket->local_endpoint();
+	return m_impl->socket().local_endpoint();
 }
 
 void request::set_cookie_session_id(std::string id)

@@ -19,14 +19,11 @@ class GTS_DECL_HIDDEN response_impl
 {
 public:
 	explicit response_impl(http::request &request) :
-		m_request(request), m_socket(request.m_impl->m_socket) {}
+		m_request(request) {}
 
 public:
-	inline tcp_socket &socket() const
-	{
-		if( m_socket == nullptr )
-			gts_log_fatal("gts::http::response: xxx has been taken away. (gts::http::response::take)");
-		return *m_socket;
+	inline tcp_socket &socket() const {
+		return m_request.m_impl->socket();
 	}
 
 	std::size_t tcp_ip_buffer_size() const
@@ -94,7 +91,6 @@ public:
 
 public:
 	request &m_request;
-	tcp_socket_ptr m_socket;
 	status m_status = hs_ok;
 
 	cookies m_cookies;
@@ -122,10 +118,14 @@ response::response(http::request &request, const http::headers &headers, http::s
 
 response::~response()
 {
-	if( m_impl->m_socket == nullptr )
+	if( not is_valid() )
 		return ;
 	else if( not m_impl->m_headers_writed )
+	{
+		if( m_impl->m_request.is_websocket_handshake() )
+			set_status(http::hs_not_acceptable);
 		write_default();
+	}
 	chunk_end();
 	delete m_impl;
 }
@@ -798,11 +798,26 @@ bool response::is_writed() const
 	return m_impl->m_headers_writed;
 }
 
+websocket_ptr response::to_websocket() const
+{
+	// TODO...
+	gts_log_error("gts::http::response::to_websocket: websocket not implemented.");
+	return websocket_ptr();
+}
+
 tcp_socket_ptr response::take() const
 {
-	auto socket = m_impl->m_socket;
-	m_impl->m_socket = nullptr;
+	if( not is_valid() )
+		gts_log_fatal("gts::http::response: socket has been taken away. (gts::http::response::take)");
+
+	auto socket = m_impl->m_request.m_impl->m_socket;
+	m_impl->m_request.m_impl->m_socket = nullptr;
 	return socket;
+}
+
+bool response::is_valid() const
+{
+	return m_impl->m_request.is_valid();
 }
 
 }} //namespace gts::http

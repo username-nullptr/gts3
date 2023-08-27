@@ -2,7 +2,7 @@
 #define GTS_HTTP_RESPONSE_H
 
 #include <gts/http/types.h>
-#include <gts/tcp_socket.h>
+#include <gts/websocket.h>
 #include <functional>
 
 namespace gts { namespace http
@@ -131,7 +131,11 @@ public:
 public:
 	static void set_default_write(std::function<void(response&)>);
 	bool is_writed() const;
+
+public:
+	websocket_ptr to_websocket() const; //TODO
 	tcp_socket_ptr take() const;
+	bool is_valid() const;
 
 private:
 	friend class file_transfer;

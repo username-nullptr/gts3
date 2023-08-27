@@ -150,7 +150,8 @@ void session::do_recv()
 		if( request == nullptr )
 			return do_recv();
 
-		else if( not request->is_valid() )
+		request->m_impl->m_socket = m_socket;
+		if( not request->is_valid() )
 		{
 			m_socket->write_some("HTTP/1.1 400 Bad Request\r\n"
 								 "content-length: 0\r\n"
@@ -159,7 +160,6 @@ void session::do_recv()
 			m_socket->close(true);
 			return delete_later(this);
 		}
-
 		m_task.async_wait_next([this](bool cont)
 		{
 			if( cont )
@@ -167,7 +167,6 @@ void session::do_recv()
 			else
 				return delete_later(this);
 		});
-		request->m_impl->m_socket = m_socket;
 		m_task.start(std::move(request));
 	});
 }

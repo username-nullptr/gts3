@@ -7,10 +7,17 @@ using namespace std::chrono;
 namespace gts { namespace http
 {
 
+tcp_socket &request_impl::socket() const
+{
+	if( m_socket == nullptr )
+		gts_log_fatal("gts::http::request: socket has been taken away. (gts::http::response::take)");
+	return *m_socket;
+}
+
 std::size_t request_impl::tcp_ip_buffer_size() const
 {
 	tcp::socket::send_buffer_size attr;
-	m_socket->get_option(attr);
+	socket().get_option(attr);
 	return attr.value();
 }
 
@@ -65,6 +72,16 @@ void request_impl::finish(std::string &body)
 		m_rb_status = rb_status::finished;
 		m_rb_context = std::size_t(0);
 	}
+	if( m_version == "1.1" )
+	{
+		auto it = m_headers.find("connection");
+		if( it != m_headers.end() and str_to_lower(it->second) == "upgrade" )
+		{
+			it = m_headers.find("upgrade");
+			if( it != m_headers.end() and str_to_lower(it->second) == "websocket" )
+				m_websocket = true;
+		}
+	}
 }
 
 std::size_t request_impl::read_body_length_mode(std::error_code &error, void *buf, std::size_t size)
@@ -85,10 +102,12 @@ std::size_t request_impl::read_body_length_mode(std::error_code &error, void *bu
 			sum += m_body.size();
 			m_body.clear();
 		}
+		auto &sock = socket();
 		char *cbuf = reinterpret_cast<char*>(buf) + sum;
+
 		while( tplen > 0 and size > 0 )
 		{
-			auto res = m_socket->read_some(cbuf, size, seconds(30), error);
+			auto res = sock.read_some(cbuf, size, seconds(30), error);
 
 			cbuf += res;
 			sum += res;
@@ -138,7 +157,7 @@ std::size_t request_impl::read_body_chunked_mode(std::error_code &error, void *b
 		auto tcp_size = tcp_ip_buffer_size();
 		char *tmpbuf = new char[tcp_size] {0};
 
-		auto res = m_socket->read_some(tmpbuf, tcp_size, seconds(30), error);
+		auto res = socket().read_some(tmpbuf, tcp_size, seconds(30), error);
 		abuf.append(tmpbuf, res);
 
 		delete[] tmpbuf;
@@ -152,7 +171,6 @@ std::size_t request_impl::read_body_chunked_mode(std::error_code &error, void *b
 		error = std::make_error_code(std::errc::wrong_protocol_type);
 		gts_log_warning(msg);
 	};
-
 	while( not abuf.empty() )
 	{
 		auto pos = abuf.find("\r\n");
@@ -242,7 +260,6 @@ std::size_t request_impl::read_body_chunked_mode(std::error_code &error, void *b
 		return sum + size;
 	}
 	memcpy(buf, m_body.c_str(), m_body.size());
-	size -= m_body.size();
 	sum += m_body.size();
 	m_body.clear();
 

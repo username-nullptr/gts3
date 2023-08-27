@@ -7,6 +7,7 @@
 namespace gts { namespace http
 {
 
+class response;
 class request_impl;
 class response_impl;
 
@@ -90,6 +91,7 @@ public:
 	bool save_file(const std::string &file_name, std::size_t begin = 0);
 
 public:
+	bool is_websocket_handshake() const;
 	bool keep_alive() const;
 	bool support_gzip() const;
 	bool can_read_body() const;
@@ -103,6 +105,7 @@ private:
 	void set_cookie_session_id(std::string id);
 
 private:
+	friend class response;
 	friend class request_impl;
 	friend class response_impl;
 	friend class web::http_parser;

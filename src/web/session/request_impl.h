@@ -12,6 +12,7 @@ namespace gts { namespace http
 class GTS_DECL_HIDDEN request_impl
 {
 public:
+	tcp_socket &socket() const;
 	std::size_t tcp_ip_buffer_size() const;
 	void finish(std::string &body);
 
@@ -22,6 +23,7 @@ public:
 public:
 	bool m_keep_alive = true;
 	bool m_support_gzip = false;
+	bool m_websocket = false;
 
 	enum class rb_status
 	{

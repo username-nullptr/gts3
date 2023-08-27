@@ -119,24 +119,8 @@ std::string task::view_status()
 void task::start(std::shared_ptr<http::request> request)
 {
 	m_socket->non_blocking(false);
-	auto &headers = request->headers();
-
-	auto it = headers.find("connection");
-	if( it != headers.end() and it->second == "upgrade" )
-	{
-		it = headers.find("upgrade");
-		if( it != headers.end() and it->second == "websocket" )
-		{
-			service_io sio(*m_request);
-			plugin_service::new_websocket(sio);
-			if( m_call_back )
-			{
-				m_request.reset();
-				return m_call_back(false);
-			}
-		}
-	}
 	m_request = std::move(request);
+
 	asio::post(thread_pool(), [this]
 	{
 		run();
@@ -144,8 +128,9 @@ void task::start(std::shared_ptr<http::request> request)
 		{
 			if( m_call_back )
 			{
+				bool cont = m_request->is_valid();
 				m_request.reset();
-				m_call_back(true);
+				m_call_back(cont);
 			}
 		});
 	});
@@ -192,6 +177,7 @@ void task::run()
 		m_socket->close(true);
 }
 
+// TODO websocket
 #define _TASK_DO_PARSING(_sio) \
 ({ \
 	sio.url_name = _sio.request.path(); \
@@ -217,9 +203,6 @@ void task::run()
 
 static void _GET(service_io &sio)
 {
-//	sio.url_name = service_io::resource_path() + _TASK_DO_PARSING(sio);
-//	service::call_static_resource_service(sio);
-
 	sio.url_name = resource_root() + _TASK_DO_PARSING(sio);
 	sio.response.write_file(sio.url_name);
 }
