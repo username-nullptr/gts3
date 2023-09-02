@@ -84,6 +84,9 @@ void task::init()
 	if( not str_ends_with(g_cgi_path, "/") )
 		g_cgi_path += "/";
 
+	if( fs::path(g_cgi_path) == fs::path(resource_root()) )
+		gts_log_fatal("The paths of 'cgi' and 'resource' cannot be the same.");
+
 	if( not fs::exists(g_cgi_path) )
 		fs::create_directories(g_cgi_path);
 
