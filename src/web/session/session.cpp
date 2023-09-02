@@ -79,11 +79,6 @@ void session::init()
 	task::init();
 }
 
-void session::exit()
-{
-	task::exit();
-}
-
 static std::set<session*> g_timeout_set;
 
 void session::new_connection(tcp_socket_ptr socket)
@@ -116,17 +111,8 @@ void session::new_connection(tcp_socket_ptr socket)
 
 std::string session::view_status()
 {
-	auto result = fmt::format("web plugin:\n"
-							  "  session count: {} / {}\n", g_counter, g_max_count);
-	auto tmp = task::view_status();
-
-	if( not tmp.empty() )
-	{
-		if( tmp[0] != '\n' )
-			tmp = "\n" + tmp;
-		result += tmp;
-	}
-	return result;
+	return fmt::format("web plugin:\n"
+					   "  session count: {} / {}\n", g_counter, g_max_count);
 }
 
 void session::do_recv()

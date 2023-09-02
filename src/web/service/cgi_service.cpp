@@ -67,7 +67,7 @@ void cgi_service::init()
 #endif //ssl
 }
 
-void cgi_service::call()
+bool cgi_service::call()
 {
 	if( not fs::exists(m_sio.url_name) )
 	{
@@ -75,9 +75,8 @@ void cgi_service::call()
 		file_name += ".exe";
 		if( not fs::exists(file_name) )
 #endif //windows
-			return m_sio.return_to_null(http::hs_not_found);
+			return false;
 	}
-
 	for(auto &pair : g_cgi_env)
 		m_cgi.add_env(pair.first, pair.second);
 
@@ -110,7 +109,10 @@ void cgi_service::call()
 		m_content_length = it->second.get<std::size_t>();
 
 	if( m_cgi.start() == false )
-		return m_sio.return_to_null(http::hs_forbidden);
+	{
+		m_sio.return_to_null(http::hs_forbidden);
+		return true;
+	}
 	async_read_cgi();
 
 	tcp::socket::send_buffer_size attr;
@@ -127,7 +129,9 @@ void cgi_service::call()
 	else
 		async_read_socket();
 
-	bool pro_is_nor = m_cgi.join();
+	int pro_res = 0;
+	bool pro_is_nor = m_cgi.join(&pro_res);
+
 	if( m_counter > 0 )
 	{
 		std::unique_lock<std::mutex> locker(m_mutex);
@@ -135,8 +139,9 @@ void cgi_service::call()
 	}
 	gts_log_debug("cgi '{}' finished.", m_cgi.file());
 
-	if( not m_sio.response.is_writed() and not pro_is_nor )
-		return m_sio.return_to_null(http::hs_internal_server_error);
+	if( not m_sio.response.is_writed() and (not pro_is_nor or pro_res != 0) )
+		m_sio.return_to_null(http::hs_internal_server_error);
+	return true;
 }
 
 void cgi_service::async_write_socket(const char *buf, std::size_t buf_size)

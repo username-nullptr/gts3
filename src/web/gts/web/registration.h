@@ -1,31 +1,20 @@
 #ifndef GTS_WEB_REGISTRATION_H
 #define GTS_WEB_REGISTRATION_H
 
-#include <rttr/registration>
+#include <gts/registration.h>
 #include <gts/web/types.h>
 #include <gts/http.h>
 #include <gts/log.h>
 
-#include <cppformat>
-#include <future>
-
 namespace gts
 {
-
-using future_void = std::future<void>;
-
-using future_ptr = std::shared_ptr<future_void>;
-
-inline future_ptr make_future_ptr(future_void &&future) {
-	return std::make_shared<future_void>(std::move(future));
-}
 
 namespace web
 {
 
 class plugin_service;
 
-class registration
+class registration : public gts::registration
 {
 	GTS_DISABLE_COPY_MOVE(registration)
 
@@ -35,24 +24,22 @@ public:
 public:
 	template <typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)())>
 	registration &init_method(Func &&func) {
-		return register_method("init", std::forward<Func>(func));
+		return reinterpret_cast<registration&>(gts::registration::init_method(std::forward<Func>(func)));
 	}
 
 	template <typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)(std::string())), int U0=0>
 	registration &init_method(Func &&func) {
-		return register_method("init", std::forward<Func>(func));
+		return reinterpret_cast<registration&>(gts::registration::init_method(std::forward<Func>(func)));
 	}
 
-public:
 	template <typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)())>
 	registration &exit_method(Func &&func) {
-		return register_method("exit", std::forward<Func>(func));
+		return reinterpret_cast<registration&>(gts::registration::exit_method(std::forward<Func>(func)));
 	}
 
-public:
 	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_dsame(decltype(GTS_DECLVAL(Func)()), std::string), int)>
 	registration &view_status_method(Func &&func) {
-		return register_method("view_status", std::forward<Func>(func));
+		return reinterpret_cast<registration&>(gts::registration::view_status_method(std::forward<Func>(func)));
 	}
 
 public:
@@ -166,19 +153,14 @@ private:
 
 public:
 	template <typename Class>
-	class class_
+	class class_ : public gts::registration::class_<Class>
 	{
 		GTS_DISABLE_COPY_MOVE(class_)
 
 	public:
 		explicit class_(const std::string &path = "") :
-			m_path(path),
-			m_class_name(fmt::format("gts.web.plugin.class.{}", typeid(Class).hash_code())),
-			m_class_(std::make_shared<rttr::registration::class_<Class>>(m_class_name))
+			m_path(path)
 		{
-			m_class_->constructor();
-			m_type = rttr::type::get_by_name(m_class_name);
-
 			if( m_path == "/" )
 				return ;
 			else if( m_path.empty() )
@@ -200,32 +182,22 @@ public:
 
 	public:
 		template <typename Return>
-		class_ &init_method(Return(Class::*func)(void))
-		{
-			m_class_->method(fmt::format("init.{}", m_type.get_id()), func);
-			return *this;
+		class_ &init_method(Return(Class::*func)(void)) {
+			return reinterpret_cast<class_&>(gts::registration::class_<Class>::init_method(func));
 		}
 
 		template <typename Return, typename Str, GTS_TYPE_DECLTYPE(GTS_CLASS_METHOD_DECLVAL(Class, Return, Str)(std::string()))>
-		class_ &init_method(Return(Class::*func)(Str))
-		{
-			m_class_->method(fmt::format("init.{}", m_type.get_id()), func);
-			return *this;
+		class_ &init_method(Return(Class::*func)(Str)) {
+			return reinterpret_cast<class_&>(gts::registration::class_<Class>::init_method(func));
 		}
 
-	public:
 		template <typename Return>
-		class_ &exit_method(Return(Class::*func)(void))
-		{
-			m_class_->method(fmt::format("exit.{}", m_type.get_id()), func);
-			return *this;
+		class_ &exit_method(Return(Class::*func)(void)) {
+			return reinterpret_cast<class_&>(gts::registration::class_<Class>::exit_method(func));
 		}
 
-	public:
-		class_ &view_status_method(std::string(Class::*func)(void))
-		{
-			m_class_->method(fmt::format("view_status.{}", m_type.get_id()), func);
-			return *this;
+		class_ &view_status_method(std::string(Class::*func)(void)) {
+			return reinterpret_cast<class_&>(gts::registration::class_<Class>::view_status_method(func));
 		}
 
 	public:
@@ -386,10 +358,10 @@ public:
 				gts_log_fatal("service '{} ({})' multiple registration.", path, http::method_string(http_method));
 			else
 			{
-				method_array[http_method].class_type = m_type;
+				method_array[http_method].class_type = this->m_type;
 				method_name += http::method_string(http_method);
-				m_class_->method(method_name, std::forward<Func>(func));
-				method_array[http_method].method = m_type.get_method(method_name);
+				this->m_class_->method(method_name, std::forward<Func>(func));
+				method_array[http_method].method = this->m_type.get_method(method_name);
 			}
 		}
 
@@ -397,7 +369,12 @@ public:
 		template <typename Func>
 		inline class_ &_filter_method(std::string path, Func &&func)
 		{
-			if( not path.empty() )
+			if( path.empty() )
+			{
+				path = m_path;
+				path.erase(path.size() - 1);
+			}
+			else
 			{
 				auto n_it = std::unique(path.begin(), path.end(), [](char c0, char c1){
 					return c0 == c1 and c0 == '/';
@@ -405,17 +382,12 @@ public:
 				if( n_it != path.end() )
 					path.erase(n_it, path.end());
 
-				if( path[0] == '/' )
-					path.erase(0,1);
+				if( path[0] != '/' )
+					path = "/" + path;
 
 				if( not path.empty() and path[path.size() - 1] == '/' )
 					path.erase(path.size() - 1);
 				path = m_path + path;
-			}
-			else
-			{
-				path = m_path;
-				path.erase(path.size() - 1);
 			}
 			if( path[0] != '/' )
 				path = "/" + path;
@@ -425,30 +397,16 @@ public:
 				gts_log_fatal("service filter '{}' multiple registration.", path);
 
 			auto method_name = "filter_method." + path;
-			m_class_->method(method_name, std::forward<Func>(func));
+			this->m_class_->method(method_name, std::forward<Func>(func));
 
-			pair.first->second.class_type = m_type;
-			pair.first->second.method = m_type.get_method(method_name);
+			pair.first->second.class_type = this->m_type;
+			pair.first->second.method = this->m_type.get_method(method_name);
 			return *this;
 		}
 
-	private:
+	protected:
 		std::string m_path;
-		std::string m_class_name;
-		std::shared_ptr<rttr::registration::class_<Class>> m_class_;
-		rttr::type m_type {rttr::type::get_by_name("")};
 	};
-
-private:
-	template <typename Func>
-	registration &register_method(const std::string &name, Func &&func)
-	{
-		if( g_global_func_set.emplace(reinterpret_cast<const void*>(&func)).second )
-			rttr::registration::method(fmt::format("gts.web.plugin.{}.{}", name, g_ggfs_counter++), std::forward<Func>(func));
-		else
-			gts_log_fatal("gts::web::registration::{}: multiple registration.", name);
-		return *this;
-	}
 
 private:
 	template <http::method...http_method, typename Func>
@@ -464,8 +422,8 @@ private:
 			if( n_it != path.end() )
 				path.erase(n_it, path.end());
 
-			if( path.size() > 1 and path[0] == '/' )
-				path.erase(0,1);
+			if( path[0] != '/' )
+				path = "/" + path;
 
 			if( path.size() > 1 and path[path.size() - 1] == '/' )
 				path.erase(path.size() - 1);
@@ -520,6 +478,11 @@ private:
 		rttr::registration::method(method_name, std::forward<Func>(func));
 		pair.first->second.method = rttr::type::get_global_method(method_name);
 		return *this;
+	}
+
+private:
+	static std::unordered_map<rttr::type, rttr::variant> &obj_hash() {
+		return g_obj_hash;
 	}
 
 private:

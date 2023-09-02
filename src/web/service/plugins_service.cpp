@@ -25,24 +25,24 @@ plugin_service::plugin_service(service_io &sio) :
 	m_sio.socket.non_blocking(false);
 }
 
-static std::unordered_map<rttr::type, rttr::variant> g_obj_hash;
-
-void plugin_service::call()
+bool plugin_service::call()
 {
 	if( m_sio.url_name.empty() )
 		m_sio.url_name = "/";
 
-	else if( m_sio.url_name[m_sio.url_name.size() - 1] == '/' )
-		m_sio.url_name.erase(m_sio.url_name.size() - 1);
+	else if( m_sio.url_name.size() > 1 and m_sio.url_name[m_sio.url_name.size() - 1] == '/' )
+		m_sio.url_name.pop_back();
 
 	auto it = registration::g_path_hash.find(m_sio.url_name);
 	if( it == registration::g_path_hash.end() )
-		return m_sio.return_to_null(http::hs_not_found);
+		return false;
 
 	auto &ss = it->second[m_sio.request.method()];
 	if( not ss.method.is_valid() )
-		return m_sio.return_to_null(http::hs_method_not_allowed);
-
+	{
+		m_sio.return_to_null(http::hs_method_not_allowed);
+		return true;
+	}
 	auto lambda_call_filter = [this](registration::service &rs) -> bool
 	{
 		if( rs.method.get_return_type() != GTS_RTTR_TYPE(bool) )
@@ -50,7 +50,7 @@ void plugin_service::call()
 
 		else if( rs.class_type.is_valid() )
 		{
-			auto &obj = g_obj_hash[rs.class_type];
+			auto &obj = registration::obj_hash()[rs.class_type];
 			return class_method_call(rs.method, obj, GTS_RTTR_TYPE(http::request)).to_bool();
 		}
 		return global_method_call(rs.method, GTS_RTTR_TYPE(http::request)).to_bool();
@@ -66,203 +66,19 @@ void plugin_service::call()
 		else if( path[path.size() - 1] == '/' )
 		{
 			if( m_sio.url_name != path and lambda_call_filter(rs) )
-				return ;
+				return true;
 		}
 		else if( lambda_call_filter(rs) )
-			return ;
+			return true;
 	}
 	if( ss.class_type.is_valid() )
 	{
-		auto &obj = g_obj_hash[ss.class_type];
+		auto &obj = registration::obj_hash()[ss.class_type];
 		class_method_call(ss.method, obj, GTS_RTTR_TYPE(http::response));
 	}
 	else
 		global_method_call(ss.method, GTS_RTTR_TYPE(http::response));
-}
-
-static std::list<rttr::library> g_library_list;
-
-#define _CHECK_RETURN_CALL(...) \
-({ \
-	if( method.get_return_type() == GTS_RTTR_TYPE(future_ptr) ) { \
-		rttr::variant var = method.invoke(__VA_ARGS__); \
-		futures.emplace_back(var.get_value<future_ptr>()); \
-	} \
-	else \
-		method.invoke(__VA_ARGS__); \
-})
-
-template <typename Ins>
-static void call_init(const rttr::method &method, Ins obj, std::list<future_ptr> &futures)
-{
-	auto para_list = method.get_parameter_infos();
-	if( para_list.empty() )
-		_CHECK_RETURN_CALL(obj);
-
-	else if( para_list.size() == 1 and para_list.begin()->get_type() == GTS_RTTR_TYPE(std::string) )
-		_CHECK_RETURN_CALL(obj, settings::global_instance().file_name());
-}
-
-template <typename Ins>
-static void call_exit(const rttr::method &method, Ins obj, std::list<future_ptr> &futures)
-{
-	auto para_list = method.get_parameter_infos();
-	if( para_list.empty() )
-		_CHECK_RETURN_CALL(obj);
-}
-
-void plugin_service::init()
-{
-	auto &_settings = settings::global_instance();
-	auto json_file = _settings.read<std::string>
-					 (SINI_GROUP_WEB, SINI_WEB_PLUGINS_CONFIG, _GTS_WEB_DEFAULT_PLUGINS_CONFIG);
-
-	if( json_file.empty() )
-		return ;
-
-	json_file = appinfo::absolute_path(json_file);
-	if( not fs::exists(json_file) )
-	{
-		gts_log_error("Web plugins json file is not exists.");
-		return ;
-	}
-	std::ifstream file(json_file);
-	auto array = njson::parse(file, nullptr, false);
-
-	if( array.is_null() )
-	{
-		gts_log_error("Web plugins json file read error.");
-		return ;
-	}
-	else if( not array.is_array() )
-	{
-		gts_log_error("Web plugins json format error. (not array)");
-		return ;
-	}
-	auto json_file_path = file_path(json_file);
-
-	for(auto &json : array)
-	{
-		std::string file_name;
-		try {
-#ifdef _WINDOWS
-			file_name = json["name"].get<std::string>() + std::string(".dll");
-#elif defined(__unix__)
-			file_name = std::string("lib") + json["name"].get<std::string>() + ".so";
-#else
-			file_name += ".???";
-#endif
-			std::string file_path = "./";
-			auto it = json.find("path");
-
-			if( it != json.end() )
-			{
-				file_path = it->get<std::string>();
-				if( not str_ends_with(file_path, "/") )
-					file_path += "/";
-
-				if( not appinfo::is_absolute_path(file_path) )
-					file_path = json_file_path + file_path;
-			}
-			file_name = file_path + file_name;
-		}
-		catch(...) {
-			gts_log_warning("Web plugins config format(json) error.");
-			continue;
-		}
-
-		g_library_list.emplace_back(file_name);
-		auto &library = g_library_list.back();
-
-		if( library.load() == false )
-		{
-			gts_log_error("gts.web.plugin load failed: {}.", library.get_error_string());
-			g_library_list.pop_back(); //!!!library!!! -> null
-		}
-	}
-	std::list<future_ptr> futures;
-	auto it = rttr::type::get_global_methods().begin();
-
-	for(int i=0; it!=rttr::type::get_global_methods().end(); it=std::next(rttr::type::get_global_methods().begin(), ++i))
-	{
-		auto &method = *it;
-		if( str_starts_with(method.get_name().to_string(), "gts.web.plugin.init.") )
-			call_init(method, rttr::instance(), futures);
-	}
-	for(auto &pair : registration::g_path_hash)
-	{
-		for(auto &ss : pair.second)
-		{
-			if( not ss.class_type.is_valid() )
-				continue;
-
-			auto pair = g_obj_hash.emplace(ss.class_type, rttr::variant());
-			if( pair.second == false )
-				continue ;
-
-			pair.first->second = ss.class_type.create();
-			auto &obj = pair.first->second;
-
-			if( not obj.is_valid() )
-				gts_log_fatal("service class create failed.");
-
-			auto method = ss.class_type.get_method(fmt::format("init.{}", ss.class_type.get_id()));
-			if( method.is_valid() )
-				call_init(method, obj, futures);
-		}
-	}
-	for(auto &future : futures)
-		future->wait();
-}
-
-void plugin_service::exit()
-{
-	std::list<future_ptr> futures;
-	for(auto &pair : g_obj_hash)
-	{
-		auto &type = pair.first;
-		auto &obj = pair.second;
-
-		auto method = type.get_method(fmt::format("exit.{}", type.get_id()));
-		if( method.is_valid() )
-			call_exit(method, obj, futures);
-		obj.clear();
-	}
-	auto it = rttr::type::get_global_methods().begin();
-	for(int i=0; it!=rttr::type::get_global_methods().end(); it=std::next(rttr::type::get_global_methods().begin(), ++i))
-	{
-		auto &method = *it;
-		if( str_starts_with(method.get_name().to_string(), "gts.web.plugin.exit.") )
-			call_exit(method, rttr::instance(), futures);
-	}
-	for(auto &future : futures)
-		future->wait();
-	g_obj_hash.clear();
-}
-
-std::string plugin_service::view_status()
-{
-	std::string result;
-	auto it = rttr::type::get_global_methods().begin();
-
-	for(int i=0; it!=rttr::type::get_global_methods().end(); it=std::next(rttr::type::get_global_methods().begin(), ++i))
-	{
-		auto &method = *it;
-		if( str_starts_with(method.get_name().to_string(), "gts.web.plugin.view_status.") and method.get_return_type() == GTS_RTTR_TYPE(std::string) )
-			result += method.invoke({}).get_value<std::string>();
-	}
-	for(auto &pair : g_obj_hash)
-	{
-		auto &type = pair.first;
-		auto &obj = pair.second;
-
-		auto method = type.get_method(fmt::format("view_status.{}", type.get_id()));
-		if( method.is_valid() and method.get_return_type() == GTS_RTTR_TYPE(std::string) )
-			result += method.invoke(obj).get_value<std::string>();
-	}
-	if( not result.empty() and result[0] != '\n' )
-		result = "\n" + result;
-	return result;
+	return true;
 }
 
 static environments make_envs(service_io &sio)

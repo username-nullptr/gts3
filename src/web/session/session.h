@@ -18,7 +18,6 @@ public:
 
 public:
 	static void init();
-	static void exit();
 	static void new_connection(tcp_socket_ptr socket);
 	static std::string view_status();
 

@@ -24,8 +24,6 @@ public:
 
 public:
 	static void init();
-	static void exit();
-	static std::string view_status();
 
 public:
 	void start(std::shared_ptr<http::request> request);

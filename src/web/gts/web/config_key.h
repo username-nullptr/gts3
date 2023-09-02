@@ -11,10 +11,6 @@
 
 #define SINI_WEB_CGI_PATH           "cgi_path"
 
-#define SINI_WEB_PLUGINS_CONFIG     "plugins_config"
-
-#define SINI_WEB_PLUGINS_ACCESS     "plugins_access"
-
 #define SINI_WEB_RC_PATH            "resource_path"
 
 #define SINI_WEB_IDLE_TIME_TV       "idle_time_tv"
@@ -31,12 +27,9 @@
 
 #define SINI_WEB_WSS_PORT           "websocket_server_port"
 
-#define SINI_WEB_WSS_STRATEGY       "websocket_strategy"
 
-
-# define _GTS_WEB_DEFAULT_CGI_PATH        "../cgi/"
-# define _GTS_WEB_DEFAULT_RC_PATH         "../resource/"
-# define _GTS_WEB_DEFAULT_PLUGINS_CONFIG  "../business_plugins/business_plugins.json"
+#define _GTS_WEB_DEFAULT_CGI_PATH        "../cgi/"
+#define _GTS_WEB_DEFAULT_RC_PATH         "../resource/"
 
 
 #endif //GTS_WEB_CONFIG_KEY_H

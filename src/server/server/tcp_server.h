@@ -84,7 +84,6 @@ private:
 	std::map<std::string, site_ptr> m_sites;
 
 private:
-	std::shared_ptr<rttr::library> m_plugin_lib;
 	int m_method_id = 1;
 	int m_buffer_size = 65536;
 };

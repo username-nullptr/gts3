@@ -27,8 +27,6 @@ task::task(tcp_socket_ptr socket) :
 
 static std::string g_default_resource = "/index.html";
 
-static std::string g_plugins_access = "/plugin-lib";
-
 static std::string g_cgi_access = "/cgi-bin";
 
 static std::string g_cgi_path = _GTS_WEB_DEFAULT_CGI_PATH;
@@ -63,7 +61,7 @@ static inline void access_check(std::string &str)
 	if( not str_starts_with(str, "/") )
 		str = "/" + str;
 
-	if( str == "/" or str == "\\" )
+	if( str == "/" )
 		gts_log_fatal("Default resource or access extensions is empty.");
 }
 
@@ -74,14 +72,11 @@ void task::init()
 	g_default_resource = _setting.read<std::string>(SINI_GROUP_WEB, SINI_WEB_DEFAULT_RESOURCE, g_default_resource);
 	access_check(g_default_resource);
 
-	g_plugins_access = _setting.read<std::string>(SINI_GROUP_WEB, SINI_WEB_PLUGINS_ACCESS, g_plugins_access);
-	access_check(g_plugins_access);
+	if( fs::is_directory(g_default_resource) )
+		gts_log_fatal("Default resource is a directory.");
 
 	g_cgi_access = _setting.read<std::string>(SINI_GROUP_WEB, SINI_WEB_CGI_ACCESS, g_cgi_access);
 	access_check(g_cgi_access);
-
-	if( g_default_resource == g_plugins_access or g_default_resource == g_cgi_access or g_plugins_access == g_cgi_access )
-		gts_log_fatal("Config error: 'default_resource', 'plugins_access', 'cgi_access' cannot be equal.");
 
 	g_cgi_path = _setting.read<std::string>(SINI_GROUP_WEB, SINI_WEB_CGI_PATH, g_cgi_path);
 	g_cgi_path = app::absolute_path(g_cgi_path);
@@ -94,26 +89,13 @@ void task::init()
 
 	gts_log_debug("web task config:\n"
 			  "    default_resource: {}\n"
-			  "    plugins_access  : {}\n"
 			  "    cgi_access      : {}\n"
 			  "    cgi_path        : {}",
 			  g_default_resource,
-			  g_plugins_access,
 			  g_cgi_access,
 			  g_cgi_path);
 
-	plugin_service::init();
 	cgi_service::init();
-}
-
-void task::exit()
-{
-	plugin_service::exit();
-}
-
-std::string task::view_status()
-{
-	return plugin_service::view_status();
 }
 
 void task::start(std::shared_ptr<http::request> request)
@@ -178,32 +160,35 @@ void task::run()
 }
 
 // TODO websocket
-#define _TASK_DO_PARSING(_sio) \
+#define _TASK_DO_PARSING(sio) \
 ({ \
-	sio.url_name = _sio.request.path(); \
-	if( sio.url_name.empty() or sio.url_name == "/" ) \
-		sio.url_name = g_default_resource; \
-	else if( sio.url_name != g_default_resource ) { \
-		auto pos = sio.url_name.find("/", 1); \
-		if( pos != std::string::npos ) { \
-			auto prefix = sio.url_name.substr(0,pos); \
-			if( prefix == g_cgi_access ) { \
-				sio.url_name = g_cgi_path + sio.url_name.substr(pos+1); \
-				return cgi_service(sio).call(); \
-			} else if ( prefix == g_plugins_access ) { \
-				sio.url_name.erase(0, pos+1); \
-				return plugin_service(sio).call(); \
-			} \
+	sio.url_name = sio.request.path(); \
+	if( sio.url_name.empty() ) \
+		sio.url_name = "/"; \
+	if( plugin_service(sio).call() ) \
+		return ; \
+	auto pos = sio.url_name.find("/",1); \
+	if( pos != std::string::npos ) { \
+		auto prefix = sio.url_name.substr(0,pos); \
+		if( prefix == g_cgi_access ) { \
+			sio.url_name = g_cgi_path + sio.url_name.substr(pos+1); \
+			if( cgi_service(sio).call() ) \
+				return ; \
+			else \
+				sio.return_to_null(http::hs_not_found); \
 		} \
 	} \
-	if( fs::is_directory(sio.url_name) ) \
-		return _sio.return_to_null(http::hs_not_found); \
-	sio.url_name; \
 })
 
 static void _GET(service_io &sio)
 {
-	sio.url_name = resource_root() + _TASK_DO_PARSING(sio);
+	_TASK_DO_PARSING(sio);
+	if( sio.url_name == "/" )
+		sio.url_name = g_default_resource;
+	sio.url_name = resource_root() + sio.url_name;
+
+	if( fs::is_directory(sio.url_name) )
+		return sio.return_to_null(http::hs_not_found);
 	sio.response.write_file(sio.url_name);
 }
 
@@ -222,11 +207,16 @@ static void _PUT(service_io &sio)
 static void _HEAD(service_io &sio)
 {
 	sio.url_name = sio.request.path();
+	if( sio.url_name.empty() )
+		sio.url_name = "/";
+
 	if( sio.url_name == "/" )
 		return sio.return_to_null();
 
-	auto pos = sio.url_name.find("/", 1);
+	if( plugin_service(sio).call() )
+		return ;
 
+	auto pos = sio.url_name.find("/",1);
 	if( pos != std::string::npos )
 	{
 		auto prefix = sio.url_name.substr(0,pos);
@@ -236,13 +226,7 @@ static void _HEAD(service_io &sio)
 				return sio.return_to_null();
 			return sio.return_to_null(http::hs_not_found);
 		}
-		else if ( prefix == g_plugins_access )
-		{
-			sio.url_name.erase(0, pos+1);
-			return plugin_service(sio).call();
-		}
 	}
-
 	else if( fs::exists(resource_root() + sio.url_name) )
 		sio.return_to_null(http::hs_not_found);
 	else

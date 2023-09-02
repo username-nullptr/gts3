@@ -155,19 +155,18 @@ void applictaion_impl::set_config_file(const cmdline::args_parser::arguments &ar
 	_settings.set_delete_on_flush(false);
 	_settings.set_file(file_name);
 
-	settings::ini_hash sample_gts =
+	settings::ini_hash sample_gts
 	{
-		{ SINI_GTS_SITES_CONFIG , "sites.json"         },
-		{ SINI_GTS_TCP_BUF_SIZE , 65536                },
-		{ SINI_GTS_SSL_CRT_FILE , ""                   },
-		{ SINI_GTS_SSL_KEY_FILE , ""                   },
-		{ SINI_GTS_SSL_KEY      , ""                   },
-		{ SINI_GTS_STRATEGY     , _GTS_DEFULT_STRATEGY },
-		{ SINI_GTS_SSCFG        , "subserver.json"     }
+		{ SINI_GTS_PLUGINS_CONFIG , _GTS_DEFAULT_PLUGINS_CONFIG },
+		{ SINI_GTS_SITES_CONFIG   , _GTS_DEFAULT_SITES_CONFIG   },
+		{ SINI_GTS_TCP_BUF_SIZE   , 65536                       },
+		{ SINI_GTS_SSL_CRT_FILE   , ""                          },
+		{ SINI_GTS_SSL_KEY_FILE   , ""                          },
+		{ SINI_GTS_SSL_KEY        , ""                          }
 	};
 	settings::ini_file_check(SINI_GROUP_GTS, sample_gts);
 
-	settings::ini_hash sample_gtslog =
+	settings::ini_hash sample_gtslog
 	{
 		{ SINI_GTS_LOG_DIR      , ""         },
 		{ SINI_GTS_LOG_LEVEL    , 4          },
@@ -207,12 +206,12 @@ applictaion::~applictaion()
 
 void applictaion::extension_init()
 {
-	extension::plugin_call::init(settings::global_instance().file_name());
+	plugin_call_handle::extension::init(settings::global_instance().file_name());
 }
 
 void applictaion::extension_exit()
 {
-	extension::plugin_call::exit();
+	plugin_call_handle::extension::exit();
 }
 
 applictaion &applictaion::instance()

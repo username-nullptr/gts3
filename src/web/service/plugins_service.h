@@ -14,12 +14,7 @@ class GTS_DECL_HIDDEN plugin_service
 
 public:
 	plugin_service(service_io &sio);
-	void call();
-
-public:
-	static void init();
-	static void exit();
-	static std::string view_status();
+	bool call();
 
 private:
 	rttr::variant global_method_call(const rttr::method &method, const rttr::type &p1_type);

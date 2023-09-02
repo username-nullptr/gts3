@@ -3,19 +3,17 @@
 
 #define SINI_GROUP_GTS  "gts"
 
-#define SINI_GTS_SITES_CONFIG  "sites_config_file"
+#define SINI_GTS_SITES_CONFIG    "sites_config_file"
 
-#define SINI_GTS_TCP_BUF_SIZE  "tcp_buffer_size"
+#define SINI_GTS_TCP_BUF_SIZE    "tcp_buffer_size"
 
-#define SINI_GTS_SSL_CRT_FILE  "ssl_crt_file"
+#define SINI_GTS_SSL_CRT_FILE    "ssl_crt_file"
 
-#define SINI_GTS_SSL_KEY_FILE  "ssl_key_file"
+#define SINI_GTS_SSL_KEY_FILE    "ssl_key_file"
 
-#define SINI_GTS_SSL_KEY       "ssl_key"
+#define SINI_GTS_SSL_KEY         "ssl_key"
 
-#define SINI_GTS_STRATEGY      "service_strategy"
-
-#define SINI_GTS_SSCFG         "subserver_config"
+#define SINI_GTS_PLUGINS_CONFIG  "plugins_config"
 
 
 #define SINI_GROUP_GTSLOG  "gtslog"
@@ -34,13 +32,6 @@
 
 #define SINI_GTS_LOG_MAX       "max_size"
 
-#ifdef _MSC_VER
-# define _GTS_DEFULT_STRATEGY       "gtsweb.dll"
-#elif defined(__GNUC__)
-# define _GTS_DEFULT_STRATEGY       "libgtsweb.so"
-#else //
-# define _GTS_DEFULT_STRATEGY  "???"
-#endif
 
 #ifdef _WINDOWS
 # define _GTS_SSL_CRT_DEFAULT_FILE  ""
@@ -52,6 +43,9 @@
 # define _GTS_SSL_CRT_DEFAULT_FILE  ""
 # define _GTS_SSL_KEY_DEFAULT_FILE  ""
 #endif //os
+
+#define _GTS_DEFAULT_SITES_CONFIG    "sites.json"
+#define _GTS_DEFAULT_PLUGINS_CONFIG  "../plugins.json"
 
 
 #endif //GTS_CONFIG_KEY_H

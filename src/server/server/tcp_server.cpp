@@ -1,5 +1,6 @@
 #include "tcp_server.h"
 #include "gts/gts_config_key.h"
+#include "gts/registration.h"
 #include "gts/algorithm.h"
 #include "gts/settings.h"
 
@@ -27,10 +28,6 @@ namespace ip = asio::ip;
 
 tcp_server::tcp_server()
 {
-	auto plugin_file_name = READ_CONFIG(std::string, SINI_GTS_STRATEGY, _GTS_DEFULT_STRATEGY);
-	plugin_file_name = appinfo::absolute_path(plugin_file_name);
-	m_plugin_lib = std::make_shared<rttr::library>(plugin_file_name);
-
 #ifdef GTS_ENABLE_SSL
 	auto &ssl_context = ssl_socket::asio_ssl_context();
 
@@ -84,16 +81,23 @@ tcp_server::~tcp_server()
 
 void tcp_server::start()
 {
-	if( m_plugin_lib->load() == false )
-		gts_log_fatal("gts.plugin load failed: {}.\n", m_plugin_lib->get_error_string());
-
 	auto &_settings = settings::global_instance();
-	m_buffer_size = READ_CONFIG(int, SINI_GTS_TCP_BUF_SIZE, m_buffer_size);
+	auto json_file = READ_CONFIG(std::string, SINI_GTS_PLUGINS_CONFIG, _GTS_DEFAULT_PLUGINS_CONFIG);
 
-	if( m_buffer_size < 1024 )
-		m_buffer_size = 1024;
+	if( json_file.empty() )
+	{
+		gts_log_fatal("gts::tcp_server::start: No plugins configuration found.");
+		return ;
+	}
+	json_file = appinfo::absolute_path(json_file);
+	if( not fs::exists(json_file) )
+	{
+		gts_log_error("gts::tcp_server::start: Plugins json file is not exists.");
+		return ;
+	}
+	plugin_call_handle::init(json_file, _settings.file_name());
 
-	auto json_file = _settings.read<std::string>(SINI_GROUP_GTS, SINI_GTS_SITES_CONFIG);
+	json_file = READ_CONFIG(std::string, SINI_GTS_SITES_CONFIG, _GTS_DEFAULT_SITES_CONFIG);
 	if( json_file.empty() )
 	{
 		gts_log_warning("Sites is not configured, using default. (http:80)");
@@ -114,7 +118,6 @@ void tcp_server::start()
 
 	std::ifstream file(json_file);
 	auto &si_map = server_get_site_infos();
-
 	try {
 		auto json = njson::parse(file, nullptr);
 		for(auto &it : json.items())
@@ -168,8 +171,9 @@ void tcp_server::start()
 	catch(...) {
 		gts_log_fatal("Sites json file load failed: 'The file does not exist or is in the wrong format' ?");
 	}
-
-	plugin_call::init(settings::global_instance().file_name());
+	m_buffer_size = READ_CONFIG(int, SINI_GTS_TCP_BUF_SIZE, m_buffer_size);
+	if( m_buffer_size < 1024 )
+		m_buffer_size = 1024;
 
 	for(auto &pair : si_map)
 	{
@@ -201,8 +205,8 @@ void tcp_server::stop()
 	if( m_sites.empty() )
 		return ;
 
-	plugin_call::exit();
 	m_sites.clear();
+	plugin_call_handle::exit();
 }
 
 std::string tcp_server::view_status() const
@@ -214,8 +218,7 @@ std::string tcp_server::view_status() const
 				  pair.second->view_status() +
 				  "\n";
 	}
-	status += plugin_call::view_status();
-	return status;
+	return status + plugin_call_handle::view_status();
 }
 
 void tcp_server::service(tcp_socket *sock, bool universal)
@@ -229,7 +232,7 @@ void tcp_server::service(tcp_socket *sock, bool universal)
 	if( error )
 		gts_log_error("asio: set socket receive buffer error: {}. ({})\n", error.message(), error.value());
 
-	if( plugin_call::new_connection(sock, universal) == false )
+	if( plugin_call_handle::new_connection(sock, universal) == false )
 		gts_log_fatal("gts.plugin error: new connection method is null.");
 }
 

@@ -48,13 +48,13 @@ args_parser::arguments argument_check(int argc, const char *argv[], string_list 
 			.add_group("--stop-subserver"            , "Stop subservices in the list."                                                   , GC_SA_SPSS   )
 
 			.enable_h()
-			.set_help_extension(extension::plugin_call::view_help())
+			.set_help_extension(plugin_call_handle::extension::view_help())
 			.set_version(view_version(false))
 			.set_v(view_version(true))
 
 			.parsing(argc, argv, others);
 
-	if( not others.empty() and extension::plugin_call::args_parsing(others) == false )
+	if( not others.empty() and plugin_call_handle::extension::args_parsing(others) == false )
 	{
 		std::cerr << "Invalid arguments." << std::endl;
 		exit(-1);
@@ -89,7 +89,7 @@ static std::string view_version(bool all)
 #endif //GCC
 
 	result += "Compilation time: " __DATE__ " " __TIME__;
-	auto ext_info = extension::plugin_call::view_version();
+	auto ext_info = plugin_call_handle::extension::view_version();
 
 	if( not ext_info.empty() )
 		result += "\n" + ext_info;
