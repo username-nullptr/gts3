@@ -10,6 +10,16 @@ using environment = http::pair<http::value>;
 
 using environments = http::unordered_map<http::value>;
 
+enum class data_type {
+	text, binary
+};
+
+struct buffer
+{
+	data_type type;
+	std::string data;
+};
+
 }} //namespace gts::web
 
 

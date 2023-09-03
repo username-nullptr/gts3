@@ -2,7 +2,7 @@
 #define GTS_HTTP_RESPONSE_H
 
 #include <gts/http/types.h>
-#include <gts/websocket.h>
+#include <gts/web/socket.h>
 #include <functional>
 
 namespace gts { namespace http

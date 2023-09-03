@@ -89,6 +89,9 @@ public:
 	}
 
 public:
+	//TODO websocket
+
+public:
 	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_dsame(
 			  decltype(GTS_DECLVAL(Func)(GTS_DECLVAL(http::request&))), bool), int)>
 	registration &filter_method(const std::string &path, Func &&func) {
@@ -254,6 +257,9 @@ public:
 		class_ &request_handle_method(const std::string &path, Return(Class::*func)(Req, Env, Res)) {
 			return _request_handle_method<http_method...>(path, func);
 		}
+
+	public:
+		//TODO websocket
 
 	public:
 		template <typename Req, GTS_TYPE_DECLTYPE

@@ -1,12 +1,12 @@
 set(web_sources
 	main.cpp
-	gts/websocket.cpp
 	gts/http/types.cpp
 	gts/http/cookies.cpp
 	gts/http/session.cpp
 	gts/http/request.cpp
 	gts/http/response.cpp
 	gts/web/registration.cpp
+	gts/web/socket.cpp
 	session/request_impl.cpp
 	session/http_parser.cpp
 	session/session.cpp
@@ -20,7 +20,6 @@ set(web_headers
 	gts/web.h
 	gts/http.h
 	gts/web_global.h
-	gts/websocket.h
 	gts/http/value.h
 	gts/http/container.h
 	gts/http/types.h
@@ -33,6 +32,7 @@ set(web_headers
 	gts/web/config_key.h
 	gts/web/thread_pool.h
 	gts/web/registration.h
+	gts/web/socket.h
 	session/request_impl.h
 	session/http_parser.h
 	session/session.h
