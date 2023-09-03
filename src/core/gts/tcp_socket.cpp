@@ -1,8 +1,6 @@
 #include "tcp_socket.h"
-#include "gts/formatter.h"
-
+#include "gts/log.h"
 #include <cppformat>
-#include <iostream>
 
 namespace gts
 {
@@ -353,7 +351,7 @@ tcp::socket &tcp_socket::native()
 
 void tcp_socket::error(const asio::error_code &error, const char *func)
 {
-	std::cerr << fmt::format("*** Error: tcp_socket::{}: {}", func, error) << std::endl;
+	gts_log_error("gts::tcp_socket::{}: {}", func, error);
 }
 
 } //namespace gts

@@ -42,8 +42,8 @@ endif()
 
 add_executable(gts ${server_sources} ${server_headers} ${server_private_headers})
 
-target_include_directories(gts PRIVATE . ../core ../log)
-target_link_libraries(gts PRIVATE gtscore gtslog)
+target_include_directories(gts PRIVATE . ../core )
+target_link_libraries(gts PRIVATE gtscore)
 
 set_target_properties(gts PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY ../../${output_dir_name}/bin

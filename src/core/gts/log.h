@@ -21,7 +21,7 @@ namespace gts { namespace log
 
 class logger_impl;
 
-class GTSLOG_API logger
+class GTSCORE_API logger
 {
 	GTS_DISABLE_COPY_MOVE(logger)
 	using duration = std::chrono::milliseconds;

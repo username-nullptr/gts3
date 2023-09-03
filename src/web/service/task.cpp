@@ -174,11 +174,11 @@ void task::run()
 	if( pos != std::string::npos ) { \
 		auto prefix = sio.url_name.substr(0,pos); \
 		if( prefix == g_cgi_access ) { \
+			auto tmp = sio.url_name; \
 			sio.url_name = g_cgi_path + sio.url_name.substr(pos+1); \
 			if( cgi_service(sio).call() ) \
 				return ; \
-			else \
-				sio.return_to_null(http::hs_not_found); \
+			sio.url_name = tmp; \
 		} \
 	} \
 })
@@ -227,10 +227,9 @@ static void _HEAD(service_io &sio)
 		{
 			if( fs::exists(g_cgi_path + sio.url_name.substr(pos+1)) )
 				return sio.return_to_null();
-			return sio.return_to_null(http::hs_not_found);
 		}
 	}
-	else if( fs::exists(resource_root() + sio.url_name) )
+	if( fs::exists(resource_root() + sio.url_name) )
 		sio.return_to_null(http::hs_not_found);
 	else
 		sio.return_to_null();

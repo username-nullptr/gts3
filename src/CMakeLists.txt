@@ -2,7 +2,6 @@ project(GTS VERSION 3.0.0)
 add_definitions(-DGTS_VERSION_STR="3.0.0 dev4")
 
 add_subdirectory(core)
-add_subdirectory(log)
 add_subdirectory(server)
 add_subdirectory(web)
 

@@ -4,8 +4,8 @@
 #include <gts/tcp_socket.h>
 #include <gts/string_list.h>
 #include <rttr/registration>
+#include <gts/log.h>
 #include <cppformat>
-#include <iostream>
 #include <future>
 
 namespace gts
@@ -36,10 +36,7 @@ protected:
 		if( g_func_set.emplace(reinterpret_cast<const void*>(&func)).second )
 			rttr::registration::method(fmt::format("gts{}.plugin{}.{}", prefix, name, g_gfs_counter++), std::forward<Func>(func));
 		else
-		{
-			std::cerr << "*** Error: gts::registration_base::" << name << ": multiple registration." << std::endl;
-			abort();
-		}
+			gts_log_fatal("gts::registration_base::{}: multiple registration.", name);
 		return *reinterpret_cast<This*>(this);
 	}
 
@@ -62,10 +59,7 @@ public:
 		if( g_func_set.emplace(reinterpret_cast<const void*>(reinterpret_cast<const char*>(&func) + port)).second )
 			rttr::registration::method(port == 0? "gts.plugin.new_connection" : fmt::format("gts.plugin.new_connection.{}", port), std::forward<Func>(func));
 		else
-		{
-			std::cerr << "*** Error: gts::registration::new_connection: multiple registration." << std::endl;
-			abort();
-		}
+			gts_log_fatal("gts::registration::new_connection: multiple registration.");
 		return *this;
 	}
 

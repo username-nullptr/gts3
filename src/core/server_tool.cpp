@@ -51,15 +51,11 @@ void plugin_call_handle::init(const std::string &json_file, const std::string &c
 	auto array = njson::parse(file, nullptr, false);
 
 	if( array.is_null() )
-	{
-		std::cerr << "gts::tcp_server::start: Plugins json file read error." << std::endl;
-		::exit(-1);
-	}
+		gts_log_fatal("gts::tcp_server::start: Plugins json file read error.");
+
 	else if( not array.is_array() )
-	{
-		std::cerr << "gts::tcp_server::start: Plugins json format error. (not array)" << std::endl;
-		::exit(-1);
-	}
+		gts_log_fatal("gts::tcp_server::start: Plugins json format error. (not array)");
+
 	auto json_file_path = file_path(json_file);
 	std::size_t sum = 0;
 
@@ -89,20 +85,17 @@ void plugin_call_handle::init(const std::string &json_file, const std::string &c
 			file_name = file_path + file_name;
 		}
 		catch(...) {
-			std::cerr << "gts::tcp_server::start: Plugins config format(json) error." << std::endl;
-			::exit(-1);
+			gts_log_fatal("gts::tcp_server::start: Plugins config format(json) error.");
 		}
 		rttr::library library(file_name);
 		if( library.load() )
 			sum++;
 		else
-			std::cerr << "gts.plugins load failed: " << library.get_error_string() << std::endl;
+			gts_log_error("gts.plugins load failed:") << library.get_error_string();
 	}
 	if( sum == 0 )
-	{
-		std::cerr << "gts::tcp_server::start: No plugins found." << std::endl;
-		::exit(-1);
-	}
+		gts_log_fatal("gts::tcp_server::start: No plugins found.");
+
 	std::list<future_ptr> futures;
 	{
 		auto it = rttr::type::get_global_methods().begin();
@@ -131,7 +124,7 @@ void plugin_call_handle::init(const std::string &json_file, const std::string &c
 
 			if( not obj.is_valid() )
 			{
-				std::cerr << "gts::tcp_server::start: Class create failed." << std::endl;
+				gts_log_error("gts::tcp_server::start: Class create failed.");
 				registration::g_obj_hash.erase(type);
 				continue ;
 			}

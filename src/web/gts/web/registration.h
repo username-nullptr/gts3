@@ -176,8 +176,8 @@ public:
 
 			if( m_path[m_path.size() - 1] != '/' )
 				m_path += '/';
-			if( m_path[0] == '/' )
-				m_path.erase(0,1);
+			if( m_path[0] != '/' )
+				m_path = "/" + m_path;
 		}
 
 	public:
@@ -334,9 +334,6 @@ public:
 				path = m_path;
 				path.erase(path.size() - 1);
 			}
-			if( path.size() > 1 and path[0] == '/' )
-				path.erase(0,1);
-
 			auto pair = g_path_hash.emplace(path, service_array());
 			service_array_insert(path, pair.first->second, "new_request." + path + ".", std::forward<Func>(func), http_method...);
 			return *this;

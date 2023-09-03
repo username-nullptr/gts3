@@ -32,7 +32,7 @@ process::~process()
 	if( is_running() )
 	{
 		kill();
-		std::cerr << "*** Warning: ~process: kill the process." << std::endl;
+		gts_log_warning("gts::process::~process kill the process.");
 	}
 	delete m_impl;
 }
@@ -95,7 +95,7 @@ std::size_t process::read_some(void *buf, std::size_t size)
 
 void process::error(const asio::error_code &error, const char *func)
 {
-	std::cerr << fmt::format("*** Error: process::{}: {}", func, error) << std::endl;
+	gts_log_error("gts::process::{}: {}", func, error);
 }
 
 } //namespace gts

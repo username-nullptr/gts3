@@ -1,7 +1,7 @@
 #ifndef GTS_LOG_BUFFER_H
 #define GTS_LOG_BUFFER_H
 
-#include <gts/log_global.h>
+#include <gts/gts_global.h>
 #include <cppformat>
 #include <chrono>
 #include <cstdio>
@@ -11,7 +11,7 @@ namespace gts { namespace log
 
 class logger;
 
-class GTSLOG_API log_buffer
+class GTSCORE_API log_buffer
 {
 public:
 	enum type

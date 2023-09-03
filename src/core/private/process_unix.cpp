@@ -48,7 +48,7 @@ bool process::start(const string_list &args)
 
 	else if( m_impl->m_file_name.empty() )
 	{
-		std::cerr << "***Error: process::start: file name is empty." << std::endl;
+		gts_log_error("gts::process::start: file name is empty.");
 		return false;
 	}
 
@@ -57,13 +57,13 @@ bool process::start(const string_list &args)
 
 	if( pipe2(m_impl->m_cwpr_fd, O_NONBLOCK) < 0 )
 	{
-		std::cerr << "***Error: process::start: pipe: read fd open failed: " << strerror(errno) << std::endl;
+		gts_log_error("gts::process::start: pipe: read fd open failed:") << strerror(errno);
 		return false;
 	}
 
 	else if( pipe2(m_impl->m_pwcr_fd, O_NONBLOCK) < 0 )
 	{
-		std::cerr << "***Error: process::start: pipe: write fd open failed: " << strerror(errno) << std::endl;
+		gts_log_error("gts::process::start: pipe: write fd open failed:") << strerror(errno);
 		close(m_impl->m_cwpr_fd[0]);
 		close(m_impl->m_cwpr_fd[1]);
 		return false;
@@ -72,7 +72,7 @@ bool process::start(const string_list &args)
 	m_impl->m_pid = vfork();
 	if( m_impl->m_pid < 0 )
 	{
-		std::cerr << "***Error: process::start: fork failed: " << strerror(errno) << std::endl;
+		gts_log_error("gts::process::start: fork failed:") << strerror(errno);
 		return false;
 	}
 
@@ -286,7 +286,7 @@ int process::write(char *buf, int size)
 	if( res > 0 )
 		return res;
 
-	std::cerr << "***Error: process::write error: " << strerror(errno) << std::endl;
+	gts_log_error("gts::process::write error:") << strerror(errno);
 	return res;
 }
 
@@ -300,7 +300,7 @@ int process::read(char *buf, int size)
 	if( res > 0 )
 		return res;
 
-	std::cerr << "***Error: process::read error: " << strerror(errno) << std::endl;
+	gts_log_error("gts::process::read error:") << strerror(errno);
 	return res;
 }
 #endif //01

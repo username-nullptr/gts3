@@ -2,6 +2,8 @@
 #define PROCESS_P_H
 
 #include "process.h"
+#include "gts/log.h"
+
 #include <cppformat>
 #include <iostream>
 #include <cstdlib>

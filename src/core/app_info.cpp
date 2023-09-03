@@ -1,6 +1,6 @@
 #include "app_info.h"
 #include "gts/algorithm.h"
-#include <iostream>
+#include "gts/log.h"
 
 namespace gts { namespace appinfo
 {
@@ -56,10 +56,8 @@ std::string absolute_path(const std::string &path)
 		{
 			auto tmp = getenv("HOME");
 			if( tmp == nullptr )
-			{
-				std::cerr << "System environment 'HOME' is null." << std::endl;
-				abort();
-			}
+				gts_log_fatal("System environment 'HOME' is null.");
+
 			std::string home(tmp);
 			if( not str_ends_with(home, "/") )
 				home += "/";

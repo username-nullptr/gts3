@@ -17,6 +17,8 @@ set(core_sources
 	gts/registration.cpp
 	gts/rw_mutex.cpp
 	gts/uuid.cpp
+	gts/log_buffer.cpp
+	gts/log.cpp
 	app_info.cpp
 	process.cpp
 	server_tool.cpp
@@ -43,6 +45,8 @@ set(core_headers
 	gts/exception.h
 	gts/rw_mutex.h
 	gts/uuid.h
+	gts/log_buffer.h
+	gts/log.h
 	app_info.h
 	process.h
 	server_tool.h
