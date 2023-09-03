@@ -134,14 +134,14 @@ static bool wait(int fd, int event, const std::chrono::milliseconds &ms, asio::e
 	fds.events = event;
 
 	int tt = ms.count() > 0? ms.count() : -1;
-	error == std::make_error_code(static_cast<std::errc>(0));
+	error = std::make_error_code(static_cast<std::errc>(0));
 
 	for(;;)
 	{
 		int res = poll(&fds, 1, tt);
 		if( res < 0 )
 		{
-			error == std::make_error_code(static_cast<std::errc>(errno));
+			error = std::make_error_code(static_cast<std::errc>(errno));
 			return false;
 		}
 		else if( res == 0 )
@@ -249,7 +249,7 @@ void process::async_read_some(char *buf, std::size_t size, std::function<void(as
 	if( not is_running() )
 	{
 		m_impl->reset_reader();
-		m_impl->m_io.post([call_back, res]{
+		m_impl->m_io.post([call_back]{
 			call_back(std::make_error_code(std::errc::operation_canceled), 0);
 		});
 		return ;

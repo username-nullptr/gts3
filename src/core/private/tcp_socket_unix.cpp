@@ -13,14 +13,14 @@ static bool wait(int fd, int event, const std::chrono::milliseconds &ms, asio::e
 	fds.events = event;
 
 	int tt = ms.count() > 0? ms.count() : -1;
-	error == std::make_error_code(static_cast<std::errc>(0));
+	error = std::make_error_code(static_cast<std::errc>(0));
 
 	for(;;)
 	{
 		int res = poll(&fds, 1, tt);
 		if( res < 0 )
 		{
-			error == std::make_error_code(static_cast<std::errc>(errno));
+			error = std::make_error_code(static_cast<std::errc>(errno));
 			return false;
 		}
 		else if( res == 0 )

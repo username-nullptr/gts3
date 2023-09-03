@@ -82,9 +82,6 @@ private:
 private:
 	typedef std::shared_ptr<basic_site>  site_ptr;
 	std::map<std::string, site_ptr> m_sites;
-
-private:
-	int m_method_id = 1;
 	int m_buffer_size = 65536;
 };
 
