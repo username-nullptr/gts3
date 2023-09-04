@@ -213,11 +213,8 @@ static void _HEAD(service_io &sio)
 	if( sio.url_name.empty() )
 		sio.url_name = "/";
 
-	if( sio.url_name == "/" )
+	if( plugin_service(sio).exists() )
 		return sio.return_to_null();
-
-	if( plugin_service(sio).call() )
-		return ;
 
 	auto pos = sio.url_name.find("/",1);
 	if( pos != std::string::npos )

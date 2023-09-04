@@ -45,6 +45,7 @@ set(core_headers
 	gts/exception.h
 	gts/rw_mutex.h
 	gts/uuid.h
+	gts/chrono.h
 	gts/log_buffer.h
 	gts/log.h
 	app_info.h

@@ -1011,7 +1011,6 @@ static inline std::string mime_from_magic(const std::string &file_name)
 		file.close();
 //		return "unknwon";
 	}
-
 	auto mime_type = __mime_search(g_signatures_list, _LEN(g_signatures_list), buf);
 	if( mime_type.empty() )
 		mime_type = __mime_search(g_signatures_list4, _LEN(g_signatures_list4), buf + 4);

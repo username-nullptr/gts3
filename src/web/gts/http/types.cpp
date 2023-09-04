@@ -104,4 +104,26 @@ gts::http::method from_method_string(const std::string &m)
 	return METHOD_UNKNOWN;
 }
 
+#if GTS_CPLUSPLUS < 201703L
+const char *header::accept_language   = "Accept-Language";
+const char *header::accept_encoding   = "Accept-Encoding";
+const char *header::accept_ranges     = "Accept-Ranges";
+const char *header::accept            = "Accept";
+const char *header::age               = "Age";
+const char *header::content_encoding  = "Content-Encoding";
+const char *header::content_length    = "Content-Length";
+const char *header::cache_control     = "Cache-Control";
+const char *header::content_range     = "Content-Range";
+const char *header::content_type      = "Content-Type";
+const char *header::connection        = "Connection";
+const char *header::expires           = "Expires";
+const char *header::host              = "Host";
+const char *header::last_modified     = "Last-Modified";
+const char *header::location          = "Location";
+const char *header::referer           = "Referer";
+const char *header::range             = "Range";
+const char *header::transfer_encoding = "Transfer-Encoding";
+const char *header::user_agent        = "User-Agent";
+#endif //c++17
+
 }} //namespace gts::http

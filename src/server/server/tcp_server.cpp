@@ -82,22 +82,8 @@ tcp_server::~tcp_server()
 void tcp_server::start()
 {
 	auto &_settings = settings::global_instance();
-	auto json_file = READ_CONFIG(std::string, SINI_GTS_PLUGINS_CONFIG, _GTS_DEFAULT_PLUGINS_CONFIG);
+	auto json_file = READ_CONFIG(std::string, SINI_GTS_SITES_CONFIG, _GTS_DEFAULT_SITES_CONFIG);
 
-	if( json_file.empty() )
-	{
-		gts_log_fatal("gts::tcp_server::start: No plugins configuration found.");
-		return ;
-	}
-	json_file = appinfo::absolute_path(json_file);
-	if( not fs::exists(json_file) )
-	{
-		gts_log_error("gts::tcp_server::start: Plugins json file is not exists.");
-		return ;
-	}
-	plugin_call_handle::init(json_file, _settings.file_name());
-
-	json_file = READ_CONFIG(std::string, SINI_GTS_SITES_CONFIG, _GTS_DEFAULT_SITES_CONFIG);
 	if( json_file.empty() )
 	{
 		gts_log_warning("Sites is not configured, using default. (http:80)");
@@ -171,7 +157,23 @@ void tcp_server::start()
 	catch(...) {
 		gts_log_fatal("Sites json file load failed: 'The file does not exist or is in the wrong format' ?");
 	}
+	file.close();
+
+	json_file = READ_CONFIG(std::string, SINI_GTS_PLUGINS_CONFIG, _GTS_DEFAULT_PLUGINS_CONFIG);
+	if( json_file.empty() )
+	{
+		gts_log_fatal("gts::tcp_server::start: No plugins configuration found.");
+		return ;
+	}
+	json_file = appinfo::absolute_path(json_file);
+	if( not fs::exists(json_file) )
+	{
+		gts_log_error("gts::tcp_server::start: Plugins json file is not exists.");
+		return ;
+	}
+	plugin_call_handle::init(json_file, _settings.file_name());
 	m_buffer_size = READ_CONFIG(int, SINI_GTS_TCP_BUF_SIZE, m_buffer_size);
+
 	if( m_buffer_size < 1024 )
 		m_buffer_size = 1024;
 

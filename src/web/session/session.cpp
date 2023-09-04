@@ -112,7 +112,7 @@ void session::new_connection(tcp_socket_ptr socket)
 std::string session::view_status()
 {
 	return fmt::format("web plugin:\n"
-					   "  session count: {} / {}\n", g_counter, g_max_count);
+					   "  session count: {} / {}\n\n", g_counter, g_max_count);
 }
 
 void session::do_recv()

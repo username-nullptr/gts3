@@ -93,6 +93,7 @@ void plugin_call_handle::init(const std::string &json_file, const std::string &c
 		else
 			gts_log_error("gts.plugins load failed:") << library.get_error_string();
 	}
+	file.close();
 	if( sum == 0 )
 		gts_log_fatal("gts::tcp_server::start: No plugins found.");
 
@@ -211,8 +212,6 @@ std::string plugin_call_handle::view_status()
 		if( method.is_valid() and method.get_return_type() == GTS_RTTR_TYPE(std::string) )
 			status += method.invoke(obj).get_value<std::string>();
 	}
-	if( not status.empty() and status[0] != '\n' )
-		status = "\n" + status;
 	return status;
 }
 

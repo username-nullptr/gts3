@@ -100,6 +100,7 @@ enum class redirect_type
 struct header : http::pair<value>
 {
 	using http::pair<value>::pair;
+#if GTS_CPLUSPLUS >= 201703L
 	static constexpr const char *accept_language   = "Accept-Language";
 	static constexpr const char *accept_encoding   = "Accept-Encoding";
 	static constexpr const char *accept_ranges     = "Accept-Ranges";
@@ -119,7 +120,27 @@ struct header : http::pair<value>
 	static constexpr const char *range             = "Range";
 	static constexpr const char *transfer_encoding = "Transfer-Encoding";
 	static constexpr const char *user_agent        = "User-Agent";
-
+#else //c++17
+	static const char *accept_language;
+	static const char *accept_encoding;
+	static const char *accept_ranges;
+	static const char *accept;
+	static const char *age;
+	static const char *content_encoding;
+	static const char *content_length;
+	static const char *cache_control;
+	static const char *content_range;
+	static const char *content_type;
+	static const char *connection;
+	static const char *expires;
+	static const char *host;
+	static const char *last_modified;
+	static const char *location;
+	static const char *referer;
+	static const char *range;
+	static const char *transfer_encoding;
+	static const char *user_agent;
+#endif //c++17
 };
 using headers = http::map<value, http::less_case_insensitive>;
 

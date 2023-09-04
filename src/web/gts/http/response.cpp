@@ -377,6 +377,12 @@ public:
 	explicit file_transfer(http::request &request, http::response &response, const std::string &file_name) :
 	  m_request(request), m_response(response), m_file_name(absolute_path(file_name)) {}
 
+	~file_transfer()
+	{
+		if( m_file.is_open() )
+			m_file.close();
+	}
+
 public:
 	bool check()
 	{

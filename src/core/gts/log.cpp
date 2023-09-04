@@ -2,25 +2,16 @@
 #include "app_info.h"
 #include "gts/algorithm.h"
 #include "gts/rw_mutex.h"
+#include "gts/chrono.h"
 
 #include <list>
 #include <ctime>
 #include <cstdio>
 #include <thread>
-#include <chrono>
 #include <cassert>
 #include <iostream>
 #include <cppfilesystem>
 #include <fmt/chrono.h>
-
-#if GTS_CPLUSPLUS < 202002L
-namespace std { namespace chrono {
-using days   = std::chrono::duration<int64_t, std::ratio<86400>>;
-using weeks  = std::chrono::duration<int64_t, std::ratio<604800>>;
-using years  = std::chrono::duration<int64_t, std::ratio<31556952>>;
-using months = std::chrono::duration<int64_t, std::ratio<2629746>>;
-}} //namespace std::chrono
-#endif //C++20
 
 namespace dt = std::chrono;
 

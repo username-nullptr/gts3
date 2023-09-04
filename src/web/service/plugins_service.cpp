@@ -12,7 +12,6 @@
 #include <rttr/library.h>
 #include <cppfilesystem>
 #include <iostream>
-#include <fstream>
 
 namespace gts { namespace web
 {
@@ -25,19 +24,18 @@ plugin_service::plugin_service(service_io &sio) :
 	m_sio.socket.non_blocking(false);
 }
 
+bool plugin_service::exists()
+{
+	return check() != nullptr;
+}
+
 bool plugin_service::call()
 {
-	if( m_sio.url_name.empty() )
-		m_sio.url_name = "/";
-
-	else if( m_sio.url_name.size() > 1 and m_sio.url_name[m_sio.url_name.size() - 1] == '/' )
-		m_sio.url_name.pop_back();
-
-	auto it = registration::g_path_hash.find(m_sio.url_name);
-	if( it == registration::g_path_hash.end() )
+	auto array = check();
+	if( array == nullptr )
 		return false;
 
-	auto &ss = it->second[m_sio.request.method()];
+	auto &ss = (*array)[m_sio.request.method()];
 	if( not ss.method.is_valid() )
 	{
 		m_sio.return_to_null(http::hs_method_not_allowed);
@@ -60,7 +58,7 @@ bool plugin_service::call()
 		auto &path = pair.first;
 		auto &rs = pair.second;
 
-		if( not str_starts_with("/" + m_sio.url_name, path) )
+		if( not str_starts_with(m_sio.url_name, path) )
 			continue ;
 
 		else if( path[path.size() - 1] == '/' )
@@ -79,6 +77,20 @@ bool plugin_service::call()
 	else
 		global_method_call(ss.method, GTS_RTTR_TYPE(http::response));
 	return true;
+}
+
+registration::service_array *plugin_service::check()
+{
+	if( m_sio.url_name.empty() )
+		m_sio.url_name = "/";
+
+	else if( m_sio.url_name.size() > 1 and m_sio.url_name[m_sio.url_name.size() - 1] == '/' )
+		m_sio.url_name.pop_back();
+
+	auto it = registration::g_path_hash.find(m_sio.url_name);
+	if( it == registration::g_path_hash.end() )
+		return nullptr;
+	return &it->second;
 }
 
 static environments make_envs(service_io &sio)
