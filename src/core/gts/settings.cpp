@@ -23,11 +23,12 @@ settings &settings::global_instance()
 	return g_instance;
 }
 
-void settings::set_file(const std::string &file)
+settings &settings::set_file(const std::string &file)
 {
-	flush();
+	if( m_delete_on_flush )
+		flush();
 	m_file_name = file;
-	reload();
+	return reload();
 }
 
 std::string settings::file_name() const
@@ -35,20 +36,23 @@ std::string settings::file_name() const
 	return m_file_name;
 }
 
-void settings::reload()
+settings &settings::reload()
 {
 	m_ini_map.load(m_file_name);
+	return *this;
 }
 
-void settings::flush()
+settings &settings::flush()
 {
 	fs::remove(m_file_name);
 	m_ini_map.save(m_file_name);
+	return *this;
 }
 
-void settings::set_delete_on_flush(bool enable)
+settings &settings::set_delete_on_flush(bool enable)
 {
 	m_delete_on_flush = enable;
+	return *this;
 }
 
 bool settings::delete_on_flush() const

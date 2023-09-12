@@ -1,6 +1,7 @@
 #include "app_info.h"
 #include "gts/algorithm.h"
 #include "gts/log.h"
+#include <cstdlib>
 
 namespace gts { namespace appinfo
 {
@@ -54,7 +55,7 @@ std::string absolute_path(const std::string &path)
 	{
 		if( str_starts_with(result, "~/") )
 		{
-			auto tmp = getenv("HOME");
+			auto tmp = ::getenv("HOME");
 			if( tmp == nullptr )
 				gts_log_fatal("System environment 'HOME' is null.");
 
@@ -77,6 +78,32 @@ bool is_absolute_path(const std::string &path)
 			or str_starts_with(path, "~/")
 #endif //unix
 			;
+}
+
+std::string getenv(const std::string &key)
+{
+	auto value = ::getenv(key.c_str());
+	return value? value : std::string();
+}
+
+bool setenv(const std::string &key, const std::string &value, bool overwrite)
+{
+	if( ::setenv(key.c_str(), value.c_str(), overwrite) != 0 )
+	{
+		gts_log_error("gts::appinfo::setenv: setenv: {}. ({})", strerror(errno), errno);
+		return false;
+	}
+	return true;
+}
+
+bool unsetenv(const std::string &key)
+{
+	if( ::unsetenv(key.c_str()) != 0 )
+	{
+		gts_log_error("gts::appinfo::unsetenv: unsetenv: {}. ({})", strerror(errno), errno);
+		return false;
+	}
+	return true;
 }
 
 }} //namespace gts::appinfo

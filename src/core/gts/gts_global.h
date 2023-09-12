@@ -1,6 +1,7 @@
 #ifndef GTS_GLOBAL_H
 #define GTS_GLOBAL_H
 
+#include <gts/gts_enable_ssl.h>
 #include <nlohmann/json.hpp>
 #include <gts/utility.h>
 #include <asio.hpp>

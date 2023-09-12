@@ -1,0 +1,6 @@
+#ifndef GTS_DISABLE_SSL_H
+#define GTS_DISABLE_SSL_H
+
+#define GTS_DISABLE_SSL
+
+#endif //GTS_DISABLE_SSL_H

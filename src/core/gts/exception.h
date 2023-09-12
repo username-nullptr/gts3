@@ -21,7 +21,7 @@ public:
 	const char* what() const _GLIBCXX_NOTHROW override {
 		return m_what.c_str();
 	}
-#if __cplusplus >= 201703L
+#if GTS_CPLUSPLUS >= 201703L
 private: GTS_DISABLE_COPY_MOVE(exception)
 #else
 public:

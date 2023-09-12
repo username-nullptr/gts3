@@ -1,9 +1,9 @@
 #ifndef GTS_SSL_SOCKET_H
 #define GTS_SSL_SOCKET_H
 
-#ifdef GTS_ENABLE_SSL
-
 #include <gts/tcp_socket.h>
+
+#ifdef GTS_ENABLE_SSL
 #include <asio/ssl.hpp>
 
 namespace ssl = asio::ssl;

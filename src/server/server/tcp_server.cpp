@@ -147,8 +147,8 @@ void tcp_server::start()
 			{
 				if( obj["ssl"].get<bool>() )
 				{
-					log_warning("Site '{}': ssl is disabled, if necessary, please recompile GTS server"
-								" (cmake -DENABLE_SSL -DOpenSSL_DIR)", pair.first->first);
+					gts_log_warning("Site '{}': ssl is disabled, if necessary, please recompile GTS server"
+									" (cmake -DENABLE_SSL -DOpenSSL_DIR)", pair.first->first);
 				}
 			}
 #endif //ssl
@@ -191,8 +191,14 @@ void tcp_server::start()
 		{
 			auto &info = pair.second;
 			gts_log_info("Site '{}' start ...\n"
-					 "    addr: '{}';  port: {};  universal: {};  ssl: {}",
-					 pair.first, info.addr, info.port, info.universal, info.ssl);
+						 "    addr: '{}';  port: {};  universal: {};  ssl: {}",
+						 pair.first, info.addr, info.port, info.universal,
+#ifdef GTS_ENABLE_SSL
+						 info.ssl
+#else //ssl
+						 false
+#endif //ssl
+						 );
 			m_sites.emplace(std::move(pair.first), std::move(site));
 		}
 		else

@@ -1,4 +1,5 @@
 #include "ssl_socket.h"
+#ifdef GTS_ENABLE_SSL
 
 namespace gts
 {
@@ -102,3 +103,5 @@ ssl::context &ssl_socket::asio_ssl_context()
 }
 
 } //namespace gts
+
+#endif //GTS_ENABLE_SSL

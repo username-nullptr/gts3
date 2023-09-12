@@ -54,7 +54,15 @@ set(core_headers
 	private/process_p.h
 )
 
-add_library(gtscore SHARED ${core_sources} ${core_headers})
+set(core_ssl_headers gts/gts_enable_ssl.h)
+
+if (ENABLE_SSL)
+	list(APPEND core_ssl_headers gts/gts_enable_ssl_p.h)
+else()
+	list(APPEND core_ssl_headers gts/gts_disable_ssl_p.h)
+endif()
+
+add_library(gtscore SHARED ${core_sources} ${core_headers} ${core_ssl_headers})
 target_compile_definitions(gtscore PRIVATE gtscore_EXPORTS)
 
 target_include_directories(gtscore PRIVATE .)
@@ -70,8 +78,10 @@ set_target_properties(gtscore PROPERTIES
 )
 
 install(TARGETS gtscore DESTINATION bin)
+install(FILES ${core_headers} DESTINATION include/gts)
 
-install(DIRECTORY gts
-	DESTINATION include
-	FILES_MATCHING PATTERN "*.h*"
-)
+if (ENABLE_SSL)
+	install(FILES gts/gts_enable_ssl_p.h RENAME gts_enable_ssl.h DESTINATION include/gts)
+else()
+	install(FILES gts/gts_disable_ssl_p.h RENAME gts_enable_ssl.h DESTINATION include/gts)
+endif()

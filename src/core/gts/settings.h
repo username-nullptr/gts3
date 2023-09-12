@@ -20,7 +20,7 @@ public:
 	static settings &global_instance();
 
 public:
-	void set_file(const std::string &file);
+	settings &set_file(const std::string &file);
 	std::string file_name() const;
 
 public:
@@ -28,14 +28,14 @@ public:
 	T read(const std::string &group, const std::string &key, const T &default_value = T()) const;
 
 	template <typename T>
-	void write(const std::string &group, const std::string &key, T &&value);
+	settings &write(const std::string &group, const std::string &key, T &&value);
 
 public:
-	void reload();
-	void flush();
+	settings &reload();
+	settings &flush();
 
 public:
-	void set_delete_on_flush(bool enable = true);
+	settings &set_delete_on_flush(bool enable = true);
 	bool delete_on_flush() const;
 
 public:
@@ -90,9 +90,10 @@ T settings::read(const std::string &group, const std::string &key, const T &defa
 }
 
 template <typename T> inline
-void settings::write(const std::string &group, const std::string &key, T &&value)
+settings &settings::write(const std::string &group, const std::string &key, T &&value)
 {
 	m_ini_map[group][key] = std::forward<T>(value);
+	return *this;
 }
 
 inline settings::iterator settings::begin()

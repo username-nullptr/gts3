@@ -5,7 +5,7 @@
 #include <cppfilesystem>
 #include <iostream>
 
-#if GTS_ENABLE_SSL
+#ifdef GTS_ENABLE_SSL
 # include <openssl/ssl.h>
 #endif //ssl
 
@@ -40,13 +40,14 @@ args_parser::arguments argument_check(int argc, const char *argv[], string_list 
 			.add_group("-i, --instace"               , "Specify the server instance name to start multiple instances. (default is 'gts')", GC_SA_INSNAME)
 			.add_group("-f, --file"                  , "Specify the configuration file (default is './config.ini')."                     , GC_SA_CFPATH )
 			.add_flag ("status, -status, --status"   , "Viewing server status."                                                          , GC_SA_STATUS )
+#if 0
 			.add_flag ("--view-subserver-all"        , "Viewing all subservers."                                                         , GC_SA_VASUS  )
 			.add_flag ("--view-subserver"            , "Viewing running subservers."                                                     , GC_SA_VRSUS  )
 			.add_flag ("--start-subserver-all"       , "Start all subservers."                                                           , GC_SA_STSSA  )
 			.add_group("--start-subserver"           , "Start subservices in the list."                                                  , GC_SA_STSS   )
 			.add_flag ("--stop-subserver-all"        , "Stop all subservers."                                                            , GC_SA_SPSSA  )
 			.add_group("--stop-subserver"            , "Stop subservices in the list."                                                   , GC_SA_SPSS   )
-
+#endif
 			.enable_h()
 			.set_help_extension(plugin_call_handle::extension::view_help())
 			.set_version(view_version(false))
@@ -78,7 +79,7 @@ static std::string view_version(bool all)
 		return result;
 
 	result += "\n";
-#if GTS_ENABLE_SSL
+#ifdef GTS_ENABLE_SSL
 	result += OPENSSL_VERSION_TEXT "\n";
 #endif //ssl
 

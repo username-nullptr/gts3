@@ -34,4 +34,19 @@ bool is_absolute_path(const std::string &path)
 	return appinfo::is_absolute_path(path);
 }
 
+std::string getenv(const std::string &key)
+{
+	return appinfo::getenv(key);
+}
+
+bool setenv(const std::string &key, const std::string &value, bool overwrite)
+{
+	return appinfo::setenv(key, value, overwrite);
+}
+
+bool unsetenv(const std::string &key)
+{
+	return appinfo::unsetenv(key);
+}
+
 }} //namespace gts::app

@@ -1,18 +1,23 @@
-[
-    {
-        "name": "gtsweb",
-        "path": "./bin"
+{
+    "envs": {
+        "GTS3_VERSION": "3.0.0 dev4"
     },
-    {
-        "name": "plugin0",
-        "path": "./plugins"
-    },
-    {
-        "name": "plugin1",
-        "path": "./plugins"
-    },
-    {
-        "name": "plugin2",
-        "path": "./plugins"
-    }
-]
+    "libs": [
+        {
+            "name": "gtsweb",
+            "path": "./bin"
+        },
+        {
+            "name": "plugin0",
+            "path": "./plugins"
+        },
+        {
+            "name": "plugin1",
+            "path": "./plugins"
+        },
+        {
+            "name": "plugin2",
+            "path": "./plugins"
+        }
+    ]
+}

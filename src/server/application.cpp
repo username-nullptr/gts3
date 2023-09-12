@@ -69,6 +69,7 @@ applictaion_impl::applictaion_impl(int argc, const char *argv[])
 	gts_log_info("Server instance name: '{}'.", appinfo::instance_name());
 
 	auto &_settings = gts::settings::global_instance();
+	_settings.set_delete_on_flush(false);
 	log::logger::context context;
 
 	if( args_hash & GC_SA_INSNAME )
@@ -76,9 +77,9 @@ applictaion_impl::applictaion_impl(int argc, const char *argv[])
 	else
 		context.category = "gts";
 
-	context.dir      = _settings.read<std::string>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_DIR);
-	context.mask     = _settings.read<int>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_LEVEL);
-	context.async    = _settings.read<bool>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_ASYNC);
+	context.dir   = _settings.read<std::string>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_DIR);
+	context.mask  = _settings.read<int>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_LEVEL);
+	context.async = _settings.read<bool>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_ASYNC);
 
 	context.time_category     = _settings.read<bool>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_DIR_TMCY);
 	context.max_size_one_file = _settings.read<int>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_MAXOF);

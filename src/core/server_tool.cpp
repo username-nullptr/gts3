@@ -1,5 +1,6 @@
 #include "server_tool.h"
 #include "gts/registration.h"
+#include "gts/application.h"
 #include "gts/algorithm.h"
 #include "app_info.h"
 
@@ -48,18 +49,36 @@ static void call_init(const rttr::method &method, Ins obj, std::list<future_ptr>
 void plugin_call_handle::init(const std::string &json_file, const std::string &config_file)
 {
 	std::ifstream file(json_file);
-	auto array = njson::parse(file, nullptr, false);
+	auto plugins_json = njson::parse(file, nullptr, false);
 
-	if( array.is_null() )
+	if( plugins_json.is_null() )
 		gts_log_fatal("gts::tcp_server::start: Plugins json file read error.");
 
-	else if( not array.is_array() )
+	else if( not plugins_json.is_object() )
+		gts_log_fatal("gts::tcp_server::start: Plugins json format error. (not object)");
+
+	auto envs_json = plugins_json["envs"];
+	try {
+		auto it = envs_json.begin();
+		for(; it!=envs_json.end(); ++it)
+		{
+			auto &key = it.key();
+			auto value = it.value().get<std::string>();
+
+			gts_log_debug("setenv: '{}'-'{}'", key, value);
+			app::setenv(key, value);
+		}
+	}
+	catch(...) {}
+
+	auto libs_array = plugins_json["libs"];
+	if( not libs_array.is_array() )
 		gts_log_fatal("gts::tcp_server::start: Plugins json format error. (not array)");
 
 	auto json_file_path = file_path(json_file);
 	std::size_t sum = 0;
 
-	for(auto &json : array)
+	for(auto &json : libs_array)
 	{
 		std::string file_name;
 		try {

@@ -1,6 +1,11 @@
-[
-    {
-        "name": "gtsweb",
-        "path": "./bin"
-    }
-]
+{
+    "envs": {
+        "GTS3_VERSION": "3.0.0 dev4"
+    },
+    "libs": [
+        {
+            "name": "gtsweb",
+            "path": "./bin"
+        }
+    ]
+}
