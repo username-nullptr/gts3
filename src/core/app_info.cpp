@@ -80,10 +80,12 @@ bool is_absolute_path(const std::string &path)
 			;
 }
 
-std::string getenv(const std::string &key)
+using optional_string = cpp::optional<std::string>;
+
+optional_string getenv(const std::string &key)
 {
 	auto value = ::getenv(key.c_str());
-	return value? value : std::string();
+	return value? optional_string(value) : optional_string();
 }
 
 bool setenv(const std::string &key, const std::string &value, bool overwrite)

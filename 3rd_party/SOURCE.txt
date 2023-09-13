@@ -13,3 +13,5 @@ nlohmann.json  https://github.com/nlohmann/json.git
                https://gitee.com/ws-mirror-github/nlohmann.json.git
 
 filesystem     https://gitee.com/shaoguangcn/cpp-filesystem.git
+
+optional       https://github.com/martinmoene/optional-lite.git

@@ -34,9 +34,14 @@ bool is_absolute_path(const std::string &path)
 	return appinfo::is_absolute_path(path);
 }
 
-std::string getenv(const std::string &key)
+cpp::optional<std::string> getenv(const std::string &key)
 {
 	return appinfo::getenv(key);
+}
+
+std::map<std::string, std::string> getenvs()
+{
+	return appinfo::getenvs();
 }
 
 bool setenv(const std::string &key, const std::string &value, bool overwrite)

@@ -27,7 +27,7 @@ set(core_sources
 	private/tcp_socket_${OS_CPP}.cpp
 )
 
-set(core_headers
+set(core_gts_headers
 	gts/cplusplus.hpp
 	gts/utility.h
 	gts/gts_global.h
@@ -48,37 +48,41 @@ set(core_headers
 	gts/chrono.h
 	gts/log_buffer.h
 	gts/log.h
-	app_info.h
-	process.h
-	server_tool.h
-	private/process_p.h
 )
 
-set(core_ssl_headers gts/gts_enable_ssl.h)
+set(core_sp_headers
+	gts/gts_enable_ssl.h
+	process.h
+	private/process_p.h
+	app_info.h
+	server_tool.h
+)
 
 if (ENABLE_SSL)
-	list(APPEND core_ssl_headers gts/gts_enable_ssl_p.h)
+	list(APPEND core_sp_headers gts/gts_enable_ssl_p.h)
 else()
-	list(APPEND core_ssl_headers gts/gts_disable_ssl_p.h)
+	list(APPEND core_sp_headers gts/gts_disable_ssl_p.h)
 endif()
 
-add_library(gtscore SHARED ${core_sources} ${core_headers} ${core_ssl_headers})
-target_compile_definitions(gtscore PRIVATE gtscore_EXPORTS)
+set(target_name gtscore)
 
-target_include_directories(gtscore PRIVATE .)
+add_library(${target_name} SHARED ${core_sources} ${core_gts_headers} ${core_sp_headers})
+target_compile_definitions(${target_name} PRIVATE gtscore_EXPORTS)
+
+target_include_directories(${target_name} PRIVATE .)
 
 if (ENABLE_SSL)
-	target_link_libraries(gtscore PUBLIC ssl crypto)
+	target_link_libraries(${target_name} PUBLIC ssl crypto)
 endif()
 
-target_link_libraries(gtscore PUBLIC rttr_core)
+target_link_libraries(${target_name} PUBLIC rttr_core)
 
-set_target_properties(gtscore PROPERTIES
+set_target_properties(${target_name} PROPERTIES
 	LIBRARY_OUTPUT_DIRECTORY ../../${output_dir_name}/bin
 )
 
-install(TARGETS gtscore DESTINATION bin)
-install(FILES ${core_headers} DESTINATION include/gts)
+install(TARGETS ${target_name} DESTINATION bin)
+install(FILES ${core_gts_headers} DESTINATION include/gts)
 
 if (ENABLE_SSL)
 	install(FILES gts/gts_enable_ssl_p.h RENAME gts_enable_ssl.h DESTINATION include/gts)

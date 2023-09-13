@@ -40,12 +40,13 @@ elseif(UNIX)
 	)
 endif()
 
-add_executable(gts ${server_sources} ${server_headers} ${server_private_headers})
+set(target_name gts)
+add_executable(${target_name} ${server_sources} ${server_headers} ${server_private_headers})
 
-target_include_directories(gts PRIVATE . ../core )
-target_link_libraries(gts PRIVATE gtscore)
+target_include_directories(${target_name} PRIVATE . ../core )
+target_link_libraries(${target_name} PRIVATE gtscore)
 
-set_target_properties(gts PROPERTIES
+set_target_properties(${target_name} PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY ../../${output_dir_name}/bin
 )
-install(TARGETS gts DESTINATION bin)
+install(TARGETS ${target_name} DESTINATION bin)

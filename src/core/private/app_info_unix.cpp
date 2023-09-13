@@ -10,6 +10,8 @@
 
 #include <unistd.h>
 
+extern char **environ;
+
 namespace gts { namespace appinfo
 {
 
@@ -47,6 +49,24 @@ bool set_current_directory(const std::string &path)
 		return false;
 	}
 	return true;
+}
+
+using envs_t = std::map<std::string, std::string>;
+
+envs_t getenvs()
+{
+	envs_t envs;
+	for(int i=0; environ[i]!=nullptr; i++)
+	{
+		std::string tmp = environ[i];
+		auto pos = tmp.find("=");
+
+		if( pos == tmp.npos )
+			envs.emplace(tmp, "");
+		else
+			envs.emplace(tmp.substr(0,pos), tmp.substr(pos+1));
+	}
+	return envs;
 }
 
 }} //namespace gts::appinfo

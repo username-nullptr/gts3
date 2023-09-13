@@ -42,17 +42,19 @@ set(web_headers
 	service/plugins_service.h
 )
 
-add_library(gtsweb SHARED ${web_sources} ${web_headers})
-target_compile_definitions(gtsweb PRIVATE gtsweb_EXPORTS)
+set(target_name gtsweb)
 
-target_include_directories(gtsweb PRIVATE . ../core)
-target_link_libraries(gtsweb PRIVATE gtscore)
+add_library(${target_name} SHARED ${web_sources} ${web_headers})
+target_compile_definitions(${target_name} PRIVATE gtsweb_EXPORTS)
 
-set_target_properties(gtsweb PROPERTIES
+target_include_directories(${target_name} PRIVATE . ../core)
+target_link_libraries(${target_name} PRIVATE gtscore)
+
+set_target_properties(${target_name} PROPERTIES
 	LIBRARY_OUTPUT_DIRECTORY ../../${output_dir_name}/bin
 )
 
-install(TARGETS gtsweb DESTINATION bin)
+install(TARGETS ${target_name} DESTINATION bin)
 
 install(DIRECTORY gts
 	DESTINATION include

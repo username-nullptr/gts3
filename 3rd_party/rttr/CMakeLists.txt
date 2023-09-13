@@ -177,24 +177,26 @@ elseif (UNIX)
 	)
 endif()
 
-add_library(rttr_core SHARED ${rttr_sources} ${rttr_headers} ${rttr_private_headers})
-target_compile_definitions(rttr_core PRIVATE RTTR_DLL RTTR_DLL_EXPORTS)
+set(target_name rttr_core)
+
+add_library(${target_name} SHARED ${rttr_sources} ${rttr_headers} ${rttr_private_headers})
+target_compile_definitions(${target_name} PRIVATE RTTR_DLL RTTR_DLL_EXPORTS)
 
 if (${CMAKE_CXX_STANDARD} GREATER 17)
-	set_target_properties(rttr_core PROPERTIES CXX_STANDARD 17)
+	set_target_properties(${target_name} PROPERTIES CXX_STANDARD 17)
 endif()
 
 if (UNIX)
-	target_link_libraries(rttr_core PRIVATE dl)
+	target_link_libraries(${target_name} PRIVATE dl)
 endif()
 
-target_include_directories(rttr_core PRIVATE .)
+target_include_directories(${target_name} PRIVATE .)
 
-set_target_properties(rttr_core PROPERTIES
+set_target_properties(${target_name} PROPERTIES
 	LIBRARY_OUTPUT_DIRECTORY ../../${output_dir_name}/bin
 )
 
-install(TARGETS rttr_core DESTINATION bin)
+install(TARGETS ${target_name} DESTINATION bin)
 
 install(DIRECTORY rttr
 	DESTINATION include
