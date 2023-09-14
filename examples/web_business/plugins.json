@@ -8,15 +8,7 @@
             "path": "./bin"
         },
         {
-            "name": "plugin0",
-            "path": "./plugins"
-        },
-        {
-            "name": "plugin1",
-            "path": "./plugins"
-        },
-        {
-            "name": "plugin2",
+            "name": [ "plugin0", "plugin1", "plugin2" ],
             "path": "./plugins"
         }
     ]

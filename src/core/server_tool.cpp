@@ -46,10 +46,46 @@ static void call_init(const rttr::method &method, Ins obj, std::list<future_ptr>
 		_CHECK_RETURN_CALL(obj, config_file);
 }
 
+static bool load_library(const njson &name_json, const njson &lib_json, const std::string &json_file_path)
+{
+	try {
+		auto file_name =
+#ifdef _WINDOWS
+				name_json.get<std::string>() + std::string(".dll");
+#elif defined(__unix__)
+				std::string("lib") + name_json.get<std::string>() + ".so";
+#else
+				name_json.get<std::string>() + ".???";
+#endif
+		std::string file_path = "./";
+		auto it = lib_json.find("path");
+
+		if( it != lib_json.end() )
+		{
+			file_path = it->get<std::string>();
+			if( not str_ends_with(file_path, "/") )
+				file_path += "/";
+
+			if( not appinfo::is_absolute_path(file_path) )
+				file_path = json_file_path + file_path;
+		}
+		rttr::library library(file_path + file_name);
+		if( library.load() )
+			return true;
+
+		gts_log_error("gts.plugins load failed:") << library.get_error_string();
+	}
+	catch(...) {
+		gts_log_fatal("gts::tcp_server::start: Plugins config format(json) error.");
+	}
+	return false;
+}
+
 void plugin_call_handle::init(const std::string &json_file, const std::string &config_file)
 {
 	std::ifstream file(json_file);
 	auto plugins_json = njson::parse(file, nullptr, false);
+	file.close();
 
 	if( plugins_json.is_null() )
 		gts_log_fatal("gts::tcp_server::start: Plugins json file read error.");
@@ -78,41 +114,20 @@ void plugin_call_handle::init(const std::string &json_file, const std::string &c
 	auto json_file_path = file_path(json_file);
 	std::size_t sum = 0;
 
-	for(auto &json : libs_array)
+	for(auto &lib_json : libs_array)
 	{
-		std::string file_name;
-		try {
-#ifdef _WINDOWS
-			file_name = json["name"].get<std::string>() + std::string(".dll");
-#elif defined(__unix__)
-			file_name = std::string("lib") + json["name"].get<std::string>() + ".so";
-#else
-			file_name += ".???";
-#endif
-			std::string file_path = "./";
-			auto it = json.find("path");
-
-			if( it != json.end() )
+		auto name_json_or_array = lib_json["name"];
+		if( name_json_or_array.is_array() )
+		{
+			for(auto &name_obj : name_json_or_array)
 			{
-				file_path = it->get<std::string>();
-				if( not str_ends_with(file_path, "/") )
-					file_path += "/";
-
-				if( not appinfo::is_absolute_path(file_path) )
-					file_path = json_file_path + file_path;
+				if( load_library(name_obj, lib_json, json_file_path) )
+					sum++;
 			}
-			file_name = file_path + file_name;
 		}
-		catch(...) {
-			gts_log_fatal("gts::tcp_server::start: Plugins config format(json) error.");
-		}
-		rttr::library library(file_name);
-		if( library.load() )
+		else if( load_library(name_json_or_array, lib_json, json_file_path) )
 			sum++;
-		else
-			gts_log_error("gts.plugins load failed:") << library.get_error_string();
 	}
-	file.close();
 	if( sum == 0 )
 		gts_log_fatal("gts::tcp_server::start: No plugins found.");
 
