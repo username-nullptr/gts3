@@ -28,7 +28,7 @@ GTS_PLUGIN_VIEW_STATUS(){
 	return "web plugin: examples-plugin2: hello2\n";
 }
 
-GTS_PLUGIN_HTTP_REQUEST_HANDLE(GET, "plugin2", http::response &res)
+GTS_PLUGIN_HTTP_REQUEST_HANDLE("plugin2", GET, http::response &res)
 {
 	res.write("plugin2-global");
 }

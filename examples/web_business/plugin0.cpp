@@ -48,18 +48,18 @@ GTS_PLUGIN_HTTP_REQUEST_FILTER("plugin0", http::request &req)
 	return false;
 }
 
-GTS_PLUGIN_HTTP_REQUEST_HANDLE(GET, "plugin0", http::response &res)
+GTS_PLUGIN_HTTP_REQUEST_HANDLE("plugin0", GET, http::response &res)
 {
 	gts_custom_log_error("test", "==================== 000000000000");
 	res.write("hello world");
 }
 
-GTS_PLUGIN_HTTP_REQUEST_HANDLE(GET, "plugin0/sub0", http::response &res)
+GTS_PLUGIN_HTTP_REQUEST_HANDLE("plugin0/sub0", GET, http::response &res)
 {
 	res.write("HELLO WORLD");
 }
 
-GTS_PLUGIN_HTTP_REQUEST_HANDLE(GET, "plugin0/sub1", http::response &res)
+GTS_PLUGIN_HTTP_REQUEST_HANDLE("plugin0/sub1", GET, http::response &res)
 {
 	res.set_header(http::header::transfer_encoding, "chunked")
 //			.set_chunk_attribute("aaa")
@@ -69,7 +69,7 @@ GTS_PLUGIN_HTTP_REQUEST_HANDLE(GET, "plugin0/sub1", http::response &res)
 //			.chunk_end({{"aaa", "bbb"},{"ccc", 666}});
 }
 
-GTS_PLUGIN_HTTP_REQUEST_HANDLE(PUT|POST, "upload", http::response &res, http::request &req)
+GTS_PLUGIN_HTTP_REQUEST_HANDLE("upload", PUT|POST, http::response &res, http::request &req)
 {
 	auto it = req.headers().find("upload-file-name");
 	if( it == req.headers().end() )

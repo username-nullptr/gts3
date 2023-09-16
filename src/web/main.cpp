@@ -37,65 +37,61 @@ std::string resource_root()
 	return g_resource_path;
 }
 
-}} //namespace gts::web
-
-GTS_PLUGIN_REGISTRATION
+GTS_PLUGIN_INIT()
 {
-	using namespace gts;
-	using namespace gts::web;
+	gts_log_debug("gts web plugin init. (config file: {})", settings::global_instance().file_name());
+	settings::ini_hash sample_gts
+	{
+		{ SINI_WEB_DEFAULT_RESOURCE  , "/index.html"             },
+		{ SINI_WEB_CGI_ENV           , ""                        },
+		{ SINI_WEB_CGI_ACCESS        , "/cgi-bin"                },
+		{ SINI_WEB_CGI_PATH          , _GTS_WEB_DEFAULT_CGI_PATH },
+		{ SINI_WEB_RC_PATH           , _GTS_WEB_DEFAULT_RC_PATH  },
+		{ SINI_WEB_IDLE_TIME_TV      , 2048                      },
+		{ SINI_WEB_MAX_IDLE_TIME     , 65536                     },
+		{ SINI_WEB_MAX_SESSION_COUNT , 4096                      },
+		{ SINI_WEB_THREAD_POOL_TC    , 255                       },
+		{ SINI_WEB_ENABLE_WSS        , false                     },
+		{ SINI_WEB_WSS_NAME          , ""                        },
+		{ SINI_WEB_WSS_PORT          , ""                        }
+	};
+	settings::ini_file_check(SINI_GROUP_WEB, sample_gts);
 
-	gts::registration()
-		.new_connection([](tcp_socket_ptr &socket){
-			session::new_connection(std::move(socket));
-		})
-		.view_status_method([]{
-			return session::view_status();
-		})
-		.init_method([]
-		{
-			gts_log_debug("gts web plugin init. (config file: {})", settings::global_instance().file_name());
-			settings::ini_hash sample_gts
-			{
-				{ SINI_WEB_DEFAULT_RESOURCE  , "/index.html"             },
-				{ SINI_WEB_CGI_ENV           , ""                        },
-				{ SINI_WEB_CGI_ACCESS        , "/cgi-bin"                },
-				{ SINI_WEB_CGI_PATH          , _GTS_WEB_DEFAULT_CGI_PATH },
-				{ SINI_WEB_RC_PATH           , _GTS_WEB_DEFAULT_RC_PATH  },
-				{ SINI_WEB_IDLE_TIME_TV      , 2048                      },
-				{ SINI_WEB_MAX_IDLE_TIME     , 65536                     },
-				{ SINI_WEB_MAX_SESSION_COUNT , 4096                      },
-				{ SINI_WEB_THREAD_POOL_TC    , 255                       },
-				{ SINI_WEB_ENABLE_WSS        , false                     },
-				{ SINI_WEB_WSS_NAME          , ""                        },
-				{ SINI_WEB_WSS_PORT          , ""                        }
-			};
-			settings::ini_file_check(SINI_GROUP_WEB, sample_gts);
+	auto &_settings = settings::global_instance();
+	g_resource_path = _settings.read<std::string>(SINI_GROUP_WEB, SINI_WEB_RC_PATH, g_resource_path);
 
-			auto &_settings = settings::global_instance();
-			g_resource_path = _settings.read<std::string>(SINI_GROUP_WEB, SINI_WEB_RC_PATH, g_resource_path);
+	g_resource_path = app::absolute_path(g_resource_path);
+	if( not str_ends_with(g_resource_path, "/") )
+		g_resource_path += "/";
 
-			g_resource_path = app::absolute_path(g_resource_path);
-			if( not str_ends_with(g_resource_path, "/") )
-				g_resource_path += "/";
-
-			g_count = _settings.read<int>(SINI_GROUP_WEB, SINI_WEB_THREAD_POOL_TC, 255);
-			if( g_count < 1 )
-			{
-				gts_log_warning("Config: max thread count setting error.");
-				g_count = 1;
-			}
-			gts_log_debug("Web: max thread count: {}", g_count);
-			g_pool = new asio::thread_pool(g_count);
-			session::init();
-		})
-		.exit_method([]
-		{
-			gts_log_debug("web plugin exit.");
-			if( g_pool == nullptr )
-				return ;
-
-			g_pool->join();
-			delete g_pool;
-			g_pool = nullptr;
-		});
+	g_count = _settings.read<int>(SINI_GROUP_WEB, SINI_WEB_THREAD_POOL_TC, 255);
+	if( g_count < 1 )
+	{
+		gts_log_warning("Config: max thread count setting error.");
+		g_count = 1;
+	}
+	gts_log_debug("Web: max thread count: {}", g_count);
+	g_pool = new asio::thread_pool(g_count);
+	session::init();
 }
+
+GTS_PLUGIN_EXIT()
+{
+	gts_log_debug("web plugin exit.");
+	if( g_pool == nullptr )
+		return ;
+
+	g_pool->join();
+	delete g_pool;
+	g_pool = nullptr;
+}
+
+GTS_PLUGIN_VIEW_STATUS(){
+	return session::view_status();
+}
+
+GTS_PLUGIN_NEW_CONNECTION(socket){
+	session::new_connection(std::move(socket));
+}
+
+}} //namespace gts::web

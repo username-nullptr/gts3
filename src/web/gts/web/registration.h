@@ -519,7 +519,7 @@ private:
 	GTS_PLUGIN_REGISTRATION{ gts::web::registration().filter_method(_path, GTS_AUTO_FUNC_NAME); } \
 	GTS_DECL_AUTO_FUNC(bool, __VA_ARGS__)
 
-#define GTS_PLUGIN_HTTP_REQUEST_HANDLE(_method, _path, ...) \
+#define GTS_PLUGIN_HTTP_REQUEST_HANDLE(_path, _method, ...) \
 	GTS_DECL_AUTO_FUNC_VOID(__VA_ARGS__); \
 	GTS_PLUGIN_REGISTRATION{ gts::web::registration().request_handle_method<_method>(_path, GTS_AUTO_FUNC_NAME); } \
 	GTS_DECL_AUTO_FUNC_VOID(__VA_ARGS__)

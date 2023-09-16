@@ -276,8 +276,8 @@ public:
 #define GTS_PLUGIN_VIEW_STATUS() \
 	GTS_PLUGIN_XX_STR_FUNC_REG(gts::registration().view_status_method)
 
-#define GTS_PLUGIN_NEW_CONNECTION(socket) \
-	GTS_PLUGIN_XX_FUNC_REG(gts::registration().new_connection, gts::tcp_socket_ptr &socket)
+#define GTS_PLUGIN_NEW_CONNECTION(_socket) \
+	GTS_PLUGIN_XX_FUNC_REG(gts::registration().new_connection, gts::tcp_socket_ptr &_socket)
 
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
 
