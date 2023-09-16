@@ -3,6 +3,7 @@
 
 #include <gts/http/cookies.h>
 #include <gts/http/session.h>
+#include <gts/flags.h>
 
 namespace gts { namespace http
 {
@@ -83,6 +84,8 @@ enum method
 	CONNECT,
 	TRACH
 };
+GTS_DECLARE_FLAGS(method_flags, method)
+
 GTSWEB_API std::string method_string(method m);
 GTSWEB_API method from_method_string(const std::string &m);
 

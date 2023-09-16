@@ -8,7 +8,9 @@ using namespace asio::ip;
 namespace gts { namespace web { namespace business
 {
 
-GTS_DECL_EXPORT future_ptr init()
+using namespace http;
+
+GTS_PLUGIN_ASYNC_INIT()
 {
 	return make_future_ptr(std::async(std::launch::async,[]
 	{
@@ -20,7 +22,7 @@ GTS_DECL_EXPORT future_ptr init()
 	}));
 }
 
-//GTS_DECL_EXPORT staic std::shared_ptr<std::future<void>> exit()
+//GTS_PLUGIN_ASYNC_EXIT()
 //{
 //	return std::make_shared<std::future<void>>(std::async(std::launch::async, []
 //	{
@@ -32,36 +34,34 @@ GTS_DECL_EXPORT future_ptr init()
 //	}));
 //}
 
-GTS_DECL_EXPORT void exit()
-{
+GTS_PLUGIN_EXIT(){
 	std::cerr << "plugin0: exit task ..." << std::endl;
 }
 
-GTS_DECL_EXPORT std::string view_status()
-{
+GTS_PLUGIN_VIEW_STATUS(){
 	return "web plugin: examples-plugin0: hello0\n";
 }
 
-GTS_DECL_EXPORT bool request_filter(http::request &request)
+GTS_PLUGIN_HTTP_REQUEST_FILTER("plugin0", http::request &req)
 {
-	std::cerr << fmt::format("plugin0: request_filter: '{} ({:s})'.", request.path(), request.method()) << std::endl;
+	std::cerr << fmt::format("plugin0: request_filter: '{} ({:s})'.", req.path(), req.method()) << std::endl;
 	return false;
 }
 
-GTS_DECL_EXPORT void new_request_0(http::response &response)
+GTS_PLUGIN_HTTP_REQUEST_HANDLE(GET, "plugin0", http::response &res)
 {
 	gts_custom_log_error("test", "==================== 000000000000");
-	response.write("hello world");
+	res.write("hello world");
 }
 
-GTS_DECL_EXPORT void new_request_1(http::response &response)
+GTS_PLUGIN_HTTP_REQUEST_HANDLE(GET, "plugin0/sub0", http::response &res)
 {
-	response.write("HELLO WORLD");
+	res.write("HELLO WORLD");
 }
 
-GTS_DECL_EXPORT void new_request_2(http::response &response)
+GTS_PLUGIN_HTTP_REQUEST_HANDLE(GET, "plugin0/sub1", http::response &res)
 {
-	response.set_header(http::header::transfer_encoding, "chunked")
+	res.set_header(http::header::transfer_encoding, "chunked")
 //			.set_chunk_attribute("aaa")
 			.write("first -----\r\n")
 //			.set_chunk_attributes({"bbb", 666})
@@ -69,60 +69,44 @@ GTS_DECL_EXPORT void new_request_2(http::response &response)
 //			.chunk_end({{"aaa", "bbb"},{"ccc", 666}});
 }
 
-GTS_DECL_EXPORT void save_file(http::response &response, http::request &request)
+GTS_PLUGIN_HTTP_REQUEST_HANDLE(PUT|POST, "upload", http::response &res, http::request &req)
 {
-	auto it = request.headers().find("upload-file-name");
-	if( it == request.headers().end() )
+	auto it = req.headers().find("upload-file-name");
+	if( it == req.headers().end() )
 	{
-		response.set_status(http::hs_misdirected_request)
-				.write("421 upload-file-name is null");
+		res.set_status(http::hs_misdirected_request)
+		   .write("421 upload-file-name is null");
 	}
 	else
 	{
 		std::error_code error;
 #if 0
-		while( request.can_read_body() )
+		while( req.can_read_body() )
 		{
-			auto buf = request.read_body(error);
+			auto buf = req.read_body(error);
 			if( error )
 			{
-				response.set_status(http::hs_bad_request).write(error.message());
+				res.set_status(http::hs_bad_request).write(error.message());
 				return;
 			}
 			std::cerr << buf << std::endl << std::endl;
 		}
-		response.write("OK");
+		res.write("OK");
 #else
-		if( request.save_file(resource_root() + "upload/" + it->second, error) == false )
+		if( req.save_file(resource_root() + "upload/" + it->second, error) == false )
 		{
-			response.set_status(http::hs_bad_request).write(error.message());
+			res.set_status(http::hs_bad_request).write(error.message());
 			return ;
 		}
 		std::string body;
-		for(auto &para : request.headers())
+		for(auto &para : req.headers())
 			body += fmt::format("(h) {} = {}\n", para.first, para.second);
 		body += "\n";
 
 		body.erase(body.size() - 2);
-		response.write(body);
+		res.write(body);
 #endif
 	}
 }
 
 }}} //namespace gts::web::business
-
-GTS_PLUGIN_REGISTRATION
-{
-	using namespace gts::http;
-	using namespace gts::web;
-
-	registration()
-			.init_method(business::init)
-			.exit_method(business::exit)
-			.view_status_method(business::view_status)
-			.filter_method("/", business::request_filter)
-			.request_handle_method<GET>("plugin0", business::new_request_0)
-			.request_handle_method<GET>("plugin0/sub0", business::new_request_1)
-			.request_handle_method<GET>("plugin0/sub1", business::new_request_2)
-			.request_handle_method<PUT,POST>("upload", business::save_file);
-}

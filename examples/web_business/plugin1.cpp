@@ -98,22 +98,22 @@ public:
 	}
 };
 
-}}} //namespace gts::web::business
-
 GTS_PLUGIN_REGISTRATION
 {
 	using namespace gts::http;
 	using namespace gts::web;
 
-	registration::class_<business::plugin1_0>("/")
-			.init_method(&business::plugin1_0::init)
-			.exit_method(&business::plugin1_0::exit)
-			.request_handle_method<GET>("plugin1", &business::plugin1_0::new_request);
+	registration::class_<plugin1_0>("/")
+			.init_method(&plugin1_0::init)
+			.exit_method(&plugin1_0::exit)
+			.request_handle_method<GET>("plugin1", &plugin1_0::new_request);
 
-	registration::class_<business::plugin1_1>("plugin1")
-			.init_method(&business::plugin1_1::init)
-			.exit_method(&business::plugin1_1::exit)
-			.view_status_method(&business::plugin1_1::view_status)
-			.request_handle_method<GET>("/sub0/", &business::plugin1_1::new_request_0)
-			.request_handle_method<GET>("sub1", &business::plugin1_1::new_request_1);
+	registration::class_<plugin1_1>("plugin1")
+			.init_method(&plugin1_1::init)
+			.exit_method(&plugin1_1::exit)
+			.view_status_method(&plugin1_1::view_status)
+			.request_handle_method<GET>("/sub0/", &plugin1_1::new_request_0)
+			.request_handle_method<GET>("sub1", &plugin1_1::new_request_1);
 }
+
+}}} //namespace gts::web::business

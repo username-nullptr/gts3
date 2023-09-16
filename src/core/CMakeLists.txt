@@ -44,6 +44,7 @@ set(core_gts_headers
 	gts/formatter.h
 	gts/exception.h
 	gts/rw_mutex.h
+	gts/flags.h
 	gts/uuid.h
 	gts/chrono.h
 	gts/log_buffer.h

@@ -168,7 +168,8 @@ void task::run()
 	sio.url_name = sio.request.path(); \
 	if( sio.url_name.empty() ) \
 		sio.url_name = "/"; \
-	if( plugin_service(sio).call() ) \
+	auto ps = std::make_shared<plugins_service>(sio); \
+	if( ps->call() ) \
 		return ; \
 	auto pos = sio.url_name.find("/",1); \
 	if( pos != std::string::npos ) { \
@@ -176,23 +177,30 @@ void task::run()
 		if( prefix == g_cgi_access ) { \
 			auto tmp = sio.url_name; \
 			sio.url_name = g_cgi_path + sio.url_name.substr(pos+1); \
-			if( cgi_service(sio).call() ) \
-				return ; \
+			cgi_service cs(sio); \
+			auto file_name = cs.exists(); \
+			if( not file_name.empty() and ps->call_filter() == false ) { \
+				if( cs.call(file_name) ) \
+					return ; \
+			} \
 			sio.url_name = tmp; \
 		} \
 	} \
+	ps; \
 })
 
 static void _GET(service_io &sio)
 {
-	_TASK_DO_PARSING(sio);
+	auto ps = _TASK_DO_PARSING(sio);
 	if( sio.url_name == "/" )
 		sio.url_name = g_default_resource;
 	sio.url_name = resource_root() + sio.url_name;
 
 	if( fs::is_directory(sio.url_name) )
 		return sio.return_to_null(http::hs_not_found);
-	sio.response.write_file(sio.url_name);
+
+	if( ps->call_filter() == false )
+		sio.response.write_file(sio.url_name);
 }
 
 static void _POST(service_io &sio)
@@ -213,7 +221,7 @@ static void _HEAD(service_io &sio)
 	if( sio.url_name.empty() )
 		sio.url_name = "/";
 
-	if( plugin_service(sio).exists() )
+	if( plugins_service(sio).exists() )
 		return sio.return_to_null();
 
 	auto pos = sio.url_name.find("/",1);

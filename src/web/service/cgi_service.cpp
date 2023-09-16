@@ -67,14 +67,25 @@ void cgi_service::init()
 #endif //ssl
 }
 
-bool cgi_service::call()
+std::string cgi_service::exists() const
 {
 	if( not fs::exists(m_sio.url_name) )
 	{
 #ifdef _WINDOWS
-		file_name += ".exe";
+		file_name = m_sio.url_name + ".exe";
 		if( not fs::exists(file_name) )
 #endif //windows
+			return "";
+	}
+	return m_sio.url_name;
+}
+
+bool cgi_service::call(std::string file_name)
+{
+	if( file_name.empty() )
+	{
+		file_name = exists();
+		if( file_name.empty() )
 			return false;
 	}
 	for(auto &pair : g_cgi_env)
@@ -84,7 +95,7 @@ bool cgi_service::call()
 	if( parameter.empty() )
 		parameter = "/";
 
-	auto file_path = gts::file_path(m_sio.url_name);
+	auto file_path = gts::file_path(file_name);
 	m_cgi.set_work_path(file_path)
 		 .add_env("REQUEST_METHOD"   , m_sio.request.method()                              )
 		 .add_env("QUERY_STRING"     , parameter                                           )

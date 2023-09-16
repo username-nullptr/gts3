@@ -6,7 +6,9 @@
 namespace gts { namespace web { namespace business
 {
 
-static future_ptr init()
+using namespace http;
+
+GTS_PLUGIN_ASYNC_INIT()
 {
 	return make_future_ptr(std::async(std::launch::async,[]
 	{
@@ -18,19 +20,17 @@ static future_ptr init()
 	}));
 }
 
-GTS_DECL_EXPORT void exit()
-{
+GTS_PLUGIN_EXIT(){
 	std::cerr << "plugin2: global exit task ..." << std::endl;
 }
 
-GTS_DECL_EXPORT std::string view_status()
-{
+GTS_PLUGIN_VIEW_STATUS(){
 	return "web plugin: examples-plugin2: hello2\n";
 }
 
-GTS_DECL_EXPORT void new_request_0(http::response &response)
+GTS_PLUGIN_HTTP_REQUEST_HANDLE(GET, "plugin2", http::response &res)
 {
-	response.write("plugin2-global");
+	res.write("plugin2-global");
 }
 
 class GTS_DECL_EXPORT plugin2
@@ -86,32 +86,26 @@ static void intercept(tcp_socket_ptr socket)
 }
 #endif
 
-}}} //namespace gts::web::business
-
 GTS_PLUGIN_REGISTRATION
 {
 	using namespace gts::http;
 	using namespace gts::web;
 
-	registration()
-			.init_method(business::init)
-			.exit_method(business::exit)
-			.view_status_method(business::view_status)
-			.request_handle_method<GET>("plugin2", business::new_request_0);
-
-	registration::class_<business::plugin2>("plugin2/sub")
-			.init_method(&business::plugin2::init)
-			.exit_method(&business::plugin2::exit)
-			.filter_method("/", &business::plugin2::request_filter)
-			.request_handle_method<GET>("subsub", &business::plugin2::new_request_0)
-			.request_handle_method<GET>("subsub/test", &business::plugin2::new_request_1);
+	registration::class_<plugin2>("plugin2/sub")
+			.init_method(&plugin2::init)
+			.exit_method(&plugin2::exit)
+			.filter_method("/", &plugin2::request_filter)
+			.request_handle_method<GET>("subsub", &plugin2::new_request_0)
+			.request_handle_method<GET>("subsub/test", &plugin2::new_request_1);
 
 #if 0
 	for(auto &pair : gts::get_site_infos())
 	{
 		auto &info = pair.second;
 		if( not info.universal )
-			gts::registration(business::intercept, info.port);
+			gts::registration(intercept, info.port);
 	}
 #endif
 }
+
+}}} //namespace gts::web::business

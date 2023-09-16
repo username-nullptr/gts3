@@ -23,7 +23,8 @@ public:
 
 public:
 	static void init();
-	bool call();
+	std::string exists() const;
+	bool call(std::string file_name = "");
 
 private:
 	void async_write_socket(const char *buf, std::size_t buf_size);

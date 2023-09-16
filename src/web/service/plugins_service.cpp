@@ -18,18 +18,18 @@ namespace gts { namespace web
 
 using njson = nlohmann::json;
 
-plugin_service::plugin_service(service_io &sio) :
+plugins_service::plugins_service(service_io &sio) :
 	m_sio(sio)
 {
 	m_sio.socket.non_blocking(false);
 }
 
-bool plugin_service::exists()
+bool plugins_service::exists()
 {
 	return check() != nullptr;
 }
 
-bool plugin_service::call()
+bool plugins_service::call()
 {
 	auto array = check();
 	if( array == nullptr )
@@ -41,6 +41,20 @@ bool plugin_service::call()
 		m_sio.return_to_null(http::hs_method_not_allowed);
 		return true;
 	}
+	if( call_filter() )
+		return true;
+	else if( ss.class_type.is_valid() )
+	{
+		auto &obj = registration::obj_hash()[ss.class_type];
+		class_method_call(ss.method, obj, GTS_RTTR_TYPE(http::response));
+	}
+	else
+		global_method_call(ss.method, GTS_RTTR_TYPE(http::response));
+	return true;
+}
+
+bool plugins_service::call_filter()
+{
 	auto lambda_call_filter = [this](registration::service &rs) -> bool
 	{
 		if( rs.method.get_return_type() != GTS_RTTR_TYPE(bool) )
@@ -69,17 +83,10 @@ bool plugin_service::call()
 		else if( lambda_call_filter(rs) )
 			return true;
 	}
-	if( ss.class_type.is_valid() )
-	{
-		auto &obj = registration::obj_hash()[ss.class_type];
-		class_method_call(ss.method, obj, GTS_RTTR_TYPE(http::response));
-	}
-	else
-		global_method_call(ss.method, GTS_RTTR_TYPE(http::response));
-	return true;
+	return false;
 }
 
-registration::service_array *plugin_service::check()
+registration::service_array *plugins_service::check()
 {
 	if( m_sio.url_name.empty() )
 		m_sio.url_name = "/";
@@ -108,7 +115,7 @@ static environments make_envs(service_io &sio)
 	};
 }
 
-rttr::variant plugin_service::global_method_call(const rttr::method &method, const rttr::type &p1_type)
+rttr::variant plugins_service::global_method_call(const rttr::method &method, const rttr::type &p1_type)
 {
 	auto para_array = method.get_parameter_infos();
 	if( para_array.size() == 1 )
@@ -162,7 +169,7 @@ rttr::variant plugin_service::global_method_call(const rttr::method &method, con
 	return {};
 }
 
-rttr::variant plugin_service::class_method_call(rttr::method &method, rttr::variant &obj, const rttr::type &p1_type)
+rttr::variant plugins_service::class_method_call(rttr::method &method, rttr::variant &obj, const rttr::type &p1_type)
 {
 	auto para_array = method.get_parameter_infos();
 	if( para_array.size() == 1 )
@@ -216,7 +223,7 @@ rttr::variant plugin_service::class_method_call(rttr::method &method, rttr::vari
 	return {};
 }
 
-registration::service *plugin_service::find_filter(const std::string &url)
+registration::service *plugins_service::find_filter(const std::string &url)
 {
 	auto it = registration::g_filter_path_map.lower_bound(url);
 	if( it != registration::g_filter_path_map.begin() )

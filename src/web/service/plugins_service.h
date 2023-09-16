@@ -8,14 +8,17 @@ namespace gts { namespace web
 
 class service_io;
 
-class GTS_DECL_HIDDEN plugin_service
+class GTS_DECL_HIDDEN plugins_service
 {
-	GTS_DISABLE_COPY_MOVE(plugin_service)
+	GTS_DISABLE_COPY_MOVE(plugins_service)
 
 public:
-	plugin_service(service_io &sio);
+	plugins_service(service_io &sio);
 	bool exists();
+
+public:
 	bool call();
+	bool call_filter();
 
 private:
 	registration::service_array *check();
