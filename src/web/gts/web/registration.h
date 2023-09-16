@@ -362,7 +362,7 @@ public:
 
 			for(int i=http::GET; i<http::TRACH; i++)
 			{
-				if( http_method & i == 0 )
+				if( (http_method & i) == 0 )
 					continue;
 				else if( method_array[i].method.is_valid() )
 					gts_log_fatal("service '{} ({})' multiple registration.", path, http::method_string(static_cast<http::method>(i)));
@@ -458,7 +458,7 @@ private:
 
 		for(int i=http::GET; i<http::TRACH; i++)
 		{
-			if( http_method & i == 0 )
+			if( (http_method & i) == 0 )
 				continue;
 			if( method_array[i].method.is_valid() )
 				gts_log_fatal("service '{} ({})' multiple registration.", path, http::method_string(static_cast<http::method>(i)));
