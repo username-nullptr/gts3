@@ -107,7 +107,7 @@ bool session::is_valid() const
 	return m_impl->m_is_valid;
 }
 
-rttr::variant session::attribute(const std::string &key) const
+rttr::variant session::attribute(const std::string &key) const noexcept(false)
 {
 	shared_lock locker(m_impl->m_attrs_mutex); GTS_UNUSED(locker);
 	auto it = m_impl->m_attributes.find(key);

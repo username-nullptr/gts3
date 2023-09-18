@@ -35,7 +35,7 @@ bool plugins_service::call()
 	if( array == nullptr )
 		return false;
 
-	auto &ss = (*array)[m_sio.request.method()];
+	auto &ss = (*array)[registration::log2(m_sio.request.method())];
 	if( not ss.method.is_valid() )
 	{
 		m_sio.return_to_null(http::hs_method_not_allowed);

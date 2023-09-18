@@ -59,8 +59,8 @@ public:
 
 public:
 	bool headers_contains(const std::string &key) const;
-	value &header(const std::string &key);
-	const value &header(const std::string &key) const;
+	value &header(const std::string &key) noexcept(false);
+	const value &header(const std::string &key) const noexcept(false);
 	value header_or(const std::string &key, value deft_value = {}) const;
 
 	template <typename T>
@@ -71,8 +71,8 @@ public:
 
 public:
 	bool cookies_contains(const std::string &key) const;
-	http::cookie &cookie(const std::string &key);
-	const http::cookie &cookie(const std::string &key) const;
+	http::cookie &cookie(const std::string &key) noexcept(false);
+	const http::cookie &cookie(const std::string &key) const noexcept(false);
 	http::cookie cookie_or(const std::string &key, http::cookie deft_value = {}) const;
 
 	template <typename T>
@@ -118,7 +118,7 @@ public:
 	};
 	using range_vector = std::vector<range>;
 	response &write_file(const std::string &file_name, const response::range &range);
-	response &write_file(const std::string &file_name, const range_vector &range);
+	response &write_file(const std::string &file_name, const range_vector &range) noexcept(false);
 
 public:
 	response &redirect(const std::string &url, redirect_type type = redirect_type::moved_permanently);

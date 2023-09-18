@@ -62,7 +62,7 @@ bool request::parameters_contains(const std::string &key) const
 	return m_impl->m_parameters.find(key) != m_impl->m_parameters.end();
 }
 
-const value &request::parameter(const std::string &key) const
+const value &request::parameter(const std::string &key) const noexcept(false)
 {
 	auto it = m_impl->m_parameters.find(key);
 	if( it == m_impl->m_parameters.end() )
@@ -81,7 +81,7 @@ bool request::headers_contains(const std::string &key) const
 	return m_impl->m_headers.find(key) != m_impl->m_headers.end();
 }
 
-const value &request::header(const std::string &key) const
+const value &request::header(const std::string &key) const noexcept(false)
 {
 	auto it = m_impl->m_headers.find(key);
 	if( it == m_impl->m_headers.end() )
@@ -100,7 +100,7 @@ bool request::cookies_contains(const std::string &key) const
 	return m_impl->m_cookies.find(key) != m_impl->m_cookies.end();
 }
 
-const value &request::cookie(const std::string &key) const
+const value &request::cookie(const std::string &key) const noexcept(false)
 {
 	auto it = m_impl->m_cookies.find(key);
 	if( it == m_impl->m_cookies.end() )

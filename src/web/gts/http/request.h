@@ -4,6 +4,8 @@
 #include <gts/http/types.h>
 #include <asio.hpp>
 
+#include <gts/log.h>
+
 namespace gts { namespace http
 {
 
@@ -45,7 +47,7 @@ public:
 
 public:
 	bool parameters_contains(const std::string &key) const;
-	const value &parameter(const std::string &key) const;
+	const value &parameter(const std::string &key) const noexcept(false);
 	value parameter_or(const std::string &key, value deft_value = {}) const;
 
 	template <typename T>
@@ -56,7 +58,7 @@ public:
 
 public:
 	bool headers_contains(const std::string &key) const;
-	const value &header(const std::string &key) const;
+	const value &header(const std::string &key) const noexcept(false);
 	value header_or(const std::string &key, value deft_value = {}) const;
 
 	template <typename T>
@@ -67,7 +69,7 @@ public:
 
 public:
 	bool cookies_contains(const std::string &key) const;
-	const value &cookie(const std::string &key) const;
+	const value &cookie(const std::string &key) const noexcept(false);
 	value cookie_or(const std::string &key, value deft_value) const;
 
 	template <typename T>
@@ -154,6 +156,7 @@ std::shared_ptr<Sesn> request::session(bool create)
 		set_cookie_session_id(ptr->id());
 		return ptr;
 	}
+
 	auto ptr = http::session::get<Sesn>(it->second);
 	if( ptr )
 	{

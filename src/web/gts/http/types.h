@@ -75,14 +75,14 @@ GTSWEB_API std::string status_description(int s);
 enum method
 {
 	METHOD_UNKNOWN = -1,
-	GET,
-	PUT,
-	POST,
-	HEAD,
-	DELETE,
-	OPTIONS,
-	CONNECT,
-	TRACH
+	GET     = 0x01,
+	PUT     = 0x02,
+	POST    = 0x04,
+	HEAD    = 0x08,
+	DELETE  = 0x10,
+	OPTIONS = 0x20,
+	CONNECT = 0x40,
+	TRACH   = 0x80
 };
 GTS_DECLARE_FLAGS(method_flags, method)
 

@@ -25,21 +25,21 @@ public:
 		std::cerr << "plugin1-0: exit task ..." << std::endl;
 	}
 
-	void new_request(http::request &request, http::response &response, const environments &envs)
+	void new_request(http::request &req, http::response &res, const environments &envs)
 	{
-		auto session = request.session();
+		auto session = req.session();
 		session->set_attribute("hello", "|** http session test.");
 
-		response.set_cookie("hello", http::cookie("world").set_http_only(true));
+		res.set_cookie("hello", http::cookie("world").set_http_only(true));
 		std::cerr << std::endl;
 
-		auto body = fmt::format("Ok!!!\npath = {}\n\n", request.path());
+		auto body = fmt::format("Ok!!!\npath = {}\n\n", req.path());
 
-		for(auto &para : request.parameters())
+		for(auto &para : req.parameters())
 			body += fmt::format("(p) {} = {}\n", para.first, para.second);
 		body += "\n";
 
-		for(auto &para : request.headers())
+		for(auto &para : req.headers())
 			body += fmt::format("(h) {} = {}\n", para.first, para.second);
 		body += "\n";
 
@@ -48,7 +48,7 @@ public:
 		body += "\n";
 
 		body.erase(body.size() - 2);
-		response.write(body);
+		res.write(body);
 	}
 };
 

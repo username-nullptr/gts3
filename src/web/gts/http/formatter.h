@@ -17,7 +17,7 @@ protected:
 
 public:
 	template <typename Context>
-	inline FMT_CONSTEXPR auto parse(Context &&context) -> decltype(context.begin())
+	inline FMT_CONSTEXPR auto parse(Context &&context) noexcept(false) -> decltype(context.begin())
 	{
 		auto it = context.begin();
 		if( it == context.end() or *it == '}' )

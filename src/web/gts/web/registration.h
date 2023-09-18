@@ -360,18 +360,20 @@ public:
 			if( http_method < http::GET or http_method > http::TRACH )
 				gts_log_fatal("service '{} ({})' registration: invalid method.", path, static_cast<int>(http_method));
 
-			for(int i=http::GET; i<http::TRACH; i++)
+			for(int i=http::GET; i<=http::TRACH; i<<=1)
 			{
 				if( (http_method & i) == 0 )
 					continue;
-				else if( method_array[i].method.is_valid() )
+
+				auto hc = log2(static_cast<http::method>(i));
+				if( method_array[hc].method.is_valid() )
 					gts_log_fatal("service '{} ({})' multiple registration.", path, http::method_string(static_cast<http::method>(i)));
 
-				method_array[i].class_type = this->m_type;
+				method_array[hc].class_type = this->m_type;
 				auto rmn = method_name + http::method_string(static_cast<http::method>(i));
 
 				this->m_class_->method(rmn, std::forward<Func>(func));
-				method_array[i].method = this->m_type.get_method(rmn);
+				method_array[hc].method = this->m_type.get_method(rmn);
 			}
 		}
 
@@ -456,16 +458,18 @@ private:
 		if( http_method < http::GET or http_method > http::TRACH )
 			gts_log_fatal("service '{} ({})' registration: invalid method.", path, static_cast<int>(http_method));
 
-		for(int i=http::GET; i<http::TRACH; i++)
+		for(int i=http::GET; i<=http::TRACH; i<<=1)
 		{
 			if( (http_method & i) == 0 )
 				continue;
-			if( method_array[i].method.is_valid() )
+
+			auto hc = log2(static_cast<http::method>(i));
+			if( method_array[hc].method.is_valid() )
 				gts_log_fatal("service '{} ({})' multiple registration.", path, http::method_string(static_cast<http::method>(i)));
 
 			auto rmn = method_name + http::method_string(static_cast<http::method>(i));
 			rttr::registration::method(rmn, std::forward<Func>(func));
-			method_array[i].method = rttr::type::get_global_method(rmn);
+			method_array[hc].method = rttr::type::get_global_method(rmn);
 		}
 	}
 
@@ -497,6 +501,7 @@ private:
 	}
 
 private:
+	static std::size_t log2(http::method n);
 	static std::unordered_map<rttr::type, rttr::variant> &obj_hash() {
 		return g_obj_hash;
 	}

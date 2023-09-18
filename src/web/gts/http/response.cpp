@@ -197,7 +197,7 @@ bool response::headers_contains(const std::string &key) const
 	return m_impl->m_headers.find(key) != m_impl->m_headers.end();
 }
 
-value &response::header(const std::string &key)
+value &response::header(const std::string &key) noexcept(false)
 {
 	auto it = m_impl->m_headers.find(key);
 	if( it == m_impl->m_headers.end() )
@@ -205,7 +205,7 @@ value &response::header(const std::string &key)
 	return it->second;
 }
 
-const value &response::header(const std::string &key) const
+const value &response::header(const std::string &key) const noexcept(false)
 {
 	auto it = m_impl->m_headers.find(key);
 	if( it == m_impl->m_headers.end() )
@@ -224,7 +224,7 @@ bool response::cookies_contains(const std::string &key) const
 	return m_impl->m_cookies.find(key) != m_impl->m_cookies.end();
 }
 
-cookie &response::cookie(const std::string &key)
+cookie &response::cookie(const std::string &key) noexcept(false)
 {
 	auto it = m_impl->m_cookies.find(key);
 	if( it == m_impl->m_cookies.end() )
@@ -232,7 +232,7 @@ cookie &response::cookie(const std::string &key)
 	return it->second;
 }
 
-const cookie &response::cookie(const std::string &key) const
+const cookie &response::cookie(const std::string &key) const noexcept(false)
 {
 	auto it = m_impl->m_cookies.find(key);
 	if( it == m_impl->m_cookies.end() )
@@ -744,7 +744,7 @@ response &response::write_file(const std::string &file_name, const std::string &
 	return *this;
 }
 
-response &response::write_file(const std::string &file_name, const range_vector &vector)
+response &response::write_file(const std::string &file_name, const range_vector &vector) noexcept(false)
 {
 	if( vector.empty() )
 		return write_file(file_name);

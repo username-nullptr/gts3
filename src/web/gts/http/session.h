@@ -30,7 +30,7 @@ public:
 	bool is_valid() const;
 
 public:
-	rttr::variant attribute(const std::string &key) const;
+	rttr::variant attribute(const std::string &key) const noexcept(false);
 	rttr::variant attribute_or(const std::string &key, rttr::variant deft_value = {}) const;
 
 	template <typename T>
@@ -65,7 +65,7 @@ public:
 	static void set(session *obj);
 
     template <class Sesn>
-	static std::shared_ptr<Sesn> get(const std::string &id);
+	static std::shared_ptr<Sesn> get(const std::string &id) noexcept(false);
 
 public:
 	static void set_global_lifecycle(const duration &seconds);
@@ -103,7 +103,7 @@ session &session::set_attribute(std::string key, fmt::format_string<Args...> fmt
 }
 
 template <class Sesn>
-std::shared_ptr<Sesn> session::get(const std::string &id)
+std::shared_ptr<Sesn> session::get(const std::string &id) noexcept(false)
 {
 	static_assert(gts_is_base_of(http::session, Sesn),
 	"The template argument 'Sesn' must be a 'gts::http::session' or derived class of 'gts::http::session'.");
