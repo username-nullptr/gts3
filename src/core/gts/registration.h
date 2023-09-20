@@ -213,10 +213,10 @@ public:
 #define GTS_AUTO_FUNC_NAME  GTS_AUTO_XX_NAME(__gts_auto_xx_name_)
 
 #define GTS_REGISTRATION \
-	static void GTS_AUTO_FUNC_NAME; \
+	static void GTS_AUTO_FUNC_NAME(); \
 	namespace { \
 		struct GTS_AUTO_XX_NAME(__gts_auto_register_) { \
-			GTS_AUTO_XX_NAME(gts_auto_register_)() { \
+			GTS_AUTO_XX_NAME(__gts_auto_register_)() { \
 				GTS_AUTO_FUNC_NAME(); \
 			} \
 		}; \
