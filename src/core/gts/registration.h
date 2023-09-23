@@ -237,7 +237,7 @@ public:
 #endif //compiler
 
 #define GTS_DECL_AUTO_FUNC(_return, ...) \
-	GTS_DECL_EXPORT _return GTS_AUTO_FUNC_NAME(__VA_ARGS__)
+	static _return GTS_AUTO_FUNC_NAME(__VA_ARGS__)
 
 #define GTS_DECL_AUTO_FUNC_VOID(...) \
 	GTS_DECL_AUTO_FUNC(void, ##__VA_ARGS__)
@@ -276,8 +276,10 @@ public:
 #define GTS_PLUGIN_VIEW_STATUS() \
 	GTS_PLUGIN_XX_STR_FUNC_REG(gts::registration().view_status_method)
 
-#define GTS_PLUGIN_NEW_CONNECTION(_socket) \
-	GTS_PLUGIN_XX_FUNC_REG(gts::registration().new_connection, gts::tcp_socket_ptr &_socket)
+#define GTS_PLUGIN_NEW_CONNECTION(_socket, ...) \
+	GTS_DECL_AUTO_FUNC_VOID(gts::tcp_socket_ptr&); \
+	GTS_PLUGIN_REGISTRATION{ gts::registration().new_connection(GTS_AUTO_FUNC_NAME, ##__VA_ARGS__); } \
+	GTS_DECL_AUTO_FUNC_VOID(gts::tcp_socket_ptr &_socket)
 
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
 
@@ -288,7 +290,9 @@ public:
 	GTS_PLUGIN_XX_FUNC_REG(gts::extension::registration().exit_method)
 
 #define GTS_PLUGIN_CMD_ARGS_PARSING(...) \
-	GTS_PLUGIN_XX_FUNC_REG(gts::extension::registration().args_parsing_method, __VA_ARGS__)
+	GTS_DECL_AUTO_FUNC(bool, __VA_ARGS__); \
+	GTS_PLUGIN_REGISTRATION{ gts::extension::registration().args_parsing_method(GTS_AUTO_FUNC_NAME); } \
+	GTS_DECL_AUTO_FUNC(bool, __VA_ARGS__)
 
 #define GTS_PLUGIN_CMD_VIEW_VERSION() \
 	GTS_PLUGIN_XX_STR_FUNC_REG(gts::extension::registration().view_version_method)

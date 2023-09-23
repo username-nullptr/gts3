@@ -71,39 +71,38 @@ status, -status, --status :
 using namespace gts;
 
 // Parameters are optional.
-// The return value type can be any type that can be copied, but will not be processed.
-GTS_DECL_EXPORT void plugin_init(/*const std::string &config_file*/)
+GTS_PLUGIN_INIT(/*const std::string &config_file*/)
 {
     // do something
 }
 
-GTS_DECL_EXPORT void plugin_exit()
+// If the initial process is time-consuming and the result of the process does not
+// affect the subsequent process, you can use xxx to perform it asynchronously.
+GTS_PLUGIN_ASYNC_INIT(/*const std::string &config_file*/)
+{
+    return make_future_ptr(std::async(std::launch::async, []
+    {
+        // do something
+    }));
+}
+
+GTS_PLUGIN_EXIT()
 {
     // do something
 }
 
-// The parameter must be 'gts::tcp_socket_ptr'.
-GTS_DECL_EXPORT void new_connection(tcp_socket_ptr socket)
+// gts::tcp_socket_ptr &socket.
+// Perform special processing on a port.
+GTS_PLUGIN_NEW_CONNECTION(socket /*, 8888*/)
 {
     // do something
 }
 
 // The return value type must be 'std::string'.
-GTS_DECL_EXPORT std::string view_status()
+GTS_PLUGIN_VIEW_STATUS()
 {
     // do something
     return "status information";
-}
-
-GTS_PLUGIN_REGISTRATION
-{
-    gts::registration(new_connection)
-        .view_status_method(view_status)
-        .init_method(plugin_init)
-        .exit_method(plugin_exit);
-    
-    // Perform special processing on a port.
-    // gts::registration(new_connection, 10000);
 }
 ```
 
@@ -116,16 +115,17 @@ GTS_PLUGIN_REGISTRATION
 #include <gts/web.h>
 
 using namespace gts;
+using namespace gts::http;
 
 // Parameters are optional.
-GTS_DECL_EXPORT void plugin_init(/*const std::string &config_file*/)
+GTS_PLUGIN_INIT(/*const std::string &config_file*/)
 {
     // do something
 }
 
 // If the initial process is time-consuming and the result of the process does not
 // affect the subsequent process, you can use xxx to perform it asynchronously.
-GTS_DECL_EXPORT future_ptr plugin_async_init(/*const std::string &config_file*/)
+GTS_PLUGIN_ASYNC_INIT(/*const std::string &config_file*/)
 {
     return make_future_ptr(std::async(std::launch::async, []
     {
@@ -133,13 +133,13 @@ GTS_DECL_EXPORT future_ptr plugin_async_init(/*const std::string &config_file*/)
     }));
 }
 
-GTS_DECL_EXPORT void plugin_exit()
+GTS_PLUGIN_EXIT()
 {
     // do something
 }
 
 // The return value type must be 'std::string'.
-GTS_DECL_EXPORT std::string view_status()
+GTS_PLUGIN_VIEW_STATUS()
 {
     // do something
     return "status information";
@@ -147,7 +147,7 @@ GTS_DECL_EXPORT std::string view_status()
 
 // The parameter must be 'gts::http::request'.
 // Paths that have a parent-child relationship are executed from the parent path to the child path.
-GTS_DECL_EXPORT void request_filter(http::response &request /*, http::&response, const environments&*/)
+GTS_PLUGIN_HTTP_REQUEST_FILTER(http::response &req /*, http::&response, const environments&*/)
 {
     // A return of true indicates that the request has been processed and no more actual processing is performed.
     // return true;
@@ -155,20 +155,20 @@ GTS_DECL_EXPORT void request_filter(http::response &request /*, http::&response,
 }
 
 // The parameter must be 'gts::http::response'.
-GTS_DECL_EXPORT void global_request(http::response &response /*, http::request&, const environments&*/)
+GTS_PLUGIN_HTTP_REQUEST_HANDLE("path", GET|PUT, http::response &resp /*, http::request&, const environments&*/)
 {
-    // request.cookie();
-    // request.read_body();
-    // request.save_file();
-    // request.session();
-    // response.set_cookie("hello", http::cookie);
-    // response.redirect("https://github.com");
-    // response.write_body("hello world");
-    // response.write_file("path/hello.html");
-    response.write("hello world");
+    // req.cookie();
+    // req.read_body();
+    // req.save_file();
+    // req.session();
+    // resp.set_cookie("hello", http::cookie);
+    // resp.redirect("https://github.com");
+    // resp.write_body("hello world");
+    // resp.write_file("path/hello.html");
+    resp.write("hello world");
 }
 
-class GTS_DECL_EXPORT controller
+class controller
 {
 public:
     // future_ptr async_init(/*const std::string &config_file*/) {}
@@ -185,7 +185,7 @@ public:
     
     // The parameter must be 'gts::http::request'.
     // Paths that have a parent-child relationship are executed from the parent path to the child path.
-    void request_filter(http::response &request /*, http::&response, const environments&*/)
+    void request_filter(http::response &req /*, http::&response, const environments&*/)
     {
         // A return of true indicates that the request has been processed and no more actual processing is performed.
         // return true;
@@ -193,17 +193,17 @@ public:
     }
     
     // The parameter must be 'gts::http::response'.
-    void request(http::response &response /*, http::request&, const environments&*/)
+    void request(http::response &resp /*, http::request&, const environments&*/)
     {
-        // request.cookie();
-        // request.read_body();
-        // request.save_file();
-        // request.session();
-        // response.set_cookie("hello", http::cookie);
-        // response.redirect("https://github.com");
-        // response.write_body("hello world");
-        // response.write_file("path/hello.html");
-        response.write("hello world");
+        // req.cookie();
+        // req.read_body();
+        // req.save_file();
+        // req.session();
+        // resp.set_cookie("hello", http::cookie);
+        // resp.redirect("https://github.com");
+        // resp.write_body("hello world");
+        // resp.write_file("path/hello.html");
+        resp.write("hello world");
     }
     
     // The return value type must be 'std::string'.
@@ -216,16 +216,7 @@ public:
 
 GTS_PLUGIN_REGISTRATION
 {
-    using namespace gts::http;
     using namespace gts::web;
-    
-    registration()
-        .init_method(plugin_init)
-        .exit_method(plugin_exit)
-        .view_status_method(view_status)
-        .filter_method("/", request_filter)
-        .request_handle_method<GET,POST>("path", global_request);
-        
     registration::class_<controller>("path")
         .init_method(controller::init)
         .exit_method(controller::exit)
@@ -243,12 +234,12 @@ Place a directory named 'startup_extensions' in the directory where the executab
 // plugin.cpp
 #include <gts/registration.h>
 
-GTS_DECL_EXPORT void extensions_init()
+GTS_PLUGIN_CMD_INIT()
 {
 	// do something
 }
 
-GTS_DECL_EXPORT void extensions_exit()
+GTS_PLUGIN_CMD_EXIT()
 {
 	// do something
 }
@@ -256,30 +247,20 @@ GTS_DECL_EXPORT void extensions_exit()
 // If a parameter other than the preset parameter appears, it is processed in this function.
 // Return true if the command arguments is processed, false otherwise.
 // If false is returned, the command will throw an error.
-GTS_DECL_EXPORT bool args_parsing(int argc, const char *argv[] /*const string_list &args*/)
+GTS_PLUGIN_CMD_ARGS_PARSING(int argc, const char *argv[] /*const string_list &args*/)
 {
 	// do something
 	return true;
 }
 
-GTS_DECL_EXPORT std::string view_version_info()
+GTS_PLUGIN_CMD_VIEW_VERSION()
 {
 	return "extension version info.\n";
 }
 
-GTS_DECL_EXPORT std::string view_help()
+GTS_PLUGIN_CMD_VIEW_HELP()
 {
 	return "extension help info.\n";
-}
-
-GTS_PLUGIN_REGISTRATION
-{
-	gts::extension::registration()
-			.init_method(extensions_init)
-			.exit_method(extensions_exit)
-			.args_parsing_method(args_parsing)
-			.view_version_method(view_version_info)
-			.view_help_method(view_help);
 }
 ```
 
