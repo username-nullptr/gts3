@@ -1,5 +1,4 @@
-#include <gts/tcp_socket.h>
-#include <gts/web.h>
+#include <gts/web/registration.h>
 #include <iostream>
 
 namespace gts { namespace web { namespace business

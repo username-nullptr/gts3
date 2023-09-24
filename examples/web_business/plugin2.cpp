@@ -1,6 +1,5 @@
-#include <gts/registration.h>
+#include <gts/web/registration.h>
 #include <gts/http/formatter.h>
-#include <gts/web.h>
 #include <iostream>
 
 namespace gts { namespace web { namespace business

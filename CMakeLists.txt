@@ -41,7 +41,9 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif()
 
 add_compile_options(-Wall)
-add_subdirectory(src)
+
+include_directories(.)
+add_subdirectory(gts)
 
 option(BUILD_EXAMPLES "-- gts: enable this to build the examples" ON)
 
@@ -50,5 +52,5 @@ if (BUILD_EXAMPLES)
 	add_subdirectory(examples)
 	install(FILES examples/web_business/plugins.json DESTINATION .)
 else()
-	install(FILES src/plugins.json.in RENAME plugins.json DESTINATION .)
+	install(FILES gts/server/plugins.json.in RENAME plugins.json DESTINATION .)
 endif()

@@ -6,10 +6,6 @@
         {
             "name": "gtsweb",
             "path": "./bin"
-        },
-        {
-            "name": [ "plugin0", "plugin1", "plugin2" ],
-            "path": "./plugins"
         }
     ]
 }
