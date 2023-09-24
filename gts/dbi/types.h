@@ -1,11 +1,11 @@
-#ifndef DBI_TYPES_H
-#define DBI_TYPES_H
+#ifndef GTS_DBI_TYPES_H
+#define GTS_DBI_TYPES_H
 
-#include <dbi/cell_data.h>
+#include <gts/dbi/cell.h>
 #include <vector>
 #include <map>
 
-namespace dbi
+namespace gts { namespace dbi
 {
 
 struct connect_info
@@ -19,11 +19,11 @@ struct connect_info
 
 using binary = std::vector<char>;
 
-class row_vector : public std::vector<cell_data>
+class row_vector : public std::vector<cell>
 {
 public:
-	using std::vector<cell_data>::vector;
-	using std::vector<cell_data>::operator[];
+	using std::vector<cell>::vector;
+	using std::vector<cell>::operator[];
 
 public:
 	reference operator[](const std::string &column_name)
@@ -39,7 +39,7 @@ public:
 
 using table_data = std::vector<row_vector>;
 
-} //namespace dbi
+}} //namespace gts::dbi
 
 
-#endif //DBI_TYPES_H
+#endif //GTS_DBI_TYPES_H

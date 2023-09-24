@@ -1,31 +1,31 @@
-#include "execute_interface.h"
+#include "execute.h"
 
-namespace dbi
+namespace gts { namespace dbi
 {
 
-class DBI_DECL_HIDDEN execute_interface_impl
+class GTS_DECL_HIDDEN execute_impl
 {
-    DBI_DISABLE_COPY_MOVE(execute_interface_impl)
+	GTS_DISABLE_COPY_MOVE(execute_impl)
 
 public:
-    execute_interface_impl() = default;
+	execute_impl() = default;
     std::size_t m_query_string_buffer_size = 1024;
 };
 
 /*------------------------------------------------------------------------------------------------------------------------------*/
 
-execute_interface::execute_interface() :
-    m_impl(new execute_interface_impl())
+connection::connection() :
+	m_impl(new execute_impl())
 {
 
 }
 
-execute_interface::~execute_interface()
+connection::~connection()
 {
     delete m_impl;
 }
 
-table_data execute_interface::prepare_query(const std::string &statement, error_code &error)
+table_data connection::prepare_query(const std::string &statement, error_code &error)
 {
 	table_data result;
 	result.reserve(64);
@@ -45,21 +45,21 @@ table_data execute_interface::prepare_query(const std::string &statement, error_
 		for(std::size_t column=0; column<set->column_count(); column++)
 		{
 			auto ope = set->get_opt_string(column, buf_size);
-			vector.emplace_back(ope.has_value()? cell_data(set->column_name(column), ope.value()) : cell_data(set->column_name(column)));
+			vector.emplace_back(ope.has_value()? cell(set->column_name(column), ope.value()) : cell(set->column_name(column)));
 		}
 	}
 	return result;
 }
 
-execute_interface &execute_interface::set_query_string_buffer_size(std::size_t size)
+connection &connection::set_query_string_buffer_size(std::size_t size)
 {
     m_impl->m_query_string_buffer_size = size;
     return *this;
 }
 
-std::size_t execute_interface::query_string_buffer_size()
+std::size_t connection::query_string_buffer_size() const
 {
     return m_impl->m_query_string_buffer_size;
 }
 
-} //namespace dbi
+}} //namespace gts::dbi

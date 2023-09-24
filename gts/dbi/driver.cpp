@@ -1,6 +1,6 @@
-#include "driver_interface.h"
+#include "driver.h"
 
-namespace dbi
+namespace gts { namespace dbi
 {
 
-} //namespace dbi
+}} //namespace gts::dbi

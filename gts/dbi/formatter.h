@@ -1,14 +1,14 @@
-#ifndef DBI_FORMAT_EX_H
-#define DBI_FORMAT_EX_H
+#ifndef GTS_DBI_FORMATTER_H
+#define GTS_DBI_FORMATTER_H
 
-#include <dbi/types.h>
+#include <gts/dbi/types.h>
 #include <cppformat>
 
 namespace fmt
 {
 
 template <>
-class formatter<dbi::error_code>
+class formatter<gts::dbi::error_code>
 {
 public:
 	template <typename Context>
@@ -16,13 +16,13 @@ public:
 		return context.begin();
 	}
 	template <typename Context>
-	inline auto format(const dbi::error_code &error, Context &&context) -> decltype(context.out()) {
+	inline auto format(const gts::dbi::error_code &error, Context &&context) -> decltype(context.out()) {
 		return format_to(context.out(), "{} ({})", error.message(), error.value());
 	}
 };
 
 template <>
-class formatter<dbi::exception>
+class formatter<gts::dbi::cell>
 {
 public:
 	template <typename Context>
@@ -30,27 +30,13 @@ public:
 		return context.begin();
 	}
 	template <typename Context>
-	inline auto format(const dbi::exception &error, Context &&context) -> decltype(context.out()) {
-		return format_to(context.out(), "{} ({})", error.message(), error.value());
-	}
-};
-
-template <>
-class formatter<dbi::cell_data>
-{
-public:
-	template <typename Context>
-	inline constexpr auto parse(Context &&context) -> decltype(context.begin()) {
-		return context.begin();
-	}
-	template <typename Context>
-	inline auto format(const dbi::cell_data &data, Context &&context) -> decltype(context.out()) {
+	inline auto format(const gts::dbi::cell &data, Context &&context) -> decltype(context.out()) {
 		return format_to(context.out(), "{}", data.has_value()? data.to_string() : "NULL");
 	}
 };
 
 template <>
-class formatter<dbi::table_data>
+class formatter<gts::dbi::table_data>
 {
 public:
 	template <typename Context>
@@ -58,7 +44,7 @@ public:
 		return context.begin();
 	}
 	template <typename Context>
-	inline auto format(const dbi::table_data &table, Context &&context) -> decltype(context.out())
+	inline auto format(const gts::dbi::table_data &table, Context &&context) -> decltype(context.out())
 	{
 		std::string str;
 		for(auto &rows : table)
@@ -75,4 +61,4 @@ public:
 } //namespace fmt
 
 
-#endif //DBI_FORMAT_EX_H
+#endif //GTS_DBI_FORMATTER_H

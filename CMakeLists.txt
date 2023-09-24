@@ -17,7 +17,7 @@ set(output_dir_name output)
 add_subdirectory(3rd_party)
 include(3rd_party)
 
-option(ENABLE_SSL "-- gts: enable link libssl" ON)
+option(ENABLE_SSL "-- gts: enable link libssl" OFF)
 if (ENABLE_SSL)
 	message("-- gts: enable open ssl. (the version must be greater than or equal to 1.0.2)")
 	add_definitions(-D__ENABLE_SSL__)

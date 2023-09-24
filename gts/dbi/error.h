@@ -1,10 +1,10 @@
-#ifndef DBI_EXCEPTION_H
-#define DBI_EXCEPTION_H
+#ifndef GTS_DBI_EXCEPTION_H
+#define GTS_DBI_EXCEPTION_H
 
-#include <dbi/dbi_global.h>
-#include <string>
+#include <gts/dbi/dbi_global.h>
+#include <gts/exception.h>
 
-namespace dbi
+namespace gts { namespace dbi
 {
 
 class error_code
@@ -52,9 +52,9 @@ protected:
 	std::string m_message = "success";
 };
 
-class exception : public error_code, public std::exception
+class exception : public std::exception, public error_code
 {
-	DBI_DISABLE_COPY_MOVE(exception)
+	GTS_DISABLE_COPY_MOVE(exception)
 
 public:
 	exception(int value, const std::string &message) : error_code(value, message) {}
@@ -63,12 +63,32 @@ public:
 	exception(error_code &&other) : error_code(std::move(other)) {}
 
 public:
+	template <typename...Args>
+	explicit exception(int value, fmt::format_string<Args...> fmt_value, Args&&...args) :
+		error_code(value, fmt::format(fmt_value, std::forward<Args>(args)...)) {}
+
+public:
 	const char* what() const _GLIBCXX_USE_NOEXCEPT override {
 		return m_message.c_str();
 	}
 };
 
-} //namespace dbi
+}} //namespace gts::dbi
+
+namespace fmt
+{
+
+template <>
+class formatter<gts::dbi::exception> : public gts::no_parse_formatter
+{
+public:
+	template <typename Context>
+	inline auto format(const gts::dbi::exception &ex, Context &&context) -> decltype(context.out()) {
+		return format_to(context.out(), "{} ({})", ex.what(), ex.value());
+	}
+};
+
+} //namespace fmt
 
 
-#endif //DBI_EXCEPTION_H
+#endif //GTS_DBI_EXCEPTION_H

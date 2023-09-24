@@ -1,16 +1,16 @@
-#ifndef DBI_RESULT_SET_H
-#define DBI_RESULT_SET_H
+#ifndef GTS_DBI_RESULT_SET_H
+#define GTS_DBI_RESULT_SET_H
 
-#include <dbi/types.h>
+#include <gts/dbi/types.h>
 #include <cppoptional>
 #include <memory>
 
-namespace dbi
+namespace gts { namespace dbi
 {
 
-class DBI_API result_iterator
+class GTS_DBI_API result_iterator
 {
-	DBI_DISABLE_COPY_MOVE(result_iterator)
+	GTS_DISABLE_COPY_MOVE(result_iterator)
 
 public:
 	result_iterator() = default;
@@ -37,18 +37,18 @@ public:
 	// ... ...
 
 public:
-	virtual cpp::optional<bool>        get_opt_bool  (const std::string &column_name) const = 0;
-	virtual cpp::optional<int8_t>      get_opt_char  (const std::string &column_name) const = 0;
-	virtual cpp::optional<uint8_t>     get_opt_uchar (const std::string &column_name) const = 0;
-	virtual cpp::optional<int16_t>     get_opt_short (const std::string &column_name) const = 0;
-	virtual cpp::optional<uint16_t>    get_opt_ushort(const std::string &column_name) const = 0;
-	virtual cpp::optional<int32_t>     get_opt_int   (const std::string &column_name) const = 0;
-	virtual cpp::optional<uint32_t>    get_opt_uint  (const std::string &column_name) const = 0;
-	virtual cpp::optional<int64_t>     get_opt_long  (const std::string &column_name) const = 0;
-	virtual cpp::optional<uint64_t>    get_opt_ulong (const std::string &column_name) const = 0;
-	virtual cpp::optional<float>       get_opt_float (const std::string &column_name) const = 0;
-	virtual cpp::optional<double>      get_opt_double(const std::string &column_name) const = 0;
-	virtual cpp::optional<std::string> get_opt_string(const std::string &column_name, std::size_t maxlen = 1024) const = 0;
+	virtual cpp::optional<bool>        get_opt_bool  (const std::string &column_name) const;
+	virtual cpp::optional<int8_t>      get_opt_char  (const std::string &column_name) const;
+	virtual cpp::optional<uint8_t>     get_opt_uchar (const std::string &column_name) const;
+	virtual cpp::optional<int16_t>     get_opt_short (const std::string &column_name) const;
+	virtual cpp::optional<uint16_t>    get_opt_ushort(const std::string &column_name) const;
+	virtual cpp::optional<int32_t>     get_opt_int   (const std::string &column_name) const;
+	virtual cpp::optional<uint32_t>    get_opt_uint  (const std::string &column_name) const;
+	virtual cpp::optional<int64_t>     get_opt_long  (const std::string &column_name) const;
+	virtual cpp::optional<uint64_t>    get_opt_ulong (const std::string &column_name) const;
+	virtual cpp::optional<float>       get_opt_float (const std::string &column_name) const;
+	virtual cpp::optional<double>      get_opt_double(const std::string &column_name) const;
+	virtual cpp::optional<std::string> get_opt_string(const std::string &column_name, std::size_t maxlen = 1024) const;
 	// ... ...
 
 public:
@@ -87,7 +87,7 @@ public:
 
 using result_iterator_ptr = std::shared_ptr<result_iterator>;
 
-} //namespace dbi
+}} //namespace gts::dbi
 
 
-#endif //DBI_RESULT_SET_H
+#endif //GTS_DBI_RESULT_SET_H

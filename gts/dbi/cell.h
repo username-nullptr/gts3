@@ -1,8 +1,7 @@
 #ifndef GTS_DBI_CELL_H
 #define GTS_DBI_CELL_H
 
-#include <dbi/utility.h>
-#include <dbi/error.h>
+#include <gts/dbi/error.h>
 #include <cppoptional>
 #include <cstring>
 
@@ -10,7 +9,7 @@
 # include <cxxabi.h>
 #endif //VS
 
-namespace dbi
+namespace gts { namespace dbi
 {
 
 class GTS_DBI_API cell
@@ -59,7 +58,7 @@ public:
 	}
 
 public:
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, bool), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, bool), int)>
 	bool get(T default_value) const
 	{
 		if( has_value() )
@@ -67,7 +66,7 @@ public:
 		return default_value;
 	}
 
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, bool), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, bool), int)>
 	bool get() const
 	{
 		if( has_value() )
@@ -77,160 +76,160 @@ public:
 	}
 
 public:
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, signed char), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, signed char), int)>
 	signed char get(T default_value, int base = 10) const {
 		return _get<T>(base, std::strtol, default_value);
 	}
 
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, signed char), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, signed char), int)>
 	signed char get(int base = 10) const {
 		return _get<T>(base, std::strtol);
 	}
 
 public:
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, unsigned char), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned char), int)>
 	unsigned char get(T default_value, int base = 10) const {
 		return _get<T>(base, std::strtol, default_value);
 	}
 
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, unsigned char), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned char), int)>
 	unsigned char get(int base = 10) const {
 		return _get<T>(base, std::strtol);
 	}
 
 public:
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, short), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, short), int)>
 	short get(T default_value, int base = 10) const {
 		return _get<T>(base, std::strtol, default_value);
 	}
 
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, short), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, short), int)>
 	short get(int base = 10) const {
 		return _get<T>(base, std::strtol);
 	}
 
 public:
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, unsigned short), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned short), int)>
 	unsigned short get(T default_value, int base = 10) const {
 		return _get<T>(base, std::strtol, default_value);
 	}
 
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, unsigned short), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned short), int)>
 	unsigned short get(int base = 10) const {
 		return _get<T>(base, std::strtol);
 	}
 
 public:
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, int), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, int), int)>
 	int get(T default_value, int base = 10) const {
 		return _get<T>(base, std::strtol, default_value);
 	}
 
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, int), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, int), int)>
 	int get(int base = 10) const {
 		return _get<T>(base, std::strtol);
 	}
 
 public:
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, unsigned int), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned int), int)>
 	unsigned int get(T default_value, int base = 10) const {
 		return _get<T>(base, std::strtoul, default_value);
 	}
 
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, unsigned int), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned int), int)>
 	unsigned int get(int base = 10) const {
 		return _get<T>(base, std::strtoul);
 	}
 
 public:
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, long), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, long), int)>
 	long get(T default_value, int base = 10) const {
 		return _get<T>(base, std::strtol, default_value);
 	}
 
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, long), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, long), int)>
 	long get(int base = 10) const {
 		return _get<T>(base, std::strtol);
 	}
 
 public:
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, unsigned long), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned long), int)>
 	unsigned long get(T default_value, int base = 10) const {
 		return _get<T>(base, std::strtoul, default_value);
 	}
 
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, unsigned long), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned long), int)>
 	unsigned long get(int base = 10) const {
 		return _get<T>(base, std::strtoul);
 	}
 
 public:
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, long long), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, long long), int)>
 	long long get(T default_value, int base = 10) const {
 		return _get<T>(base, std::strtoll, default_value);
 	}
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, long long), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, long long), int)>
 	long long get(int base = 10) const {
 		return _get<T>(base, std::strtoll);
 	}
 
 public:
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, unsigned long long), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned long long), int)>
 	unsigned long long get(T default_value, int base = 10) const {
 		return _get<T>(base, std::strtoull, default_value);
 	}
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, unsigned long long), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned long long), int)>
 	unsigned long long get(int base = 10) const {
 		return _get<T>(base, std::strtoull);
 	}
 
 public:
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, float), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, float), int)>
 	float get(T default_value) const {
 		return _get<T>(std::strtof, default_value);
 	}
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, float), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, float), int)>
 	float get() const {
 		return _get<T>(std::strtof);
 	}
 
 public:
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, double), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, double), int)>
 	double get(T default_value) const {
 		return _get<T>(std::strtod, default_value);
 	}
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, double), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, double), int)>
 	double get() const {
 		return _get<T>(std::strtod);
 	}
 
 public:
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, long double), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, long double), int)>
 	long double get(T default_value) const {
 		return _get<T>(std::strtold, default_value);
 	}
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, long double), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, long double), int)>
 	long double get() const {
 		return _get<T>(std::strtold);
 	}
 
 public:
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, std::string), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, std::string), int)>
 	std::string get(const T &default_value) const {
 		return m_data.value_or(default_value);
 	}
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, std::string), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, std::string), int)>
 	std::string get(T &&default_value) const {
 		return m_data.value_or(std::move(default_value));
 	}
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, std::string), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, std::string), int)>
 	const std::string &get() const
 	{
 		if( has_value() )
 			return m_data.value();
 		throw exception(-1, "dbi::cell_data::get<std::string>: Optional is empty.");
 	}
-	template <typename T, DBI_TYPE_ENABLE_IF(dbi_is_same(T, std::string), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, std::string), int)>
 	std::string &get()
 	{
 		if( has_value() )
@@ -516,7 +515,7 @@ inline bool operator==(const cell &cell, const std::string &str) {
     return cell.has_value() and cell.to_string() == str;
 }
 inline bool operator!=(const cell &cell, const std::string &str) {
-    return not operator(cell, str);
+	return not operator==(cell, str);
 }
 inline bool operator>(const cell &cell, const std::string &str) {
     return cell.to_string() > str;
@@ -535,7 +534,7 @@ inline bool operator==(const std::string &str, const cell &cell) {
     return cell.has_value() and cell.to_string() == str;
 }
 inline bool operator!=(const std::string &str, const cell &cell) {
-    return not operator(cell, str);
+	return not operator==(cell, str);
 }
 inline bool operator>(const std::string &str, const cell &cell) {
     return str > cell.to_string();
@@ -557,7 +556,7 @@ inline std::string operator+(const std::string &str, const cell &cell) {
     return cell.has_value() ? str + cell.to_string() : str;
 }
 
-} //namespace dbi
+}} //namespace gts::dbi
 
 
 #endif //GTS_DBI_CELL_H

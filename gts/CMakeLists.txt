@@ -90,3 +90,8 @@ endif()
 add_subdirectory(server)
 add_subdirectory(http)
 add_subdirectory(web)
+
+option(ENABLE_DBI "-- gts: enable db interface" ON)
+if (ENABLE_DBI)
+	add_subdirectory(dbi)
+endif()

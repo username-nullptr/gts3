@@ -1,29 +1,29 @@
-#ifndef DBI_MANAGER_H
-#define DBI_MANAGER_H
+#ifndef GTS_DBI_MANAGER_H
+#define GTS_DBI_MANAGER_H
 
-#include <dbi/driver_interface.h>
+#include <gts/dbi/driver.h>
 
-namespace dbi
+namespace gts { namespace dbi
 {
 
-class DBI_API manager
+class GTS_DBI_API manager
 {
 public:
-	static void register_driver(driver_interface *driver, bool as_default = false);
+	static void register_driver(dbi::driver *driver, bool as_default = false);
 	static void unregister_driver(const std::string &name);
-	static void unregister_driver(driver_interface *driver);
+	static void unregister_driver(dbi::driver *driver);
 
 public:
-	static driver_interface &driver(const std::string &name = "");
-	static void set_default_driver(driver_interface *driver);
+	static dbi::driver &driver(const std::string &name = "");
+	static void set_default_driver(dbi::driver *driver);
 	static void set_default_driver(const std::string &name);
 };
 
-#define DBI_CREATE_EXECUTE(...)  dbi::manager::driver().create_execute(__VA_ARGS__)
+#define DBI_CREATE_EXECUTE(...)  gts::dbi::manager::driver().create_connection(__VA_ARGS__)
 
-#define DBI_CREATE_EXECUTE_BN(_driver_name, ...)  dbi::manager::driver(_driver_name).create_execute(__VA_ARGS__)
+#define DBI_CREATE_EXECUTE_BN(_driver_name, ...)  gts::dbi::manager::driver(_driver_name).create_connection(__VA_ARGS__)
 
-} //namespace dbi
+}} //namespace gts::dbi
 
 
-#endif //DBI_MANAGER_H
+#endif //GTS_DBI_MANAGER_H

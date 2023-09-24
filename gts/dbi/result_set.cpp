@@ -1,6 +1,6 @@
 #include "result_set.h"
 
-namespace dbi
+namespace gts { namespace dbi
 {
 
 result_iterator::~result_iterator()
@@ -29,7 +29,7 @@ GET_XX_BY_NAME(cpp::optional<uint64_t>, get_opt_ulong )
 GET_XX_BY_NAME(cpp::optional<float>   , get_opt_float )
 GET_XX_BY_NAME(cpp::optional<double>  , get_opt_double)
 
-cpp::optional<std::string> result_iterator::get_opt_string(const std::string &column_name, std::string maxlen) const
+cpp::optional<std::string> result_iterator::get_opt_string(const std::string &column_name, std::size_t maxlen) const
 {
     for(std::size_t column=0; column<column_count(); column++)
     {
@@ -97,4 +97,4 @@ int result_iterator::row_id() const
 	return res? *res : -1;
 }
 
-} //namespace dbi
+}} //namespace gts::dbi

@@ -3,14 +3,14 @@
 #include <cassert>
 #include <map>
 
-namespace dbi
+namespace gts { namespace dbi
 {
 
-static std::map<std::string, driver_interface*>  g_driver_map;
+static std::map<std::string, driver*>  g_driver_map;
 
-static driver_interface *g_default_driver = nullptr;
+static driver *g_default_driver = nullptr;
 
-void manager::register_driver(driver_interface *driver, bool as_default)
+void manager::register_driver(dbi::driver *driver, bool as_default)
 {
 	assert(driver);
 	if( g_driver_map.emplace(driver->name(), driver).second == false )
@@ -37,12 +37,12 @@ void manager::unregister_driver(const std::string &name)
 		g_default_driver = g_driver_map.empty()? nullptr : g_driver_map.begin()->second;
 }
 
-void manager::unregister_driver(driver_interface *driver)
+void manager::unregister_driver(dbi::driver *driver)
 {
 	unregister_driver(driver->name());
 }
 
-static class DBI_DECL_EXPORT invalid_driver : public driver_interface
+static class GTS_DECL_EXPORT invalid_driver : public driver
 {
 public:
 	std::string name() override { return ""; }
@@ -54,13 +54,13 @@ public:
 	bool set_auto_commit(error_code&, bool = true) override { return false; }
 	bool auto_commit() const override { return false; }
 
-	execute_interface_ptr create_execute(error_code &error, const dbi::connect_info&) override
+	execute_interface_ptr create_connection(error_code &error, const dbi::connect_info&) override
 	{
 		error = error_code(-200, "Invalid driver.");
 		return execute_interface_ptr(nullptr);
 	}
 
-	execute_interface_ptr create_execute(error_code &error, const std::string&) override
+	execute_interface_ptr create_connection(error_code &error, const std::string&) override
 	{
 		error = error_code(-200, "Invalid driver.");
 		return execute_interface_ptr(nullptr);
@@ -68,7 +68,7 @@ public:
 }
 g_invalid_driver;
 
-driver_interface &manager::driver(const std::string &name)
+dbi::driver &manager::driver(const std::string &name)
 {
 	if( name.empty() )
 	{
@@ -88,7 +88,7 @@ driver_interface &manager::driver(const std::string &name)
 	return *it->second;
 }
 
-void manager::set_default_driver(driver_interface *driver)
+void manager::set_default_driver(dbi::driver *driver)
 {
 	auto it = g_driver_map.find(driver->name());
 	if( it == g_driver_map.end() )
@@ -105,4 +105,4 @@ void manager::set_default_driver(const std::string &name)
 		g_default_driver = it->second;
 }
 
-} //namespace dbi
+}} //namespace gts::dbi

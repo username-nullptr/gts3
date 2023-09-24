@@ -1,23 +1,22 @@
-#ifndef DBI_EXECUTE_INTERFACE_H
-#define DBI_EXECUTE_INTERFACE_H
+#ifndef GTS_DBI_EXECUTE_H
+#define GTS_DBI_EXECUTE_H
 
-#include <dbi/result_set.h>
-#include <dbi/format_ex.h>
+#include <gts/dbi/result_set.h>
+#include <gts/dbi/formatter.h>
 
-namespace dbi
+namespace gts { namespace dbi
 {
 
 class driver;
-class execute_interface_impl;
+class execute_impl;
 
-// SQL执行 / 数据库连接
-class DBI_API execute_interface
+class GTS_DBI_API connection
 {
-	DBI_DISABLE_COPY_MOVE(execute_interface)
+	GTS_DISABLE_COPY_MOVE(connection)
 
 public:
-	execute_interface()
-	virtual ~execute_interface();
+	connection();
+	virtual ~connection();
 
 public:
 	virtual bool connect(const connect_info &info, error_code &error) = 0;
@@ -31,16 +30,16 @@ public:
 
 public:
 	template <typename...Args>
-	execute_interface &prepare(fmt::format_string<Args...> fmt, Args&&...args);
-	execute_interface &operator<<(const std::string &statement);
+	connection &prepare(fmt::format_string<Args...> fmt, Args&&...args);
+	connection &operator<<(const std::string &statement);
 
 public:
 	virtual void set_binary(std::size_t column, const binary &data) = 0;
 	// ... ...
 
 public:
-    virtual bool execute(error_code &error) = 0;
-    void execute();
+	virtual bool execute(error_code &error) = 0;
+	void execute();
 
 public:
     virtual bool roll_back(error_code &error) = 0;
@@ -73,21 +72,21 @@ public:
 	virtual bool auto_commit() const = 0;
 
 public:
-    virtual execute_interface &set_query_string_buffer_size(std::size_t size);
+	virtual connection &set_query_string_buffer_size(std::size_t size);
     virtual std::size_t query_string_buffer_size() const;
-	virtual driver &driver() const = 0;
+	virtual dbi::driver &driver() const = 0;
 
 protected: // 准备SQL语句（子类实现）
-	virtual execute_interface &prepare_statement(const std::string &statement) = 0;
+	virtual connection &prepare_statement(const std::string &statement) = 0;
 	virtual result_iterator_ptr create_query_work(const std::string &statement, error_code &error) = 0;
 
 private:
-    execute_interface_impl *m_impl;
+	execute_impl *m_impl;
 };
 
-using execute_interface_ptr = std::shared_ptr<execute_interface>;
+using execute_interface_ptr = std::shared_ptr<connection>;
 
-inline void execute_interface::connect(const connect_info &info)
+inline void connection::connect(const connect_info &info)
 {
 	error_code error;
 	connect(info, error);
@@ -95,7 +94,7 @@ inline void execute_interface::connect(const connect_info &info)
 		throw exception(error);
 }
 
-inline void execute_interface::connect(const std::string &info)
+inline void connection::connect(const std::string &info)
 {
 	error_code error;
 	connect(info, error);
@@ -103,22 +102,22 @@ inline void execute_interface::connect(const std::string &info)
 		throw exception(error);
 }
 
-inline void execute_interface::disconnect()
+inline void connection::disconnect()
 {
 	error_code error;
 	disconnect(error);
 }
 
-inline execute_interface &execute_interface::operator<<(const std::string &statement) {
+inline connection &connection::operator<<(const std::string &statement) {
 	return prepare_statement(statement);
 }
 
 template <typename...Args>
-execute_interface &execute_interface::prepare(fmt::format_string<Args...> fmt_value, Args&&...args) {
+connection &connection::prepare(fmt::format_string<Args...> fmt_value, Args&&...args) {
 	return prepare_statement(fmt::format(fmt_value, std::forward<Args>(args)...));
 }
 
-inline void execute_interface::execute()
+inline void connection::execute()
 {
 	error_code error;
 	execute(error);
@@ -126,7 +125,7 @@ inline void execute_interface::execute()
 		throw exception(error);
 }
 
-inline void execute_interface::roll_back()
+inline void connection::roll_back()
 {
 	error_code error;
 	roll_back(error);
@@ -134,7 +133,7 @@ inline void execute_interface::roll_back()
 		throw exception(error);
 }
 
-inline void execute_interface::commit()
+inline void connection::commit()
 {
 	error_code error;
 	commit(error);
@@ -142,7 +141,7 @@ inline void execute_interface::commit()
 		throw exception(error);
 }
 
-inline void execute_interface::set_auto_commit(bool enable)
+inline void connection::set_auto_commit(bool enable)
 {
 	error_code error;
 	set_auto_commit(error, enable);
@@ -151,21 +150,21 @@ inline void execute_interface::set_auto_commit(bool enable)
 }
 
 template <typename...Args>
-inline result_iterator_ptr execute_interface::create_query(error_code &error, fmt::format_string<Args...> fmt_value, Args&&...args) {
+inline result_iterator_ptr connection::create_query(error_code &error, fmt::format_string<Args...> fmt_value, Args&&...args) {
 	return create_query_work(fmt::format(fmt_value, std::forward<Args>(args)...), error);
 }
 
 template <typename...Args>
-inline table_data execute_interface::query(error_code &error, fmt::format_string<Args...> fmt_value, Args&&...args) {
+inline table_data connection::query(error_code &error, fmt::format_string<Args...> fmt_value, Args&&...args) {
 	return prepare_query(fmt::format(fmt_value, std::forward<Args>(args)...), error);
 }
 
-inline table_data execute_interface::query(error_code &error, const std::string &sql) {
+inline table_data connection::query(error_code &error, const std::string &sql) {
     return prepare_query(sql, error);
 }
 
 template <typename...Args>
-inline result_iterator_ptr execute_interface::create_query(fmt::format_string<Args...> fmt_value, Args&&...args)
+inline result_iterator_ptr connection::create_query(fmt::format_string<Args...> fmt_value, Args&&...args)
 {
 	error_code error;
 	auto res = create_query_work(fmt::format(fmt_value, std::forward<Args>(args)...), error);
@@ -175,7 +174,7 @@ inline result_iterator_ptr execute_interface::create_query(fmt::format_string<Ar
 }
 
 template <typename...Args>
-inline table_data execute_interface::query(fmt::format_string<Args...> fmt_value, Args&&...args)
+inline table_data connection::query(fmt::format_string<Args...> fmt_value, Args&&...args)
 {
 	error_code error;
 	auto res = prepare_query(fmt::format(fmt_value, std::forward<Args>(args)...), error);
@@ -184,7 +183,7 @@ inline table_data execute_interface::query(fmt::format_string<Args...> fmt_value
 	return res;
 }
 
-inline table_data execute_interface::query(const std::string &sql)
+inline table_data connection::query(const std::string &sql)
 {
     error_code error;
     auto res = prepare_query(sql, error);
@@ -193,7 +192,7 @@ inline table_data execute_interface::query(const std::string &sql)
     return res;
 }
 
-} //namespace dbi
+}} //namespace gts::dbi
 
 
-#endif //DBI_EXECUTE_INTERFACE_H
+#endif //GTS_DBI_EXECUTE_H
