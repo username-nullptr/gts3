@@ -4,6 +4,7 @@ add_definitions(-DGTS_VERSION_STR="3.0.0 dev4")
 add_subdirectory(core)
 add_subdirectory(server)
 add_subdirectory(web)
+#add_subdirectory(dbi)
 
 install(FILES config.ini DESTINATION bin)
 install(FILES sites.json.in RENAME sites.json DESTINATION bin)

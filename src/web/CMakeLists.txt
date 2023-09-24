@@ -48,7 +48,7 @@ add_library(${target_name} SHARED ${web_sources} ${web_headers})
 target_compile_definitions(${target_name} PRIVATE gtsweb_EXPORTS)
 
 target_include_directories(${target_name} PRIVATE . ../core)
-target_link_libraries(${target_name} PRIVATE gtscore)
+target_link_libraries(${target_name} PUBLIC gtscore)
 
 set_target_properties(${target_name} PROPERTIES
 	LIBRARY_OUTPUT_DIRECTORY ../../${output_dir_name}/bin
