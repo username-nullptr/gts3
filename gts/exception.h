@@ -8,7 +8,9 @@
 namespace gts
 {
 
-class exception : public std::exception
+class basic_exception : public std::exception {};
+
+class exception : public basic_exception
 {
 public:
 	explicit exception(std::string what) : m_what(std::move(what)) {}
@@ -26,7 +28,7 @@ private: GTS_DISABLE_COPY_MOVE(exception)
 #else
 public:
 	exception(const exception&) = default;
-	exception(exception &&other): m_what(std::move(other.m_what)) {}
+	exception(exception &&other) : m_what(std::move(other.m_what)) {}
 #endif
 private:
 	std::string m_what;

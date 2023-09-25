@@ -30,3 +30,4 @@ set_target_properties(${target_name} PROPERTIES
 	LIBRARY_OUTPUT_DIRECTORY ../../${output_dir_name}/bin
 )
 install(TARGETS ${target_name} DESTINATION bin)
+install(FILES ${dbi_headers} DESTINATION include/gts/dbi)

@@ -52,10 +52,8 @@ protected:
 	std::string m_message = "success";
 };
 
-class exception : public std::exception, public error_code
+class exception : public gts::basic_exception, public error_code
 {
-	GTS_DISABLE_COPY_MOVE(exception)
-
 public:
 	exception(int value, const std::string &message) : error_code(value, message) {}
 	exception(int value, std::string &&message) : error_code(value, std::move(message)) {}
@@ -71,6 +69,14 @@ public:
 	const char* what() const _GLIBCXX_USE_NOEXCEPT override {
 		return m_message.c_str();
 	}
+#if GTS_CPLUSPLUS >= 201703L
+private: GTS_DISABLE_COPY_MOVE(exception)
+#else
+public:
+	exception(const exception&) = default;
+	exception(exception &&other) :
+        m_value(other.m_value), m_message(std::move(other.m_message)) {}
+#endif
 };
 
 }} //namespace gts::dbi

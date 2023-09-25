@@ -9,7 +9,7 @@ namespace gts { namespace dbi
 class GTS_DBI_API manager
 {
 public:
-	static void register_driver(dbi::driver *driver, bool as_default = false);
+	static void register_driver(dbi::driver *driver, bool as_default = false) noexcept(false);
 	static void unregister_driver(const std::string &name);
 	static void unregister_driver(dbi::driver *driver);
 

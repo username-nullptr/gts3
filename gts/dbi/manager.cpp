@@ -1,5 +1,5 @@
 #include "manager.h"
-#include <iostream>
+#include "gts/log.h"
 #include <cassert>
 #include <map>
 
@@ -10,15 +10,17 @@ static std::map<std::string, driver*>  g_driver_map;
 
 static driver *g_default_driver = nullptr;
 
-void manager::register_driver(dbi::driver *driver, bool as_default)
+void manager::register_driver(dbi::driver *driver, bool as_default) noexcept(false)
 {
 	assert(driver);
-	if( g_driver_map.emplace(driver->name(), driver).second == false )
+    auto pair = g_driver_map.emplace(driver->name(), driver);
+	if( pair.second == false )
 	{
-		std::cerr << "db_interface::manager::register_driver: multiple registration." << std::endl;
-		abort();
+		gts_log_error("db_interface::manager::register_driver: multiple registration.");
+        if( pair.first->second == driver )
+            throw exception(-1, "driver multiple registration.");
 	}
-	if( g_driver_map.size() == 1 or as_default )
+    else if( g_driver_map.size() == 1 or as_default )
 		g_default_driver = driver;
 }
 
@@ -39,6 +41,7 @@ void manager::unregister_driver(const std::string &name)
 
 void manager::unregister_driver(dbi::driver *driver)
 {
+    assert(driver);
 	unregister_driver(driver->name());
 }
 
@@ -59,7 +62,6 @@ public:
 		error = error_code(-200, "Invalid driver.");
 		return execute_interface_ptr(nullptr);
 	}
-
 	execute_interface_ptr create_connection(error_code &error, const std::string&) override
 	{
 		error = error_code(-200, "Invalid driver.");
@@ -75,14 +77,13 @@ dbi::driver &manager::driver(const std::string &name)
 		if( g_default_driver )
 			return *g_default_driver;
 
-		std::cerr << "db_interface::manager::driver: No available drivers." << std::endl;
+		gts_log_error("db_interface::manager::driver: No available drivers.");
 		return g_invalid_driver;
 	}
-
 	auto it = g_driver_map.find(name);
 	if( it == g_driver_map.end() )
 	{
-		std::cerr << "db_interface::manager::driver: No available drivers." << std::endl;
+		gts_log_error("db_interface::manager::driver: No available drivers.");
 		return g_invalid_driver;
 	}
 	return *it->second;
@@ -90,6 +91,7 @@ dbi::driver &manager::driver(const std::string &name)
 
 void manager::set_default_driver(dbi::driver *driver)
 {
+    assert(driver);
 	auto it = g_driver_map.find(driver->name());
 	if( it == g_driver_map.end() )
 		g_driver_map.emplace(driver->name(), driver);
@@ -100,7 +102,7 @@ void manager::set_default_driver(const std::string &name)
 {
 	auto it = g_driver_map.find(name);
 	if( it == g_driver_map.end() )
-		std::cerr << "db_interface::manager::set_default_driver: dirver not registration." << std::endl;
+		gts_log_error("db_interface::manager::set_default_driver: dirver not registration.");
 	else
 		g_default_driver = it->second;
 }
