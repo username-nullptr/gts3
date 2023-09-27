@@ -1,4 +1,4 @@
-#include "gts_global.h"
+#include "global.h"
 
 namespace gts
 {

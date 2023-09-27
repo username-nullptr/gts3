@@ -1,7 +1,7 @@
 #ifndef GTS_TCP_SOCKET_H
 #define GTS_TCP_SOCKET_H
 
-#include <gts/gts_global.h>
+#include <gts/global.h>
 #include <functional>
 
 using namespace asio::ip;

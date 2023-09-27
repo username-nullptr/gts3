@@ -1,7 +1,7 @@
 #include "service/connection.h"
 #include "gts/web/thread_pool.h"
 #include "gts/web/config_key.h"
-#include "gts/web/web_global.h"
+#include "gts/web/global.h"
 
 #include "gts/registration.h"
 #include "gts/application.h"

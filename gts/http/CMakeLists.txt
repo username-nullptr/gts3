@@ -9,7 +9,7 @@ set(http_sources
 )
 
 set(http_gts_headers
-	http_global.h
+	global.h
 	value.h
 	container.h
 	types.h

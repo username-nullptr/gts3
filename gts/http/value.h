@@ -1,7 +1,7 @@
 #ifndef GTS_HTTP_VALUE_H
 #define GTS_HTTP_VALUE_H
 
-#include <gts/http/http_global.h>
+#include <gts/http/global.h>
 #include <gts/algorithm.h>
 #include <cppformat>
 

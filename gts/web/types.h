@@ -1,7 +1,7 @@
 #ifndef GTS_WEB_TYPES_H
 #define GTS_WEB_TYPES_H
 
-#include <gts/web/web_global.h>
+#include <gts/web/global.h>
 #include <gts/http/container.h>
 
 namespace gts { namespace web

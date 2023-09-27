@@ -1,7 +1,7 @@
 #ifndef GTS_STRING_LIST_H
 #define GTS_STRING_LIST_H
 
-#include <gts/gts_global.h>
+#include <gts/global.h>
 #include <string>
 #include <vector>
 #include <deque>

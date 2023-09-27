@@ -1,4 +1,4 @@
-#include "result_set.h"
+#include "result_iterator.h"
 
 namespace gts { namespace dbi
 {
@@ -9,13 +9,13 @@ result_iterator::~result_iterator()
 }
 
 #define GET_XX_BY_NAME(_return, _func_name) \
-    _return result_iterator::_func_name(const std::string &column_name) const { \
-        for(std::size_t column=0; column<column_count(); column++) { \
-            if( this->column_name(column) == column_name ) \
-                return _func_name(column); \
-        } \
-        throw exception(-1, "dbi::result_set::" #_func_name ": Invalid column name."); \
-    }
+	_return result_iterator::_func_name(const std::string &column_name) const { \
+		for(std::size_t column=0; column<column_count(); column++) { \
+			if( this->column_name(column) == column_name ) \
+				return _func_name(column); \
+		} \
+		throw exception(-1, "dbi::result_set::" #_func_name ": Invalid column name."); \
+	}
 
 GET_XX_BY_NAME(cpp::optional<bool>    , get_opt_bool  )
 GET_XX_BY_NAME(cpp::optional<int8_t>  , get_opt_char  )
@@ -31,12 +31,12 @@ GET_XX_BY_NAME(cpp::optional<double>  , get_opt_double)
 
 cpp::optional<std::string> result_iterator::get_opt_string(const std::string &column_name, std::size_t maxlen) const
 {
-    for(std::size_t column=0; column<column_count(); column++)
-    {
-        if( this->column_name(column) == column_name )
-            return get_opt_string(column, maxlen);
-    }
-    throw exception(-1, "dbi::result_set::get_opt_string: Invalid column name.");
+	for(std::size_t column=0; column<column_count(); column++)
+	{
+		if( this->column_name(column) == column_name )
+			return get_opt_string(column, maxlen);
+	}
+	throw exception(-1, "dbi::result_set::get_opt_string: Invalid column name.");
 }
 
 #define GET_XX_BY_INDEX(_return, _basic_func_name) \

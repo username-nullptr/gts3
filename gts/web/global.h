@@ -1,7 +1,7 @@
 #ifndef GTS_WEB_GLOBAL_H
 #define GTS_WEB_GLOBAL_H
 
-#include <gts/gts_global.h>
+#include <gts/global.h>
 
 #ifdef gtsweb_EXPORTS
 # define GTS_WEB_API  GTS_DECL_EXPORT

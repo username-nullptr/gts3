@@ -1,7 +1,7 @@
 #ifndef GTS_HTTP_UUID_H
 #define GTS_HTTP_UUID_H
 
-#include <gts/gts_global.h>
+#include <gts/global.h>
 
 namespace gts
 {

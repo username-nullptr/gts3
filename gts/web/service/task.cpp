@@ -10,7 +10,7 @@
 #include "gts/application.h"
 #include "gts/http/formatter.h"
 
-#include "gts/web/web_global.h"
+#include "gts/web/global.h"
 #include "gts/web/config_key.h"
 #include "gts/web/thread_pool.h"
 
@@ -98,6 +98,7 @@ void task::init()
 			  g_cgi_access,
 			  g_cgi_path);
 
+	http::response::set_resource_root(g_default_resource);
 	cgi_service::init();
 }
 

@@ -1,7 +1,7 @@
 #ifndef GTS_MIME_TYPE_H
 #define GTS_MIME_TYPE_H
 
-#include <gts/gts_global.h>
+#include <gts/global.h>
 
 namespace gts
 {

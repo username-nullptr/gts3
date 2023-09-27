@@ -13,14 +13,14 @@ static driver *g_default_driver = nullptr;
 void manager::register_driver(dbi::driver *driver, bool as_default) noexcept(false)
 {
 	assert(driver);
-    auto pair = g_driver_map.emplace(driver->name(), driver);
+	auto pair = g_driver_map.emplace(driver->name(), driver);
 	if( pair.second == false )
 	{
 		gts_log_error("db_interface::manager::register_driver: multiple registration.");
-        if( pair.first->second == driver )
-            throw exception(-1, "driver multiple registration.");
+		if( pair.first->second == driver )
+			throw exception(-1, "driver multiple registration.");
 	}
-    else if( g_driver_map.size() == 1 or as_default )
+	else if( g_driver_map.size() == 1 or as_default )
 		g_default_driver = driver;
 }
 
@@ -41,7 +41,7 @@ void manager::unregister_driver(const std::string &name)
 
 void manager::unregister_driver(dbi::driver *driver)
 {
-    assert(driver);
+	assert(driver);
 	unregister_driver(driver->name());
 }
 
@@ -57,15 +57,15 @@ public:
 	bool set_auto_commit(error_code&, bool = true) override { return false; }
 	bool auto_commit() const override { return false; }
 
-	execute_interface_ptr create_connection(error_code &error, const dbi::connect_info&) override
+	connection_ptr create_connection(error_code &error, const dbi::connect_info&) override
 	{
 		error = error_code(-200, "Invalid driver.");
-		return execute_interface_ptr(nullptr);
+		return connection_ptr(nullptr);
 	}
-	execute_interface_ptr create_connection(error_code &error, const std::string&) override
+	connection_ptr create_connection(error_code &error, const std::string&) override
 	{
 		error = error_code(-200, "Invalid driver.");
-		return execute_interface_ptr(nullptr);
+		return connection_ptr(nullptr);
 	}
 }
 g_invalid_driver;
@@ -91,7 +91,7 @@ dbi::driver &manager::driver(const std::string &name)
 
 void manager::set_default_driver(dbi::driver *driver)
 {
-    assert(driver);
+	assert(driver);
 	auto it = g_driver_map.find(driver->name());
 	if( it == g_driver_map.end() )
 		g_driver_map.emplace(driver->name(), driver);

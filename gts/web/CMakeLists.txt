@@ -12,7 +12,7 @@ set(web_sources
 )
 
 set(web_gts_headers
-	web_global.h
+	global.h
 	types.h
 	socket.h
 	config_key.h

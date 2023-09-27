@@ -1,7 +1,7 @@
 #ifndef SERVICE_IO_H
 #define SERVICE_IO_H
 
-#include "gts/web/web_global.h"
+#include "gts/web/global.h"
 #include "gts/http/service_context.h"
 #include "gts/tcp_socket.h"
 

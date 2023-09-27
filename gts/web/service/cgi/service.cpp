@@ -1,5 +1,5 @@
 #include "service.h"
-#include "gts/web/web_global.h"
+#include "gts/web/global.h"
 #include "gts/http/request_impl.h"
 
 #include "gts/web/service/service_io.h"

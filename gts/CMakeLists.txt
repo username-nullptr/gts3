@@ -8,7 +8,7 @@ elseif (UNIX)
 endif()
 
 set(core_sources
-	gts_global.cpp
+	global.cpp
 	args_parser.cpp
 	application.cpp
 	string_list.cpp
@@ -30,7 +30,7 @@ set(core_sources
 set(core_gts_headers
 	cplusplus.hpp
 	utility.h
-	gts_global.h
+	global.h
 	args_parser.h
 	application.h
 	string_list.h
@@ -94,4 +94,9 @@ add_subdirectory(web)
 option(ENABLE_DBI "-- gts: enable db interface" ON)
 if (ENABLE_DBI)
 	add_subdirectory(dbi)
+endif()
+
+option(ENABLE_UTLS "-- gts: enable utilities" ON)
+if (ENABLE_UTLS)
+	add_subdirectory(utls)
 endif()

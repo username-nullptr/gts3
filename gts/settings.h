@@ -1,7 +1,7 @@
 #ifndef GTS_SETTINGS_H
 #define GTS_SETTINGS_H
 
-#include <gts/gts_global.h>
+#include <gts/global.h>
 #include <rttr/variant.h>
 #include <inicpp.h>
 

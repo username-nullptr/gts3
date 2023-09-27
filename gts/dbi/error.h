@@ -1,7 +1,7 @@
 #ifndef GTS_DBI_EXCEPTION_H
 #define GTS_DBI_EXCEPTION_H
 
-#include <gts/dbi/dbi_global.h>
+#include <gts/dbi/global.h>
 #include <gts/exception.h>
 
 namespace gts { namespace dbi
@@ -11,10 +11,7 @@ class error_code
 {
 public:
 	error_code() {}
-	error_code(int value, const std::string &message) :
-		m_value(value), m_message(message) {}
-
-	error_code(int value, std::string &&message) :
+	error_code(int value, std::string message) :
 		m_value(value), m_message(std::move(message)) {}
 
 	error_code(const error_code &other) :
@@ -55,8 +52,7 @@ protected:
 class exception : public gts::basic_exception, public error_code
 {
 public:
-	exception(int value, const std::string &message) : error_code(value, message) {}
-	exception(int value, std::string &&message) : error_code(value, std::move(message)) {}
+	exception(int value, std::string message) : error_code(value, std::move(message)) {}
 	exception(const error_code &other) : error_code(other) {}
 	exception(error_code &&other) : error_code(std::move(other)) {}
 
@@ -74,8 +70,11 @@ private: GTS_DISABLE_COPY_MOVE(exception)
 #else
 public:
 	exception(const exception&) = default;
-	exception(exception &&other) :
-        m_value(other.m_value), m_message(std::move(other.m_message)) {}
+	exception(exception &&other)
+	{
+		m_value = other.m_value;
+		m_message = std::move(other.m_message);
+	}
 #endif
 };
 

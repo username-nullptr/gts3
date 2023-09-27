@@ -1,5 +1,5 @@
-#ifndef GTS_DBI_RESULT_SET_H
-#define GTS_DBI_RESULT_SET_H
+#ifndef GTS_DBI_RESULT_ITERATOR_H
+#define GTS_DBI_RESULT_ITERATOR_H
 
 #include <gts/dbi/types.h>
 #include <cppoptional>
@@ -90,4 +90,4 @@ using result_iterator_ptr = std::shared_ptr<result_iterator>;
 }} //namespace gts::dbi
 
 
-#endif //GTS_DBI_RESULT_SET_H
+#endif //GTS_DBI_RESULT_ITERATOR_H

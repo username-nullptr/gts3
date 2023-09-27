@@ -1,7 +1,7 @@
 #ifndef GTS_LOG_BUFFER_H
 #define GTS_LOG_BUFFER_H
 
-#include <gts/gts_global.h>
+#include <gts/global.h>
 #include <cppformat>
 #include <chrono>
 #include <cstdio>

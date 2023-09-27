@@ -1,28 +1,28 @@
-#include "execute.h"
+#include "connection.h"
 
 namespace gts { namespace dbi
 {
 
-class GTS_DECL_HIDDEN execute_impl
+class GTS_DECL_HIDDEN connection_impl
 {
-	GTS_DISABLE_COPY_MOVE(execute_impl)
+	GTS_DISABLE_COPY_MOVE(connection_impl)
 
 public:
-	execute_impl() = default;
-    std::size_t m_query_string_buffer_size = 1024;
+	connection_impl() = default;
+	std::size_t m_query_string_buffer_size = 1024;
 };
 
 /*------------------------------------------------------------------------------------------------------------------------------*/
 
 connection::connection() :
-	m_impl(new execute_impl())
+	m_impl(new connection_impl())
 {
 
 }
 
 connection::~connection()
 {
-    delete m_impl;
+	delete m_impl;
 }
 
 table_data connection::prepare_query(const std::string &statement, error_code &error)
@@ -40,7 +40,7 @@ table_data connection::prepare_query(const std::string &statement, error_code &e
 		auto &vector = result.back();
 
 		vector.reserve(set->column_count());
-        auto buf_size = query_string_buffer_size();
+		auto buf_size = query_string_buffer_size();
 
 		for(std::size_t column=0; column<set->column_count(); column++)
 		{
@@ -53,13 +53,13 @@ table_data connection::prepare_query(const std::string &statement, error_code &e
 
 connection &connection::set_query_string_buffer_size(std::size_t size)
 {
-    m_impl->m_query_string_buffer_size = size;
-    return *this;
+	m_impl->m_query_string_buffer_size = size;
+	return *this;
 }
 
 std::size_t connection::query_string_buffer_size() const
 {
-    return m_impl->m_query_string_buffer_size;
+	return m_impl->m_query_string_buffer_size;
 }
 
 }} //namespace gts::dbi

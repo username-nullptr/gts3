@@ -1,21 +1,22 @@
 set(dbi_sources
-	cell.cpp
-	result_set.cpp
+	result_iterator.cpp
 	driver.cpp
-	execute.cpp
+	connection.cpp
 	manager.cpp
 )
 
 set(dbi_headers
-	dbi_global.h
+	global.h
 	error.h
 	types.h
 	cell.h
 	formatter.h
-	result_set.h
+	result_iterator.h
 	driver.h
-	execute.h
+	connection.h
 	manager.h
+	detail/cell.h
+	detail/connection.h
 )
 
 set(target_name gtsdbi)

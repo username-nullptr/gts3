@@ -1,7 +1,7 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
-#include "gts/gts_global.h"
+#include "gts/global.h"
 #include <asio.hpp>
 
 #define ERR_VAL(err)  (err.value() != EINTR)

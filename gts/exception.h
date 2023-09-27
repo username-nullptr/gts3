@@ -1,7 +1,7 @@
 #ifndef GTS_EXCEPTION_H
 #define GTS_EXCEPTION_H
 
-#include <gts/gts_global.h>
+#include <gts/global.h>
 #include <gts/formatter.h>
 #include <exception>
 

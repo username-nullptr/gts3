@@ -1,7 +1,7 @@
 #ifndef GTS_APPLICATION_H
 #define GTS_APPLICATION_H
 
-#include <gts/gts_global.h>
+#include <gts/global.h>
 #include <gts/formatter.h>
 #include <cppoptional>
 

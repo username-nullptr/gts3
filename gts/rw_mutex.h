@@ -1,4 +1,4 @@
-#include <gts/gts_global.h>
+#include <gts/global.h>
 #include <gts/exception.h>
 
 #include <condition_variable>

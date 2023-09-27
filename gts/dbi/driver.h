@@ -1,7 +1,7 @@
 #ifndef GTS_DBI_DRIVER_H
 #define GTS_DBI_DRIVER_H
 
-#include <gts/dbi/execute.h>
+#include <gts/dbi/connection.h>
 
 namespace gts { namespace dbi
 {
@@ -36,16 +36,16 @@ public:
 	virtual bool auto_commit() const = 0;
 
 public:
-	virtual execute_interface_ptr create_connection(error_code &error, const dbi::connect_info &info) = 0;
-	virtual execute_interface_ptr create_connection(error_code &error, const std::string &info) = 0;
+	virtual connection_ptr create_connection(error_code &error, const dbi::connect_info &info) = 0;
+	virtual connection_ptr create_connection(error_code &error, const std::string &info) = 0;
 
 public:
-	virtual execute_interface_ptr create_connection(error_code &error);
-	virtual execute_interface_ptr create_connection();
+	virtual connection_ptr create_connection(error_code &error);
+	virtual connection_ptr create_connection();
 
 public:
-	execute_interface_ptr create_connection(const dbi::connect_info &info);
-	execute_interface_ptr create_connection(const std::string &info);
+	connection_ptr create_connection(const dbi::connect_info &info);
+	connection_ptr create_connection(const std::string &info);
 };
 
 inline driver::~driver() {}
@@ -67,11 +67,11 @@ inline void driver::set_auto_commit(bool enable)
 		throw exception(error);
 }
 
-inline execute_interface_ptr driver::create_connection(error_code &error) {
+inline connection_ptr driver::create_connection(error_code &error) {
 	return create_connection(error, default_connect_info());
 }
 
-inline execute_interface_ptr driver::create_connection()
+inline connection_ptr driver::create_connection()
 {
 	error_code error;
 	auto res = create_connection(error, default_connect_info());
@@ -80,7 +80,7 @@ inline execute_interface_ptr driver::create_connection()
 	return res;
 }
 
-inline execute_interface_ptr driver::create_connection(const dbi::connect_info &info)
+inline connection_ptr driver::create_connection(const dbi::connect_info &info)
 {
 	error_code error;
 	auto res = create_connection(error, info);
@@ -89,7 +89,7 @@ inline execute_interface_ptr driver::create_connection(const dbi::connect_info &
 	return res;
 }
 
-inline execute_interface_ptr driver::create_connection(const std::string &info)
+inline connection_ptr driver::create_connection(const std::string &info)
 {
 	error_code error;
 	auto res = create_connection(error, info);

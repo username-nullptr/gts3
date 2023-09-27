@@ -19,9 +19,9 @@ public:
 	static void set_default_driver(const std::string &name);
 };
 
-#define DBI_CREATE_EXECUTE(...)  gts::dbi::manager::driver().create_connection(__VA_ARGS__)
+#define GTS_DBI_CREATE_EXECUTE(...)  gts::dbi::manager::driver().create_connection(__VA_ARGS__)
 
-#define DBI_CREATE_EXECUTE_BN(_driver_name, ...)  gts::dbi::manager::driver(_driver_name).create_connection(__VA_ARGS__)
+#define GTS_DBI_CREATE_EXECUTE_BN(_driver_name, ...)  gts::dbi::manager::driver(_driver_name).create_connection(__VA_ARGS__)
 
 }} //namespace gts::dbi
 
