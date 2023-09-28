@@ -1,5 +1,5 @@
 #include "service_context.h"
-#include "request_impl.h"
+#include "detail/request_impl.h"
 
 namespace gts { namespace http
 {

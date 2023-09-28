@@ -20,13 +20,13 @@ inline cell::cell(const std::string &column_name, std::string data) :
 
 }
 
-inline cell::cell(cell &&other) noexcept(false) :
+inline cell::cell(cell &&other) noexcept :
 	m_column_name(std::move(other.m_column_name)), m_data(std::move(other.m_data))
 {
 
 }
 
-inline cell &cell::operator=(cell &&other) noexcept(false)
+inline cell &cell::operator=(cell &&other) noexcept
 {
 	m_column_name = std::move(other.m_column_name);
 	m_data = std::move(other.m_data);

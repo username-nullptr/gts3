@@ -10,7 +10,7 @@ inline error_code::error_code(int value, std::string message) :
 
 }
 
-inline error_code::error_code(const error_code &other) noexcept :
+inline error_code::error_code(const error_code &other) :
 	m_value(other.value()), m_message(other.m_message)
 {
 
@@ -37,7 +37,7 @@ inline error_code::operator bool() const
 	return value() != 0;
 }
 
-inline error_code &error_code::operator=(const error_code &other) noexcept
+inline error_code &error_code::operator=(const error_code &other)
 {
 	m_value = other.m_value;
 	m_message = other.m_message;
@@ -57,7 +57,7 @@ inline exception::exception(int value, std::string message) :
 
 }
 
-inline exception::exception(const error_code &other) noexcept :
+inline exception::exception(const error_code &other) :
 	error_code(other)
 {
 

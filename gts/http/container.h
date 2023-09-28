@@ -22,187 +22,62 @@ public:
 	using base_type::base_type;
 
 public:
-	std::pair<typename base_type::iterator, bool> emplace(const std::string &key, const std::string &value) {
-		return base_type::emplace(key, V(value));
-	}
-	std::pair<typename base_type::iterator, bool> emplace(const std::string &key, std::string &&value) {
-		return base_type::emplace(key, V(std::move(value)));
-	}
+	std::pair<typename base_type::iterator, bool> emplace(const std::string &key, const std::string &value);
+	std::pair<typename base_type::iterator, bool> emplace(const std::string &key, std::string &&value);
 
 	template <typename T, typename U = http::value::not_type_t<T,int>>
-	std::pair<typename base_type::iterator, bool> emplace(const std::string &key, T &&value) {
-		return base_type::emplace(key, V(std::forward<T>(value)));
-	}
+	std::pair<typename base_type::iterator, bool> emplace(const std::string &key, T &&value);
 
 	template <typename...Args>
-	std::pair<typename base_type::iterator, bool> emplace(const std::string &key, fmt::format_string<Args...> fmt_value, Args&&...args) {
-		return base_type::emplace(key, V(fmt_value, std::forward<Args>(args)...));
-	}
+	std::pair<typename base_type::iterator, bool> emplace(const std::string &key, fmt::format_string<Args...> fmt_value, Args&&...args);
 
 public:
-	V value(const std::string &key, const V &default_value) const
-	{
-		auto it = this->find(key);
-		return it == this->end()? default_value : it->second;
-	}
+	V value(const std::string &key, const V &default_value) const;
+	bool value_bool(const std::string &key, bool default_value) const;
 
-	bool value_bool(const std::string &key, bool default_value) const
-	{
-		auto it = this->find(key);
-		return it == this->end()? default_value : it->second.to_bool();
-	}
+	int32_t value_int(const std::string &key, int32_t default_value) const;
+	uint32_t value_uint(const std::string &key, uint32_t default_value) const;
 
-	int32_t value_int(const std::string &key, int32_t default_value) const
-	{
-		auto it = this->find(key);
-		return it == this->end()? default_value : it->second.to_int();
-	}
+	int64_t value_long(const std::string &key, int64_t default_value) const;
+	uint64_t value_ulong(const std::string &key, uint64_t default_value) const;
 
-	uint32_t value_uint(const std::string &key, uint32_t default_value) const
-	{
-		auto it = this->find(key);
-		return it == this->end()? default_value : it->second.to_uint();
-	}
-
-	int64_t value_long(const std::string &key, int64_t default_value) const
-	{
-		auto it = this->find(key);
-		return it == this->end()? default_value : it->second.to_long();
-	}
-
-	uint64_t value_ulong(const std::string &key, uint64_t default_value) const
-	{
-		auto it = this->find(key);
-		return it == this->end()? default_value : it->second.to_ulong();
-	}
-
-	float value_float(const std::string &key, float default_value) const
-	{
-		auto it = this->find(key);
-		return it == this->end()? default_value : it->second.to_float();
-	}
-
-	double value_double(const std::string &key, double default_value) const
-	{
-		auto it = this->find(key);
-		return it == this->end()? default_value : it->second.to_double();
-	}
-
-	long double value_ldouble(const std::string &key, long double default_value) const
-	{
-		auto it = this->find(key);
-		return it == this->end()? default_value : it->second.to_ldouble();
-	}
+	float value_float(const std::string &key, float default_value) const;
+	double value_double(const std::string &key, double default_value) const;
+	long double value_ldouble(const std::string &key, long double default_value) const;
 
 public:
-	const V &value(const std::string &key) const
-	{
-		auto it = this->find(key);
-		assert(it != this->end());
-		return it->second;
-	}
+	V &value(const std::string &key);
+	const V &value(const std::string &key) const;
+	bool value_bool(const std::string &key) const;
 
-	bool value_bool(const std::string &key) const
-	{
-		auto it = this->find(key);
-		assert(it != this->end());
-		return it->second.to_bool();
-	}
+	int32_t value_int(const std::string &key) const;
+	uint32_t value_uint(const std::string &key) const;
 
-	int32_t value_int(const std::string &key) const
-	{
-		auto it = this->find(key);
-		assert(it != this->end());
-		return it->second.to_int();
-	}
+	int64_t value_long(const std::string &key) const;
+	uint64_t value_ulong(const std::string &key) const;
 
-	uint32_t value_uint(const std::string &key) const
-	{
-		auto it = this->find(key);
-		assert(it != this->end());
-		return it->second.to_uint();
-	}
-
-	int64_t value_long(const std::string &key) const
-	{
-		auto it = this->find(key);
-		assert(it != this->end());
-		return it->second.to_long();
-	}
-
-	uint64_t value_ulong(const std::string &key) const
-	{
-		auto it = this->find(key);
-		assert(it != this->end());
-		return it->second.to_ulong();
-	}
-
-	float value_float(const std::string &key) const
-	{
-		auto it = this->find(key);
-		assert(it != this->end());
-		return it->second.to_float();
-	}
-
-	double value_double(const std::string &key) const
-	{
-		auto it = this->find(key);
-		assert(it != this->end());
-		return it->second.to_double();
-	}
-
-	long double value_ldouble(const std::string &key) const
-	{
-		auto it = this->find(key);
-		assert(it != this->end());
-		return it->second.to_ldouble();
-	}
-
-public:
-	V &value(const std::string &key)
-	{
-		auto it = this->find(key);
-		assert(it != this->end());
-		return it->second;
-	}
+	float value_float(const std::string &key) const;
+	double value_double(const std::string &key) const;
+	long double value_ldouble(const std::string &key) const;
 
 public:
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_arithmetic(T), int)>
-	T value(const std::string &key) const
-	{
-		auto it = this->find(key);
-		assert(it != this->end());
-		return it->second.template get<T>();
-	}
+	T value(const std::string &key) const;
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_arithmetic(T), int)>
-	T value(const std::string &key, T default_value) const
-	{
-		auto it = this->find(key);
-		return it == this->end()? default_value : it->second.template get<T>();
-	}
+	T value(const std::string &key, T default_value) const;
 
 public:
 	using base_type::operator[];
-	const V &operator[](const std::string &key) const
-	{
-		auto it = this->find(key);
-		assert(it != this->end());
-		return it->second;
-	}
+	const V &operator[](const std::string &key) const;
 };
 
 struct less_case_insensitive
 {
-	struct nocase_compare
-	{
-		bool operator()(const unsigned char c1, const unsigned char c2) const {
-			return tolower(c1) < tolower(c2);
-		}
+	bool operator()(const std::string &v1, const std::string &v2) const;
+	struct nocase_compare {
+		bool operator()(const unsigned char c1, const unsigned char c2) const;
 	};
-	bool operator()(const std::string &v1, const std::string &v2) const {
-		return std::lexicographical_compare(v1.begin(), v1.end(), v2.begin(), v2.end(), nocase_compare());
-	}
 };
 
 template <typename V = http::value>
@@ -216,161 +91,51 @@ public:
 	using base_type::base_type;
 
 public:
-	std::pair<typename base_type::iterator, bool> emplace(const std::string &key, const std::string &value) {
-		return base_type::emplace(key, V(value));
-	}
-	std::pair<typename base_type::iterator, bool> emplace(const std::string &key, std::string &&value) {
-		return base_type::emplace(key, V(std::move(value)));
-	}
+	std::pair<typename base_type::iterator, bool> emplace(const std::string &key, const std::string &value);
+	std::pair<typename base_type::iterator, bool> emplace(const std::string &key, std::string &&value);
 
 	template <typename T, typename U = http::value::not_type_t<T,int>>
-	std::pair<typename base_type::iterator, bool> emplace(const std::string &key, T &&value) {
-		return base_type::emplace(key, V(std::forward<T>(value)));
-	}
+	std::pair<typename base_type::iterator, bool> emplace(const std::string &key, T &&value);
 
 	template <typename...Args>
-	std::pair<typename base_type::iterator, bool> emplace(const std::string &key, fmt::format_string<Args...> fmt_value, Args&&...args) {
-		return base_type::emplace(key, V(fmt_value, std::forward<Args>(args)...));
-	}
+	std::pair<typename base_type::iterator, bool> emplace(const std::string &key, fmt::format_string<Args...> fmt_value, Args&&...args);
 
 public:
-	V value(const std::string &key, const V &default_value) const
-	{
-		auto it = this->find(key);
-		return it == this->end()? default_value : it->second;
-	}
+	V value(const std::string &key, const V &default_value) const;
+	bool value_bool(const std::string &key, bool default_value) const;
 
-	bool value_bool(const std::string &key, bool default_value) const
-	{
-		auto it = this->find(key);
-		return it == this->end()? default_value : it->second.to_bool();
-	}
+	int32_t value_int(const std::string &key, int32_t default_value) const;
+	uint32_t value_uint(const std::string &key, uint32_t default_value) const;
 
-	int32_t value_int(const std::string &key, int32_t default_value) const
-	{
-		auto it = this->find(key);
-		return it == this->end()? default_value : it->second.to_int();
-	}
+	int64_t value_long(const std::string &key, int64_t default_value) const;
+	uint64_t value_ulong(const std::string &key, uint64_t default_value) const;
 
-	uint32_t value_uint(const std::string &key, uint32_t default_value) const
-	{
-		auto it = this->find(key);
-		return it == this->end()? default_value : it->second.to_uint();
-	}
-
-	int64_t value_long(const std::string &key, int64_t default_value) const
-	{
-		auto it = this->find(key);
-		return it == this->end()? default_value : it->second.to_long();
-	}
-
-	uint64_t value_ulong(const std::string &key, uint64_t default_value) const
-	{
-		auto it = this->find(key);
-		return it == this->end()? default_value : it->second.to_ulong();
-	}
-
-	float value_float(const std::string &key, float default_value) const
-	{
-		auto it = this->find(key);
-		return it == this->end()? default_value : it->second.to_float();
-	}
-
-	double value_double(const std::string &key, double default_value) const
-	{
-		auto it = this->find(key);
-		return it == this->end()? default_value : it->second.to_double();
-	}
-
-	long double value_ldouble(const std::string &key, long double default_value) const
-	{
-		auto it = this->find(key);
-		return it == this->end()? default_value : it->second.to_ldouble();
-	}
+	float value_float(const std::string &key, float default_value) const;
+	double value_double(const std::string &key, double default_value) const;
+	long double value_ldouble(const std::string &key, long double default_value) const;
 
 public:
-	const V &value(const std::string &key) const
-	{
-		auto it = this->find(key);
-		assert(it != this->end());
-		return it->second;
-	}
+	V &value(const std::string &key);
+	const V &value(const std::string &key) const;
+	bool value_bool(const std::string &key) const;
 
-	bool value_bool(const std::string &key) const
-	{
-		auto it = this->find(key);
-		assert(it != this->end());
-		return it->second.to_bool();
-	}
+	int32_t value_int(const std::string &key) const;
+	uint32_t value_uint(const std::string &key) const;
 
-	int32_t value_int(const std::string &key) const
-	{
-		auto it = this->find(key);
-		assert(it != this->end());
-		return it->second.to_int();
-	}
+	int64_t value_long(const std::string &key) const;
+	uint64_t value_ulong(const std::string &key) const;
 
-	uint32_t value_uint(const std::string &key) const
-	{
-		auto it = this->find(key);
-		assert(it != this->end());
-		return it->second.to_uint();
-	}
-
-	int64_t value_long(const std::string &key) const
-	{
-		auto it = this->find(key);
-		assert(it != this->end());
-		return it->second.to_long();
-	}
-
-	uint64_t value_ulong(const std::string &key) const
-	{
-		auto it = this->find(key);
-		assert(it != this->end());
-		return it->second.to_ulong();
-	}
-
-	float value_float(const std::string &key) const
-	{
-		auto it = this->find(key);
-		assert(it != this->end());
-		return it->second.to_float();
-	}
-
-	double value_double(const std::string &key) const
-	{
-		auto it = this->find(key);
-		assert(it != this->end());
-		return it->second.to_double();
-	}
-
-	long double value_ldouble(const std::string &key) const
-	{
-		auto it = this->find(key);
-		assert(it != this->end());
-		return it->second.to_ldouble();
-	}
-
-public:
-	V &value(const std::string &key)
-	{
-		auto it = this->find(key);
-		assert(it != this->end());
-		return it->second;
-	}
+	float value_float(const std::string &key) const;
+	double value_double(const std::string &key) const;
+	long double value_ldouble(const std::string &key) const;
 
 public:
 	using base_type::operator[];
-	const V &operator[](const std::string &key) const
-	{
-		auto it = this->find(key);
-		assert(it != this->end());
-		return it->second;
-	}
+	const V &operator[](const std::string &key) const;
 };
 
 }} //namespace gts::http
 
+#include <gts/http/detail/container.h>
 
 #endif //GTS_HTTP_CONTAINER_H

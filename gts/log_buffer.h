@@ -42,12 +42,12 @@ public:
 public:
 	explicit log_buffer(type t);
 	log_buffer(const log_buffer &other);
-	log_buffer(log_buffer &&other);
+	log_buffer(log_buffer &&other) noexcept;
 	~log_buffer();
 
 public:
 	log_buffer &operator=(const log_buffer &other);
-	log_buffer &operator=(log_buffer &&other);
+	log_buffer &operator=(log_buffer &&other) noexcept;
 
 public:
 	template <typename T>

@@ -12,7 +12,7 @@ class error_code
 public:
 	error_code() = default;
 	error_code(int value, std::string message);
-	error_code(const error_code &other) noexcept;
+	error_code(const error_code &other);
 	error_code(error_code &&other) noexcept;
 
 public:
@@ -23,7 +23,7 @@ public:
 	operator bool() const;
 
 public:
-	error_code &operator=(const error_code &other) noexcept;
+	error_code &operator=(const error_code &other);
 	error_code &operator=(error_code &&other) noexcept;
 
 protected:
@@ -35,7 +35,7 @@ class exception : public gts::basic_exception, public error_code
 {
 public:
 	exception(int value, std::string message);
-	exception(const error_code &other) noexcept;
+	exception(const error_code &other);
 	exception(error_code &&other) noexcept;
 
 public:

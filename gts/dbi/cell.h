@@ -17,9 +17,9 @@ public:
 
 public:
 	cell(const cell &other) = default;
-	cell(cell &&other) noexcept(false);
+	cell(cell &&other) noexcept;
 	cell &operator=(const cell &other) = default;
-	cell &operator=(cell &&other) noexcept(false);
+	cell &operator=(cell &&other) noexcept;
 
 public:
 	std::string column_name() const;

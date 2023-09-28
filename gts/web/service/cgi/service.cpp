@@ -1,6 +1,6 @@
 #include "service.h"
 #include "gts/web/global.h"
-#include "gts/http/request_impl.h"
+#include "gts/http/detail/request_impl.h"
 
 #include "gts/web/service/service_io.h"
 #include "gts/web/config_key.h"

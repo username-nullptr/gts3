@@ -24,7 +24,7 @@ inline const char *exception::what() const _GLIBCXX_NOTHROW
 
 #if GTS_CPLUSPLUS < 201703L
 
-inline exception::exception(exception &&other) :
+inline exception::exception(exception &&other) noexcept :
 	m_what(std::move(other.m_what))
 {
 

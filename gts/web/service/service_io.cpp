@@ -1,12 +1,12 @@
 #include "service_io.h"
-#include "gts/http/request_impl.h"
+#include "gts/http/detail/request_impl.h"
 
 namespace gts { namespace web
 {
 
 service_io::service_io(http::service_context &context) :
 	context(context), socket(context.socket())
-{	
+{
 	auto &request = this->request();
 	auto &response = this->response();
 

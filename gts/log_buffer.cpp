@@ -4,7 +4,8 @@
 namespace gts
 {
 
-log_buffer::context::context(context &&other) {
+log_buffer::context::context(context &&other)
+{
 	operator=(std::move(other));
 }
 
@@ -18,16 +19,19 @@ log_buffer::context &log_buffer::context::operator=(context &&other)
 	return *this;
 }
 
-log_buffer::log_buffer(type t) : m_data(new data)
+log_buffer::log_buffer(type t) :
+	m_data(new data)
 {
 	m_data->type = t;
 }
 
-log_buffer::log_buffer(const log_buffer &other) : m_data(new data) {
+log_buffer::log_buffer(const log_buffer &other) :
+	m_data(new data)
+{
 	operator=(other);
 }
 
-log_buffer::log_buffer(log_buffer &&other)
+log_buffer::log_buffer(log_buffer &&other) noexcept
 {
 	m_data = other.m_data;
 	other.m_data = nullptr;
@@ -39,7 +43,7 @@ log_buffer &log_buffer::operator=(const log_buffer &other)
 	return *this;
 }
 
-log_buffer &log_buffer::operator=(log_buffer &&other)
+log_buffer &log_buffer::operator=(log_buffer &&other) noexcept
 {
 	if( m_data )
 		delete m_data;

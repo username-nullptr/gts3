@@ -1,5 +1,5 @@
 #include "response.h"
-#include "request_impl.h"
+#include "detail/request_impl.h"
 
 #include "gts/tcp_socket.h"
 #include "gts/mime_type.h"

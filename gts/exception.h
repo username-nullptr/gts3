@@ -25,7 +25,7 @@ private: GTS_DISABLE_COPY_MOVE(exception)
 #else
 public:
 	exception(const exception&) = default;
-	exception(exception &&other);
+	exception(exception &&other) noexcept;
 #endif
 private:
 	std::string m_what;
