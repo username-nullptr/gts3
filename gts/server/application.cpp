@@ -70,7 +70,7 @@ applictaion_impl::applictaion_impl(int argc, const char *argv[])
 
 	auto &_settings = gts::settings::global_instance();
 	_settings.set_delete_on_flush(false);
-	log::logger::context context;
+	logger::context context;
 
 	if( args_hash & GC_SA_INSNAME )
 		context.category = args_hash.at(GC_SA_INSNAME);
@@ -86,8 +86,8 @@ applictaion_impl::applictaion_impl(int argc, const char *argv[])
 	context.max_size_one_day  = _settings.read<int>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_MAXOD);
 	context.max_size          = _settings.read<int>(SINI_GROUP_GTSLOG, SINI_GTS_LOG_MAX);
 
-	log::logger::set_context(context);
-	log::logger::set_header_breaks_aline(true);
+	logger::set_context(context);
+	logger::set_header_breaks_aline(true);
 
 	for(int i=0; i<argc; i++)
 		m_args.emplace_back(argv[i]);

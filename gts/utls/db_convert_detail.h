@@ -5,7 +5,7 @@ namespace gts { namespace dbi { namespace convert_detail
 {
 
 template <typename T>
-void set_property_by_cell(T &obj, const rttr::property &property, const cell_data &cell)
+void set_property_by_cell(T &obj, const rttr::property &property, const cell_data &cell) noexcept(false)
 {
 	if( property.get_type() == GTS_RTTR_TYPE(bool) )
 		property.set_value(obj, cell.to_bool());
@@ -56,7 +56,8 @@ void set_property_by_cell(T &obj, const rttr::property &property, const cell_dat
 }
 
 template <typename T>
-void cell_to_struct_by_index(const row_vector &row, T &obj, rttr::array_range<rttr::property> &array, std::size_t column)
+void cell_to_struct_by_index(const row_vector &row, T &obj, rttr::array_range<rttr::property> &array,
+							 std::size_t column) noexcept(false)
 {
 	assert(column == 0);
 	auto it = array.begin();
@@ -66,7 +67,7 @@ void cell_to_struct_by_index(const row_vector &row, T &obj, rttr::array_range<rt
 
 template <typename T>
 void cell_to_struct_by_index(const row_vector &row, T &obj, rttr::array_range<rttr::property> &array,
-							 std::size_t column, std::size_t index)
+							 std::size_t column, std::size_t index) noexcept(false)
 {
 	if( index >= array.size() or column >= row.size() )
 		throw exception(-2, "db_convert: '超出列的范围'.");
@@ -79,7 +80,7 @@ void cell_to_struct_by_index(const row_vector &row, T &obj, rttr::array_range<rt
 
 template <typename T, typename...Tail>
 void cell_to_struct_by_index(const row_vector &row, T &obj, rttr::array_range<rttr::property> &array,
-							 std::size_t column, std::size_t index, Tail...indexes)
+							 std::size_t column, std::size_t index, Tail...indexes) noexcept(false)
 {
 	cell_to_struct_by_index(row, obj, array, column++, index);
 	cell_to_struct_by_index(row, obj, array, column++, indexes...);

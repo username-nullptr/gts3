@@ -15,13 +15,18 @@ set(dbi_headers
 	driver.h
 	connection.h
 	manager.h
+)
+
+set(dbi_detail_headers
+	detail/error.h
 	detail/cell.h
+	detail/driver.h
 	detail/connection.h
 )
 
 set(target_name gtsdbi)
 
-add_library(${target_name} SHARED ${dbi_sources} ${dbi_headers})
+add_library(${target_name} SHARED ${dbi_sources} ${dbi_headers} ${dbi_detail_headers})
 target_compile_definitions(${target_name} PRIVATE gtsdbi_EXPORTS)
 
 target_include_directories(${target_name} PRIVATE .)
@@ -32,3 +37,4 @@ set_target_properties(${target_name} PROPERTIES
 )
 install(TARGETS ${target_name} DESTINATION bin)
 install(FILES ${dbi_headers} DESTINATION include/gts/dbi)
+install(FILES ${dbi_detail_headers} DESTINATION include/gts/dbi/detail)

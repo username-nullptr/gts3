@@ -1,5 +1,5 @@
-#ifndef GTS_HTTP_UUID_H
-#define GTS_HTTP_UUID_H
+#ifndef GTS_UUID_H
+#define GTS_UUID_H
 
 #include <gts/global.h>
 
@@ -27,7 +27,7 @@ public:
 
 public:
 	// aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee
-	std::string to_string() const;
+	std::string to_string(bool parcel = false) const;
 	operator std::string() const { return to_string(); }
 
 public:
@@ -55,4 +55,4 @@ public:
 } //namespace gts
 
 
-#endif //GTS_HTTP_UUID_H
+#endif //GTS_UUID_H

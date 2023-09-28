@@ -54,15 +54,15 @@ public:
 	void set_default_connect_string_info(const std::string&) override {}
 	dbi::connect_info default_connect_info() const override { return {}; }
 	std::string default_connect_string_info() const override { return ""; }
-	bool set_auto_commit(error_code&, bool = true) override { return false; }
+	bool set_auto_commit(error_code&, bool = true) noexcept override { return false; }
 	bool auto_commit() const override { return false; }
 
-	connection_ptr create_connection(error_code &error, const dbi::connect_info&) override
+	connection_ptr create_connection(error_code &error, const dbi::connect_info&) noexcept override
 	{
 		error = error_code(-200, "Invalid driver.");
 		return connection_ptr(nullptr);
 	}
-	connection_ptr create_connection(error_code &error, const std::string&) override
+	connection_ptr create_connection(error_code &error, const std::string&) noexcept override
 	{
 		error = error_code(-200, "Invalid driver.");
 		return connection_ptr(nullptr);

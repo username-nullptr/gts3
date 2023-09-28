@@ -6,7 +6,7 @@
 #include <chrono>
 #include <cstdio>
 
-namespace gts { namespace log
+namespace gts
 {
 
 class logger;
@@ -69,22 +69,8 @@ private:
 	friend class logger;
 };
 
-template <typename T>
-inline log_buffer &log_buffer::write(T &&msg)
-{
-#ifndef __NO_DEBUG__
-	m_data->buffer += fmt::format("{} ", std::forward<T>(msg));
-#endif //__NO_DEBUG__
-	return *this;
-}
+} //namespace gts
 
-template <typename T>
-inline log_buffer &log_buffer::operator<<(T &&msg)
-{
-	return write(std::forward<T>(msg));
-}
-
-}} //namespace gts::log
-
+#include <gts/detail/log_buffer.h>
 
 #endif //GTS_LOG_BUFFER_H

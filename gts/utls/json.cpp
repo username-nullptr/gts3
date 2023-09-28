@@ -5,7 +5,7 @@
 namespace nlohmann
 {
 
-rttr::variant rjson::extract_basic_types(const rttr::type &type, json &json_value)
+rttr::variant rjson::extract_basic_types(const rttr::type &type, json &json_value) noexcept(false)
 {
 	if( json_value.type() == value_t::string )
 	{
@@ -66,7 +66,7 @@ rttr::variant rjson::extract_basic_types(const rttr::type &type, json &json_valu
 	return {};
 }
 
-rttr::variant rjson::extract_value(json &json_value, const rttr::type &type)
+rttr::variant rjson::extract_value(json &json_value, const rttr::type &type) noexcept(false)
 {
 	auto extracted_value = extract_basic_types(type, json_value);
 	if( not extracted_value.convert(type) )
@@ -80,7 +80,7 @@ rttr::variant rjson::extract_value(json &json_value, const rttr::type &type)
 	return extracted_value;
 }
 
-void rjson::write_associative_view_recursively(rttr::variant_associative_view& view, json &json_array_value)
+void rjson::write_associative_view_recursively(rttr::variant_associative_view& view, json &json_array_value) noexcept(false)
 {
 	for(auto &json_index_value : json_array_value)
 	{
@@ -107,7 +107,7 @@ void rjson::write_associative_view_recursively(rttr::variant_associative_view& v
 	}
 }
 
-void rjson::write_array_recursively(rttr::variant_sequential_view& view, json &json_array_value)
+void rjson::write_array_recursively(rttr::variant_sequential_view& view, json &json_array_value) noexcept(false)
 {
 	view.set_size(json_array_value.size());
 	for(size_type i=0; i<json_array_value.size(); i++)
@@ -135,7 +135,7 @@ void rjson::write_array_recursively(rttr::variant_sequential_view& view, json &j
 	}
 }
 
-void rjson::fromjson_recursively(rttr::instance obj2, json &json_object)
+void rjson::fromjson_recursively(rttr::instance obj2, json &json_object) noexcept(false)
 {
 	auto obj = obj2.get_type().get_raw_type().is_wrapper() ? obj2.get_wrapped_instance() : obj2;
 	const auto prop_list = obj.get_derived_type().get_properties();

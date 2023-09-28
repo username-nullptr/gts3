@@ -31,17 +31,17 @@ static bool wait(int fd, int event, const std::chrono::milliseconds &ms, asio::e
 	return true;
 }
 
-bool tcp_socket::wait_writeable(const duration &ms, asio::error_code &error)
+bool tcp_socket::wait_writeable(const duration &ms, asio::error_code &error) noexcept
 {
 	return wait(m_sock->native_handle(), POLLOUT, ms, error);
 }
 
-bool tcp_socket::wait_readable(const duration &ms, asio::error_code &error)
+bool tcp_socket::wait_readable(const duration &ms, asio::error_code &error) noexcept
 {
 	return wait(m_sock->native_handle(), POLLIN, ms, error);
 }
 
-bool tcp_socket::wait_writeable(const duration &ms)
+bool tcp_socket::wait_writeable(const duration &ms) noexcept
 {
 	asio::error_code error ;
 	bool res = wait(m_sock->native_handle(), POLLOUT, ms, error);
@@ -50,7 +50,7 @@ bool tcp_socket::wait_writeable(const duration &ms)
 	return res;
 }
 
-bool tcp_socket::wait_readable(const duration &ms)
+bool tcp_socket::wait_readable(const duration &ms) noexcept
 {
 	asio::error_code error ;
 	bool res = wait(m_sock->native_handle(), POLLIN, ms, error);

@@ -8,13 +8,18 @@ namespace gts
 
 uuid::uuid(const std::string &uuid)
 {
-	if( uuid.size() != 38 ) //aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee
+	if( uuid.size() == 38 ) //aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee
 	{
-		memset(this, 0, sizeof(uuid));
-		return;
+		sscanf(uuid.c_str(), "%08" SCNx32 "-%04" SCNx16 "-%04" SCNx16 "-%02" SCNx8 "%02" SCNx8 "-%02" SCNx8 "%02" SCNx8 "%02" SCNx8 "%02" SCNx8 "%02" SCNx8 "%02" SCNx8,
+			   &_uuid.d0, &_uuid.d1, &_uuid.d2, &_uuid.d3[0], &_uuid.d3[1], &_uuid.d3[2], &_uuid.d3[3], &_uuid.d3[4], &_uuid.d3[5], &_uuid.d3[6], &_uuid.d3[7]);
 	}
-	sscanf(uuid.c_str(), "%08" SCNx32 "-%04" SCNx16 "-%04" SCNx16 "-%02" SCNx8 "%02" SCNx8 "-%02" SCNx8 "%02" SCNx8 "%02" SCNx8 "%02" SCNx8 "%02" SCNx8 "%02" SCNx8,
-		   &_uuid.d0, &_uuid.d1, &_uuid.d2, &_uuid.d3[0], &_uuid.d3[1], &_uuid.d3[2], &_uuid.d3[3], &_uuid.d3[4], &_uuid.d3[5], &_uuid.d3[6], &_uuid.d3[7]);
+	else if( uuid.size() == 40 ) //{aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee}
+	{
+		sscanf(uuid.c_str(), "{%08" SCNx32 "-%04" SCNx16 "-%04" SCNx16 "-%02" SCNx8 "%02" SCNx8 "-%02" SCNx8 "%02" SCNx8 "%02" SCNx8 "%02" SCNx8 "%02" SCNx8 "%02" SCNx8 "}",
+			   &_uuid.d0, &_uuid.d1, &_uuid.d2, &_uuid.d3[0], &_uuid.d3[1], &_uuid.d3[2], &_uuid.d3[3], &_uuid.d3[4], &_uuid.d3[5], &_uuid.d3[6], &_uuid.d3[7]);
+	}
+	else
+		memset(this, 0, sizeof(uuid));
 }
 
 uuid uuid::generate()
@@ -45,6 +50,11 @@ uuid &uuid::operator=(const std::string &uuid)
 		sscanf(uuid.c_str(), "%08" SCNx32 "-%04" SCNx16 "-%04" SCNx16 "-%02" SCNx8 "%02" SCNx8 "-%02" SCNx8 "%02" SCNx8 "%02" SCNx8 "%02" SCNx8 "%02" SCNx8 "%02" SCNx8,
 			   &_uuid.d0, &_uuid.d1, &_uuid.d2, &_uuid.d3[0], &_uuid.d3[1], &_uuid.d3[2], &_uuid.d3[3], &_uuid.d3[4], &_uuid.d3[5], &_uuid.d3[6], &_uuid.d3[7]);
 	}
+	else if( uuid.size() == 40 ) //{aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee}
+	{
+		sscanf(uuid.c_str(), "{%08" SCNx32 "-%04" SCNx16 "-%04" SCNx16 "-%02" SCNx8 "%02" SCNx8 "-%02" SCNx8 "%02" SCNx8 "%02" SCNx8 "%02" SCNx8 "%02" SCNx8 "%02" SCNx8 "}",
+			   &_uuid.d0, &_uuid.d1, &_uuid.d2, &_uuid.d3[0], &_uuid.d3[1], &_uuid.d3[2], &_uuid.d3[3], &_uuid.d3[4], &_uuid.d3[5], &_uuid.d3[6], &_uuid.d3[7]);
+	}
 	return *this;
 }
 
@@ -68,11 +78,19 @@ bool uuid::operator>(const uuid &other) const
 	return memcmp(this, &other, sizeof(uuid)) > 0;
 }
 
-std::string uuid::to_string() const
+std::string uuid::to_string(bool parcel) const
 {
-	char buffer[39]; //aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee
-	sprintf(buffer, "%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X",
-			_uuid.d0, _uuid.d1, _uuid.d2, _uuid.d3[0], _uuid.d3[1], _uuid.d3[2], _uuid.d3[3], _uuid.d3[4], _uuid.d3[5], _uuid.d3[6], _uuid.d3[7]);
+	char buffer[41] = ""; //aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee
+	if( parcel )
+	{
+		sprintf(buffer, "{%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}",
+				_uuid.d0, _uuid.d1, _uuid.d2, _uuid.d3[0], _uuid.d3[1], _uuid.d3[2], _uuid.d3[3], _uuid.d3[4], _uuid.d3[5], _uuid.d3[6], _uuid.d3[7]);
+	}
+	else
+	{
+		sprintf(buffer, "%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X",
+				_uuid.d0, _uuid.d1, _uuid.d2, _uuid.d3[0], _uuid.d3[1], _uuid.d3[2], _uuid.d3[3], _uuid.d3[4], _uuid.d3[5], _uuid.d3[6], _uuid.d3[7]);
+	}
 	return buffer;
 }
 

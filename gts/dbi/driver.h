@@ -11,7 +11,7 @@ class GTS_DBI_API driver
 	GTS_DISABLE_COPY_MOVE(driver)
 
 public:
-	driver() {}
+	driver() = default;
 	virtual ~driver() = 0;
 	virtual bool is_valid();
 
@@ -31,74 +31,25 @@ public:
 	virtual std::string default_connect_string_info() const = 0;
 
 public:
-	virtual bool set_auto_commit(error_code &error, bool enable = true) = 0;
-	void set_auto_commit(bool enable = true);
+	virtual bool set_auto_commit(error_code &error, bool enable = true) noexcept = 0;
+	void set_auto_commit(bool enable = true) noexcept(false);
 	virtual bool auto_commit() const = 0;
 
 public:
-	virtual connection_ptr create_connection(error_code &error, const dbi::connect_info &info) = 0;
-	virtual connection_ptr create_connection(error_code &error, const std::string &info) = 0;
+	virtual connection_ptr create_connection(error_code &error, const dbi::connect_info &info) noexcept = 0;
+	virtual connection_ptr create_connection(error_code &error, const std::string &info) noexcept = 0;
 
 public:
-	virtual connection_ptr create_connection(error_code &error);
-	virtual connection_ptr create_connection();
+	virtual connection_ptr create_connection(error_code &error) noexcept;
+	virtual connection_ptr create_connection() noexcept(false);
 
 public:
-	connection_ptr create_connection(const dbi::connect_info &info);
-	connection_ptr create_connection(const std::string &info);
+	connection_ptr create_connection(const dbi::connect_info &info) noexcept(false);
+	connection_ptr create_connection(const std::string &info) noexcept(false);
 };
-
-inline driver::~driver() {}
-
-inline bool driver::is_valid() {
-	return false;
-}
-
-template <typename...Args>
-void driver::set_default_connect_string_info(fmt::format_string<Args...> fmt_value, Args&&...args) {
-	set_default_connect_string_info(fmt::format(fmt_value, std::forward<Args>(args)...));
-}
-
-inline void driver::set_auto_commit(bool enable)
-{
-	error_code error;
-	set_auto_commit(error, enable);
-	if( error )
-		throw exception(error);
-}
-
-inline connection_ptr driver::create_connection(error_code &error) {
-	return create_connection(error, default_connect_info());
-}
-
-inline connection_ptr driver::create_connection()
-{
-	error_code error;
-	auto res = create_connection(error, default_connect_info());
-	if( error )
-		throw exception(error);
-	return res;
-}
-
-inline connection_ptr driver::create_connection(const dbi::connect_info &info)
-{
-	error_code error;
-	auto res = create_connection(error, info);
-	if( error )
-		throw exception(error);
-	return res;
-}
-
-inline connection_ptr driver::create_connection(const std::string &info)
-{
-	error_code error;
-	auto res = create_connection(error, info);
-	if( error )
-		throw exception(error);
-	return res;
-}
 
 }} //namespace gts::dbi
 
+#include <gts/dbi/detail/driver.h>
 
 #endif //GTS_DBI_DRIVER_H

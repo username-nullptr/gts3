@@ -13,22 +13,19 @@ class basic_exception : public std::exception {};
 class exception : public basic_exception
 {
 public:
-	explicit exception(std::string what) : m_what(std::move(what)) {}
+	explicit exception(std::string what);
 
 	template <typename...Args>
-	explicit exception(fmt::format_string<Args...> fmt_value, Args&&...args) :
-		m_what(fmt::format(fmt_value, std::forward<Args>(args)...)) {}
+	explicit exception(fmt::format_string<Args...> fmt_value, Args&&...args);
 
 public:
-	const char* what() const _GLIBCXX_NOTHROW override {
-		return m_what.c_str();
-	}
+	const char* what() const _GLIBCXX_NOTHROW override;
 #if GTS_CPLUSPLUS >= 201703L
 private: GTS_DISABLE_COPY_MOVE(exception)
 #else
 public:
 	exception(const exception&) = default;
-	exception(exception &&other) : m_what(std::move(other.m_what)) {}
+	exception(exception &&other);
 #endif
 private:
 	std::string m_what;
@@ -51,5 +48,6 @@ public:
 
 } //namespace fmt
 
+#include <gts/detail/exception.h>
 
 #endif //GTS_EXCEPTION_H

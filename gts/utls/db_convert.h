@@ -8,14 +8,14 @@ namespace gts { namespace dbi
 {
 
 template <std::size_t...indexes, typename T>
-void cell_to_struct_by_index(const row_vector &row, T &obj)
+void cell_to_struct_by_index(const row_vector &row, T &obj) noexcept(false)
 {
 	auto array = rttr::type::get<T>().get_properties();
 	convert_detail::cell_to_struct_by_index(row, obj, array, 0, indexes...);
 }
 
 template <std::size_t...indexes, typename T>
-T cell_to_struct_by_index(const row_vector &row)
+T cell_to_struct_by_index(const row_vector &row) noexcept(false)
 {
 	T obj;
 	cell_to_struct_by_index<indexes...>(row, obj);
@@ -23,7 +23,7 @@ T cell_to_struct_by_index(const row_vector &row)
 }
 
 template <std::size_t...indexes, typename T>
-void table_to_struct_by_index(const table_data &table, std::vector<T> &obj)
+void table_to_struct_by_index(const table_data &table, std::vector<T> &obj) noexcept(false)
 {
 	obj.reserve(64);
 	for(auto &row : table)
@@ -44,7 +44,7 @@ std::vector<T> table_to_struct_by_index(const table_data &table)
 /*----------------------------------------------------------------------------------------------------------------------------------------*/
 
 template <typename T>
-void cell_to_struct_by_name(const row_vector &row, T &obj)
+void cell_to_struct_by_name(const row_vector &row, T &obj) noexcept(false)
 {
 	auto type = rttr::type::get<T>();
 	for(auto &cell : row)
@@ -58,7 +58,7 @@ void cell_to_struct_by_name(const row_vector &row, T &obj)
 }
 
 template <typename T>
-T cell_to_struct_by_name(const row_vector &row)
+T cell_to_struct_by_name(const row_vector &row) noexcept(false)
 {
 	T obj;
 	cell_to_struct_by_name(row, obj);

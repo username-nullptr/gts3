@@ -1,7 +1,7 @@
 #include "log_buffer.h"
 #include <thread>
 
-namespace gts { namespace log
+namespace gts
 {
 
 log_buffer::context::context(context &&other) {
@@ -62,4 +62,4 @@ log_buffer::~log_buffer()
 	delete m_data;
 }
 
-}} //namespace gts::log
+} //namespace gts

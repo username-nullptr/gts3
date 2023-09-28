@@ -91,8 +91,8 @@ public:
 	std::size_t read_body(void *buf, std::size_t size);
 
 public:
-    std::string read_all_body(std::error_code &error);
-    std::string read_all_body();
+	std::string read_all_body(std::error_code &error);
+	std::string read_all_body();
 
 public:
 	bool save_file(const std::string &file_name, std::error_code &error, std::size_t begin = 0);
@@ -163,13 +163,12 @@ std::shared_ptr<Sesn> request::session(bool create)
 		set_cookie_session_id(ptr->id());
 		return ptr;
 	}
-
 	auto ptr = http::session::get<Sesn>(it->second);
 	if( ptr )
 	{
 		if( ptr->is_valid() )
 			ptr->expand();
-        return ptr;
+		return ptr;
 	}
 	else if( create )
 	{

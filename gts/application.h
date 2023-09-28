@@ -26,23 +26,18 @@ GTSCORE_API bool setenv(const std::string &key, const std::string &value, bool o
 GTSCORE_API bool unsetenv(const std::string &key);
 
 template <typename...Args>
-bool setenv(const std::string &key, fmt::format_string<Args...> fmt_value, Args&&...args) {
-	return setenv(key, fmt::format(fmt_value, std::forward<Args>(args)...));
-}
+bool setenv(const std::string &key, fmt::format_string<Args...> fmt_value, Args&&...args);
 
 template <typename...Args>
-bool setenv(const std::string &key, bool overwrite, fmt::format_string<Args...> fmt_value, Args&&...args) {
-	return setenv(key, fmt::format(fmt_value, std::forward<Args>(args)...), overwrite);
-}
+bool setenv(const std::string &key, bool overwrite, fmt::format_string<Args...> fmt_value, Args&&...args);
 
 template <typename T, typename _U = enable_if_t<not gts_is_same(decay_t<T>, std::string) and
 												not gts_is_same(T, const char*) and
 												not gts_is_same(T, char*), int>>
-bool setenv(const std::string &key, T &&value, bool overwrite = true) {
-	return setenv(key, fmt::format("{}", std::forward<T>(value)), overwrite);
-}
+bool setenv(const std::string &key, T &&value, bool overwrite = true);
 
 }} //namespace gts::app
 
+#include <gts/detail/application.h>
 
 #endif //GTS_APPLICATION_H

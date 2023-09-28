@@ -10,39 +10,21 @@ namespace gts { namespace dbi
 class error_code
 {
 public:
-	error_code() {}
-	error_code(int value, std::string message) :
-		m_value(value), m_message(std::move(message)) {}
-
-	error_code(const error_code &other) :
-		m_value(other.value()), m_message(other.m_message) {}
-
-	error_code(error_code &&other) :
-		m_value(other.value()), m_message(std::move(other.m_message)) {}
+	error_code() = default;
+	error_code(int value, std::string message);
+	error_code(const error_code &other) noexcept;
+	error_code(error_code &&other) noexcept;
 
 public:
-	int value() const { return m_value; }
-	std::string message() const { return m_message; }
+	int value() const;
+	std::string message() const;
 
 public:
-	operator bool() const {
-		return value() != 0;
-	}
+	operator bool() const;
 
 public:
-	error_code &operator=(const error_code &other)
-	{
-		m_value = other.m_value;
-		m_message = other.m_message;
-		return *this;
-	}
-
-	error_code &operator=(error_code &&other)
-	{
-		m_value = other.value();
-		m_message = std::move(other.m_message);
-		return *this;
-	}
+	error_code &operator=(const error_code &other) noexcept;
+	error_code &operator=(error_code &&other) noexcept;
 
 protected:
 	int m_value = 0;
@@ -52,29 +34,22 @@ protected:
 class exception : public gts::basic_exception, public error_code
 {
 public:
-	exception(int value, std::string message) : error_code(value, std::move(message)) {}
-	exception(const error_code &other) : error_code(other) {}
-	exception(error_code &&other) : error_code(std::move(other)) {}
+	exception(int value, std::string message);
+	exception(const error_code &other) noexcept;
+	exception(error_code &&other) noexcept;
 
 public:
 	template <typename...Args>
-	explicit exception(int value, fmt::format_string<Args...> fmt_value, Args&&...args) :
-		error_code(value, fmt::format(fmt_value, std::forward<Args>(args)...)) {}
+	explicit exception(int value, fmt::format_string<Args...> fmt_value, Args&&...args);
 
 public:
-	const char* what() const _GLIBCXX_USE_NOEXCEPT override {
-		return m_message.c_str();
-	}
+	const char *what() const _GLIBCXX_USE_NOEXCEPT override;
 #if GTS_CPLUSPLUS >= 201703L
 private: GTS_DISABLE_COPY_MOVE(exception)
 #else
 public:
 	exception(const exception&) = default;
-	exception(exception &&other)
-	{
-		m_value = other.m_value;
-		m_message = std::move(other.m_message);
-	}
+	exception(exception &&other) noexcept;
 #endif
 };
 

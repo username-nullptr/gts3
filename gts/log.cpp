@@ -60,7 +60,7 @@ static time_t create_time(const std::string &file)
 
 /*---------------------------------------------------------------------------------------------------------------*/
 
-namespace gts { namespace log
+namespace gts
 {
 
 class GTS_DECL_HIDDEN logger_impl
@@ -615,4 +615,4 @@ static void remove_if_too_big(const std::list<fs::directory_entry> &list, int64_
 	}
 }
 
-}} //namespace gts::log
+} //namespace gts

@@ -26,7 +26,7 @@ public:
 	using std::vector<cell>::operator[];
 
 public:
-	reference operator[](const std::string &column_name)
+	reference operator[](const std::string &column_name) noexcept(false)
 	{
 		for(auto &cell : *this)
 		{

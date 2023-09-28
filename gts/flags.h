@@ -2,6 +2,7 @@
 #define GTS_FLAGS_H
 
 #include <initializer_list>
+#include <gts/utility.h>
 
 namespace gts
 {
@@ -9,7 +10,7 @@ namespace gts
 template <typename Enum>
 class flags
 {
-	static_assert((std::is_enum<Enum>::value),
+	static_assert((gts_is_enum(Enum)),
 	"flags is only usable on enumeration types.");
 
 	static_assert((sizeof(Enum) <= sizeof(int)),
@@ -17,84 +18,46 @@ class flags
 
 public:
 	using enum_type = Enum;
-
-	constexpr inline flags() noexcept : i(0) {}
-	constexpr inline flags(Enum f) noexcept : i(f) {}
-	constexpr inline flags(const flags &other) : i(other.i) {}
-
-	constexpr inline flags(std::initializer_list<Enum> flags) noexcept
-		: i(initializer_list_helper(flags.begin(), flags.end())) {}
-
-	const inline flags &operator=(const flags &other)
-	{ i = other.i; return *this; }
+	constexpr flags() noexcept = default;
+	constexpr flags(Enum f) noexcept;
+	constexpr flags(const flags &other);
+	constexpr flags(std::initializer_list<Enum> flags) noexcept;
+	const flags &operator=(const flags &other);
 
 public:
-	const inline flags &operator&=(int mask) noexcept
-	{ i &= mask; return *this; }
+	const flags &operator&=(int mask) noexcept;
+	const flags &operator&=(unsigned int mask) noexcept;
+	const flags &operator&=(Enum mask) noexcept;
+	const flags &operator|=(flags f) noexcept;
+	const flags &operator|=(Enum f) noexcept;
+	const flags &operator^=(flags f) noexcept;
+	const flags &operator^=(Enum f) noexcept;
 
-	const inline flags &operator&=(unsigned int mask) noexcept
-	{ i &= mask; return *this; }
+public:
+	constexpr flags operator|(flags f) const noexcept;
+	constexpr flags operator|(Enum f) const noexcept;
+	constexpr flags operator^(flags f) const noexcept;
+	constexpr flags operator^(Enum f) const noexcept;
+	constexpr flags operator&(int mask) const noexcept;
+	constexpr flags operator&(unsigned int mask) const noexcept;
+	constexpr flags operator&(Enum f) const noexcept;
+	constexpr flags operator~() const noexcept;
+	constexpr bool operator!() const noexcept;
 
-	const inline flags &operator&=(Enum mask) noexcept
-	{ i &= mask; return *this; }
-
-	const inline flags &operator|=(flags f) noexcept
-	{ i |= f.i; return *this; }
-
-	const inline flags &operator|=(Enum f) noexcept
-	{ i |= f; return *this; }
-
-	const inline flags &operator^=(flags f) noexcept
-	{ i ^= f.i; return *this; }
-
-	const inline flags &operator^=(Enum f) noexcept
-	{ i ^= f; return *this; }
-
-	constexpr inline operator int() const noexcept
-	{ return i; }
-
-	constexpr inline flags operator|(flags f) const noexcept
-	{ return flags( static_cast<Enum>(i | f.i) ); }
-
-	constexpr inline flags operator|(Enum f) const noexcept
-	{ return flags( static_cast<Enum>(i | f) ); }
-
-	constexpr inline flags operator^(flags f) const noexcept
-	{ return flags( static_cast<Enum>(i ^ f.i) ); }
-
-	constexpr inline flags operator^(Enum f) const noexcept
-	{ return flags( static_cast<Enum>(i ^ f) ); }
-
-	constexpr inline flags operator&(int mask) const noexcept
-	{ return flags( static_cast<Enum>(i & mask)); }
-
-	constexpr inline flags operator&(unsigned int mask) const noexcept
-	{ return flags( static_cast<Enum>(i & mask)); }
-
-	constexpr inline flags operator&(Enum f) const noexcept
-	{ return flags( static_cast<Enum>(i & f) ); }
-
-	constexpr inline flags operator~() const noexcept
-	{ return flags( static_cast<Enum>(~i) ); }
-
-	constexpr inline bool operator!() const noexcept
-	{ return !i; }
-
-	constexpr inline bool testFlag(Enum f) const noexcept
-	{ return (i & f) == f and (f != 0 or i == f); }
-
-	constexpr inline flags &setFlag(Enum f, bool on = true) const noexcept
-	{ return on ? (*this |= f) : (*this &= ~f); }
+public:
+	constexpr operator int() const noexcept;
+	constexpr bool testFlag(Enum f) const noexcept;
+	constexpr flags &setFlag(Enum f, bool on = true) const noexcept;
 
 private:
 	using iterator = typename std::initializer_list<Enum>::const_iterator;
-	constexpr static inline int initializer_list_helper(iterator it, iterator end) noexcept {
-		return (it == end ? 0 : (*it | initializer_list_helper(it + 1, end)));
-	}
-	int i;
+	constexpr static int initializer_list_helper(iterator it, iterator end) noexcept;
+	int m_value = 0;
 };
 
-/*------------------------------------------------------------*/
+} //namespace gts
+
+#include <gts/detail/flags.h>
 
 #define GTS_DECLARE_FLAGS(_flags, _enum)  using _flags = flags<_enum>;
 
@@ -105,8 +68,5 @@ private:
 	constexpr inline flags<_flags::enum_type> operator| \
 	(_flags::enum_type f1, flags<_flags::enum_type> f2) noexcept \
 	{ return f2 | f1; }
-
-} //namespace gts
-
 
 #endif //GTS_FLAGS_H

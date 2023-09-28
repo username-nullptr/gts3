@@ -25,7 +25,7 @@ connection::~connection()
 	delete m_impl;
 }
 
-table_data connection::prepare_query(const std::string &statement, error_code &error)
+table_data connection::prepare_query(const std::string &statement, error_code &error) noexcept(false)
 {
 	table_data result;
 	result.reserve(64);

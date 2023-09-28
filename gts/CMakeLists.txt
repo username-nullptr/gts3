@@ -18,7 +18,6 @@ set(core_sources
 	tcp_socket.cpp
 	ssl_socket.cpp
 	registration.cpp
-	rw_mutex.cpp
 	uuid.cpp
 	log_buffer.cpp
 	log.cpp
@@ -51,6 +50,18 @@ set(core_gts_headers
 	log.h
 )
 
+set(core_gts_detail_headers
+	detail/application.h
+	detail/settings.h
+	detail/tcp_socket.h
+	detail/registration.h
+	detail/exception.h
+	detail/rw_mutex.h
+	detail/flags.h
+	detail/log_buffer.h
+	detail/log.h
+)
+
 set(core_sp_headers
 	gts_enable_ssl.h
 	private/app_info.h
@@ -64,7 +75,12 @@ endif()
 
 set(target_name gtscore)
 
-add_library(${target_name} SHARED ${core_sources} ${core_gts_headers} ${core_sp_headers})
+add_library(${target_name} SHARED
+	${core_sources}
+	${core_gts_headers}
+	${core_gts_detail_headers}
+	${core_sp_headers}
+)
 target_compile_definitions(${target_name} PRIVATE gtscore_EXPORTS)
 
 if (ENABLE_SSL)
@@ -79,6 +95,7 @@ set_target_properties(${target_name} PROPERTIES
 
 install(TARGETS ${target_name} DESTINATION bin)
 install(FILES ${core_gts_headers} DESTINATION include/gts)
+install(FILES ${core_gts_detail_headers} DESTINATION include/gts/detail)
 install(FILES config.ini DESTINATION bin)
 
 if (ENABLE_SSL)

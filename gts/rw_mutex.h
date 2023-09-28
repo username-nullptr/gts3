@@ -1,3 +1,6 @@
+#ifndef GTS_RW_MUTEX_H
+#define GTS_RW_MUTEX_H
+
 #include <gts/global.h>
 #include <gts/exception.h>
 
@@ -8,68 +11,48 @@
 namespace gts
 {
 
-class GTSCORE_API rw_mutex
+template <typename Mutex>
+class GTSCORE_API basic_rw_mutex
 {
-	GTS_DISABLE_COPY_MOVE(rw_mutex)
+	GTS_DISABLE_COPY_MOVE(basic_rw_mutex)
 
 public:
-	rw_mutex() = default;
-	~rw_mutex() noexcept(false)
-	{
-		if( m_writer or m_reader > 0 )
-			throw exception("destruct if not unlocked.");
-	}
+	using mutex_type = Mutex;
+	basic_rw_mutex() = default;
+	~basic_rw_mutex() noexcept(false);
 
 public:
-	void lock_shared()
-	{
-		while( m_writer )
-		{
-			std::unique_lock<std::mutex> locker(m_mutex);
-			m_condition.wait(locker);
-		}
-		m_reader++;
-	}
-
-	void lock()
-	{
-		std::unique_lock<std::mutex> locker(m_mutex);
-		m_condition.wait(locker, [this]()->bool{
-			return not m_writer and m_reader == 0;
-		});
-		m_writer = true;
-	}
-
-	void unlock()
-	{
-		if( m_writer )
-		{
-			m_writer = false;
-			m_condition.notify_all();
-		}
-		else if( m_reader > 0 and --m_reader == 0 )
-			m_condition.notify_all();
-	}
+	void lock_shared();
+	void lock();
+	void unlock();
 
 private:
 	std::atomic_uint m_reader {0};
 	std::atomic_bool m_writer {false};
 	std::condition_variable m_condition;
-	std::mutex m_mutex;
+	Mutex m_mutex;
 };
 
-class GTS_DECL_HIDDEN shared_lock
+using rw_mutex = basic_rw_mutex<std::mutex>;
+
+template <typename Mutex>
+class GTS_DECL_HIDDEN basic_shared_lock
 {
+	GTS_DISABLE_COPY_MOVE(basic_shared_lock)
+
 public:
-	explicit shared_lock(rw_mutex &mutex) : m_mutex(mutex) {
-		mutex.lock_shared();
-	}
-	~shared_lock() {
-		m_mutex.unlock();
-	}
+	using mutex_type = Mutex;
+	explicit basic_shared_lock(basic_rw_mutex<Mutex> &mutex);
+	~basic_shared_lock();
 
 private:
-	rw_mutex &m_mutex;
+	basic_rw_mutex<Mutex> &m_mutex;
 };
 
+using shared_lock = basic_shared_lock<std::mutex>;
+
 } //namespace gts
+
+#include <gts/detail/rw_mutex.h>
+
+#endif //GTS_RW_MUTEX_H

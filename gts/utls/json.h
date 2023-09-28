@@ -82,11 +82,11 @@ public:
 	}
 
 private:
-	static rttr::variant extract_basic_types(const rttr::type&, json&);
-	static rttr::variant extract_value(json&, const rttr::type&);
-	static void write_associative_view_recursively(rttr::variant_associative_view&, json&);
-	static void write_array_recursively(rttr::variant_sequential_view&, json&);
-	static void fromjson_recursively(rttr::instance, json&);
+	static rttr::variant extract_basic_types(const rttr::type&, json&) noexcept(false);
+	static rttr::variant extract_value(json&, const rttr::type&) noexcept(false);
+	static void write_associative_view_recursively(rttr::variant_associative_view&, json&) noexcept(false);
+	static void write_array_recursively(rttr::variant_sequential_view&, json&) noexcept(false);
+	static void fromjson_recursively(rttr::instance, json&) noexcept(false);
 
 private:
 	static bool write_atomic_types_to_json(const rttr::type&, const rttr::variant&, rttr::string_view, json&);

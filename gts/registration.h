@@ -34,26 +34,14 @@ protected:
 	using is_function = enable_if_t<std::is_function<Func>::value, int>;
 
 	template <typename This, typename Func, typename _U0 = is_function<Func>>
-	This &register_method(const std::string &prefix, const std::string &name, Func &&func)
-	{
-		auto addr = reinterpret_cast<const void*>(&func);
-		if( g_func_set.emplace(addr).second )
-			rttr::registration::method(fmt::format("gts{}.plugin{}.{}", prefix, name, addr), std::forward<Func>(func));
-		else
-			gts_log_fatal("gts::registration_base::{}: multiple registration.", name);
-		return *reinterpret_cast<This*>(this);
-	}
+	This &register_method(const std::string &prefix, const std::string &name, Func &&func);
 
 protected:
 	template <typename Func>
 	using not_is_function = enable_if_t<not std::is_function<Func>::value, int>;
 
 	template <typename This, typename Func, typename _U0 = not_is_function<Func>, typename _U1 = int>
-	This &register_method(const std::string &prefix, const std::string &name, Func &&func)
-	{
-		rttr::registration::method(fmt::format("gts{}.plugin{}.co.{}", prefix, name, g_gfs_counter++), std::forward<Func>(func));
-		return *reinterpret_cast<This*>(this);
-	}
+	This &register_method(const std::string &prefix, const std::string &name, Func &&func);
 
 protected:
 	static std::set<const void*> g_func_set;
@@ -69,35 +57,20 @@ public:
 
 public:
 	template <typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)(GTS_DECLVAL(tcp_socket_ptr&)))>
-	registration &new_connection(Func &&func, uint16_t port = 0)
-	{
-		if( g_func_set.emplace(reinterpret_cast<const void*>(reinterpret_cast<const char*>(&func) + port)).second )
-			rttr::registration::method(port == 0? "gts.plugin.new_connection" : fmt::format("gts.plugin.new_connection.{}", port), std::forward<Func>(func));
-		else
-			gts_log_fatal("gts::registration::new_connection: multiple registration.");
-		return *this;
-	}
+	registration &new_connection(Func &&func, uint16_t port = 0);
 
 public:
 	template <typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)())>
-	registration &init_method(Func &&func) {
-		return register_method<registration>("", ".init", std::forward<Func>(func));
-	}
+	registration &init_method(Func &&func);
 
 	template <typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)(std::string())), int U0=0>
-	registration &init_method(Func &&func) {
-		return register_method<registration>("", ".init", std::forward<Func>(func));
-	}
+	registration &init_method(Func &&func);
 
 	template <typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)())>
-	registration &exit_method(Func &&func) {
-		return register_method<registration>("", ".exit", std::forward<Func>(func));
-	}
+	registration &exit_method(Func &&func);
 
 	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_dsame(decltype(GTS_DECLVAL(Func)()), std::string), int)>
-	registration &view_status_method(Func &&func) {
-		return register_method<registration>("", ".view_status", std::forward<Func>(func));
-	}
+	registration &view_status_method(Func &&func);
 
 public:
 	template <typename Class>
@@ -106,41 +79,19 @@ public:
 		GTS_DISABLE_COPY_MOVE(class_)
 
 	public:
-		explicit class_() :
-			m_class_name(fmt::format("gts.plugin.class.{}", typeid(Class).hash_code())),
-			m_class_(std::make_shared<rttr::registration::class_<Class>>(m_class_name))
-		{
-			m_class_->constructor();
-			m_type = rttr::type::get_by_name(m_class_name);
-		}
+		class_();
 
 	public:
 		template <typename Return>
-		class_ &init_method(Return(Class::*func)(void))
-		{
-			m_class_->method(fmt::format("init.{}", m_type.get_id()), func);
-			return *this;
-		}
+		class_ &init_method(Return(Class::*func)(void));
 
 		template <typename Return, typename Str, GTS_TYPE_DECLTYPE(GTS_CLASS_METHOD_DECLVAL(Class, Return, Str)(std::string()))>
-		class_ &init_method(Return(Class::*func)(Str))
-		{
-			m_class_->method(fmt::format("init.{}", m_type.get_id()), func);
-			return *this;
-		}
+		class_ &init_method(Return(Class::*func)(Str));
 
 		template <typename Return>
-		class_ &exit_method(Return(Class::*func)(void))
-		{
-			m_class_->method(fmt::format("exit.{}", m_type.get_id()), func);
-			return *this;
-		}
+		class_ &exit_method(Return(Class::*func)(void));
 
-		class_ &view_status_method(std::string(Class::*func)(void))
-		{
-			m_class_->method(fmt::format("view_status.{}", m_type.get_id()), func);
-			return *this;
-		}
+		class_ &view_status_method(std::string(Class::*func)(void));
 
 	protected:
 		std::string m_class_name;
@@ -165,48 +116,36 @@ public:
 
 public:
 	template <typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)())>
-	registration &init_method(Func &&func) {
-		return register_method<registration>(".extension", ".init", std::forward<Func>(func));
-	}
+	registration &init_method(Func &&func);
 
 	template <typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)(std::string())), int U0=0>
-	registration &init_method(Func &&func) {
-		return register_method<registration>(".extension", ".init", std::forward<Func>(func));
-	}
+	registration &init_method(Func &&func);
 
 public:
 	template <typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)())>
-	registration &exit_method(Func &&func) {
-		return register_method<registration>(".extension", ".exit", std::forward<Func>(func));
-	}
+	registration &exit_method(Func &&func);
 
 public:
 	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_dsame(decltype(GTS_DECLVAL(Func)(0,GTS_DECLVAL(const char**))), bool), int)>
-	registration &args_parsing_method(Func &&func) {
-		return register_method<registration>(".extension", ".args_parsing", std::forward<Func>(func));
-	}
+	registration &args_parsing_method(Func &&func);
 
 	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_dsame(decltype(GTS_DECLVAL(Func)(string_list())), bool), int), int U0=0>
-	registration &args_parsing_method(Func &&func) {
-		return register_method<registration>(".extension", ".args_parsing", std::forward<Func>(func));
-	}
+	registration &args_parsing_method(Func &&func);
 
 public:
 	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_dsame(decltype(GTS_DECLVAL(Func)()), std::string), int)>
-	registration &view_version_method(Func &&func) {
-		return register_method<registration>(".extension", ".view_version", std::forward<Func>(func));
-	}
+	registration &view_version_method(Func &&func);
 
 public:
 	template <typename Func, GTS_TYPE_ENABLE_IF(gts_is_dsame(decltype(GTS_DECLVAL(Func)()), std::string), int)>
-	registration &view_help_method(Func &&func) {
-		return register_method<registration>(".extension", ".view_help", std::forward<Func>(func));
-	}
+	registration &view_help_method(Func &&func);
 };
 
 } //namespace extension
 
 } //namespace gts
+
+#include <gts/detail/registration.h>
 
 #define GTS_AUTO_XX_NAME(_prefix)  RTTR_CAT(_prefix, __LINE__)
 
