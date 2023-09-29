@@ -8,7 +8,7 @@ set(utls_headers
 )
 
 if (ENABLE_DBI)
-	list(APPEND utls_sources
+	list(APPEND utls_headers
 		db_convert.h
 		db_convert_detail.h
 	)

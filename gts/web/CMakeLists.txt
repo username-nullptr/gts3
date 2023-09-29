@@ -20,6 +20,10 @@ set(web_gts_headers
 	registration.h
 )
 
+set(web_gts_detail_headers
+	detail/registration.h
+)
+
 set(web_sp_headers
 	service/connection.h
 	service/task.h
@@ -32,7 +36,12 @@ set(web_sp_headers
 
 set(target_name gtsweb)
 
-add_library(${target_name} SHARED ${web_sources} ${web_gts_headers} ${web_sp_headers})
+add_library(${target_name} SHARED
+	${web_sources}
+	${web_gts_headers}
+	${web_gts_detail_headers}
+	${web_sp_headers}
+)
 target_compile_definitions(${target_name} PRIVATE gtsweb_EXPORTS)
 target_link_libraries(${target_name} PUBLIC gtshttp)
 
@@ -41,3 +50,4 @@ set_target_properties(${target_name} PROPERTIES
 )
 install(TARGETS ${target_name} DESTINATION bin)
 install(FILES ${web_gts_headers} DESTINATION include/gts/web)
+install(FILES ${web_gts_detail_headers} DESTINATION include/gts/web/detail)

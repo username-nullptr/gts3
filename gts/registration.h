@@ -4,7 +4,6 @@
 #include <gts/tcp_socket.h>
 #include <gts/string_list.h>
 #include <rttr/registration>
-#include <gts/log.h>
 #include <cppformat>
 #include <future>
 

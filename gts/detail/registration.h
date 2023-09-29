@@ -1,6 +1,8 @@
 #ifndef GTS_DETAIL_REGISTRATION_H
 #define GTS_DETAIL_REGISTRATION_H
 
+#include <gts/log.h>
+
 namespace gts
 {
 
