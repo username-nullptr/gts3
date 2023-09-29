@@ -376,7 +376,11 @@ class GTS_DECL_HIDDEN file_transfer
 
 public:
 	explicit file_transfer(http::request &request, http::response &response, const std::string &file_name) :
-	  m_request(request), m_response(response), m_file_name(absolute_path(file_name)) {}
+	  m_request(request), m_response(response), m_file_name(absolute_path(file_name))
+	{
+		int a = 0;
+		a = 11;
+	}
 
 	~file_transfer()
 	{

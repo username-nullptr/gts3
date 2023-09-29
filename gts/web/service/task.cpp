@@ -97,8 +97,6 @@ void task::init()
 			  g_default_resource,
 			  g_cgi_access,
 			  g_cgi_path);
-
-	http::response::set_resource_root(g_default_resource);
 	cgi_service::init();
 }
 

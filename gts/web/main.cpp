@@ -72,6 +72,8 @@ GTS_PLUGIN_INIT()
 	}
 	gts_log_debug("Web: max thread count: {}", g_count);
 	g_pool = new asio::thread_pool(g_count);
+
+	http::response::set_resource_root(g_resource_path);
 	connection::init();
 }
 
