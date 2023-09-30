@@ -13,7 +13,3 @@ include_directories(
 )
 
 link_libraries(fmt)
-
-if(UNIX)
-	link_libraries(pthread)
-endif()

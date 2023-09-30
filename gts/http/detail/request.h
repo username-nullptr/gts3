@@ -61,32 +61,32 @@ std::shared_ptr<Sesn> request::session(bool create)
 }
 
 template <typename T>
-T request::parameter(const std::string &key) const {
+T request::parameter(const std::string &key) const noexcept(false) {
 	return parameter(key).get<T>();
 }
 
 template <typename T, typename U>
-T request::parameter_or(const std::string &key, T deft_value) const {
+T request::parameter_or(const std::string &key, T deft_value) const noexcept {
 	return parameter_or(key, http::value(std::move(deft_value))).get<T>();
 }
 
 template <typename T>
-T request::header(const std::string &key) const {
+T request::header(const std::string &key) const noexcept(false) {
 	return header(key).get<T>();
 }
 
 template <typename T, typename U>
-T request::header_or(const std::string &key, T deft_value) const {
+T request::header_or(const std::string &key, T deft_value) const noexcept {
 	return header_or(key, http::value(std::move(deft_value))).get<T>();
 }
 
 template <typename T>
-T request::cookie(const std::string &key) const {
+T request::cookie(const std::string &key) const noexcept(false) {
 	return cookie(key).get<T>();
 }
 
 template <typename T, typename U>
-T request::cookie_or(const std::string &key, T deft_value) const {
+T request::cookie_or(const std::string &key, T deft_value) const noexcept {
 	return cookie_or(key, http::value(std::move(deft_value))).get<T>();
 }
 

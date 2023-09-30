@@ -61,25 +61,25 @@ public:
 	bool headers_contains(const std::string &key) const;
 	value &header(const std::string &key) noexcept(false);
 	const value &header(const std::string &key) const noexcept(false);
-	value header_or(const std::string &key, value deft_value = {}) const;
+	value header_or(const std::string &key, value deft_value = {}) const noexcept;
 
 	template <typename T>
-	T header(const std::string &key) const;
+	T header(const std::string &key) const noexcept(false);
 
 	template <typename T, typename U = not_value_t<T>>
-	T header_or(const std::string &key, T deft_value) const;
+	T header_or(const std::string &key, T deft_value) const noexcept;
 
 public:
 	bool cookies_contains(const std::string &key) const;
 	http::cookie &cookie(const std::string &key) noexcept(false);
 	const http::cookie &cookie(const std::string &key) const noexcept(false);
-	http::cookie cookie_or(const std::string &key, http::cookie deft_value = {}) const;
+	http::cookie cookie_or(const std::string &key, http::cookie deft_value = {}) const noexcept;
 
 	template <typename T>
-	T cookie(const std::string &key) const;
+	T cookie(const std::string &key) const noexcept(false);
 
 	template <typename T, typename U = not_cookie_t<T>>
-	T cookie_or(const std::string &key, T deft_value) const;
+	T cookie_or(const std::string &key, T deft_value) const noexcept;
 
 public:
 	response &write_default();

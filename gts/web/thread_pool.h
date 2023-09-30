@@ -2,7 +2,6 @@
 #define GTS_WEB_THREAD_POOL_H
 
 #include <gts/web/global.h>
-#include <functional>
 
 namespace gts { namespace web
 {

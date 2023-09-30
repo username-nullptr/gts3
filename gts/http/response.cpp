@@ -212,7 +212,7 @@ const value &response::header(const std::string &key) const noexcept(false)
 	return it->second;
 }
 
-value response::header_or(const std::string &key, value deft_value) const
+value response::header_or(const std::string &key, value deft_value) const noexcept
 {
 	auto it = m_impl->m_headers.find(key);
 	return it == m_impl->m_headers.end()? std::move(deft_value) : it->second;
@@ -239,7 +239,7 @@ const cookie &response::cookie(const std::string &key) const noexcept(false)
 	return it->second;
 }
 
-cookie response::cookie_or(const std::string &key, http::cookie deft_value) const
+cookie response::cookie_or(const std::string &key, http::cookie deft_value) const noexcept
 {
 	auto it = m_impl->m_cookies.find(key);
 	return it == m_impl->m_cookies.end()? std::move(deft_value) : it->second;
@@ -376,11 +376,7 @@ class GTS_DECL_HIDDEN file_transfer
 
 public:
 	explicit file_transfer(http::request &request, http::response &response, const std::string &file_name) :
-	  m_request(request), m_response(response), m_file_name(absolute_path(file_name))
-	{
-		int a = 0;
-		a = 11;
-	}
+		m_request(request), m_response(response), m_file_name(absolute_path(file_name)) {}
 
 	~file_transfer()
 	{

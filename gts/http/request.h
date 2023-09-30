@@ -54,35 +54,35 @@ public:
 public:
 	bool parameters_contains(const std::string &key) const;
 	const value &parameter(const std::string &key) const noexcept(false);
-	value parameter_or(const std::string &key, value deft_value = {}) const;
+	value parameter_or(const std::string &key, value deft_value = {}) const noexcept;
 
 	template <typename T>
-	T parameter(const std::string &key) const;
+	T parameter(const std::string &key) const noexcept(false);
 
 	template <typename T, typename U = not_value_t<T>>
-	T parameter_or(const std::string &key, T deft_value) const;
+	T parameter_or(const std::string &key, T deft_value) const noexcept;
 
 public:
 	bool headers_contains(const std::string &key) const;
 	const value &header(const std::string &key) const noexcept(false);
-	value header_or(const std::string &key, value deft_value = {}) const;
+	value header_or(const std::string &key, value deft_value = {}) const noexcept;
 
 	template <typename T>
-	T header(const std::string &key) const;
+	T header(const std::string &key) const noexcept(false);
 
 	template <typename T, typename U = not_value_t<T>>
-	T header_or(const std::string &key, T deft_value) const;
+	T header_or(const std::string &key, T deft_value) const noexcept;
 
 public:
 	bool cookies_contains(const std::string &key) const;
 	const value &cookie(const std::string &key) const noexcept(false);
-	value cookie_or(const std::string &key, value deft_value) const;
+	value cookie_or(const std::string &key, value deft_value) const noexcept;
 
 	template <typename T>
-	T cookie(const std::string &key) const;
+	T cookie(const std::string &key) const noexcept(false);
 
 	template <typename T, typename U = not_value_t<T>>
-	T cookie_or(const std::string &key, T deft_value) const;
+	T cookie_or(const std::string &key, T deft_value) const noexcept;
 
 public:
 	std::string read_body(std::error_code &error, std::size_t size = 0);

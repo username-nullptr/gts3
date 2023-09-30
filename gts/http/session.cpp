@@ -116,7 +116,7 @@ rttr::variant session::attribute(const std::string &key) const noexcept(false)
 	return it->second;
 }
 
-rttr::variant session::attribute_or(const std::string &key, rttr::variant deft_value) const
+rttr::variant session::attribute_or(const std::string &key, rttr::variant deft_value) const noexcept
 {
 	shared_lock locker(m_impl->m_attrs_mutex); GTS_UNUSED(locker);
 	auto it = m_impl->m_attributes.find(key);

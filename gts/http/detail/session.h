@@ -15,12 +15,12 @@ std::shared_ptr<Sesn> make_session(const std::chrono::seconds &seconds)
 }
 
 template <typename T>
-T session::attribute(const std::string &key) const {
+T session::attribute(const std::string &key) const noexcept(false) {
 	return attribute(key).convert<T>();
 }
 
 template <typename T, typename U>
-T session::attribute_or(const std::string &key, T deft_value) const {
+T session::attribute_or(const std::string &key, T deft_value) const noexcept {
 	return attribute_or(key, rttr::variant(std::move(deft_value))).convert<T>();
 }
 

@@ -1,6 +1,5 @@
 set(dbi_sources
 	result_iterator.cpp
-	driver.cpp
 	connection.cpp
 	manager.cpp
 )

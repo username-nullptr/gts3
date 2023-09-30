@@ -70,7 +70,7 @@ const value &request::parameter(const std::string &key) const noexcept(false)
 	return it->second;
 }
 
-value request::parameter_or(const std::string &key, value deft_value) const
+value request::parameter_or(const std::string &key, value deft_value) const noexcept
 {
 	auto it = m_impl->m_parameters.find(key);
 	return it == m_impl->m_parameters.end()? std::move(deft_value) : it->second;
@@ -89,7 +89,7 @@ const value &request::header(const std::string &key) const noexcept(false)
 	return it->second;
 }
 
-value request::header_or(const std::string &key, value deft_value) const
+value request::header_or(const std::string &key, value deft_value) const noexcept
 {
 	auto it = m_impl->m_headers.find(key);
 	return it == m_impl->m_headers.end()? std::move(deft_value) : it->second;
@@ -108,7 +108,7 @@ const value &request::cookie(const std::string &key) const noexcept(false)
 	return it->second;
 }
 
-value request::cookie_or(const std::string &key, value deft_value) const
+value request::cookie_or(const std::string &key, value deft_value) const noexcept
 {
 	auto it = m_impl->m_cookies.find(key);
 	return it == m_impl->m_cookies.end()? std::move(deft_value) : it->second;

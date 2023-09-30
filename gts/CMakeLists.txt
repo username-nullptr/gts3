@@ -88,6 +88,9 @@ if (ENABLE_SSL)
 endif()
 
 target_link_libraries(${target_name} PUBLIC rttr_core)
+if(UNIX)
+	target_link_libraries(${target_name} PUBLIC pthread)
+endif()
 
 set_target_properties(${target_name} PROPERTIES
 	LIBRARY_OUTPUT_DIRECTORY ../${output_dir_name}/bin

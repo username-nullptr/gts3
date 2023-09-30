@@ -15,22 +15,22 @@ response &response::set_cookie(std::string key, fmt::format_string<Args...> valu
 }
 
 template <typename T>
-T response::header(const std::string &key) const {
+T response::header(const std::string &key) const noexcept(false) {
 	return header(key).get<T>();
 }
 
 template <typename T, typename U>
-T response::header_or(const std::string &key, T deft_value) const {
+T response::header_or(const std::string &key, T deft_value) const noexcept {
 	return header_or(key, http::value(std::move(deft_value))).get<T>();
 }
 
 template <typename T>
-T response::cookie(const std::string &key) const {
+T response::cookie(const std::string &key) const noexcept(false) {
 	return cookie(key).get<T>();
 }
 
 template <typename T, typename U>
-T response::cookie_or(const std::string &key, T deft_value) const {
+T response::cookie_or(const std::string &key, T deft_value) const noexcept {
 	return cookie_or(key, http::cookie(std::move(deft_value))).get<T>();
 }
 

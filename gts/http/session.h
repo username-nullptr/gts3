@@ -31,13 +31,13 @@ public:
 
 public:
 	rttr::variant attribute(const std::string &key) const noexcept(false);
-	rttr::variant attribute_or(const std::string &key, rttr::variant deft_value = {}) const;
+	rttr::variant attribute_or(const std::string &key, rttr::variant deft_value = {}) const noexcept;
 
 	template <typename T>
-	T attribute(const std::string &key) const;
+	T attribute(const std::string &key) const noexcept(false);
 
 	template <typename T, typename U = not_variant_t<T>>
-	T attribute_or(const std::string &key, T deft_value) const;
+	T attribute_or(const std::string &key, T deft_value) const noexcept;
 
 public:
 	session &set_attribute(std::string key, rttr::variant value);
