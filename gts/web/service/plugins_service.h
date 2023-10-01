@@ -50,8 +50,7 @@ public:
 
 private:
 	registration::service_array *check();
-	rttr::variant global_method_call(const rttr::method &method, const rttr::type &p1_type);
-	rttr::variant class_method_call(rttr::method &method, rttr::variant &obj, const rttr::type &p1_type);
+	rttr::variant method_call(rttr::method &method, rttr::instance obj, const rttr::type &p1_type);
 	registration::service *find_filter(const std::string &url);
 
 private:

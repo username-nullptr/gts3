@@ -189,7 +189,6 @@ void task::run()
 		m_socket->close(true);
 }
 
-// TODO websocket
 #define _TASK_DO_PARSING(sio) \
 ({ \
 	sio.url_name = sio.request().path(); \

@@ -147,10 +147,12 @@ struct header : http::pair<value>
 	static constexpr const char *host              = "Host";
 	static constexpr const char *last_modified     = "Last-Modified";
 	static constexpr const char *location          = "Location";
+	static constexpr const char *origin            = "Origin";
 	static constexpr const char *referer           = "Referer";
 	static constexpr const char *range             = "Range";
 	static constexpr const char *transfer_encoding = "Transfer-Encoding";
 	static constexpr const char *user_agent        = "User-Agent";
+	static constexpr const char *upgrade           = "Upgrade";
 #else //c++17
 	static const char *accept_language;
 	static const char *accept_encoding;
@@ -167,10 +169,12 @@ struct header : http::pair<value>
 	static const char *host;
 	static const char *last_modified;
 	static const char *location;
+	static const char *origin;
 	static const char *referer;
 	static const char *range;
 	static const char *transfer_encoding;
 	static const char *user_agent;
+	static const char *upgrade;
 #endif //c++17
 };
 using headers = http::map<value, http::less_case_insensitive>;

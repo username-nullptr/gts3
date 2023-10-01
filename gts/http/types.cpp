@@ -148,10 +148,12 @@ const char *header::expires           = "Expires";
 const char *header::host              = "Host";
 const char *header::last_modified     = "Last-Modified";
 const char *header::location          = "Location";
+const char *header::origin            = "Origin";
 const char *header::referer           = "Referer";
 const char *header::range             = "Range";
 const char *header::transfer_encoding = "Transfer-Encoding";
 const char *header::user_agent        = "User-Agent";
+const char *header::upgrade           = "Upgrade";
 #endif //c++17
 
 }} //namespace gts::http

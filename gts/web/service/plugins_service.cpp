@@ -57,6 +57,18 @@ bool plugins_service::exists()
 	return check() != nullptr;
 }
 
+#define _METHOD_CALL(_obj) \
+({ \
+	auto &headers = m_sio.request().headers(); \
+	auto it = headers.find(http::header::upgrade); \
+	if( it != headers.end() and str_to_lower(it->second) == "websocket" ) { \
+		/* TODO... */ \
+		m_sio.response().write_default(http::hs_not_implemented); \
+	} \
+	else \
+		method_call(ss.method, _obj, GTS_RTTR_TYPE(http::response)); \
+})
+
 bool plugins_service::call()
 {
 	auto array = check();
@@ -72,12 +84,9 @@ bool plugins_service::call()
 	if( call_filter() )
 		return true;
 	else if( ss.class_type.is_valid() )
-	{
-		auto &obj = registration::obj_hash()[ss.class_type];
-		class_method_call(ss.method, obj, GTS_RTTR_TYPE(http::response));
-	}
+		_METHOD_CALL(registration::obj_hash()[ss.class_type]);
 	else
-		global_method_call(ss.method, GTS_RTTR_TYPE(http::response));
+		_METHOD_CALL(rttr::instance());
 	return true;
 }
 
@@ -91,9 +100,9 @@ bool plugins_service::call_filter()
 		else if( rs.class_type.is_valid() )
 		{
 			auto &obj = registration::obj_hash()[rs.class_type];
-			return class_method_call(rs.method, obj, GTS_RTTR_TYPE(http::request)).to_bool();
+			return method_call(rs.method, obj, GTS_RTTR_TYPE(http::request)).to_bool();
 		}
-		return global_method_call(rs.method, GTS_RTTR_TYPE(http::request)).to_bool();
+		return method_call(rs.method, rttr::instance(), GTS_RTTR_TYPE(http::request)).to_bool();
 	};
 	for(auto &pair : registration::g_filter_path_map)
 	{
@@ -143,61 +152,7 @@ static environments make_envs(service_io &sio)
 	};
 }
 
-rttr::variant plugins_service::global_method_call(const rttr::method &method, const rttr::type &p1_type)
-{
-	auto para_array = method.get_parameter_infos();
-	if( para_array.size() == 1 )
-	{
-		if( para_array.begin()->get_type() == p1_type )
-		{
-			if( p1_type == GTS_RTTR_TYPE(http::request) )
-				return method.invoke({}, m_sio.request());
-			else if( p1_type == GTS_RTTR_TYPE(http::response) )
-				return method.invoke({}, m_sio.response());
-		}
-	}
-	else if( para_array.size() == 2 )
-	{
-		auto it = para_array.begin();
-		auto t0 = (it++)->get_type();
-		auto t1 = it->get_type();
-
-		if( t0 == GTS_RTTR_TYPE(http::request) and t1 == GTS_RTTR_TYPE(http::response) )
-			return method.invoke({}, m_sio.request(), m_sio.response());
-
-		else if( t0 == GTS_RTTR_TYPE(http::response) and t1 == GTS_RTTR_TYPE(http::request) )
-			return method.invoke({}, m_sio.response(), m_sio.request());
-	}
-	else if( para_array.size() == 3 )
-	{
-		auto it = para_array.begin();
-		auto t0 = (it++)->get_type();
-		auto t1 = (it++)->get_type();
-		auto t2 = it->get_type();
-
-		if( t0 == GTS_RTTR_TYPE(http::request) and t1 == GTS_RTTR_TYPE(http::response) and t2 == GTS_RTTR_TYPE(environments) )
-			return method.invoke({}, m_sio.request(), m_sio.response(), make_envs(m_sio));
-
-		else if( t0 == GTS_RTTR_TYPE(http::response) and t1 == GTS_RTTR_TYPE(http::request) and t2 == GTS_RTTR_TYPE(environments) )
-			return method.invoke({}, m_sio.response(), m_sio.request(), make_envs(m_sio));
-
-		else if( t0 == GTS_RTTR_TYPE(http::response) and t1 == GTS_RTTR_TYPE(environments) and t2 == GTS_RTTR_TYPE(http::request) )
-			return method.invoke({}, m_sio.response(), make_envs(m_sio), m_sio.request());
-
-		else if( t0 == GTS_RTTR_TYPE(environments) and t1 == GTS_RTTR_TYPE(http::response) and t2 == GTS_RTTR_TYPE(http::request) )
-			return method.invoke({}, make_envs(m_sio), m_sio.response(), m_sio.request());
-
-		else if( t0 == GTS_RTTR_TYPE(environments) and t1 == GTS_RTTR_TYPE(http::request) and t2 == GTS_RTTR_TYPE(http::response) )
-			return method.invoke({}, make_envs(m_sio), m_sio.request(), m_sio.response());
-
-		else if( t0 == GTS_RTTR_TYPE(http::request) and t1 == GTS_RTTR_TYPE(environments) and t2 == GTS_RTTR_TYPE(http::response) )
-			return method.invoke({}, m_sio.request(), make_envs(m_sio), m_sio.response());
-	}
-	gts_log_fatal("*** Code bug !!! : service function type error !!!");
-	return {};
-}
-
-rttr::variant plugins_service::class_method_call(rttr::method &method, rttr::variant &obj, const rttr::type &p1_type)
+rttr::variant plugins_service::method_call(rttr::method &method, rttr::instance obj, const rttr::type &p1_type)
 {
 	auto para_array = method.get_parameter_infos();
 	if( para_array.size() == 1 )
