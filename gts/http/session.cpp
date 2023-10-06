@@ -31,6 +31,8 @@
 #include "gts/rw_mutex.h"
 #include <chrono>
 
+#include <iostream>
+
 using namespace std::chrono;
 
 namespace gts { namespace http
@@ -117,7 +119,7 @@ session::session(const duration &s) :
 
 session::~session()
 {
-	delete m_impl;
+//	delete m_impl;
 }
 
 std::string session::id() const

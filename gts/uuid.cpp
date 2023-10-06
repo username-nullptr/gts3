@@ -52,12 +52,12 @@ uuid::uuid(const std::string &uuid)
 
 uuid uuid::generate()
 {
-#if !defined(__APPLE__) && !defined(__clang__)
-	thread_local std::random_device rd;
-	thread_local auto gen = std::mt19937_64(rd());
-#else
+#if defined(__APPLE__) || defined(__clang__)
 	std::random_device rd;
 	std::mt19937_64 gen(rd());
+#else
+	thread_local std::random_device rd;
+	thread_local std::mt19937_64 gen(rd());
 #endif
 	std::uniform_int_distribution<uint64_t> dis64;
 	uuid obj("");
@@ -67,7 +67,6 @@ uuid uuid::generate()
 
 	obj._bytes.d3[0] = (obj._bytes.d3[0] & 0x3F) | static_cast<uint8_t>(0x80);
 	obj._bytes.d2[1] = (obj._bytes.d2[1] & 0x0F) | static_cast<uint8_t>(0x40);
-
 	return obj;
 }
 

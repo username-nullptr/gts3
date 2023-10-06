@@ -47,6 +47,14 @@ add_library(${target_name} SHARED
 target_compile_definitions(${target_name} PRIVATE gtshttp_EXPORTS)
 target_link_libraries(${target_name} PUBLIC gtscore)
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_SIZEOF_VOID_P EQUAL 4)
+	message("------------------------------------------------------------")
+	message("  *** Warning: Unknown bugs may occur in the GNU(32bit).")
+	message("------------------------------------------------------------")
+	target_compile_options(${target_name} PRIVATE -fno-stack-protector)
+	target_link_options(${target_name} PRIVATE -fno-stack-protector)
+endif()
+
 set_target_properties(${target_name} PROPERTIES
 	LIBRARY_OUTPUT_DIRECTORY ../../${output_dir_name}/bin
 )
