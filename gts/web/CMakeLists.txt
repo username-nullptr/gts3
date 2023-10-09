@@ -1,3 +1,5 @@
+set(target_name gtsweb)
+
 set(web_sources
 	main.cpp
 	socket.cpp
@@ -33,8 +35,6 @@ set(web_sp_headers
 	service/cgi/process.h
 	service/cgi/process_p.h
 )
-
-set(target_name gtsweb)
 
 add_library(${target_name} SHARED
 	${web_sources}

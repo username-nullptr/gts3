@@ -29,6 +29,7 @@
 #ifndef GTS_UTLS_REGISTRATION_H
 #define GTS_UTLS_REGISTRATION_H
 
+#include <gts/utls/global.h>
 #include <rttr/registration>
 
 #define _EXPAND_(...)  __VA_ARGS__

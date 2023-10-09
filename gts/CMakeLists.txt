@@ -1,4 +1,6 @@
 project(GTS VERSION 3.0.0)
+
+set(target_name gtscore)
 add_definitions(-DGTS_VERSION_STR="3.0.0 dev5")
 
 if (WIN32)
@@ -72,8 +74,6 @@ if (ENABLE_SSL)
 else()
 	list(APPEND core_sp_headers gts_disable_ssl_p.h)
 endif()
-
-set(target_name gtscore)
 
 add_library(${target_name} SHARED
 	${core_sources}

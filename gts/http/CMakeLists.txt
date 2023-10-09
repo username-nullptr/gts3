@@ -1,3 +1,5 @@
+set(target_name gtshttp)
+
 set(http_sources
 	types.cpp
 	cookies.cpp
@@ -35,8 +37,6 @@ set(http_sps
 	detail/request_impl.cpp
 	detail/request_impl.h
 )
-
-set(target_name gtshttp)
 
 add_library(${target_name} SHARED
 	${http_sources}

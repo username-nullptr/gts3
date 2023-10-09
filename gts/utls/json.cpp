@@ -30,29 +30,31 @@
 #include <gts/formatter.h>
 #include <gts/utility.h>
 
-namespace nlohmann
+namespace gts { namespace njson_utls
 {
 
-rttr::variant rjson::extract_basic_types(const rttr::type &type, json &json_value) noexcept(false)
+using type_error = njson::type_error;
+
+static rttr::variant extract_basic_types(const rttr::type &type, const njson &json_value)
 {
-	if( json_value.type() == value_t::string )
+	if( json_value.type() == njson_type::string )
 	{
 		if( type == GTS_RTTR_TYPE(std::string) )
 			return json_value.get<std::string>();
-		throw type_error::create(1, fmt::format("字段类型不匹配 (Json:'string', Struct:'{}')", type.get_name()), nullptr);
+		throw type_error::create(1, fmt::format("字段类型不匹配 (Json:'string'，Struct:'{}')", type.get_name()), nullptr);
 	}
-	else if( json_value.type() == value_t::boolean )
+	else if( json_value.type() == njson_type::boolean )
 	{
 		if( type == GTS_RTTR_TYPE(bool) )
 			return json_value.get<bool>();
 		throw type_error::create(1, fmt::format("字段类型不匹配 (Json:'bool', Struct:'{}')", type.get_name()), nullptr);
 	}
-	else if( json_value.type() == value_t::number_integer or json_value.type() == value_t::number_unsigned )
+	else if( json_value.type() == njson_type::number_integer or json_value.type() == njson_type::number_unsigned )
 	{
 		if( type == GTS_RTTR_TYPE(signed char) )
 			return json_value.get<signed char>();
 		else if( type == GTS_RTTR_TYPE(unsigned char) )
-			return json_value.get<unsigned char>();
+			return json_value.get<unsigned char>( );
 
 		else if( type == GTS_RTTR_TYPE(short) )
 			return json_value.get<short>();
@@ -76,12 +78,12 @@ rttr::variant rjson::extract_basic_types(const rttr::type &type, json &json_valu
 
 		else if( type == GTS_RTTR_TYPE(float) or type == GTS_RTTR_TYPE(double) or type == GTS_RTTR_TYPE(long double) )
 			return json_value.get<uint32_t>();
-		throw type_error::create(1, fmt::format("字段类型不匹配 (Json:'arithmetic', Struct:'{}')", type.get_name()), nullptr);
+		throw type_error::create(1, fmt::format("字段类型下匹 (Json:'arithmetic', Struct:'{}'", type.get_name()), nullptr);
 	}
-	else if( json_value.type() == value_t::number_float )
+	else if( json_value.type() == njson_type::number_float )
 	{
 		if( not type.is_arithmetic() )
-			throw type_error::create(1, fmt::format("字段类型不匹配 (Json:'float', Struct:'{}')", type.get_name()), nullptr);
+			throw type_error::create(1, fmt::format("字段类型不匹 (Json:'float', Struct:'{}')", type.get_name()), nullptr);
 
 		else if( type == GTS_RTTR_TYPE(float) )
 			return json_value.get<float>();
@@ -94,7 +96,7 @@ rttr::variant rjson::extract_basic_types(const rttr::type &type, json &json_valu
 	return {};
 }
 
-rttr::variant rjson::extract_value(json &json_value, const rttr::type &type) noexcept(false)
+static rttr::variant extract_value(const njson &json_value, const rttr::type &type)
 {
 	auto extracted_value = extract_basic_types(type, json_value);
 	if( not extracted_value.convert(type) )
@@ -102,13 +104,13 @@ rttr::variant rjson::extract_value(json &json_value, const rttr::type &type) noe
 		if( json_value.is_object() )
 		{
 			extracted_value = type.create();
-			fromjson_recursively(extracted_value, json_value);
+			from_json_recursively(extracted_value, json_value);
 		}
 	}
 	return extracted_value;
 }
 
-void rjson::write_associative_view_recursively(rttr::variant_associative_view& view, json &json_array_value) noexcept(false)
+static void write_associative_view_recursively(rttr::variant_associative_view &view, const njson &json_array_value)
 {
 	for(auto &json_index_value : json_array_value)
 	{
@@ -123,7 +125,7 @@ void rjson::write_associative_view_recursively(rttr::variant_associative_view& v
 			auto key_var = extract_value(key_json, key_type);
 			auto value_var = extract_value(value_json, value_type);
 
-			if( key_var.is_valid() and value_var.is_valid() )
+			if( key_var.is_valid() and value_var.is_valid( ) )
 				view.insert(key_var, value_var);
 		}
 		else
@@ -135,10 +137,10 @@ void rjson::write_associative_view_recursively(rttr::variant_associative_view& v
 	}
 }
 
-void rjson::write_array_recursively(rttr::variant_sequential_view& view, json &json_array_value) noexcept(false)
+static void write_array_recursively(rttr::variant_sequential_view &view, const njson &json_array_value)
 {
 	view.set_size(json_array_value.size());
-	for(size_type i=0; i<json_array_value.size(); i++)
+	for(njson::size_type i=0; i<json_array_value.size(); i++)
 	{
 		auto &json_index_value = json_array_value[i];
 		if( json_index_value.is_array() )
@@ -150,7 +152,7 @@ void rjson::write_array_recursively(rttr::variant_sequential_view& view, json &j
 		{
 			auto var_tmp = view.get_value(i);
 			auto wrapped_var = var_tmp.extract_wrapped_value();
-			fromjson_recursively(wrapped_var, json_index_value);
+			from_json_recursively(wrapped_var, json_index_value);
 			view.set_value(i, wrapped_var);
 		}
 		else
@@ -163,21 +165,17 @@ void rjson::write_array_recursively(rttr::variant_sequential_view& view, json &j
 	}
 }
 
-void rjson::fromjson_recursively(rttr::instance obj2, json &json_object) noexcept(false)
+void from_json_recursively(rttr::instance obj2, const njson &json_object)
 {
 	auto obj = obj2.get_type().get_raw_type().is_wrapper() ? obj2.get_wrapped_instance() : obj2;
 	const auto prop_list = obj.get_derived_type().get_properties();
 
-	for(auto prop : prop_list)
+	for(auto &prop : prop_list)
 	{
-		auto it = json_object.find(prop.get_name().data());
-		if( it == json_object.end() )
-			continue;
-
+		auto &sub_json = json_object[prop.get_name().data()];
 		auto type = prop.get_type();
-		auto &sub_json = *it;
 
-		if( sub_json.type() == value_t::array )
+		if( sub_json.type() == njson_type::array )
 		{
 			rttr::variant var;
 			if( type.is_sequential_container() )
@@ -194,10 +192,10 @@ void rjson::fromjson_recursively(rttr::instance obj2, json &json_object) noexcep
 			}
 			prop.set_value(obj, var);
 		}
-		else if( sub_json.type() == value_t::object )
+		else if( sub_json.type() == njson_type::object )
 		{
 			auto var = prop.get_value(obj);
-			fromjson_recursively(var, sub_json);
+			from_json_recursively(var, sub_json);
 			prop.set_value(obj, var);
 		}
 		else
@@ -209,65 +207,65 @@ void rjson::fromjson_recursively(rttr::instance obj2, json &json_object) noexcep
 	}
 }
 
-/*----------------------------------------------------------------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-bool rjson::write_atomic_types_to_json(const rttr::type &type, const rttr::variant &var, rttr::string_view name, json &json_object)
+static bool write_atomic_types_to_json(const rttr::type &type, const rttr::variant &var, rttr::string_view name, njson &json_object)
 {
 	if( type.is_arithmetic() )
 	{
 		if( name.empty() )
 		{
 			if( type == GTS_RTTR_TYPE(bool) )
-				json_object.push_back(var.to_bool());
-			else if (type == GTS_RTTR_TYPE(int8_t))
-				json_object.push_back(var.to_int8());
-			else if (type == GTS_RTTR_TYPE(int16_t))
-				json_object.push_back(var.to_int16());
-			else if (type == GTS_RTTR_TYPE(int32_t))
-				json_object.push_back(var.to_int32());
-			else if (type == GTS_RTTR_TYPE(int64_t))
-				json_object.push_back(var.to_int64());
-			else if (type == GTS_RTTR_TYPE(uint8_t))
-				json_object.push_back(var.to_uint8());
-			else if (type == GTS_RTTR_TYPE(uint16_t))
-				json_object.push_back(var.to_uint16());
-			else if (type == GTS_RTTR_TYPE(uint32_t))
-				json_object.push_back(var.to_uint32());
-			else if (type == GTS_RTTR_TYPE(uint64_t))
-				json_object.push_back(var.to_uint64());
-			else if (type == GTS_RTTR_TYPE(float))
-				json_object.push_back(var.to_double());
-			else if (type == GTS_RTTR_TYPE(double))
-				json_object.push_back(var.to_double());
-			else if (type == GTS_RTTR_TYPE(long double))
-				json_object.push_back(var.get_value<long double>());
+				json_object.emplace_back(var.to_bool());
+			else if( type == GTS_RTTR_TYPE(int8_t) )
+				json_object.emplace_back(var.to_int8());
+			else if( type == GTS_RTTR_TYPE(int16_t) )
+				json_object.emplace_back(var.to_int16());
+			else if( type == GTS_RTTR_TYPE(int32_t) )
+				json_object.emplace_back(var.to_int32());
+			else if( type == GTS_RTTR_TYPE(int64_t) )
+				json_object.emplace_back(var.to_int64());
+			else if( type == GTS_RTTR_TYPE(uint8_t) )
+				json_object.emplace_back(var.to_uint8());
+			else if( type == GTS_RTTR_TYPE(uint16_t) )
+				json_object.emplace_back(var.to_uint16());
+			else if( type == GTS_RTTR_TYPE(uint32_t) )
+				json_object.emplace_back(var.to_uint32());
+			else if( type == GTS_RTTR_TYPE(uint64_t) )
+				json_object.emplace_back(var.to_uint64());
+			else if( type == GTS_RTTR_TYPE(float) )
+				json_object.emplace_back(var.to_float());
+			else if( type == GTS_RTTR_TYPE(double) )
+				json_object.emplace_back(var.to_double());
+			else if( type == GTS_RTTR_TYPE(long double) )
+				json_object.emplace_back(var.get_value<long double>());
 		}
 		else
 		{
 			if( type == GTS_RTTR_TYPE(bool) )
-				json_object.push_back({name, var.to_bool()});
-			else if (type == GTS_RTTR_TYPE(int8_t))
-				json_object.push_back({name, var.to_int8()});
-			else if (type == GTS_RTTR_TYPE(int16_t))
-				json_object.push_back({name, var.to_int16()});
-			else if (type == GTS_RTTR_TYPE(int32_t))
-				json_object.push_back({name, var.to_int32()});
-			else if (type == GTS_RTTR_TYPE(int64_t))
-				json_object.push_back({name, var.to_int64()});
-			else if (type == GTS_RTTR_TYPE(uint8_t))
-				json_object.push_back({name, var.to_uint8()});
-			else if (type == GTS_RTTR_TYPE(uint16_t))
-				json_object.push_back({name, var.to_uint16()});
-			else if (type == GTS_RTTR_TYPE(uint32_t))
-				json_object.push_back({name, var.to_uint32()});
-			else if (type == GTS_RTTR_TYPE(uint64_t))
-				json_object.push_back({name, var.to_uint64()});
-			else if (type == GTS_RTTR_TYPE(float))
-				json_object.push_back({name, var.to_double()});
-			else if (type == GTS_RTTR_TYPE(double))
-				json_object.push_back({name, var.to_double()});
-			else if (type == GTS_RTTR_TYPE(long double))
-				json_object.push_back({name, var.get_value<long double>()});
+				json_object[name.data()] = var.to_bool();
+			else if( type == GTS_RTTR_TYPE(int8_t) )
+				json_object[name.data()] = var.to_int8();
+			else if( type == GTS_RTTR_TYPE(int16_t) )
+				json_object[name.data()] = var.to_int16();
+			else if( type == GTS_RTTR_TYPE(int32_t) )
+				json_object[name.data()] = var.to_int32();
+			else if( type == GTS_RTTR_TYPE(int64_t) )
+				json_object[name.data()] = var.to_int64();
+			else if( type == GTS_RTTR_TYPE(uint8_t) )
+				json_object[name.data()] = var.to_uint8();
+			else if( type == GTS_RTTR_TYPE(uint16_t) )
+				json_object[name.data()] = var.to_uint16();
+			else if( type == GTS_RTTR_TYPE(uint32_t) )
+				json_object[name.data()] = var.to_uint32();
+			else if( type == GTS_RTTR_TYPE(uint64_t) )
+				json_object[name.data()] = var.to_uint64();
+			else if( type == GTS_RTTR_TYPE(float) )
+				json_object[name.data()] = var.to_float();
+			else if( type == GTS_RTTR_TYPE(double) )
+				json_object[name.data()] = var.to_double();
+			else if( type == GTS_RTTR_TYPE(long double) )
+				json_object[name.data()] = var.get_value<long double>();
 		}
 		return true;
 	}
@@ -276,7 +274,7 @@ bool rjson::write_atomic_types_to_json(const rttr::type &type, const rttr::varia
 		bool ok = false;
 		var.to_string(&ok);
 		if( ok )
-			json_object.push_back({name, var.to_string()});
+			json_object[name.data()] = var.to_string();
 		else
 		{
 			ok = false;
@@ -284,16 +282,16 @@ bool rjson::write_atomic_types_to_json(const rttr::type &type, const rttr::varia
 			if( name.empty() )
 			{
 				if( ok )
-					json_object.push_back(value);
+					json_object.emplace_back(value);
 				else
-					json_object.push_back("");
+					json_object.emplace_back("");
 			}
 			else
 			{
 				if( ok )
-					json_object.push_back({name, value});
+					json_object[name.data()] = value;
 				else
-					json_object.push_back({name, ""});
+					json_object[name.data()] = "";
 			}
 		}
 		return true;
@@ -301,18 +299,18 @@ bool rjson::write_atomic_types_to_json(const rttr::type &type, const rttr::varia
 	else if( type == GTS_RTTR_TYPE(std::string) )
 	{
 		if( name.empty() )
-			json_object.push_back(var.to_string());
+			json_object.emplace_back(var.to_string());
 		else
-			json_object.push_back({name, var.to_string()});
+			json_object[name.data()] = var.to_string();
 		return true;
 	}
 	return false;
 }
 
-void rjson::write_array(const rttr::variant_sequential_view &view, rttr::string_view name, json &json_object)
+static void write_array(const rttr::variant_sequential_view &view, rttr::string_view name, njson &json_object)
 {
-	json array(value_t::array);
-	for(const auto& item : view)
+	njson array(njson_type::array);
+	for(const auto &item : view)
 	{
 		if( item.is_sequential_container() )
 			write_array(item.create_sequential_view(), name, array);
@@ -327,31 +325,33 @@ void rjson::write_array(const rttr::variant_sequential_view &view, rttr::string_
 				to_json_recursively(wrapped_var, array);
 		}
 	}
-	json_object.push_back({name, array});
+	json_object[name.data()] = array;
 }
 
-void rjson::write_associative_container(const rttr::variant_associative_view &view, rttr::string_view name, json &json_object)
+static void write_variant(njson &json_object, rttr::string_view name, const rttr::variant &var);
+
+static void write_associative_container(const rttr::variant_associative_view &view, rttr::string_view name, njson &json_object)
 {
-	json array(value_t::array);
+	njson array(njson_type::array);
 	if( view.is_key_only_type() )
 	{
-		for(auto& pair : view)
+		for(auto &pair : view)
 			write_variant(array, "", pair.first);
 	}
 	else
 	{
-		for(auto& item : view)
+		for(auto &item : view)
 		{
-			json sub_json(value_t::object);
+			njson sub_json(njson_type::object);
 			write_variant(sub_json, "key", item.first);
 			write_variant(sub_json, "value", item.second);
-			array.push_back(sub_json);
+			array.emplace_back(std::move(sub_json));
 		}
 	}
-	json_object.push_back({name, array});
+	json_object[name.data()] = array;
 }
 
-void rjson::write_variant(json &json_object, rttr::string_view name, const rttr::variant &var)
+static void write_variant(njson &json_object, rttr::string_view name, const rttr::variant &var)
 {
 	auto value_type = var.get_type();
 	auto wrapped_type = value_type.is_wrapper() ? value_type.get_wrapped_type() : value_type;
@@ -377,13 +377,13 @@ void rjson::write_variant(json &json_object, rttr::string_view name, const rttr:
 		auto child_props = is_wrapper ? wrapped_type.get_properties() : value_type.get_properties();
 		if( not child_props.empty() )
 		{
-			json sub_json(value_t::object);
+			njson sub_json(njson_type::object);
 			to_json_recursively(var, sub_json);
 
 			if( name.empty() )
-				json_object.push_back(sub_json);
+				json_object.emplace_back(std::move(sub_json));
 			else
-				json_object.push_back({name.data(), sub_json});
+				json_object[name.data()] = sub_json;
 			return ;
 		}
 		else
@@ -393,9 +393,9 @@ void rjson::write_variant(json &json_object, rttr::string_view name, const rttr:
 			if( ok )
 			{
 				if( name.empty() )
-					json_object.push_back(text);
+					json_object.emplace_back(text);
 				else
-					json_object.push_back({name.data(), text});
+					json_object[name.data()] = text;
 				return ;
 			}
 		}
@@ -403,13 +403,13 @@ void rjson::write_variant(json &json_object, rttr::string_view name, const rttr:
 	throw type_error::create(1, fmt::format("无效的字段类型:'{}'", value_type.get_name()), nullptr);
 }
 
-void rjson::to_json_recursively(const rttr::instance& obj2, json &json_object)
+void to_json_recursively(const rttr::instance obj2, njson &json_object)
 {
 	auto obj = obj2.get_type().get_raw_type().is_wrapper() ? obj2.get_wrapped_instance() : obj2;
 	auto prop_list = obj.get_derived_type().get_properties();
 
-	for(auto prop : prop_list)
+	for(auto &prop : prop_list)
 		write_variant(json_object, prop.get_name(), prop.get_value(obj));
 }
 
-} //namespace nlohmann
+}} //namespace gts::njson_utls

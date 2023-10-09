@@ -1,3 +1,5 @@
+set(target_name gts)
+
 set(server_sources
 	main.cpp
 	server_tool.cpp
@@ -41,7 +43,6 @@ elseif(UNIX)
 	)
 endif()
 
-set(target_name gts)
 add_executable(${target_name} ${server_sources} ${server_headers} ${server_private_headers})
 
 target_include_directories(${target_name} PRIVATE .)

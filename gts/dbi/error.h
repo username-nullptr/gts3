@@ -98,5 +98,6 @@ public:
 
 } //namespace fmt
 
+#include <gts/dbi/detail/error.h>
 
 #endif //GTS_DBI_EXCEPTION_H

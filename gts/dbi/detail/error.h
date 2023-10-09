@@ -55,7 +55,7 @@ inline int error_code::value() const
 	return m_value;
 }
 
-inline std::string message() const
+inline std::string error_code::message() const
 {
 	return m_message;
 }

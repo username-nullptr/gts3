@@ -1,3 +1,5 @@
+set(target_name gtsdbi)
+
 set(dbi_sources
 	result_iterator.cpp
 	connection.cpp
@@ -22,8 +24,6 @@ set(dbi_detail_headers
 	detail/driver.h
 	detail/connection.h
 )
-
-set(target_name gtsdbi)
 
 add_library(${target_name} SHARED ${dbi_sources} ${dbi_headers} ${dbi_detail_headers})
 target_compile_definitions(${target_name} PRIVATE gtsdbi_EXPORTS)

@@ -26,32 +26,16 @@
 *                                                                                   *
 *************************************************************************************/
 
-#ifndef GTS_DBI_MANAGER_H
-#define GTS_DBI_MANAGER_H
+#ifndef GTS_UTLS_GLOBAL_H
+#define GTS_UTLS_GLOBAL_H
 
-#include <gts/dbi/driver.h>
+#include <gts/global.h>
 
-namespace gts { namespace dbi
-{
-
-class GTS_DBI_API manager
-{
-public:
-	static void register_driver(dbi::driver *driver, bool as_default = false) noexcept(false);
-	static void unregister_driver(const std::string &name);
-	static void unregister_driver(dbi::driver *driver);
-
-public:
-	static dbi::driver &driver(const std::string &name = "");
-	static void set_default_driver(dbi::driver *driver);
-	static void set_default_driver(const std::string &name);
-};
-
-#define GTS_DBI_CREATE_CONNECTION(...)  gts::dbi::manager::driver().create_connection(__VA_ARGS__)
-
-#define GTS_DBI_CREATE_CONNECTION_BN(_driver_name, ...)  gts::dbi::manager::driver(_driver_name).create_connection(__VA_ARGS__)
-
-}} //namespace gts::dbi
+#ifdef gtsutls_EXPORTS
+# define GTS_UTLS_API  GTS_DECL_EXPORT
+#else //gtsutls_EXPORTS
+# define GTS_UTLS_API  GTS_DECL_IMPORT
+#endif //gtsutls_EXPORTS
 
 
-#endif //GTS_DBI_MANAGER_H
+#endif //GTS_UTLS_GLOBAL_H

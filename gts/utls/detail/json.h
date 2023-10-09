@@ -26,32 +26,48 @@
 *                                                                                   *
 *************************************************************************************/
 
-#ifndef GTS_DBI_MANAGER_H
-#define GTS_DBI_MANAGER_H
+#ifndef GTS_UTLS_DETAIL_JSON_H
+#define GTS_UTLS_DETAIL_JSON_H
 
-#include <gts/dbi/driver.h>
-
-namespace gts { namespace dbi
+namespace gts { namespace njson_utls
 {
 
-class GTS_DBI_API manager
+template <typename T>
+void to_struct(const njson &json, T&t) {
+	from_json_recursively(t, json);
+}
+
+template <typename T>
+T to_struct(const njson &json)
 {
-public:
-	static void register_driver(dbi::driver *driver, bool as_default = false) noexcept(false);
-	static void unregister_driver(const std::string &name);
-	static void unregister_driver(dbi::driver *driver);
+	T obj;
+	to_struct(json, obj);
+	return obj;
+}
 
-public:
-	static dbi::driver &driver(const std::string &name = "");
-	static void set_default_driver(dbi::driver *driver);
-	static void set_default_driver(const std::string &name);
-};
+template <typename T>
+void parse_to_struct(const std::string &str, T &obj) {
+	to_struct(njson::parse(str), obj);
+}
 
-#define GTS_DBI_CREATE_CONNECTION(...)  gts::dbi::manager::driver().create_connection(__VA_ARGS__)
+template <typename T>
+T parse_to_struct(const std::string &str)
+{
+	T obj;
+	parse_to_struct(str, obj);
+	return obj;
+}
 
-#define GTS_DBI_CREATE_CONNECTION_BN(_driver_name, ...)  gts::dbi::manager::driver(_driver_name).create_connection(__VA_ARGS__)
+template <typename T>
+njson from_struct(const T &obj)
+{
+	njson json(njson_type::object);
+	to_json_recursively(obj, json);
+	return json;
+}
 
-}} //namespace gts::dbi
+}} //namespace gts::njson_utls
 
 
-#endif //GTS_DBI_MANAGER_H
+#endif //GTS_UTLS_DETAIL_JSON_H
+
