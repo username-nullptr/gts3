@@ -42,7 +42,7 @@ add_library(${target_name} SHARED
 	${web_gts_detail_headers}
 	${web_sp_headers}
 )
-target_compile_definitions(${target_name} PRIVATE gtsweb_EXPORTS)
+target_compile_definitions(${target_name} PRIVATE ${target_name}_EXPORTS)
 target_link_libraries(${target_name} PUBLIC gtshttp)
 
 set_target_properties(${target_name} PROPERTIES

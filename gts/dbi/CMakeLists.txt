@@ -26,7 +26,7 @@ set(dbi_detail_headers
 )
 
 add_library(${target_name} SHARED ${dbi_sources} ${dbi_headers} ${dbi_detail_headers})
-target_compile_definitions(${target_name} PRIVATE gtsdbi_EXPORTS)
+target_compile_definitions(${target_name} PRIVATE ${target_name}_EXPORTS)
 
 target_include_directories(${target_name} PRIVATE .)
 target_link_libraries(${target_name} PUBLIC gtscore)

@@ -44,7 +44,7 @@ add_library(${target_name} SHARED
 	${http_gts_detail_headers}
 	${http_sps}
 )
-target_compile_definitions(${target_name} PRIVATE gtshttp_EXPORTS)
+target_compile_definitions(${target_name} PRIVATE ${target_name}_EXPORTS)
 target_link_libraries(${target_name} PUBLIC gtscore)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_SIZEOF_VOID_P EQUAL 4)

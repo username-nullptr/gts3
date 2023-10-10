@@ -81,7 +81,7 @@ add_library(${target_name} SHARED
 	${core_gts_detail_headers}
 	${core_sp_headers}
 )
-target_compile_definitions(${target_name} PRIVATE gtscore_EXPORTS)
+target_compile_definitions(${target_name} PRIVATE ${target_name}_EXPORTS)
 
 if (ENABLE_SSL)
 	target_link_libraries(${target_name} PUBLIC ssl crypto)
