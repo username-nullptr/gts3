@@ -85,52 +85,72 @@ public:
 public:
 	template <typename...Args>
 	log_buffer debug(fmt::format_string<Args...> fmt, Args&&...args);
-	log_buffer debug(std::string msg);
+
+	template <typename T>
+	log_buffer debug(T &&msg);
 	log_buffer debug();
 
 	template <typename...Args>
 	log_buffer info(fmt::format_string<Args...> fmt, Args&&...args);
-	log_buffer info(std::string msg);
+
+	template <typename T>
+	log_buffer info(T &&msg);
 	log_buffer info();
 
 	template <typename...Args>
 	log_buffer warning(fmt::format_string<Args...> fmt, Args&&...args);
-	log_buffer warning(std::string msg);
+
+	template <typename T>
+	log_buffer warning(T &&msg);
 	log_buffer warning();
 
 	template <typename...Args>
 	log_buffer error(fmt::format_string<Args...> fmt, Args&&...args);
-	log_buffer error(std::string msg);
+
+	template <typename T>
+	log_buffer error(T &&msg);
 	log_buffer error();
 
 	template <typename...Args>
 	void fatal(fmt::format_string<Args...> fmt, Args&&...args);
-	void fatal(const std::string &msg);
+
+	template <typename T>
+	void fatal(T &&msg);
 
 public:
 	template <typename...Args>
 	log_buffer cdebug(std::string category, fmt::format_string<Args...> fmt, Args&&...args);
-	log_buffer cdebug(std::string category, std::string msg);
+
+	template <typename T>
+	log_buffer cdebug(std::string category, T &&msg);
 	log_buffer cdebug(std::string category);
 
 	template <typename...Args>
 	log_buffer cinfo(std::string category, fmt::format_string<Args...> fmt, Args&&...args);
-	log_buffer cinfo(std::string category, std::string msg);
+
+	template <typename T>
+	log_buffer cinfo(std::string category, T &&msg);
 	log_buffer cinfo(std::string category);
 
 	template <typename...Args>
 	log_buffer cwarning(std::string category, fmt::format_string<Args...> fmt, Args&&...args);
-	log_buffer cwarning(std::string category, std::string msg);
+
+	template <typename T>
+	log_buffer cwarning(std::string category, T &&msg);
 	log_buffer cwarning(std::string category);
 
 	template <typename...Args>
 	log_buffer cerror(std::string category, fmt::format_string<Args...> fmt, Args&&...args);
-	log_buffer cerror(std::string category, std::string msg);
+
+	template <typename T>
+	log_buffer cerror(std::string category, T &&msg);
 	log_buffer cerror(std::string category);
 
 	template <typename...Args>
 	void cfatal(std::string category, fmt::format_string<Args...> fmt, Args&&...args);
-	void cfatal(std::string category, const std::string &msg);
+
+	template <typename T>
+	void cfatal(std::string category, T &&msg);
 
 public:
 	static void wait(const duration &ms);
