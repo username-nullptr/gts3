@@ -75,6 +75,12 @@ std::size_t ssl_socket::read_some(std::string &buf, asio::error_code &error) noe
 	return m_ssl_sock->read_some(asio::buffer(buf, option.value()), error);
 }
 
+std::size_t ssl_socket::read_some(std::string &buf, std::size_t size, asio::error_code &error) noexcept
+{
+	m_sock->non_blocking(false);
+	return m_ssl_sock->read_some(asio::buffer(buf, size), error);
+}
+
 std::size_t ssl_socket::read_some(void *buf, std::size_t size, asio::error_code &error) noexcept
 {
 	m_sock->non_blocking(false);

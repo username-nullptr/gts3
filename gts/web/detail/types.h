@@ -26,26 +26,38 @@
 *                                                                                   *
 *************************************************************************************/
 
-#include "socket.h"
+#ifndef GTS_WEB_DETAIL_TYPES_H
+#define GTS_WEB_DETAIL_TYPES_H
 
-namespace gts { namespace web
+namespace gts { namespace web { namespace socket_protocol
 {
 
-socket::socket(const http::request &req, http::response &resp) noexcept(false)
-{
-	auto &headers = req.headers();
-	auto it = headers.find(http::header::upgrade);
-
-	if( it == headers.end() or str_to_lower(it->second) != "websocket" )
-		throw exception("gts::websocket: Protocol upgrade is not supported.");
-
-	// TODO ...
-	GTS_UNUSED(resp);
-}
-
-socket::~socket() noexcept
+inline buffer::buffer(std::string data, data_type type) :
+	data(std::move(data)), type(type)
 {
 
 }
 
-}} //namespace gts::web
+inline buffer::buffer(void *data, std::size_t size, data_type type) :
+	data(reinterpret_cast<const char*>(data), size), type(type)
+{
+
+}
+
+inline buffer::buffer(buffer &&other) :
+	data(std::move(other.data)), type(other.type)
+{
+
+}
+
+inline buffer &buffer::operator=(buffer &&other)
+{
+	data = std::move(other.data);
+	type = other.type;
+	return *this;
+}
+
+}}} //namespace gts::web::socket_protocol
+
+
+#endif //GTS_WEB_DETAIL_TYPES_H

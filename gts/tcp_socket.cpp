@@ -89,6 +89,12 @@ std::size_t tcp_socket::read_some(std::string &buf, asio::error_code &error) noe
 	return res;
 }
 
+std::size_t tcp_socket::read_some(std::string &buf, std::size_t size, asio::error_code &error) noexcept
+{
+	m_sock->non_blocking(false);
+	return m_sock->read_some(asio::buffer(buf, size), error);
+}
+
 std::size_t tcp_socket::read_some(void *buf, std::size_t size, asio::error_code &error) noexcept
 {
 	m_sock->non_blocking(false);
@@ -177,6 +183,15 @@ std::size_t tcp_socket::read_some(std::string &buf) noexcept
 	return res;
 }
 
+std::size_t tcp_socket::read_some(std::string &buf, std::size_t size) noexcept
+{
+	asio::error_code error;
+	auto res = read_some(buf, size, error);
+	if( error )
+		this->error(error, "read_some(void*)");
+	return res;
+}
+
 std::size_t tcp_socket::read_some(void *buf, std::size_t size) noexcept
 {
 	asio::error_code error;
@@ -255,6 +270,13 @@ std::size_t tcp_socket::read_some(std::string &buf, const duration &timeout, asi
 	return 0;
 }
 
+std::size_t tcp_socket::read_some(std::string &buf, std::size_t size, const duration &timeout, asio::error_code &error) noexcept
+{
+	if( wait_readable(timeout, error) )
+		return read_some(buf, size, error);
+	return 0;
+}
+
 std::size_t tcp_socket::read_some(void *buf, std::size_t size, const duration &timeout, asio::error_code &error) noexcept
 {
 	if( wait_readable(timeout, error) )
@@ -267,6 +289,16 @@ std::size_t tcp_socket::read_some(std::string &buf, const duration &timeout) noe
 	asio::error_code error;
 	if( wait_readable(timeout, error) )
 		return read_some(buf);
+	else if( error )
+		this->error(error, "read_some: wait_readable");
+	return 0;
+}
+
+std::size_t tcp_socket::read_some(std::string &buf, std::size_t size, const duration &timeout) noexcept
+{
+	asio::error_code error;
+	if( wait_readable(timeout, error) )
+		return read_some(buf, size);
 	else if( error )
 		this->error(error, "read_some: wait_readable");
 	return 0;

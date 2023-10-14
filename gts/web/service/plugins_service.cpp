@@ -171,6 +171,17 @@ rttr::variant plugins_service::method_call(rttr::method &method, rttr::instance 
 		auto t0 = (it++)->get_type();
 		auto t1 = it->get_type();
 
+		auto &headers = m_sio.request().headers();
+		auto hit = headers.find(http::header::upgrade);
+
+		if( hit != headers.end() and str_to_lower(hit->second) == "websocket" )
+		{
+			if( t0 == GTS_RTTR_TYPE(web::socket_ptr) and t1 == GTS_RTTR_TYPE(web::environments) )
+				return method.invoke(obj, make_websocket_ptr(m_sio.request(), m_sio.response()), make_envs(m_sio));
+
+			else if( t0 == GTS_RTTR_TYPE(web::environments) and t1 == GTS_RTTR_TYPE(web::socket_ptr) )
+				return method.invoke(obj, make_envs(m_sio), make_websocket_ptr(m_sio.request(), m_sio.response()));
+		}
 		if( t0 == GTS_RTTR_TYPE(http::request) and t1 == GTS_RTTR_TYPE(http::response) )
 			return method.invoke(obj, m_sio.request(), m_sio.response());
 

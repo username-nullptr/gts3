@@ -1,4 +1,6 @@
 if ((CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND ${CMAKE_CXX_STANDARD} LESS 23) OR ${CMAKE_CXX_STANDARD} LESS 23)
+	set(target_name fmt)
+
 	set(fmt_headers
 		fmt/args.h
 		fmt/color.h
@@ -18,7 +20,6 @@ if ((CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND ${CMAKE_CXX_STANDARD} LESS 23) OR
 		fmt/format.cc
 		fmt/os.cc
 	)
-	set(target_name fmt)
 
 	add_library(${target_name} SHARED ${fmt_sources} ${fmt_headers})
 	target_include_directories(${target_name} PRIVATE .)

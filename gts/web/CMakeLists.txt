@@ -24,6 +24,8 @@ set(web_gts_headers
 
 set(web_gts_detail_headers
 	detail/registration.h
+	detail/socket.h
+	detail/types.h
 )
 
 set(web_sp_headers

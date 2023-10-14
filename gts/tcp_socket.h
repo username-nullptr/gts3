@@ -49,12 +49,15 @@ public:
 public:
 	virtual std::size_t write_some(const std::string &buf, asio::error_code &error) noexcept;
 	virtual std::size_t write_some(const void *buf, std::size_t size, asio::error_code &error) noexcept;
+
 	virtual std::size_t read_some(std::string &buf, asio::error_code &error) noexcept;
+	virtual std::size_t read_some(std::string &buf, std::size_t size, asio::error_code &error) noexcept;
 	virtual std::size_t read_some(void *buf, std::size_t size, asio::error_code &error) noexcept;
 
 public:
 	virtual void async_write_some(const std::string &buf, std::function<void(asio::error_code, std::size_t)>) noexcept;
 	virtual void async_write_some(const void *buf, std::size_t size, std::function<void(asio::error_code, std::size_t)>) noexcept;
+
 	virtual void async_read_some(std::string &buf, std::function<void(asio::error_code)>) noexcept;
 	virtual void async_read_some(std::string &buf, std::size_t, std::function<void(asio::error_code)>) noexcept;
 	virtual void async_read_some(void *buf, std::size_t size, std::function<void(asio::error_code, std::size_t)>) noexcept;
@@ -62,12 +65,15 @@ public:
 public:
 	std::size_t write_some(const std::string &buf) noexcept;
 	std::size_t write_some(const void *buf, std::size_t size) noexcept;
+
 	std::size_t read_some(std::string &buf) noexcept;
+	std::size_t read_some(std::string &buf, std::size_t size) noexcept;
 	std::size_t read_some(void *buf, std::size_t size) noexcept;
 
 public:
 	void async_write_some(const std::string &buf, std::function<void(std::size_t)>) noexcept;
 	void async_write_some(const void *buf, std::size_t size, std::function<void(std::size_t)>) noexcept;
+
 	void async_read_some(std::string &buf, std::function<void()>) noexcept;
 	void async_read_some(std::string &buf, std::size_t, std::function<void()>) noexcept;
 	void async_read_some(void *buf, std::size_t size, std::function<void(std::size_t)>) noexcept;
@@ -78,8 +84,11 @@ public:
 
 public:
 	std::size_t read_some(std::string &buf, const duration &timeout, asio::error_code &error) noexcept;
+	std::size_t read_some(std::string &buf, std::size_t size, const duration &timeout, asio::error_code &error) noexcept;
 	std::size_t read_some(void *buf, std::size_t size, const duration &timeout, asio::error_code &error) noexcept;
+
 	std::size_t read_some(std::string &buf, const duration &timeout) noexcept;
+	std::size_t read_some(std::string &buf, std::size_t size, const duration &timeout) noexcept;
 	std::size_t read_some(void *buf, std::size_t size, const duration &timeout) noexcept;
 
 public:

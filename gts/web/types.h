@@ -79,15 +79,30 @@ enum class data_type {
 	text, binary
 };
 
-struct buffer
+class GTS_WEB_API buffer
 {
-	data_type type;
+public:
+	buffer() = default;
+	buffer(std::string data, data_type type = data_type::text);
+	buffer(void *data, std::size_t size, data_type type = data_type::text);
+
+public:
+	buffer(const buffer&) = default;
+	buffer(buffer &&other);
+
+public:
+	buffer &operator=(const buffer&) = default;
+	buffer &operator=(buffer &&other);
+
+public:
 	std::string data;
+	data_type type;
 };
 
 } //namespace socket_protocol
 
 }} //namespace gts::web
 
+#include <gts/web/detail/types.h>
 
 #endif //GTS_WEB_TYPES_H

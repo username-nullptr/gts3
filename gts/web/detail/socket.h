@@ -26,91 +26,28 @@
 *                                                                                   *
 *************************************************************************************/
 
-#ifndef GTS_WEB_SOCKET_H
-#define GTS_WEB_SOCKET_H
+#ifndef GTS_WEB_DETAIL_SOCKET_H
+#define GTS_WEB_DETAIL_SOCKET_H
 
-#include <gts/web/types.h>
-#include <gts/http/request.h>
-#include <gts/http/response.h>
-
-// Not Implemented
-namespace gts { namespace web
+namespace gts
 {
 
-class GTS_WEB_API socket
+namespace web
 {
-	GTS_DISABLE_COPY_MOVE(socket)
-	using buffer = socket_protocol::buffer;
-	using duration = std::chrono::milliseconds;
-
-public:
-	socket(const http::request &req, http::response &resp) noexcept(false);
-	virtual ~socket() noexcept;
-
-public:
-	std::size_t write_some(const buffer &buf, asio::error_code &error) noexcept;
-	std::size_t write_some(const buffer &buf) noexcept;
-
-	std::size_t read_some(buffer &buf, asio::error_code &error) noexcept;
-	std::size_t read_some(buffer &buf) noexcept;
-
-	std::size_t read_some(buffer &buf, const duration &timeout, asio::error_code &error) noexcept;
-	std::size_t read_some(buffer &buf, const duration &timeout) noexcept;
-
-public:
-	void async_write_some(const buffer &buf, std::function<void(asio::error_code, std::size_t)>) noexcept;
-	void async_write_some(const buffer &buf, std::function<void(std::size_t)>) noexcept;
-
-	void async_read_some(buffer &buf, std::function<void(asio::error_code)>) noexcept;
-	void async_read_some(buffer &buf, std::function<void()>) noexcept;
-
-public:
-	void write_some_nonblock(buffer buf) noexcept;
-
-public:
-	bool wait_writeable(const duration &ms, asio::error_code &error) noexcept;
-	bool wait_writeable(const duration &ms) noexcept;
-
-	bool wait_readable(const duration &ms, asio::error_code &error) noexcept;
-	bool wait_readable(const duration &ms) noexcept;
-
-public:
-	tcp::endpoint remote_endpoint(asio::error_code &error) noexcept;
-	tcp::endpoint remote_endpoint() noexcept;
-
-public:
-	tcp::endpoint local_endpoint(asio::error_code &error) noexcept;
-	tcp::endpoint local_endpoint() noexcept;
-
-public:
-	bool is_open() const;
-	void close(asio::error_code &error, bool shutdown = false) noexcept;
-	void close(bool shutdown = false) noexcept;
-
-public:
-	const tcp_socket &native() const noexcept;
-	tcp_socket &native() noexcept;
-
-protected:
-	tcp_socket_ptr m_sock;
-};
-
-using socket_ptr = std::shared_ptr<socket>;
 
 template <typename...Args>
-socket_ptr make_socket_ptr(Args&&...args);
+inline socket_ptr make_socket_ptr(Args&&...args) {
+	return std::make_shared<socket>(std::forward<Args>(args)...);
+}
 
 } //namespace web
 
-using websocket = web::socket;
-
-using websocket_ptr = web::socket_ptr;
-
 template <typename...Args>
-websocket_ptr make_websocket_ptr(Args&&...args);
+inline websocket_ptr make_websocket_ptr(Args&&...args) {
+	return std::make_shared<websocket>(std::forward<Args>(args)...);
+}
 
 } //namespace gts
 
-#include <gts/web/detail/socket.h>
 
-#endif //GTS_WEB_SOCKET_H
+#endif //GTS_WEB_DETAIL_SOCKET_H

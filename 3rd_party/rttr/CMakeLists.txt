@@ -1,3 +1,5 @@
+set(target_name rttr_core)
+
 set(rttr_headers
 	rttr/access_levels.h
 	rttr/argument.h
@@ -176,8 +178,6 @@ elseif (UNIX)
 		rttr/detail/library/library_unix.cpp
 	)
 endif()
-
-set(target_name rttr_core)
 
 add_library(${target_name} SHARED ${rttr_sources} ${rttr_headers} ${rttr_private_headers})
 target_compile_definitions(${target_name} PRIVATE RTTR_DLL RTTR_DLL_EXPORTS)

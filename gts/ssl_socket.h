@@ -52,11 +52,13 @@ public:
 public:
 	std::size_t write_some(const void *buf, std::size_t size, asio::error_code &error) noexcept override;
 	std::size_t read_some(std::string &buf, asio::error_code &error) noexcept override;
+	std::size_t read_some(std::string &buf, std::size_t size, asio::error_code &error) noexcept override;
 	std::size_t read_some(void *buf, std::size_t size, asio::error_code &error) noexcept override;
 
 public:
 	void async_write_some(const std::string &buf, std::function<void(asio::error_code, std::size_t)>) noexcept override;
 	void async_write_some(const void *buf, std::size_t size, std::function<void(asio::error_code, std::size_t)>) noexcept override;
+
 	void async_read_some(std::string &buf, std::function<void(asio::error_code)>) noexcept override;
 	void async_read_some(std::string &buf, std::size_t size, std::function<void(asio::error_code)>) noexcept override;
 	void async_read_some(void *buf, std::size_t size, std::function<void(asio::error_code, std::size_t)>) noexcept override;
