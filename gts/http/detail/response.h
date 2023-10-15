@@ -49,7 +49,7 @@ T response::header(const std::string &key) const noexcept(false) {
 
 template <typename T, typename U>
 T response::header_or(const std::string &key, T deft_value) const noexcept {
-	return header_or(key, http::value(std::move(deft_value))).get<T>();
+	return header_or(key, gts::value(std::move(deft_value))).get<T>();
 }
 
 template <typename T>

@@ -26,10 +26,10 @@
 *                                                                                   *
 *************************************************************************************/
 
-#ifndef GTS_HTTP_DETAIL_VALUE_H
-#define GTS_HTTP_DETAIL_VALUE_H
+#ifndef GTS_DETAIL_VALUE_H
+#define GTS_DETAIL_VALUE_H
 
-namespace gts { namespace http
+namespace gts
 {
 
 inline value::value(const std::string &str) :
@@ -38,7 +38,7 @@ inline value::value(const std::string &str) :
 
 }
 
-inline value::value(const http::value &other) :
+inline value::value(const gts::value &other) :
 	base_type(other)
 {
 
@@ -50,7 +50,7 @@ inline value::value(std::string &&str) noexcept :
 
 }
 
-inline value::value(http::value &&other) noexcept :
+inline value::value(gts::value &&other) noexcept :
 	base_type(std::move(other))
 {
 
@@ -266,7 +266,7 @@ inline value &value::operator=(const std::string &other)
 	return *this;
 }
 
-inline value &value::operator=(const http::value &other)
+inline value &value::operator=(const gts::value &other)
 {
 	base_type::operator=(other);
 	return *this;
@@ -278,18 +278,18 @@ inline value &value::operator=(std::string &&other)
 	return *this;
 }
 
-inline value &value::operator=(http::value &&other)
+inline value &value::operator=(gts::value &&other)
 {
 	base_type::operator=(std::move(other));
 	return *this;
 }
 
-}} //namespace gts::http
+} //namespace gts
 
 namespace std
 {
 
-inline size_t hash<gts::http::value>::operator()(const gts::http::value &v) const noexcept
+inline size_t hash<gts::value>::operator()(const gts::value &v) const noexcept
 {
 	return hash<std::string>()(v);
 }
@@ -297,4 +297,4 @@ inline size_t hash<gts::http::value>::operator()(const gts::http::value &v) cons
 } //namespace std
 
 
-#endif //GTS_HTTP_DETAIL_VALUE_H
+#endif //GTS_DETAIL_VALUE_H

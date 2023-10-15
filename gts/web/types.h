@@ -35,9 +35,9 @@
 namespace gts { namespace web
 {
 
-using environment = http::pair<http::value>;
+using environment = http::pair<gts::value>;
 
-using environments = http::unordered_map<http::value>;
+using environments = http::unordered_map<gts::value>;
 
 namespace socket_protocol
 {

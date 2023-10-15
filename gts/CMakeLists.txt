@@ -32,6 +32,7 @@ set(core_gts_headers
 	cplusplus.hpp
 	utility.h
 	global.h
+	value.h
 	args_parser.h
 	application.h
 	string_list.h
@@ -53,6 +54,7 @@ set(core_gts_headers
 )
 
 set(core_gts_detail_headers
+	detail/value.h
 	detail/application.h
 	detail/settings.h
 	detail/tcp_socket.h

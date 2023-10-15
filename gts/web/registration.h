@@ -125,11 +125,14 @@ public:
 			  decltype(GTS_DECLVAL(Func)(GTS_DECLVAL(http::request&), environments(), GTS_DECLVAL(http::response&))), bool), int), uint64_t U0=0>
 	registration &filter_method(const std::string &path, Func &&func);
 
-public: // unrealized
-	template <int...http_method, typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)(websocket_ptr(), environments()))>
+public:
+	template <int...http_method, typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)(websocket_ptr()))>
 	registration &new_websocket_connection(const std::string &path, Func &&func);
 
-	template <int...http_method, typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)(environments(), websocket_ptr())), int8_t U0=0>
+	template <int...http_method, typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)(websocket_ptr(), environments())), int8_t U0=0>
+	registration &new_websocket_connection(const std::string &path, Func &&func);
+
+	template <int...http_method, typename Func, GTS_TYPE_DECLTYPE(GTS_DECLVAL(Func)(environments(), websocket_ptr())), uint8_t U0=0>
 	registration &new_websocket_connection(const std::string &path, Func &&func);
 
 private:
@@ -235,13 +238,17 @@ public:
 				  (GTS_CLASS_METHOD_DECLVAL(Class, bool, Req, Env, Res)(GTS_DECLVAL(http::request&), environments(), GTS_DECLVAL(http::response&))), int64_t U0=0>
 		class_ &filter_method(const std::string &path, bool(Class::*func)(Req, Env, Res));
 
-	public: // unrealized
+	public:
+		template <int...http_method, typename Return, typename WebSockPtr, GTS_TYPE_DECLTYPE
+				  (GTS_CLASS_METHOD_DECLVAL(Class, Return, WebSockPtr)(websocket_ptr()))>
+		class_ &new_websocket_connection(const std::string &path, Return(Class::*func)(WebSockPtr));
+
 		template <int...http_method, typename Return, typename WebSockPtr, typename Env, GTS_TYPE_DECLTYPE
-				  (GTS_CLASS_METHOD_DECLVAL(Class, Return, WebSockPtr, Env)(websocket_ptr(), environments()))>
+				  (GTS_CLASS_METHOD_DECLVAL(Class, Return, WebSockPtr, Env)(websocket_ptr(), environments())), int8_t U0=0>
 		class_ &new_websocket_connection(const std::string &path, Return(Class::*func)(WebSockPtr, Env));
 
 		template <int...http_method, typename Return, typename Env, typename WebSockPtr, GTS_TYPE_DECLTYPE
-				  (GTS_CLASS_METHOD_DECLVAL(Class, Return, Env, WebSockPtr)(environments(), websocket_ptr())), int8_t U0=0>
+				  (GTS_CLASS_METHOD_DECLVAL(Class, Return, Env, WebSockPtr)(environments(), websocket_ptr())), uint8_t U0=0>
 		class_ &new_websocket_connection(const std::string &path, Return(Class::*func)(Env, WebSockPtr));
 
 	private:

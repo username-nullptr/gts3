@@ -177,7 +177,7 @@ response &response::set_cookies(const http::cookies &cookies)
 	return *this;
 }
 
-response &response::set_header(std::string key, http::value value)
+response &response::set_header(std::string key, gts::value value)
 {
 	m_impl->m_headers[std::move(key)] = std::move(value);
 	return *this;

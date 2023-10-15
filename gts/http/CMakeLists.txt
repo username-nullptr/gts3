@@ -12,7 +12,6 @@ set(http_sources
 
 set(http_gts_headers
 	global.h
-	value.h
 	container.h
 	types.h
 	cookies.h
@@ -25,7 +24,6 @@ set(http_gts_headers
 )
 
 set(http_gts_detail_headers
-	detail/value.h
 	detail/container.h
 	detail/cookies.h
 	detail/session.h

@@ -164,6 +164,24 @@ registration &registration::filter_method(const std::string &path, Func &&func)
 	return _filter_method(path, std::forward<Func>(func));
 }
 
+template <int...http_method, typename Func, typename _GTD_0>
+registration &registration::new_websocket_connection(const std::string &path, Func &&func)
+{
+	return _request_handle_method<static_cast<http::method>(http_method)...>(path, std::forward<Func>(func));
+}
+
+template <int...http_method, typename Func, typename _GTD_0, int8_t U0>
+registration &registration::new_websocket_connection(const std::string &path, Func &&func)
+{
+	return _request_handle_method<static_cast<http::method>(http_method)...>(path, std::forward<Func>(func));
+}
+
+template <int...http_method, typename Func, typename _GTD_0, uint8_t U0>
+registration &registration::new_websocket_connection(const std::string &path, Func &&func)
+{
+	return _request_handle_method<static_cast<http::method>(http_method)...>(path, std::forward<Func>(func));
+}
+
 template <http::method...http_method, typename Func>
 registration &registration::_request_handle_method(std::string path, Func &&func)
 {
@@ -394,6 +412,27 @@ template <typename Class>
 template <typename Req, typename Env, typename Res, typename _GTD_0, int64_t U0>
 registration::class_<Class> &registration::class_<Class>::filter_method(const std::string &path, bool(Class::*func)(Req, Env, Res)) {
 	return _filter_method(path, func);
+}
+
+template <typename Class>
+template <int...http_method, typename Return, typename WebSockPtr, typename _GTD_0>
+registration::class_<Class> &registration::class_<Class>::new_websocket_connection(const std::string &path, Return(Class::*func)(WebSockPtr))
+{
+	return _request_handle_method<static_cast<http::method>(http_method)...>(path, func);
+}
+
+template <typename Class>
+template <int...http_method, typename Return, typename WebSockPtr, typename Env, typename _GTD_0, int8_t U0>
+registration::class_<Class> &registration::class_<Class>::new_websocket_connection(const std::string &path, Return(Class::*func)(WebSockPtr, Env))
+{
+	return _request_handle_method<static_cast<http::method>(http_method)...>(path, func);
+}
+
+template <typename Class>
+template <int...http_method, typename Return, typename Env, typename WebSockPtr, typename _GTD_0, uint8_t U0>
+registration::class_<Class> &registration::class_<Class>::new_websocket_connection(const std::string &path, Return(Class::*func)(Env, WebSockPtr))
+{
+	return _request_handle_method<static_cast<http::method>(http_method)...>(path, func);
 }
 
 template <typename Class>

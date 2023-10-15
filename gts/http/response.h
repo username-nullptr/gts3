@@ -45,7 +45,7 @@ class GTS_HTTP_API response
 	GTS_DISABLE_COPY_MOVE(response)
 
 	template <typename T>
-	using is_string = http::value::is_string<T>;
+	using is_string = gts::value::is_string<T>;
 
 	template <typename CT>
 	using not_value_t = enable_if_t<not is_string<CT>::value, int>;
@@ -64,7 +64,7 @@ public:
 	response &set_cookies(const http::cookies &cookies);
 
 public:
-	response &set_header(std::string key, http::value value);
+	response &set_header(std::string key, gts::value value);
 
 	template <typename...Args>
 	response &set_header(std::string key, fmt::format_string<Args...> fmt, Args&&...args);
@@ -126,7 +126,7 @@ public:
 	response &write(T &&value);
 
 public:
-	response &set_chunk_attribute(http::value attribute);
+	response &set_chunk_attribute(gts::value attribute);
 	response &set_chunk_attributes(value_list attributes);
 
 	template <typename...Args>

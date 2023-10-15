@@ -52,7 +52,7 @@ class GTS_HTTP_API request
 	GTS_DISABLE_COPY_MOVE(request)
 
 	template <typename T>
-	using is_string = http::value::is_string<T>;
+	using is_string = gts::value::is_string<T>;
 
 	template <typename CT>
 	using not_value_t = enable_if_t<not is_string<CT>::value, int>;

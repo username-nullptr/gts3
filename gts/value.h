@@ -26,14 +26,13 @@
 *                                                                                   *
 *************************************************************************************/
 
-#ifndef GTS_HTTP_VALUE_H
-#define GTS_HTTP_VALUE_H
+#ifndef GTS_VALUE_H
+#define GTS_VALUE_H
 
-#include <gts/http/global.h>
 #include <gts/algorithm.h>
 #include <cppformat>
 
-namespace gts { namespace http
+namespace gts
 {
 
 class value : public std::string
@@ -41,7 +40,7 @@ class value : public std::string
 public:
 	template <typename CT>
 	struct is_string {
-		static constexpr bool value = gts_is_same(decay_t<CT>, http::value) or
+		static constexpr bool value = gts_is_same(decay_t<CT>, gts::value) or
 									  gts_is_same(decay_t<CT>, std::string) or
 									  gts_is_same(CT, const char*) or
 									  gts_is_same(CT, char*);
@@ -55,9 +54,9 @@ public:
 public:
 	value() = default;
 	value(const std::string &str);
-	value(const http::value &other);
+	value(const gts::value &other);
 	value(std::string &&str) noexcept;
-	value(http::value &&other) noexcept;
+	value(gts::value &&other) noexcept;
 	value(const char *str, size_type len);
 
 	template <typename T, typename U = not_type_t<T,int>>
@@ -148,24 +147,24 @@ public:
 
 public:
 	value &operator=(const std::string &other);
-	value &operator=(const http::value &other);
+	value &operator=(const gts::value &other);
 	value &operator=(std::string &&other);
-	value &operator=(http::value &&other);
+	value &operator=(gts::value &&other);
 };
 
-using value_list = std::deque<http::value>;
+using value_list = std::deque<gts::value>;
 
-}} //namespace gts::http
+} //namespace gts
 
 namespace std
 {
 
-template<> struct hash<gts::http::value> : public __hash_base<size_t, gts::http::value> {
-	size_t operator()(const gts::http::value &v) const noexcept;
+template<> struct hash<gts::value> : public __hash_base<size_t, gts::value> {
+	size_t operator()(const gts::value &v) const noexcept;
 };
 
 } //namespace std
 
-#include <gts/http/detail/value.h>
+#include <gts/detail/value.h>
 
-#endif //GTS_HTTP_PAIR_H
+#endif //GTS_PAIR_H

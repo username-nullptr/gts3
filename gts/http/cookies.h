@@ -34,16 +34,16 @@
 namespace gts { namespace http
 {
 
-using cookie_attribute  = http::pair<http::value>;
-using cookie_attributes = http::map<http::value, less_case_insensitive>;
+using cookie_attribute  = http::pair<gts::value>;
+using cookie_attributes = http::map<gts::value, less_case_insensitive>;
 
-class GTS_HTTP_API cookie : public http::value
+class GTS_HTTP_API cookie : public gts::value
 {
 	template <typename CT>
 	using not_cookie_t = enable_if_t<not gts_is_dsame(CT, cookie) and not is_string<CT>::value, int>;
 
 public:
-	using _vbase = http::value;
+	using _vbase = gts::value;
 	using _vbase::value;
 
 public:

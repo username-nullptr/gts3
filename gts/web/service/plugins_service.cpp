@@ -57,18 +57,6 @@ bool plugins_service::exists()
 	return check() != nullptr;
 }
 
-#define _METHOD_CALL(_obj) \
-({ \
-	auto &headers = m_sio.request().headers(); \
-	auto it = headers.find(http::header::upgrade); \
-	if( it != headers.end() and str_to_lower(it->second) == "websocket" ) { \
-		/* TODO... */ \
-		m_sio.response().write_default(http::hs_not_implemented); \
-	} \
-	else \
-		method_call(ss.method, _obj, GTS_RTTR_TYPE(http::response)); \
-})
-
 bool plugins_service::call()
 {
 	auto array = check();
@@ -83,10 +71,21 @@ bool plugins_service::call()
 	}
 	if( call_filter() )
 		return true;
+
+	rttr::type p1_type = GTS_RTTR_TYPE(http::response);
+	auto &headers = m_sio.request().headers();
+
+	auto it = headers.find(http::header::connection);
+	if( it != headers.end() and str_to_lower(it->second) == "upgrade" )
+	{
+		auto it = headers.find(http::header::upgrade);
+		if( it != headers.end() and str_to_lower(it->second) == "websocket" )
+			p1_type = GTS_RTTR_TYPE(web::socket_ptr);
+	}
 	else if( ss.class_type.is_valid() )
-		_METHOD_CALL(registration::obj_hash()[ss.class_type]);
+		method_call(ss.method, registration::obj_hash()[ss.class_type], p1_type);
 	else
-		_METHOD_CALL(rttr::instance());
+		method_call(ss.method, {}, p1_type);
 	return true;
 }
 
@@ -139,7 +138,7 @@ registration::service_array *plugins_service::check()
 
 static environments make_envs(service_io &sio)
 {
-	return environments{
+	return environments {
 		{ "REQUEST_METHOD"   , http::method_string(sio.request().method())           },
 		{ "QUERY_STRING"     , sio.request().parameters_string()                     },
 		{ "REMOTE_ADDR"      , sio.socket.remote_endpoint().address().to_string()    },
@@ -163,6 +162,14 @@ rttr::variant plugins_service::method_call(rttr::method &method, rttr::instance 
 				return method.invoke(obj, m_sio.request());
 			else if( p1_type == GTS_RTTR_TYPE(http::response) )
 				return method.invoke(obj, m_sio.response());
+			else if( p1_type == GTS_RTTR_TYPE(web::socket_ptr) )
+			{
+				try {
+					auto socket = make_websocket_ptr(m_sio.request(), m_sio.response());
+					return method.invoke(obj, std::move(socket));
+				}
+				catch(...){}
+			}
 		}
 	}
 	else if( para_array.size() == 2 )
@@ -171,16 +178,20 @@ rttr::variant plugins_service::method_call(rttr::method &method, rttr::instance 
 		auto t0 = (it++)->get_type();
 		auto t1 = it->get_type();
 
-		auto &headers = m_sio.request().headers();
-		auto hit = headers.find(http::header::upgrade);
-
-		if( hit != headers.end() and str_to_lower(hit->second) == "websocket" )
+		if( p1_type == GTS_RTTR_TYPE(web::socket_ptr) )
 		{
-			if( t0 == GTS_RTTR_TYPE(web::socket_ptr) and t1 == GTS_RTTR_TYPE(web::environments) )
-				return method.invoke(obj, make_websocket_ptr(m_sio.request(), m_sio.response()), make_envs(m_sio));
+			try {
+				auto socket = make_websocket_ptr(m_sio.request(), m_sio.response());
 
-			else if( t0 == GTS_RTTR_TYPE(web::environments) and t1 == GTS_RTTR_TYPE(web::socket_ptr) )
-				return method.invoke(obj, make_envs(m_sio), make_websocket_ptr(m_sio.request(), m_sio.response()));
+				if( t0 == GTS_RTTR_TYPE(web::socket_ptr) and t1 == GTS_RTTR_TYPE(web::environments) )
+					return method.invoke(obj, socket, make_envs(m_sio));
+
+				else if( t0 == GTS_RTTR_TYPE(web::environments) and t1 == GTS_RTTR_TYPE(web::socket_ptr) )
+					return method.invoke(obj, make_envs(m_sio), socket);
+			}
+			catch(...){
+				return {};
+			}
 		}
 		if( t0 == GTS_RTTR_TYPE(http::request) and t1 == GTS_RTTR_TYPE(http::response) )
 			return method.invoke(obj, m_sio.request(), m_sio.response());

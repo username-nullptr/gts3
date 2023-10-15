@@ -44,7 +44,7 @@ cookie::cookie(cookie &&other) :
 
 cookie &cookie::operator=(cookie &&other)
 {
-	_vbase::operator=(static_cast<http::value&&>(other));
+	_vbase::operator=(static_cast<gts::value&&>(other));
 	m_attributes = std::move(other.m_attributes);
 	return *this;
 }

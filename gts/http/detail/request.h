@@ -95,7 +95,7 @@ T request::parameter(const std::string &key) const noexcept(false) {
 
 template <typename T, typename U>
 T request::parameter_or(const std::string &key, T deft_value) const noexcept {
-	return parameter_or(key, http::value(std::move(deft_value))).get<T>();
+	return parameter_or(key, gts::value(std::move(deft_value))).get<T>();
 }
 
 template <typename T>
@@ -105,7 +105,7 @@ T request::header(const std::string &key) const noexcept(false) {
 
 template <typename T, typename U>
 T request::header_or(const std::string &key, T deft_value) const noexcept {
-	return header_or(key, http::value(std::move(deft_value))).get<T>();
+	return header_or(key, gts::value(std::move(deft_value))).get<T>();
 }
 
 template <typename T>
@@ -115,7 +115,7 @@ T request::cookie(const std::string &key) const noexcept(false) {
 
 template <typename T, typename U>
 T request::cookie_or(const std::string &key, T deft_value) const noexcept {
-	return cookie_or(key, http::value(std::move(deft_value))).get<T>();
+	return cookie_or(key, gts::value(std::move(deft_value))).get<T>();
 }
 
 inline std::string request::read_body(std::size_t size)

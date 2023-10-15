@@ -37,6 +37,8 @@
 namespace gts { namespace web
 {
 
+class socket_impl;
+
 class GTS_WEB_API socket
 {
 	GTS_DISABLE_COPY_MOVE(socket)
@@ -44,8 +46,11 @@ class GTS_WEB_API socket
 	using duration = std::chrono::milliseconds;
 
 public:
-	socket(const http::request &req, http::response &resp) noexcept(false);
+	socket(const http::request &req, http::response &resp, const std::string &sec_websocket_protocol = "") noexcept(false);
 	virtual ~socket() noexcept;
+
+public:
+	socket_protocol::version version() const;
 
 public:
 	std::size_t write_some(const buffer &buf, asio::error_code &error) noexcept;
@@ -91,8 +96,8 @@ public:
 	const tcp_socket &native() const noexcept;
 	tcp_socket &native() noexcept;
 
-protected:
-	tcp_socket_ptr m_sock;
+private:
+	socket_impl *m_impl;
 };
 
 using socket_ptr = std::shared_ptr<socket>;

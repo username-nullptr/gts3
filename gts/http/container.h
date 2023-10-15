@@ -29,21 +29,22 @@
 #ifndef GTS_HTTP_CONTAINER_H
 #define GTS_HTTP_CONTAINER_H
 
-#include <gts/http/value.h>
+#include <gts/value.h>
+#include <gts/http/global.h>
 #include <unordered_map>
 #include <map>
 
 namespace gts { namespace http
 {
 
-template <typename T = http::value, GTS_TYPE_ENABLE_IF(gts_is_base_of(http::value, T), int)>
+template <typename T = gts::value, GTS_TYPE_ENABLE_IF(gts_is_base_of(gts::value, T), int)>
 using pair = std::pair<std::string, T>;
 
-template <typename V = http::value, typename _Compare = std::less<std::string>>
+template <typename V = gts::value, typename _Compare = std::less<std::string>>
 class map : public std::map<std::string, V, _Compare>
 {
-	static_assert(gts_is_base_of(http::value, V),
-	"The template argument 'V' must be a 'gts::http::value' or derived class of 'gts::http::value'.");
+	static_assert(gts_is_base_of(gts::value, V),
+	"The template argument 'V' must be a 'gts::http::value' or derived class of 'gts::value'.");
 
 public:
 	using base_type = std::map<std::string, V, _Compare>;
@@ -53,7 +54,7 @@ public:
 	std::pair<typename base_type::iterator, bool> emplace(const std::string &key, const std::string &value);
 	std::pair<typename base_type::iterator, bool> emplace(const std::string &key, std::string &&value);
 
-	template <typename T, typename U = http::value::not_type_t<T,int>>
+	template <typename T, typename U = gts::value::not_type_t<T,int>>
 	std::pair<typename base_type::iterator, bool> emplace(const std::string &key, T &&value);
 
 	template <typename...Args>
@@ -108,10 +109,10 @@ struct less_case_insensitive
 	};
 };
 
-template <typename V = http::value>
+template <typename V = gts::value>
 class unordered_map : public std::unordered_map<std::string, V>
 {
-	static_assert(gts_is_base_of(http::value, V),
+	static_assert(gts_is_base_of(gts::value, V),
 	"The template argument 'V' must be a 'gts::http::value' or derived class of 'gts::http::value'.");
 
 public:
@@ -122,7 +123,7 @@ public:
 	std::pair<typename base_type::iterator, bool> emplace(const std::string &key, const std::string &value);
 	std::pair<typename base_type::iterator, bool> emplace(const std::string &key, std::string &&value);
 
-	template <typename T, typename U = http::value::not_type_t<T,int>>
+	template <typename T, typename U = gts::value::not_type_t<T,int>>
 	std::pair<typename base_type::iterator, bool> emplace(const std::string &key, T &&value);
 
 	template <typename...Args>
