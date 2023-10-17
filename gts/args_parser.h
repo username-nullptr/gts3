@@ -29,8 +29,7 @@
 #ifndef GTS_ARGS_PARSER_H
 #define GTS_ARGS_PARSER_H
 
-#include <gts/string_list.h>
-#include <unordered_map>
+#include <gts/value.h>
 #include <functional>
 
 namespace gts { namespace cmdline
@@ -44,7 +43,6 @@ class GTSCORE_API args_parser
 
 public:
 	typedef std::string  rule;
-	typedef std::string  value;
 	typedef std::string  description;
 	typedef std::string  identification;
 	typedef std::unordered_map<rule, value>  arguments;

@@ -36,7 +36,6 @@ namespace gts { namespace cmdline
 {
 
 typedef args_parser::rule            rule;
-typedef args_parser::value           value;
 typedef args_parser::description     description;
 typedef args_parser::arguments       arguments;
 typedef args_parser::identification  identification;

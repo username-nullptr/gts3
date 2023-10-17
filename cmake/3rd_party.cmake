@@ -1,5 +1,3 @@
-add_definitions(-DASIO_HAS_CHRONO)  # use asio timer
-
 set(gts_3rd_path ${CMAKE_SOURCE_DIR}/3rd_party)
 
 include_directories(

@@ -6,7 +6,7 @@ function(get_latest_supported_cxx CXX_STANDARD)
 	if(${CMAKE_VERSION} VERSION_LESS "3.8.0")
 		set(CMAKE_CXX_STANDARD 14)
 	else()
-		set(CMAKE_CXX_STANDARD 20)
+		set(CMAKE_CXX_STANDARD 23)
 	endif()
 
 	include(CheckCXXSourceCompiles)
@@ -90,7 +90,34 @@ function(get_latest_supported_cxx CXX_STANDARD)
 							   "
 							   HAS_AUTO_TEMPLATE)
 
-	if (_HAS_BIT_FIELD_INITIALIZATION AND _HAS_THREE_TERM_OPERATOR AND HAS_AUTO_TEMPLATE)
+	check_cxx_source_compiles( "
+							   class A {
+							   public:
+							   int a[8][8] = {0};
+							   int operator[](int i, int j) const { return a[i][j]; }
+							   };
+							   int main() { A a; return a[1,1]; }
+							   "
+							   MULTIDIMENSIONAL_SUBSCRIPT)
+
+	check_cxx_source_compiles( "
+							   consteval int f(int i) {
+								   return i;
+							   }
+							   constexpr int g(int i) {
+								   if consteval {
+									   return f(i) + 1;
+								   }
+								   else {
+									   return 42;
+								   }
+							   }
+							   "
+							   IMMEDIATE_FUNCTION_23)
+
+	if (MULTIDIMENSIONAL_SUBSCRIPT AND IMMEDIATE_FUNCTION_23)
+		set(MAX_CXX_STD 23)
+	elseif (_HAS_BIT_FIELD_INITIALIZATION AND _HAS_THREE_TERM_OPERATOR AND HAS_AUTO_TEMPLATE)
 		set(MAX_CXX_STD 20)
 	elseif (HAS_NO_EXCEPT_TYPE_SIGNATURE_SUPPORT AND HAS_STL_NO_EXCEPT_TYPE_SIGNATURE_SUPPORT AND
 		HAS_PARTIAL_SPECIALIZATION_FOR_ARRAYS)
