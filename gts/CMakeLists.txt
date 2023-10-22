@@ -21,6 +21,7 @@ set(core_sources
 	ssl_socket.cpp
 	registration.cpp
 	uuid.cpp
+	sha1.cpp
 	log_buffer.cpp
 	log.cpp
 	private/app_info.cpp
@@ -48,6 +49,7 @@ set(core_gts_headers
 	rw_mutex.h
 	flags.h
 	uuid.h
+	sha1.h
 	chrono.h
 	log_buffer.h
 	log.h
