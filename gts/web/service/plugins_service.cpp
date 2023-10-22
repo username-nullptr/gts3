@@ -82,7 +82,7 @@ bool plugins_service::call()
 		if( it != headers.end() and str_to_lower(it->second) == "websocket" )
 			p1_type = GTS_RTTR_TYPE(web::socket_ptr);
 	}
-	else if( ss.class_type.is_valid() )
+	if( ss.class_type.is_valid() )
 		method_call(ss.method, registration::obj_hash()[ss.class_type], p1_type);
 	else
 		method_call(ss.method, {}, p1_type);

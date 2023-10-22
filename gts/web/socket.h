@@ -93,8 +93,8 @@ public:
 	void close(bool shutdown = false) noexcept;
 
 public:
-	const tcp_socket &native() const noexcept;
-	tcp_socket &native() noexcept;
+	const tcp_socket_ptr native() const noexcept;
+	tcp_socket_ptr native() noexcept;
 
 private:
 	socket_impl *m_impl;

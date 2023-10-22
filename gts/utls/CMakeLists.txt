@@ -23,7 +23,10 @@ if (ENABLE_DBI)
 	)
 endif()
 
-add_library(${target_name} SHARED ${utls_sources} ${utls_headers} ${utls_detail_headers})
+set(all_files ${utls_sources} ${utls_headers} ${utls_detail_headers})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${all_files})
+
+add_library(${target_name} SHARED ${all_files})
 target_compile_definitions(${target_name} PRIVATE ${target_name}_EXPORTS)
 
 target_include_directories(${target_name} PRIVATE .)

@@ -5,6 +5,7 @@ execute_process(COMMAND ${CMAKE_COMMAND} -E
 execute_process(COMMAND ${CMAKE_COMMAND} -E
 	copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/web_resource ${output_dir_name}/resource)
 
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES gtsstartupextensions.cpp)
 add_library(gtsstartupextensions SHARED gtsstartupextensions.cpp)
 
 target_include_directories(gtsstartupextensions PRIVATE ../src/core)

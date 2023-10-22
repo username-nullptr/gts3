@@ -58,7 +58,8 @@ public:
 			is.read(sbuf, block_bytes - buffer.size());
 
 			buffer.append(sbuf, (std::size_t)is.gcount());
-			assert(buffer.size() != block_bytes);
+			if( buffer.size() != block_bytes )
+				break;
 
 			uint32_t block[block_ints];
 			buffer_to_block(buffer, block);
@@ -258,7 +259,8 @@ public:
 	sp::version m_version = sp::version_unknown;
 };
 
-socket::socket(const http::request &req, http::response &resp, const std::string &sec_websocket_protocol) noexcept(false)
+socket::socket(const http::request &req, http::response &resp, const std::string &sec_websocket_protocol) noexcept(false) :
+	m_impl(new socket_impl())
 {
 	auto &headers = req.headers();
 	auto it = headers.find(http::header::upgrade);
@@ -290,20 +292,35 @@ socket::socket(const http::request &req, http::response &resp, const std::string
 		}
 	}
 	resp.set_header("Sec-WebSocket-Accept", m_impl->SHA1(sw_key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"))
-		.write_default(http::hs_switching_protocols);
-
-	m_impl->m_version = req.header_or("Sec-WebSocket-Version", sp::version_latest);
+		.set_status(http::hs_switching_protocols)
+		.write();
+	m_impl->m_version = req.header_or("Sec-WebSocket-Version", sp::version_unknown);
 	m_impl->m_socket = resp.take();
 }
 
 socket::~socket() noexcept
 {
+	delete m_impl;
+}
 
+sp::version socket::version() const
+{
+	return m_impl->m_version;
 }
 
 bool socket::is_open() const
 {
 	return m_impl->m_socket != nullptr;
+}
+
+const tcp_socket_ptr socket::native() const noexcept
+{
+	return m_impl->m_socket;
+}
+
+tcp_socket_ptr socket::native() noexcept
+{
+	return m_impl->m_socket;
 }
 
 }} //namespace gts::web

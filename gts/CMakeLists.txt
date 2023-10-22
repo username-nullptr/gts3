@@ -77,12 +77,15 @@ else()
 	list(APPEND core_sp_headers gts_disable_ssl_p.h)
 endif()
 
-add_library(${target_name} SHARED
+set(all_files
 	${core_sources}
 	${core_gts_headers}
 	${core_gts_detail_headers}
 	${core_sp_headers}
 )
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${all_files})
+
+add_library(${target_name} SHARED ${all_files})
 target_compile_definitions(${target_name} PRIVATE ${target_name}_EXPORTS)
 
 if (ENABLE_SSL)

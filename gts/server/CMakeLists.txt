@@ -43,7 +43,9 @@ elseif(UNIX)
 	)
 endif()
 
-add_executable(${target_name} ${server_sources} ${server_headers} ${server_private_headers})
+set(all_files ${target_name} ${server_sources} ${server_headers} ${server_private_headers})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${all_files})
+add_executable(${all_files})
 
 target_include_directories(${target_name} PRIVATE .)
 target_link_libraries(${target_name} PRIVATE gtscore)

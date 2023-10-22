@@ -27,9 +27,9 @@ GTS_PLUGIN_VIEW_STATUS(){
 	return "web plugin: examples-plugin2: hello2\n";
 }
 
-GTS_PLUGIN_HTTP_REQUEST_HANDLE("plugin2", GET, http::response &res)
+GTS_PLUGIN_NEW_WEBSOCKET_CONNECTION("websocket_test", GET|PUT|POST, web::socket_ptr socket)
 {
-	res.write("plugin2-global");
+	gts_log_error("000: websocket_test ..............");
 }
 
 class GTS_DECL_EXPORT plugin2

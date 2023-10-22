@@ -312,5 +312,9 @@ private:
 	GTS_PLUGIN_REGISTRATION{ gts::web::registration().request_handle_method<_method>(_path, GTS_AUTO_FUNC_NAME); } \
 	GTS_DECL_AUTO_FUNC_VOID(__VA_ARGS__)
 
+#define GTS_PLUGIN_NEW_WEBSOCKET_CONNECTION(_path, _method, ...) \
+	GTS_DECL_AUTO_FUNC_VOID(__VA_ARGS__); \
+	GTS_PLUGIN_REGISTRATION{ gts::web::registration().new_websocket_connection<_method>(_path, GTS_AUTO_FUNC_NAME); } \
+	GTS_DECL_AUTO_FUNC_VOID(__VA_ARGS__)
 
 #endif //GTS_WEB_REGISTRATION_H

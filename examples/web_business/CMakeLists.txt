@@ -1,5 +1,6 @@
 # plugin service
 
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES plugin0.cpp)
 add_library(plugin0 SHARED plugin0.cpp)
 target_include_directories(plugin0 PRIVATE ../../src/core)
 target_include_directories(plugin0 PRIVATE ../../src/log)
@@ -9,6 +10,7 @@ set_target_properties(plugin0 PROPERTIES
 	LIBRARY_OUTPUT_DIRECTORY ../../${output_dir_name}/plugins
 )
 
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES plugin1.cpp)
 add_library(plugin1 SHARED plugin1.cpp)
 target_include_directories(plugin1 PRIVATE ../../src/core)
 target_include_directories(plugin1 PRIVATE ../../src/log)
@@ -18,6 +20,7 @@ set_target_properties(plugin1 PROPERTIES
 	LIBRARY_OUTPUT_DIRECTORY ../../${output_dir_name}/plugins
 )
 
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES plugin2.cpp)
 add_library(plugin2 SHARED plugin2.cpp)
 target_include_directories(plugin2 PRIVATE ../../src/core)
 target_include_directories(plugin2 PRIVATE ../../src/log)
@@ -29,16 +32,19 @@ set_target_properties(plugin2 PROPERTIES
 
 # cgi service
 
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES cgi0.cpp)
 add_executable(cgi0 cgi0.cpp)
 set_target_properties(cgi0 PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY ../../${output_dir_name}/cgi
 )
 
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES login.cpp)
 add_executable(login login.cpp)
 set_target_properties(login PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY ../../${output_dir_name}/cgi
 )
 
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES upload.cpp)
 add_executable(upload upload.cpp)
 set_target_properties(upload PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY ../../${output_dir_name}/cgi
