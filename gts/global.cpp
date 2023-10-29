@@ -31,6 +31,11 @@
 namespace gts
 {
 
+std::string version_string()
+{
+	return GTS_VERSION_STR;
+}
+
 // The destructor will crash after main returns (the program ends) for unknown reasons.
 static auto *io = new asio::io_context();
 

@@ -27,9 +27,11 @@ GTS_PLUGIN_VIEW_STATUS(){
 	return "web plugin: examples-plugin2: hello2\n";
 }
 
-GTS_PLUGIN_NEW_WEBSOCKET_CONNECTION("websocket_test", GET|PUT|POST, web::socket_ptr socket)
+GTS_PLUGIN_NEW_WEBSOCKET_CONNECTION("websocket_test", GET|PUT|POST, web::socket_ptr sock)
 {
 	gts_log_error("000: websocket_test ..............");
+	static std::list<web::socket_ptr> list;
+	list.emplace_back(std::move(sock));
 }
 
 class GTS_DECL_EXPORT plugin2

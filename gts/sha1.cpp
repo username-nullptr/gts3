@@ -62,7 +62,6 @@ public:
 		uint32_t e = m_state[4];
 
 		uint32_t w[16];
-
 		for(int i=0; i<16; i++)
 			w[i] = make_word(ptr + (i << 2));
 
@@ -182,10 +181,10 @@ public:
 private:
 	uint32_t make_word(const uint8_t *p)
 	{
-		return ( static_cast<uint32_t>(p[0]) << 3 << 3 ) |
-				( static_cast<uint32_t>(p[1]) << 2 << 3 ) |
-				( static_cast<uint32_t>(p[2]) << 1 << 3 ) |
-				( static_cast<uint32_t>(p[3]) << 0 << 3 );
+		return ( static_cast<uint32_t>(p[0]) << 24 ) |
+			   ( static_cast<uint32_t>(p[1]) << 16 ) |
+			   ( static_cast<uint32_t>(p[2]) <<  8 ) |
+			   ( static_cast<uint32_t>(p[3]) <<  0 );
 	}
 
 	uint32_t rol32(uint32_t x, uint32_t n)
@@ -372,7 +371,7 @@ std::string sha1::base64() const
 		( (m_impl->m_state[1] & 0x0000FFFF) << (1 << 3) ) | ( (m_impl->m_state[2] & 0xFF000000) >> (3 << 3) ),
 		( (m_impl->m_state[2] & 0x00FFFFFF) << (0 << 3) ),
 		( (m_impl->m_state[3] & 0xFFFFFF00) >> (1 << 3) ),
-		( (m_impl->m_state[3] & 0x000000FF) << (2 << 3) ) | ( (m_impl->m_state[4] & 0xffff0000) >> (2 << 3) ),
+		( (m_impl->m_state[3] & 0x000000FF) << (2 << 3) ) | ( (m_impl->m_state[4] & 0xFFFF0000) >> (2 << 3) ),
 		( (m_impl->m_state[4] & 0x0000FFFF) << (1 << 3) ),
 	};
 	int i = 0;
@@ -384,7 +383,7 @@ std::string sha1::base64() const
 		_base64[(i << 2) + 2] = table[(x >> 1 * 6) % 64];
 		_base64[(i << 2) + 3] = table[(x >> 0 * 6) % 64];
 	}
-	_base64[(i << 2) + 0] = '=';
+	_base64[(--i << 2) + 3] = '=';
 	return _base64;
 }
 

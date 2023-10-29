@@ -77,6 +77,8 @@ socket::socket(const http::request &req, http::response &resp, const std::string
 		}
 	}
 	resp.set_header("Sec-WebSocket-Accept", sha1(sw_key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11").finalize().base64())
+		.set_header(http::header::connection, "upgrade")
+		.set_header(http::header::upgrade, "websocket")
 		.set_status(http::hs_switching_protocols)
 		.write();
 	m_impl->m_version = req.header_or("Sec-WebSocket-Version", sp::version_unknown);

@@ -156,7 +156,8 @@ rttr::variant plugins_service::method_call(rttr::method &method, rttr::instance 
 	auto para_array = method.get_parameter_infos();
 	if( para_array.size() == 1 )
 	{
-		if( para_array.begin()->get_type() == p1_type )
+		auto t0 = para_array.begin()->get_type();
+		if( t0 == p1_type )
 		{
 			if( p1_type == GTS_RTTR_TYPE(http::request) )
 				return method.invoke(obj, m_sio.request());
@@ -168,9 +169,13 @@ rttr::variant plugins_service::method_call(rttr::method &method, rttr::instance 
 					auto socket = make_websocket_ptr(m_sio.request(), m_sio.response());
 					return method.invoke(obj, std::move(socket));
 				}
-				catch(...){}
+				catch(...){
+					return {};
+				}
 			}
 		}
+		else if( t0 == GTS_RTTR_TYPE(web::socket_ptr) )
+			return {};
 	}
 	else if( para_array.size() == 2 )
 	{

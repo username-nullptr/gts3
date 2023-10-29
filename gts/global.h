@@ -90,6 +90,8 @@ namespace gts
 # define GTSCORE_API  GTS_DECL_IMPORT
 #endif //gtscore_EXPORTS
 
+GTSCORE_API std::string version_string();
+
 GTSCORE_API asio::io_context &io_context();
 
 template <typename T> inline
