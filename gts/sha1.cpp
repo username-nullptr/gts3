@@ -357,12 +357,11 @@ std::string sha1::base64() const
 	if( m_impl == nullptr )
 		return _base64;
 
-	static constexpr const uint8_t *table =
-			reinterpret_cast<const uint8_t*>(
-				"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-				"abcdefghijklmnopqrstuvwxyz"
-				"0123456789"
-				"+/");
+	static const char *table =
+			"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+			"abcdefghijklmnopqrstuvwxyz"
+			"0123456789"
+			"+/";
 
 	uint32_t triples[7]
 	{

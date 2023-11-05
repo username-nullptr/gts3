@@ -42,6 +42,10 @@ public:
 	socket_impl() = default;
 	tcp_socket_ptr m_socket;
 	sp::version m_version = sp::version_unknown;
+
+public:
+	std::size_t m_rbuf_size;
+	std::string m_rbuf;
 };
 
 socket::socket(const http::request &req, http::response &resp, const std::string &sec_websocket_protocol) noexcept(false) :
@@ -95,9 +99,114 @@ sp::version socket::version() const
 	return m_impl->m_version;
 }
 
+std::size_t socket::write_some(const buffer &buf, asio::error_code &error) noexcept
+{
+
+}
+
+std::size_t socket::write_some(const buffer &buf) noexcept
+{
+
+}
+
+std::size_t socket::read_some(buffer &buf, asio::error_code &error) noexcept
+{
+
+}
+
+std::size_t socket::read_some(buffer &buf) noexcept
+{
+
+}
+
+std::size_t socket::read_some(buffer &buf, const duration &timeout, asio::error_code &error) noexcept
+{
+
+}
+
+std::size_t socket::read_some(buffer &buf, const duration &timeout) noexcept
+{
+
+}
+
+void socket::async_write_some(const buffer &buf, std::function<void (asio::error_code, std::size_t)>) noexcept
+{
+
+}
+
+void socket::async_write_some(const buffer &buf, std::function<void (std::size_t)>) noexcept
+{
+
+}
+
+void socket::async_read_some(buffer &buf, std::function<void (asio::error_code)>) noexcept
+{
+
+}
+
+void socket::async_read_some(buffer &buf, std::function<void ()>) noexcept
+{
+
+}
+
+void socket::write_some_nonblock(buffer buf) noexcept
+{
+
+}
+
+bool socket::wait_writeable(const duration &ms, asio::error_code &error) noexcept
+{
+
+}
+
+bool socket::wait_writeable(const duration &ms) noexcept
+{
+
+}
+
+bool socket::wait_readable(const duration &ms, asio::error_code &error) noexcept
+{
+
+}
+
+bool socket::wait_readable(const duration &ms) noexcept
+{
+
+}
+
+tcp::endpoint socket::remote_endpoint(asio::error_code &error) noexcept
+{
+
+}
+
+tcp::endpoint socket::remote_endpoint() noexcept
+{
+
+}
+
+tcp::endpoint socket::local_endpoint(asio::error_code &error) noexcept
+{
+
+}
+
+tcp::endpoint socket::local_endpoint() noexcept
+{
+
+}
+
 bool socket::is_open() const
 {
 	return m_impl->m_socket != nullptr;
+}
+
+void socket::close(asio::error_code &error, bool shutdown) noexcept
+{
+
+}
+
+void socket::close(bool shutdown) noexcept
+{
+
 }
 
 const tcp_socket_ptr socket::native() const noexcept
