@@ -1,5 +1,7 @@
 **/*build
 **/build*
+**/*install
+**/install*
 **/*txt.user*
 **/release*
 **/Release*
@@ -19,6 +21,7 @@
 /src/*.json
 /*.json
 /.vs
+/.idea
 /out
 /tags
 **/makefile*
