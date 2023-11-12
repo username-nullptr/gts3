@@ -24,7 +24,6 @@ int main()
 				  << std::flush;
 		return -1;
 	}
-
 	auto file_name = std::string(resource_root) + "pass.html";
 
 	if( not fs::exists(file_name) )
@@ -39,8 +38,7 @@ int main()
 				  << std::flush;
 		return -1;
 	}
-
-	std::fstream file(file_name);
+	std::ifstream file(file_name);
 
 	if( not file.is_open() )
 	{
@@ -54,7 +52,6 @@ int main()
 				  << std::flush;
 		return -1;
 	}
-
 	const char *protocl = std::getenv("SERVER_PROTOCOL");
 	if( protocl == nullptr )
 		protocl = "HTTP/1.1";
@@ -65,9 +62,10 @@ int main()
 				 "\r\n";
 
 	char buf[1024] = "";
-	for(;;)
+	while( not file.eof() )
 	{
-		auto size = file.readsome(buf, 1024);
+		file.read(buf, 1024);
+		auto size = file.gcount();
 
 		if( size < 0 )
 		{
@@ -75,13 +73,11 @@ int main()
 			std::fwrite(_buf, 1, std::strlen(_buf), log_file);
 			break;
 		}
-
 		else if( size > 0 )
 			std::cout << std::string(buf, size);
 		else
 			break;
 	}
-
 	file.close();
 	std::fclose(log_file);
 	return 0;

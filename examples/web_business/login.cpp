@@ -17,7 +17,6 @@ int main()
 				  << std::flush;
 		return -1;
 	}
-
 	std::size_t content_length = 0;
 	std::sscanf(str_content_length, "%zu", &content_length);
 
@@ -30,7 +29,6 @@ int main()
 		content_length -= s;
 		request.append(buf, s);
 	}
-
 	auto pos = request.find('&');
 	if( pos == std::string::npos )
 	{
@@ -41,7 +39,6 @@ int main()
 				  << std::flush;
 		return -1;
 	}
-
 	auto usrnam_str = request.substr(0, pos);
 	auto passwd_str = request.substr(pos + 1);
 
@@ -55,7 +52,6 @@ int main()
 				  << std::flush;
 		return -1;
 	}
-
 	auto username = usrnam_str.substr(pos + 1);
 
 	pos = passwd_str.find('=');
@@ -68,7 +64,6 @@ int main()
 				  << std::flush;
 		return -1;
 	}
-
 	auto password = passwd_str.substr(pos + 1);
 
 	if( username != "LaoFeng" or password != "JiTangLaiLou" )
@@ -80,7 +75,6 @@ int main()
 				  << std::flush;
 		return -1;
 	}
-
 	const char *resource_root = std::getenv("DOCUMENT_ROOT");
 	if( resource_root == nullptr )
 	{
@@ -91,7 +85,6 @@ int main()
 				  << std::flush;
 		return -1;
 	}
-
 	auto file_name = std::string(resource_root) + "netprotocol.html";
 
 	if( not fs::exists(file_name) )
@@ -105,7 +98,6 @@ int main()
 				  << std::flush;
 		return -1;
 	}
-
 	std::fstream file(file_name);
 
 	if( not file.is_open() )
@@ -119,7 +111,6 @@ int main()
 				  << std::flush;
 		return -1;
 	}
-
 	const char *protocl = std::getenv("SERVER_PROTOCOL");
 	if( protocl == nullptr )
 		protocl = "HTTP/1.1";
@@ -130,22 +121,21 @@ int main()
 				 "\r\n";
 
 	char buf[1024] = "";
-	for(;;)
+	while( not file.eof() )
 	{
-		auto size = file.readsome(buf, 1024);
+		file.read(buf, 1024);
+		auto size = file.gcount();
 
 		if( size < 0 )
 		{
 			std::cerr << "File read error." << std::endl;
 			break;
 		}
-
 		else if( size > 0 )
 			std::cout << std::string(buf, size);
 		else
 			break;
 	}
-
 	file.close();
 	return 0;
 }

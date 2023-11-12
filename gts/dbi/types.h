@@ -61,7 +61,7 @@ public:
 			if( cell.column_name() == column_name )
 				return cell;
 		}
-		throw exception(-1, "row_vector::operator[](std::string): 'Invalid column name'.");
+		throw exception(-1, "row_vector::operator[](std::string): Invalid column name: '{}'.", column_name);
 	}
 };
 

@@ -998,7 +998,9 @@ static inline std::string __mime_search(const char **mimes, size_t len, const ch
 static inline bool __is_text_file(std::fstream &file)
 {
 	char buf[0x4000] = "";
-	auto buf_size = file.readsome(buf, sizeof(buf));
+	file.read(buf, sizeof(buf));
+
+	auto buf_size = file.gcount();
 	std::string data(buf, buf_size);
 
 	// UTF16 byte order marks
@@ -1026,8 +1028,9 @@ static inline std::string mime_from_magic(const std::string &file_name)
 		return "unknown";
 
 	char buf[_BUF_LEN] = {0};
-	auto size = file.readsome(buf, _BUF_LEN);
+	file.read(buf, _BUF_LEN);
 
+	auto size = file.gcount();
 	if( size < _BUF_LEN )
 	{
 		file.seekg(0, std::ios_base::beg);

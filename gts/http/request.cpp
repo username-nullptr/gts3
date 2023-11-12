@@ -265,17 +265,16 @@ bool request::support_gzip() const
 
 bool request::can_read_body() const
 {
-	return m_impl->m_rb_status != rb_status::finished;
+	return is_valid() and m_impl->m_rb_status != rb_status::finished;
 }
 
 bool request::is_valid() const
 {
-	if( m_impl->m_socket == nullptr )
+	if( m_impl->m_socket == nullptr or not m_impl->m_socket->is_open() )
 		return false;
 	else if( m_impl->m_version.empty() or m_impl->m_path.empty() )
 		return false;
-
-	if( m_impl->m_method == GET )
+	else if( m_impl->m_method == GET )
 	{
 		auto it = m_impl->m_headers.find(header::content_length);
 		if( it != m_impl->m_headers.end() )
