@@ -35,6 +35,8 @@
 #include <cppfilesystem>
 #include <fstream>
 
+using namespace std::chrono;
+
 namespace gts { namespace http
 {
 
@@ -220,7 +222,7 @@ bool request::save_file(const std::string &_file_name, asio::error_code &error, 
 		error = std::make_error_code(std::errc::no_such_file_or_directory);
 		return false;
 	}
-	std::fstream file(file_name, std::ios_base::out);
+	std::ofstream file(file_name, std::ios_base::out);
 	if( not file.is_open() )
 	{
 		error = std::make_error_code(static_cast<std::errc>(errno));
@@ -228,7 +230,7 @@ bool request::save_file(const std::string &_file_name, asio::error_code &error, 
 	}
 	file.seekp(begin);
 	auto tcp_buf_size = m_impl->tcp_ip_buffer_size();
-	char *buf = new char[65536] {0};
+	char buf[65536] {0};
 
 	while( can_read_body() )
 	{
@@ -236,15 +238,65 @@ bool request::save_file(const std::string &_file_name, asio::error_code &error, 
 		if( error )
 		{
 			file.close();
-			delete[] buf;
 			return false;
 		}
 		else if( res == 0 )
-			continue;
+			break;
+
 		file.write(buf, res);
+		std::this_thread::sleep_for(microseconds(512));
 	}
 	file.close();
-	delete[] buf;
+	return true;
+}
+
+bool request::save_file_part(const std::string &_file_name, asio::error_code &error, std::size_t total_size, std::size_t begin)
+{
+	if( _file_name.empty() )
+	{
+		gts_log_error("request::save_file_part: file_name is empty.");
+		error = std::make_error_code(std::errc::invalid_argument);
+		return false;
+	}
+	auto file_name = app::absolute_path(_file_name);
+	if( begin > 0 and not fs::exists(file_name) )
+	{
+		error = std::make_error_code(std::errc::no_such_file_or_directory);
+		return false;
+	}
+	std::ofstream file(file_name, std::ios_base::out);
+	if( not file.is_open() )
+	{
+		error = std::make_error_code(static_cast<std::errc>(errno));
+		return false;
+	}
+	file.seekp(begin);
+	auto tcp_buf_size = m_impl->tcp_ip_buffer_size();
+	char buf[65536] {0};
+
+	while( can_read_body() )
+	{
+		auto res = read_body(error, buf, tcp_buf_size);
+		if( error )
+		{
+			file.close();
+			return false;
+		}
+		else if( res == 0 )
+			break;
+		else if( res > total_size )
+		{
+			file.write(buf, total_size);
+			break;
+		}
+		else
+		{
+			file.write(buf, res);
+			total_size -= res;
+		}
+		std::this_thread::sleep_for(microseconds(512));
+	}
+	file.close();
 	return true;
 }
 

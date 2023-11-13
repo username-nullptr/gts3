@@ -142,6 +142,12 @@ inline bool request::save_file(const std::string &file_name, std::size_t begin)
 	return save_file(file_name, error, begin);
 }
 
+inline bool request::save_file_part(const std::string &file_name, std::size_t total_size, std::size_t begin)
+{
+	std::error_code error;
+	return save_file_part(file_name, error, total_size, begin);
+}
+
 }} //namespace gts::http
 
 

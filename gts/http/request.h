@@ -125,6 +125,8 @@ public:
 public:
 	bool save_file(const std::string &file_name, std::error_code &error, std::size_t begin = 0);
 	bool save_file(const std::string &file_name, std::size_t begin = 0);
+	bool save_file_part(const std::string &file_name, std::error_code &error, std::size_t total_size, std::size_t begin = 0);
+	bool save_file_part(const std::string &file_name, std::size_t total_size, std::size_t begin = 0);
 
 public:
 	bool is_websocket_handshake() const;
