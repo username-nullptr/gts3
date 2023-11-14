@@ -136,13 +136,13 @@ inline std::string request::read_all_body()
 	return read_all_body(error);
 }
 
-inline bool request::save_file(const std::string &file_name, std::size_t begin)
+inline std::size_t request::save_file(const std::string &file_name, std::size_t begin)
 {
 	std::error_code error;
 	return save_file(file_name, error, begin);
 }
 
-inline bool request::save_file_part(const std::string &file_name, std::size_t total_size, std::size_t begin)
+inline std::size_t request::save_file_part(const std::string &file_name, std::size_t total_size, std::size_t begin)
 {
 	std::error_code error;
 	return save_file_part(file_name, error, total_size, begin);

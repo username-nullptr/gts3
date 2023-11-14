@@ -52,7 +52,7 @@ public:
 	std::string file_name() const;
 
 public:
-	template <typename T>
+	template <typename T = std::string>
 	T read(const std::string &group, const std::string &key, const T &default_value = T()) const;
 
 	template <typename T>

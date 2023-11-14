@@ -208,29 +208,31 @@ std::string request::read_all_body(std::error_code &error)
 	return result;
 }
 
-bool request::save_file(const std::string &_file_name, asio::error_code &error, std::size_t begin)
+std::size_t request::save_file(const std::string &_file_name, asio::error_code &error, std::size_t begin)
 {
 	if( _file_name.empty() )
 	{
 		gts_log_error("request::save_file: file_name is empty.");
 		error = std::make_error_code(std::errc::invalid_argument);
-		return false;
+		return 0;
 	}
 	auto file_name = app::absolute_path(_file_name);
 	if( begin > 0 and not fs::exists(file_name) )
 	{
 		error = std::make_error_code(std::errc::no_such_file_or_directory);
-		return false;
+		return 0;
 	}
 	std::ofstream file(file_name, std::ios_base::out);
 	if( not file.is_open() )
 	{
 		error = std::make_error_code(static_cast<std::errc>(errno));
-		return false;
+		return 0;
 	}
 	file.seekp(begin);
 	auto tcp_buf_size = m_impl->tcp_ip_buffer_size();
+
 	char buf[65536] {0};
+	std::size_t sum = 0;
 
 	while( can_read_body() )
 	{
@@ -238,11 +240,12 @@ bool request::save_file(const std::string &_file_name, asio::error_code &error, 
 		if( error )
 		{
 			file.close();
-			return false;
+			return sum;
 		}
 		else if( res == 0 )
 			break;
 
+		sum += res;
 		file.write(buf, res);
 		std::this_thread::sleep_for(microseconds(512));
 	}
@@ -250,29 +253,31 @@ bool request::save_file(const std::string &_file_name, asio::error_code &error, 
 	return true;
 }
 
-bool request::save_file_part(const std::string &_file_name, asio::error_code &error, std::size_t total_size, std::size_t begin)
+std::size_t request::save_file_part(const std::string &_file_name, asio::error_code &error, std::size_t total_size, std::size_t begin)
 {
 	if( _file_name.empty() )
 	{
 		gts_log_error("request::save_file_part: file_name is empty.");
 		error = std::make_error_code(std::errc::invalid_argument);
-		return false;
+		return 0;
 	}
 	auto file_name = app::absolute_path(_file_name);
 	if( begin > 0 and not fs::exists(file_name) )
 	{
 		error = std::make_error_code(std::errc::no_such_file_or_directory);
-		return false;
+		return 0;
 	}
 	std::ofstream file(file_name, std::ios_base::out);
 	if( not file.is_open() )
 	{
 		error = std::make_error_code(static_cast<std::errc>(errno));
-		return false;
+		return 0;
 	}
 	file.seekp(begin);
 	auto tcp_buf_size = m_impl->tcp_ip_buffer_size();
+
 	char buf[65536] {0};
+	std::size_t sum = 0;
 
 	while( can_read_body() )
 	{
@@ -280,7 +285,7 @@ bool request::save_file_part(const std::string &_file_name, asio::error_code &er
 		if( error )
 		{
 			file.close();
-			return false;
+			return sum;
 		}
 		else if( res == 0 )
 			break;
@@ -294,10 +299,11 @@ bool request::save_file_part(const std::string &_file_name, asio::error_code &er
 			file.write(buf, res);
 			total_size -= res;
 		}
+		sum += res;
 		std::this_thread::sleep_for(microseconds(512));
 	}
 	file.close();
-	return true;
+	return sum;
 }
 
 bool request::is_websocket_handshake() const
