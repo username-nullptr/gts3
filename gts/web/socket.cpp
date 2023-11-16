@@ -40,12 +40,39 @@ class GTS_DECL_HIDDEN socket_impl
 
 public:
 	socket_impl() = default;
+    ~socket_impl()
+    {
+        // TODO...
+        m_socket->close();
+    }
+
+public:
+    void start()
+    {
+        m_socket->async_read_some(m_tcp_once_buf, [this](const asio::error_code &error)
+        {
+            if(error or m_tcp_once_buf.empty() )
+                return ;
+
+            m_tcp_all_buf += m_tcp_once_buf;
+            // TODO...
+
+            start();
+        });
+    }
+
+public:
 	tcp_socket_ptr m_socket;
 	sp::version m_version = sp::version_unknown;
 
-public:
+    std::string m_tcp_all_buf;
+    std::string m_tcp_once_buf;
+
 	std::size_t m_rbuf_size;
 	std::string m_rbuf;
+
+    std::function<void(asio::error_code, std::size_t)> m_write_callback = nullptr;
+    std::function<void(asio::error_code)> m_read_callback = nullptr;
 };
 
 socket::socket(const http::request &req, http::response &resp, const std::string &sec_websocket_protocol) noexcept(false) :
@@ -87,6 +114,7 @@ socket::socket(const http::request &req, http::response &resp, const std::string
 		.write();
 	m_impl->m_version = req.header_or("Sec-WebSocket-Version", sp::version_unknown);
 	m_impl->m_socket = resp.take();
+    m_impl->start();
 }
 
 socket::~socket() noexcept
@@ -129,22 +157,22 @@ std::size_t socket::read_some(buffer &buf, const duration &timeout) noexcept
 
 }
 
-void socket::async_write_some(const buffer &buf, std::function<void (asio::error_code, std::size_t)>) noexcept
+void socket::async_write_some(const buffer &buf, std::function<void(asio::error_code, std::size_t)>) noexcept
 {
 
 }
 
-void socket::async_write_some(const buffer &buf, std::function<void (std::size_t)>) noexcept
+void socket::async_write_some(const buffer &buf, std::function<void(std::size_t)>) noexcept
 {
 
 }
 
-void socket::async_read_some(buffer &buf, std::function<void (asio::error_code)>) noexcept
+void socket::async_read_some(buffer &buf, std::function<void(asio::error_code)>) noexcept
 {
 
 }
 
-void socket::async_read_some(buffer &buf, std::function<void ()>) noexcept
+void socket::async_read_some(buffer &buf, std::function<void()>) noexcept
 {
 
 }

@@ -222,7 +222,7 @@ std::size_t request::save_file(const std::string &_file_name, asio::error_code &
 		error = std::make_error_code(std::errc::no_such_file_or_directory);
 		return 0;
 	}
-	std::ofstream file(file_name, std::ios_base::out);
+	std::ofstream file(file_name);
 	if( not file.is_open() )
 	{
 		error = std::make_error_code(static_cast<std::errc>(errno));
@@ -250,7 +250,7 @@ std::size_t request::save_file(const std::string &_file_name, asio::error_code &
 		std::this_thread::sleep_for(microseconds(512));
 	}
 	file.close();
-	return true;
+	return sum;
 }
 
 std::size_t request::save_file_part(const std::string &_file_name, asio::error_code &error, std::size_t total_size, std::size_t begin)
@@ -267,7 +267,7 @@ std::size_t request::save_file_part(const std::string &_file_name, asio::error_c
 		error = std::make_error_code(std::errc::no_such_file_or_directory);
 		return 0;
 	}
-	std::ofstream file(file_name, std::ios_base::out);
+	std::ofstream file(file_name);
 	if( not file.is_open() )
 	{
 		error = std::make_error_code(static_cast<std::errc>(errno));
