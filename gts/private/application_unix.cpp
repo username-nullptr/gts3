@@ -32,10 +32,7 @@
 #include "gts/algorithm.h"
 #include "gts/log.h"
 
-#include <cppformat>
-#include <iostream>
 #include <cstring>
-
 #include <unistd.h>
 
 extern char **environ;

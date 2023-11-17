@@ -28,13 +28,7 @@
 
 #include "plugins_service.h"
 #include "gts/private/app_info.h"
-#include "gts/web/global.h"
-
 #include "service_io.h"
-#include "gts/web/config_key.h"
-#include "gts/algorithm.h"
-#include "gts/settings.h"
-#include "gts/log.h"
 
 #include <nlohmann/json.hpp>
 #include <rttr/library.h>

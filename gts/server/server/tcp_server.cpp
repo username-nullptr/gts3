@@ -40,10 +40,8 @@
 
 #include <nlohmann/json.hpp>
 #include <cppfilesystem>
-#include <algorithm>
 #include <iostream>
 #include <fstream>
-#include <cctype>
 
 namespace gts
 {

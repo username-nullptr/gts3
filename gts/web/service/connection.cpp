@@ -29,7 +29,6 @@
 #include "connection.h"
 #include "gts/web/config_key.h"
 #include "gts/settings.h"
-#include "gts/log.h"
 
 using namespace std::chrono;
 

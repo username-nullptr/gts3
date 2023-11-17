@@ -27,7 +27,6 @@
 *************************************************************************************/
 
 #include "private/interaction_p.h"
-#include <cstring>
 
 namespace gts { namespace cmdline
 {

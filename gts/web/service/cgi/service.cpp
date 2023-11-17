@@ -33,14 +33,11 @@
 #include "gts/web/service/service_io.h"
 #include "gts/web/config_key.h"
 #include "gts/web/types.h"
-#include "gts/algorithm.h"
 #include "gts/settings.h"
-#include "gts/log.h"
 
 #include "gts/private/app_info.h"
 #include <cppfilesystem>
 #include <iostream>
-#include <cstdio>
 
 #ifdef GTS_ENABLE_SSL
 # include "gts/gts_config_key.h"

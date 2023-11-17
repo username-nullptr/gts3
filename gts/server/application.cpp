@@ -37,19 +37,16 @@
 #include "cmdline/app_core.h"
 #include "gts/private/app_info.h"
 
-#include <rttr/variant.h>
 #include <cppfilesystem>
 #include <iostream>
 #include <atomic>
 #include <cassert>
 
-#if defined(__unix__) && defined(GTS_DEBUG)
+#ifdef __unix__
 # include <execinfo.h>
 # include <unistd.h>
 # include <cstdio>
-#endif //__unix__ && debug
-
-#include <ctime>
+#endif //__unix__
 
 namespace gts
 {
@@ -68,8 +65,8 @@ private:
 public:
 	string_list m_args;
 
-public:
 #ifdef __unix__
+public:
 	asio::signal_set m_sigs;
 #endif //__unix__
 
@@ -79,7 +76,7 @@ public:
 }
 *g_impl = nullptr;
 
-#if defined(__unix__) && defined(GTS_DEBUG)
+#ifdef __unix__
 static __sighandler_t pre_signal_hander = nullptr;
 static void signal_hander(int signo);
 #endif //__unix__
@@ -121,14 +118,12 @@ applictaion_impl::applictaion_impl(int argc, const char *argv[])
 		m_args.emplace_back(argv[i]);
 
 #ifdef __unix__
-# ifdef GTS_DEBUG
 	pre_signal_hander = signal(SIGSEGV, signal_hander);
 	signal(SIGQUIT, signal_hander);
 	signal(SIGBUS,  signal_hander);
 	signal(SIGTRAP, signal_hander);
 	signal(SIGFPE,  signal_hander);
 	signal(SIGABRT, signal_hander);
-# endif //GTS_DEBUG
 
 	m_sigs.async_wait([this](const asio::error_code&, int signo)
 	{
@@ -279,7 +274,7 @@ void applictaion::exit(int code)
 
 /*----------------------------------------------------------------------------------------------------------*/
 
-#if defined(__unix__) && defined(GTS_DEBUG)
+#ifdef __unix__
 static void signal_hander(int signo)
 {
 	if( signo == SIGQUIT or signo == SIGSEGV or signo == SIGBUS or
@@ -311,6 +306,6 @@ static void signal_hander(int signo)
 	else if( pre_signal_hander )
 		pre_signal_hander(signo);
 }
-#endif //__unix__ && debug
+#endif //__unix__
 
 } //namespace gts

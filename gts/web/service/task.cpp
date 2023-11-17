@@ -31,17 +31,12 @@
 #include "plugins_service.h"
 #include "cgi/service.h"
 
-#include "gts/log.h"
 #include "gts/settings.h"
-#include "gts/algorithm.h"
-#include "gts/tcp_socket.h"
 #include "gts/application.h"
 #include "gts/http/formatter.h"
 
-#include "gts/web/global.h"
 #include "gts/web/config_key.h"
 #include "gts/web/thread_pool.h"
-
 #include <cppfilesystem>
 
 namespace gts { namespace web

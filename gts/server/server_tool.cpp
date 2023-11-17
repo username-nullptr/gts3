@@ -28,9 +28,7 @@
 
 #include "server_tool.h"
 #include "gts/private/app_info.h"
-
 #include "gts/registration.h"
-#include "gts/application.h"
 #include "gts/algorithm.h"
 
 #include <nlohmann/json.hpp>

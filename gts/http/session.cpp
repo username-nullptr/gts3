@@ -31,8 +31,6 @@
 #include "gts/rw_mutex.h"
 #include <chrono>
 
-#include <iostream>
-
 using namespace std::chrono;
 
 namespace gts { namespace http

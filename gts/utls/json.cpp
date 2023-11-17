@@ -28,7 +28,6 @@
 
 #include "json.h"
 #include <gts/formatter.h>
-#include <gts/utility.h>
 
 namespace gts { namespace njson_utls
 {

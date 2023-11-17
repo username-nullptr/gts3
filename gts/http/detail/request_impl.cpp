@@ -27,8 +27,6 @@
 *************************************************************************************/
 
 #include "request_impl.h"
-#include "gts/algorithm.h"
-#include "gts/log.h"
 
 using namespace std::chrono;
 
@@ -136,15 +134,22 @@ std::size_t request_impl::read_body_length_mode(std::error_code &error, void *bu
 		while( tplen > 0 and size > 0 )
 		{
 			auto res = sock.read_some(cbuf, size, seconds(30), error);
-
 			cbuf += res;
 			sum += res;
 
 			size -= res;
 			tplen -= res;
 
-			if( tplen == 0 or error )
-				break;
+            if( not error )
+                continue;
+            else if( res > 0 )
+                error = std::error_code();
+            else
+            {
+                if( sum > 0 )
+                    error = std::error_code();
+                break;
+            }
 		}
 	}
 	else
@@ -155,7 +160,10 @@ std::size_t request_impl::read_body_length_mode(std::error_code &error, void *bu
 		sum = size;
 	}
 	if( tplen == 0 )
+    {
 		m_rb_status = rb_status::finished;
+        error = std::error_code();
+    }
 	return sum;
 }
 
@@ -183,14 +191,23 @@ std::size_t request_impl::read_body_chunked_mode(std::error_code &error, void *b
 	if( abuf.empty() )
 	{
 		auto tcp_size = tcp_ip_buffer_size();
-		char *tmpbuf = new char[tcp_size] {0};
+		char *tmp_buf = new char[tcp_size] {0};
 
-		auto res = socket().read_some(tmpbuf, tcp_size, seconds(30), error);
-		abuf.append(tmpbuf, res);
+		auto res = socket().read_some(tmp_buf, tcp_size, seconds(30), error);
+		abuf.append(tmp_buf, res);
 
-		delete[] tmpbuf;
+		delete[] tmp_buf;
 		if( error )
-			return 0;
+        {
+            if( res > 0 )
+                error = std::error_code();
+            else
+            {
+                if( sum > 0 )
+                    error = std::error_code();
+                return sum;
+            }
+        }
 	}
 	std::size_t _size = 0;
 	auto lambda_reset = [&](const char *msg)

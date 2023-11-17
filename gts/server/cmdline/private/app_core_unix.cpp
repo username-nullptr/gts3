@@ -30,8 +30,6 @@
 
 #include "app_core_p.h"
 #include "gts/private/app_info.h"
-
-#include "gts/algorithm.h"
 #include "gts/log.h"
 
 #include <cppfilesystem>

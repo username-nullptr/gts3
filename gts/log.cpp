@@ -32,14 +32,12 @@
 #include "gts/rw_mutex.h"
 #include "gts/chrono.h"
 
-#include <list>
-#include <ctime>
+#include <fmt/chrono.h>
+#include <cppfilesystem>
+#include <iostream>
 #include <cstdio>
 #include <thread>
-#include <cassert>
-#include <iostream>
-#include <cppfilesystem>
-#include <fmt/chrono.h>
+#include <list>
 
 namespace dt = std::chrono;
 
@@ -64,8 +62,6 @@ static time_t create_time(const std::string &/*file*/)
 
 #else //other os
 
-# include <unistd.h>
-# include <sys/types.h>
 # include <sys/stat.h>
 
 #ifdef CORE_USE_STD_FS

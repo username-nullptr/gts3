@@ -30,22 +30,15 @@
 
 #include "interaction_p.h"
 #include "gts/private/app_info.h"
-
-#include "application.h"
-#include "global.h"
 #include "gts/log.h"
 
-#include <unordered_map>
 #include <cppfilesystem>
 #include <asio.hpp>
 #include <cassert>
-#include <memory>
-#include <cstdio>
 #include <set>
 
-#include <unistd.h>
 #include <fcntl.h>
-#include <sys/types.h>
+#include <unistd.h>
 #include <sys/stat.h>
 
 namespace gts { namespace cmdline

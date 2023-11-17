@@ -28,12 +28,7 @@
 
 #include "response.h"
 #include "detail/request_impl.h"
-
-#include "gts/tcp_socket.h"
 #include "gts/mime_type.h"
-#include "gts/algorithm.h"
-#include "gts/exception.h"
-#include "gts/log.h"
 
 #include <cppfilesystem>
 #include <fstream>

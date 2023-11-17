@@ -29,10 +29,6 @@
 #include "parser.h"
 #include "detail/request_impl.h"
 
-#include "gts/http/request.h"
-#include "gts/algorithm.h"
-#include "gts/log.h"
-
 namespace gts { namespace http
 {
 

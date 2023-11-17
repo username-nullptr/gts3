@@ -28,10 +28,6 @@
 
 #include "detail/request_impl.h"
 #include "gts/application.h"
-#include "gts/exception.h"
-#include "gts/algorithm.h"
-#include "gts/log.h"
-
 #include <cppfilesystem>
 #include <fstream>
 
@@ -222,7 +218,7 @@ std::size_t request::save_file(const std::string &_file_name, asio::error_code &
 		error = std::make_error_code(std::errc::no_such_file_or_directory);
 		return 0;
 	}
-	std::ofstream file(file_name);
+	std::ofstream file(file_name, std::ios_base::out | std::ios_base::binary);
 	if( not file.is_open() )
 	{
 		error = std::make_error_code(static_cast<std::errc>(errno));
@@ -231,7 +227,7 @@ std::size_t request::save_file(const std::string &_file_name, asio::error_code &
 	file.seekp(begin);
 	auto tcp_buf_size = m_impl->tcp_ip_buffer_size();
 
-	char buf[65536] {0};
+	auto buf = new char[tcp_buf_size] {0};
 	std::size_t sum = 0;
 
 	while( can_read_body() )
@@ -240,6 +236,7 @@ std::size_t request::save_file(const std::string &_file_name, asio::error_code &
 		if( error )
 		{
 			file.close();
+            delete[] buf;
 			return sum;
 		}
 		else if( res == 0 )
@@ -250,6 +247,7 @@ std::size_t request::save_file(const std::string &_file_name, asio::error_code &
 		std::this_thread::sleep_for(microseconds(512));
 	}
 	file.close();
+    delete[] buf;
 	return sum;
 }
 
@@ -267,7 +265,7 @@ std::size_t request::save_file_part(const std::string &_file_name, asio::error_c
 		error = std::make_error_code(std::errc::no_such_file_or_directory);
 		return 0;
 	}
-	std::ofstream file(file_name);
+	std::ofstream file(file_name, std::ios_base::out | std::ios_base::binary);
 	if( not file.is_open() )
 	{
 		error = std::make_error_code(static_cast<std::errc>(errno));
@@ -276,7 +274,7 @@ std::size_t request::save_file_part(const std::string &_file_name, asio::error_c
 	file.seekp(begin);
 	auto tcp_buf_size = m_impl->tcp_ip_buffer_size();
 
-	char buf[65536] {0};
+    auto buf = new char[tcp_buf_size] {0};
 	std::size_t sum = 0;
 
 	while( can_read_body() )
@@ -285,6 +283,7 @@ std::size_t request::save_file_part(const std::string &_file_name, asio::error_c
 		if( error )
 		{
 			file.close();
+            delete[] buf;
 			return sum;
 		}
 		else if( res == 0 )
@@ -303,6 +302,7 @@ std::size_t request::save_file_part(const std::string &_file_name, asio::error_c
 		std::this_thread::sleep_for(microseconds(512));
 	}
 	file.close();
+    delete[] buf;
 	return sum;
 }
 

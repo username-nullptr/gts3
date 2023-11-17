@@ -29,12 +29,10 @@
 #ifdef __unix__
 
 #include "process_p.h"
-#include <cassert>
 #include <mutex>
 #include <map>
 
 #include <signal.h>
-#include <sys/types.h>
 #include <sys/wait.h>
 
 namespace gts
