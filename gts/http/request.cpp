@@ -327,10 +327,12 @@ bool request::can_read_body() const
 
 bool request::is_valid() const
 {
-	if( m_impl->m_socket == nullptr or not m_impl->m_socket->is_open() )
+	if( m_impl->m_socket == nullptr or
+		not m_impl->m_socket->is_open() or
+		m_impl->m_version.empty() or
+		m_impl->m_path.empty() )
 		return false;
-	else if( m_impl->m_version.empty() or m_impl->m_path.empty() )
-		return false;
+
 	else if( m_impl->m_method == GET )
 	{
 		auto it = m_impl->m_headers.find(header::content_length);

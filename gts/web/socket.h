@@ -49,6 +49,7 @@ public:
 	virtual ~socket() noexcept;
 
 public:
+	GTS_CXX_NODISCARD("Get the protocol version of websocket")
 	socket_protocol::version version() const;
 
 public:
@@ -87,12 +88,15 @@ public:
 	tcp::endpoint local_endpoint() noexcept;
 
 public:
-	bool is_open() const;
+	GTS_CXX_NODISCARD("") bool is_open() const;
 	void close(asio::error_code &error, bool shutdown = false) noexcept;
 	void close(bool shutdown = false) noexcept;
 
 public:
+	GTS_CXX_NODISCARD("Get const TCP/SSL socket")
 	const tcp_socket_ptr native() const noexcept;
+
+	GTS_CXX_NODISCARD("Get TCP/SSL socket")
 	tcp_socket_ptr native() noexcept;
 
 private:

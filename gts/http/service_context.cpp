@@ -36,7 +36,7 @@ class GTS_DECL_HIDDEN service_context_impl
 	GTS_DISABLE_COPY_MOVE(service_context_impl)
 
 public:
-	service_context_impl(http::request *request) :
+	explicit service_context_impl(http::request *request) :
 		m_requst(request), m_response(*request)
 	{
 		assert(request);

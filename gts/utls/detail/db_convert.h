@@ -29,10 +29,7 @@
 #ifndef GTS_UTLS_DETAIL_DB_CONVERT_H
 #define GTS_UTLS_DETAIL_DB_CONVERT_H
 
-#include <gts/dbi/cell.h>
-
-namespace gts { namespace dbi
-{
+GTS_DBI_NAMESPACE_BEGIN
 
 namespace convert_detail
 {
@@ -200,7 +197,7 @@ std::vector<T> table_to_struct_by_name(const table_data &table)
 	return result;
 }
 
-}} //namespace gts::dbi
+GTS_DBI_NAMESPACE_END
 
 
 #endif //GTS_UTLS_CONVERT_DETAIL_DB_H

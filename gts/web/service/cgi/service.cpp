@@ -75,14 +75,14 @@ void cgi_service::init()
 	}
 
 #ifdef GTS_ENABLE_SSL
-	auto crt_file = _settings.read<std::string>(SINI_GROUP_GTS, SINI_GTS_SSL_CRT_FILE, _GTS_SSL_CRT_DEFAULT_FILE);
+	auto crt_file = _settings.read<std::string>(SINI_GROUP_GTS, SINI_GTS_SSL_CRT_FILE, GTS_SSL_CRT_DEFAULT_FILE);
 	if( not crt_file.empty() )
 	{
 		crt_file = app::absolute_path(crt_file);
 		g_cgi_env.emplace("SSL_CRT_FILE", crt_file);
 	}
 
-	auto key_file = _settings.read<std::string>(SINI_GROUP_GTS, SINI_GTS_SSL_KEY_FILE, _GTS_SSL_KEY_DEFAULT_FILE);
+	auto key_file = _settings.read<std::string>(SINI_GROUP_GTS, SINI_GTS_SSL_KEY_FILE, GTS_SSL_KEY_DEFAULT_FILE);
 	if( not key_file.empty() )
 	{
 		key_file = app::absolute_path(key_file);

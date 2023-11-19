@@ -29,8 +29,7 @@
 #ifndef GTS_UTLS_DETAIL_JSON_H
 #define GTS_UTLS_DETAIL_JSON_H
 
-namespace gts { namespace njson_utls
-{
+GTS_NJSON_UTLS_NAMESPACE_BEGIN
 
 template <typename T>
 void to_struct(const njson &json, T&t) {
@@ -66,7 +65,7 @@ njson from_struct(const T &obj)
 	return json;
 }
 
-}} //namespace gts::njson_utls
+GTS_NJSON_UTLS_NAMESPACE_END
 
 
 #endif //GTS_UTLS_DETAIL_JSON_H

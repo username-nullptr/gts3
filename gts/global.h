@@ -71,16 +71,11 @@ GTS_NAMESPACE_BEGIN
 # define GTS_DECL_IMPORT
 # define GTS_DECL_HIDDEN  __attribute__((visibility("hidden")))
 
-# ifndef __attribute_used__
-#  define __attribute_used__  __attribute__((used))
-# endif //__attribute_used__
+# define GTS_CXX_ATTR_USED    __attribute__((used))
+# define GTS_CXX_ATTR_UNUSED  __attribute__((unused))
 
-# ifndef __attribute_unused__
-#  define __attribute_unused__  __attribute__((unused))
-# endif //__attribute_used__
-
-# define __attribute_weak__              __attribute__((weak))
-# define __attribute_weakref__(_symbol)  __attribute__((weakref(_symbol)))
+# define GTS_CXX_ATTR_WEAK              __attribute__((weak))
+# define GTS_CXX_ATTR_WEAKREF(_symbol)  __attribute__((weakref(_symbol)))
 
 #else // other compiler
 
@@ -88,11 +83,11 @@ GTS_NAMESPACE_BEGIN
 # define GTS_DECL_IMPORT
 # define GTS_DECL_HIDDEN
 
-# define __attribute_used__
-# define __attribute_unused__
+# define GTS_CXX_ATTR_USED
+# define GTS_CXX_ATTR_UNUSED
 
-# define __attribute_weak__
-# define __attribute_weakref__(_symbol)
+# define GTS_CXX_ATTR_WEAK
+# define GTS_CXX_ATTR_WEAKREF(_symbol)
 
 #endif //compiler
 
@@ -105,14 +100,14 @@ GTS_NAMESPACE_BEGIN
 # define GTSCORE_API  GTS_DECL_IMPORT
 #endif //gtscore_EXPORTS
 
-GTSCORE_API std::string version_string();
+GTSCORE_API GTS_CXX_NODISCARD("") std::string version_string();
 
-GTSCORE_API asio::io_context &io_context();
+GTSCORE_API GTS_CXX_NODISCARD("") asio::io_context &io_context();
 
 template <typename T> inline
-void delete_later(T *obj)
+void delete_later(T *obj, asio::io_context &io = io_context())
 {
-	io_context().post([obj]{
+	io.post([obj]{
 		delete obj;
 	});
 }
@@ -131,7 +126,7 @@ struct site_info
 };
 typedef std::map<std::string, site_info>  site_info_map;
 
-GTSCORE_API site_info_map get_site_infos();
+GTSCORE_API GTS_CXX_NODISCARD("") site_info_map get_site_infos();
 
 GTS_NAMESPACE_END
 

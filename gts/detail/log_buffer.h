@@ -29,8 +29,7 @@
 #ifndef GTS_DETAIL_LOG_BUFFER_H
 #define GTS_DETAIL_LOG_BUFFER_H
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 template <typename T>
 inline log_buffer &log_buffer::write(T &&msg)
@@ -47,7 +46,7 @@ inline log_buffer &log_buffer::operator<<(T &&msg)
 	return write(std::forward<T>(msg));
 }
 
-} //namespace gts
+GTS_NAMESPACE_END
 
 
 #endif //GTS_DETAIL_LOG_BUFFER_H

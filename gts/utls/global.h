@@ -37,5 +37,13 @@
 # define GTS_UTLS_API  GTS_DECL_IMPORT
 #endif //gtsutls_EXPORTS
 
+#if GTS_CPLUSPLUS >= 201703L
+# define GTS_NJSON_UTLS_NAMESPACE_BEGIN  namespace gts::njson_utls {
+# define GTS_NJSON_UTLS_NAMESPACE_END    } //namespace gts::njson_utls
+#else //cpp17
+# define GTS_NJSON_UTLS_NAMESPACE_BEGIN  namespace gts { namespace njson_utls {
+# define GTS_NJSON_UTLS_NAMESPACE_END    }} //namespace gts::njson_utls
+#endif //cpp17
+
 
 #endif //GTS_UTLS_GLOBAL_H

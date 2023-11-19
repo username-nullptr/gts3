@@ -21,6 +21,7 @@ set(dbi_headers
 set(dbi_detail_headers
 	detail/error.h
 	detail/cell.h
+	detail/result_iterator.h
 	detail/driver.h
 	detail/connection.h
 )

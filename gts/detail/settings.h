@@ -29,8 +29,7 @@
 #ifndef GTS_DETAIL_SETTINGS_H
 #define GTS_DETAIL_SETTINGS_H
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 template <typename T> inline
 T settings::read(const std::string &group, const std::string &key, const T &default_value) const
@@ -112,7 +111,7 @@ inline ini::IniSectionBase<std::less<std::string>> &settings::operator[](const s
 	return m_ini_map[group];
 }
 
-} //namespace gts
+GTS_NAMESPACE_END
 
 
 #endif //GTS_DETAIL_SETTINGS_H

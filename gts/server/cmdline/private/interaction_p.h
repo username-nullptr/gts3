@@ -32,8 +32,7 @@
 #include "cmdline/interaction.h"
 #include "gts/global.h"
 
-namespace gts { namespace cmdline
-{
+GTS_CMDLINE_NAMESPACE_BEGIN
 
 class pipe_ope;
 
@@ -48,7 +47,7 @@ public:
 	pipe_ope *m_ope = nullptr;
 };
 
-}} //namespace gts::cmdline
+GTS_CMDLINE_NAMESPACE_END
 
 
 #endif //INTERACTION_P_H

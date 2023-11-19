@@ -36,8 +36,7 @@ using njson = nlohmann::json;
 
 using njson_type = njson::value_t;
 
-namespace gts { namespace njson_utls
-{
+GTS_NJSON_UTLS_NAMESPACE_BEGIN
 
 GTS_UTLS_API void from_json_recursively(rttr::instance instance, const njson &json);
 
@@ -58,8 +57,7 @@ GTS_UTLS_API void to_json_recursively(const rttr::instance instance, njson &json
 template <typename T>
 njson from_struct(const T &obj);
 
-}} //namespace gts::njson_utls
-
+GTS_NJSON_UTLS_NAMESPACE_END
 #include <gts/utls/detail/json.h>
 
 #endif //GTS_UTLS_JSON_H

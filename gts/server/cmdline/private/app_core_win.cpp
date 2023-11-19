@@ -9,8 +9,7 @@
 #include <fstream>
 #include <thread>
 
-namespace gts { namespace cmdline
-{
+GTS_CMDLINE_NAMESPACE_BEGIN
 
 args_parser::arguments startup(int argc, const char* argv[])
 {
@@ -27,6 +26,6 @@ void stop_app(bool noreturn)
 
 }
 
-}} // namespace gts::cmdline
+GTS_CMDLINE_NAMESPACE_END
 
 #endif //__WINNT__ || _WINDOWS

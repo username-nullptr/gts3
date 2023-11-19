@@ -39,8 +39,8 @@ class GTS_DBI_API cell
 {
 public:
 	cell() = default;
-	cell(const std::string &column_name);
-	cell(const std::string &column_name, std::string data);
+	cell(std::string column_name);
+	cell(std::string column_name, std::string data);
 
 public:
 	cell(const cell &other) = default;
@@ -49,200 +49,201 @@ public:
 	cell &operator=(cell &&other) noexcept;
 
 public:
-	std::string column_name() const;
+	GTS_CXX_NODISCARD("") std::string column_name() const;
 
 public:
-	bool has_value() const;
-	bool is_valid() const;
-	bool not_has_value() const;
-	bool is_null() const;
+	GTS_CXX_NODISCARD("") bool has_value() const;
+	GTS_CXX_NODISCARD("") bool is_valid() const;
+	GTS_CXX_NODISCARD("") bool not_has_value() const;
+	GTS_CXX_NODISCARD("") bool is_null() const;
 
 public:
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, bool), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, bool), int)> GTS_CXX_NODISCARD("")
 	bool get(T default_value) const noexcept;
 
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, bool), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, bool), int)> GTS_CXX_NODISCARD("")
 	bool get() const noexcept(false);
 
 public:
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, signed char), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, signed char), int)> GTS_CXX_NODISCARD("")
 	signed char get(T default_value, int base = 10) const noexcept;
 
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, signed char), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, signed char), int)> GTS_CXX_NODISCARD("")
 	signed char get(int base = 10) const noexcept(false);
 
 public:
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned char), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned char), int)> GTS_CXX_NODISCARD("")
 	unsigned char get(T default_value, int base = 10) const noexcept;
 
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned char), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned char), int)> GTS_CXX_NODISCARD("")
 	unsigned char get(int base = 10) const noexcept(false);
 
 public:
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, short), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, short), int)> GTS_CXX_NODISCARD("")
 	short get(T default_value, int base = 10) const noexcept;
 
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, short), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, short), int)> GTS_CXX_NODISCARD("")
 	short get(int base = 10) const noexcept(false);
 
 public:
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned short), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned short), int)> GTS_CXX_NODISCARD("")
 	unsigned short get(T default_value, int base = 10) const noexcept;
 
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned short), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned short), int)> GTS_CXX_NODISCARD("")
 	unsigned short get(int base = 10) const noexcept(false);
 
 public:
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, int), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, int), int)> GTS_CXX_NODISCARD("")
 	int get(T default_value, int base = 10) const noexcept;
 
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, int), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, int), int)> GTS_CXX_NODISCARD("")
 	int get(int base = 10) const noexcept(false);
 
 public:
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned int), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned int), int)> GTS_CXX_NODISCARD("")
 	unsigned int get(T default_value, int base = 10) const noexcept;
 
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned int), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned int), int)> GTS_CXX_NODISCARD("")
 	unsigned int get(int base = 10) const noexcept(false);
 
 public:
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, long), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, long), int)> GTS_CXX_NODISCARD("")
 	long get(T default_value, int base = 10) const noexcept;
 
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, long), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, long), int)> GTS_CXX_NODISCARD("")
 	long get(int base = 10) const noexcept(false);
 
 public:
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned long), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned long), int)> GTS_CXX_NODISCARD("")
 	unsigned long get(T default_value, int base = 10) const noexcept;
 
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned long), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned long), int)> GTS_CXX_NODISCARD("")
 	unsigned long get(int base = 10) const noexcept(false);
 
 public:
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, long long), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, long long), int)> GTS_CXX_NODISCARD("")
 	long long get(T default_value, int base = 10) const noexcept;
 
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, long long), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, long long), int)> GTS_CXX_NODISCARD("")
 	long long get(int base = 10) const noexcept(false);
 
 public:
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned long long), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned long long), int)> GTS_CXX_NODISCARD("")
 	unsigned long long get(T default_value, int base = 10) const noexcept;
 
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned long long), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned long long), int)> GTS_CXX_NODISCARD("")
 	unsigned long long get(int base = 10) const noexcept(false);
 
 public:
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, float), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, float), int)> GTS_CXX_NODISCARD("")
 	float get(T default_value) const noexcept;
 
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, float), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, float), int)> GTS_CXX_NODISCARD("")
 	float get() const noexcept(false);
 
 public:
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, double), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, double), int)> GTS_CXX_NODISCARD("")
 	double get(T default_value) const noexcept;
 
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, double), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, double), int)> GTS_CXX_NODISCARD("")
 	double get() const noexcept(false);
 
 public:
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, long double), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, long double), int)> GTS_CXX_NODISCARD("")
 	long double get(T default_value) const noexcept;
 
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, long double), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, long double), int)> GTS_CXX_NODISCARD("")
 	long double get() const noexcept(false);
 
 public:
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, std::string), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, std::string), int)> GTS_CXX_NODISCARD("")
 	std::string get(const T &default_value) const noexcept;
 
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, std::string), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, std::string), int)> GTS_CXX_NODISCARD("")
 	std::string get(T &&default_value) const noexcept;
 
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, std::string), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, std::string), int)> GTS_CXX_NODISCARD("")
 	const std::string &get() const noexcept(false);
 
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, std::string), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, std::string), int)> GTS_CXX_NODISCARD("")
 	std::string &get() noexcept(false);
 
 public:
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_enum(T), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_enum(T), int)> GTS_CXX_NODISCARD("")
 	T get(T default_value) const noexcept;
 
-	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_enum(T), int)>
+	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_enum(T), int)> GTS_CXX_NODISCARD("")
 	T get() const noexcept(false);
 
 public:
-	bool to_bool(bool default_value) const noexcept;
-	bool to_bool() const noexcept(false);
+	GTS_CXX_NODISCARD("") bool to_bool(bool default_value) const noexcept;
+	GTS_CXX_NODISCARD("") bool to_bool() const noexcept(false);
 
 public:
-	int8_t to_char(int8_t default_value) const noexcept;
-	int8_t to_char() const noexcept(false);
+	GTS_CXX_NODISCARD("") int8_t to_char(int8_t default_value) const noexcept;
+	GTS_CXX_NODISCARD("") int8_t to_char() const noexcept(false);
 
 public:
-	uint8_t to_uchar(uint8_t default_value) const noexcept;
-	uint8_t to_uchar() const noexcept(false);
+	GTS_CXX_NODISCARD("") uint8_t to_uchar(uint8_t default_value) const noexcept;
+	GTS_CXX_NODISCARD("") uint8_t to_uchar() const noexcept(false);
 
 public:
-	int16_t to_short(int16_t default_value) const noexcept;
-	int16_t to_short() const noexcept(false);
+	GTS_CXX_NODISCARD("") int16_t to_short(int16_t default_value) const noexcept;
+	GTS_CXX_NODISCARD("") int16_t to_short() const noexcept(false);
 
 public:
-	uint16_t to_ushort(uint16_t default_value) const noexcept;
-	uint16_t to_ushort() const noexcept(false);
+	GTS_CXX_NODISCARD("") uint16_t to_ushort(uint16_t default_value) const noexcept;
+	GTS_CXX_NODISCARD("") uint16_t to_ushort() const noexcept(false);
 
 public:
-	int32_t to_int(int32_t default_value) const noexcept;
-	int32_t to_int() const noexcept(false);
+	GTS_CXX_NODISCARD("") int32_t to_int(int32_t default_value) const noexcept;
+	GTS_CXX_NODISCARD("") int32_t to_int() const noexcept(false);
 
 public:
-	uint32_t to_uint(uint32_t default_value) const noexcept;
-	uint32_t to_uint() const noexcept(false);
+	GTS_CXX_NODISCARD("") uint32_t to_uint(uint32_t default_value) const noexcept;
+	GTS_CXX_NODISCARD("") uint32_t to_uint() const noexcept(false);
 
 public:
-	int64_t to_long(int64_t default_value) const noexcept;
-	int64_t to_long() const noexcept(false);
+	GTS_CXX_NODISCARD("") int64_t to_long(int64_t default_value) const noexcept;
+	GTS_CXX_NODISCARD("") int64_t to_long() const noexcept(false);
 
 public:
-	uint64_t to_ulong(uint64_t default_value) const noexcept;
-	uint64_t to_ulong() const noexcept(false);
+	GTS_CXX_NODISCARD("") uint64_t to_ulong(uint64_t default_value) const noexcept;
+	GTS_CXX_NODISCARD("") uint64_t to_ulong() const noexcept(false);
 
 public:
-	float to_float(float default_value) const noexcept;
-	float to_float() const noexcept(false);
+	GTS_CXX_NODISCARD("") float to_float(float default_value) const noexcept;
+	GTS_CXX_NODISCARD("") float to_float() const noexcept(false);
 
 public:
-	double to_double(double default_value) const noexcept;
-	double to_double() const noexcept(false);
+	GTS_CXX_NODISCARD("") double to_double(double default_value) const noexcept;
+	GTS_CXX_NODISCARD("") double to_double() const noexcept(false);
 
 public:
-	long double to_long_double(long double default_value) const noexcept;
-	long double to_long_double() const noexcept(false);
+	GTS_CXX_NODISCARD("") long double to_long_double(long double default_value) const noexcept;
+	GTS_CXX_NODISCARD("") long double to_long_double() const noexcept(false);
 
 public:
-	std::string to_string(const std::string &default_value) const noexcept;
-	std::string to_string(std::string &&default_value) const noexcept;
-	const std::string &to_string() const noexcept(false);
-	std::string &to_string() noexcept(false);
+	GTS_CXX_NODISCARD("") std::string to_string(const std::string &default_value) const noexcept;
+	GTS_CXX_NODISCARD("") std::string to_string(std::string &&default_value) const noexcept;
+	GTS_CXX_NODISCARD("") const std::string &to_string() const noexcept(false);
+	GTS_CXX_NODISCARD("") std::string &to_string() noexcept(false);
 
 public:
 	operator const std::string() const noexcept(false);
 	operator std::string() noexcept(false);
 
 public:
-	bool operator==(const cell &other) const noexcept;
-	bool operator!=(const cell &other) const noexcept;
-	bool operator<(const cell &other) const noexcept(false);
-	bool operator<=(const cell &other) const noexcept(false);
-	bool operator>(const cell &other) const noexcept(false);
-	bool operator>=(const cell &other) const noexcept(false);
+	GTS_CXX_NODISCARD("") bool operator==(const cell &other) const noexcept;
+	GTS_CXX_NODISCARD("") bool operator!=(const cell &other) const noexcept;
+	GTS_CXX_NODISCARD("") bool operator<(const cell &other) const noexcept(false);
+	GTS_CXX_NODISCARD("") bool operator<=(const cell &other) const noexcept(false);
+	GTS_CXX_NODISCARD("") bool operator>(const cell &other) const noexcept(false);
+	GTS_CXX_NODISCARD("") bool operator>=(const cell &other) const noexcept(false);
 
 private:
-	bool to_bool(const std::string &str) const noexcept;
+	GTS_CXX_NODISCARD("") static
+	bool to_bool(const std::string &str) noexcept;
 
 private:
 	template <typename T, typename F>

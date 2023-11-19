@@ -34,9 +34,9 @@
 
 #ifdef __GNUC__
 # include <cxxabi.h>
-# define _ABI_CXA_DEMANGLE(name)  abi::__cxa_demangle(name, 0,0,0)
+# define GTS_ABI_CXA_DEMANGLE(name)  abi::__cxa_demangle(name, nullptr, nullptr, nullptr)
 #else //_MSVC
-# define _ABI_CXA_DEMANGLE(name)  name
+# define GTS_ABI_CXA_DEMANGLE(name)  name
 #endif //compiler
 
 #define GTS_UNUSED(x)  (void)(x)
@@ -58,6 +58,14 @@
 #define GTS_DISABLE_COPY_MOVE(_class) \
 	GTS_DISABLE_COPY(_class) GTS_DISABLE_MOVE(_class)
 
+#if GTS_CPLUSPLUS >= 202002L
+# define GTS_CXX_NODISCARD(_d)  [[nodiscard(_d)]]
+#elif __cplusplus >= 201703L
+# define GTS_CXX_NODISCARD(_d)  [[nodiscard]]
+#else
+# define GTS_CXX_NODISCARD(_d)
+#endif
+
 #define GTS_NAMESPACE_BEGIN  namespace gts {
 #define GTS_NAMESPACE_END    } //namespace gts
 
@@ -65,12 +73,12 @@ GTS_NAMESPACE_BEGIN
 
 template <typename T>
 inline const char *type_name(T &&t) {
-	return _ABI_CXA_DEMANGLE(typeid(t).name());
+	return GTS_ABI_CXA_DEMANGLE(typeid(t).name());
 }
 
 template <typename T>
 inline const char *type_name() {
-	return _ABI_CXA_DEMANGLE(typeid(T).name());
+	return GTS_ABI_CXA_DEMANGLE(typeid(T).name());
 }
 
 template <bool C, typename T = void>
@@ -95,9 +103,9 @@ GTS_NAMESPACE_END
 
 #define GTS_CLASS_METHOD_DECLVAL(Class, Return, ...)   (GTS_DECLVAL(Class).*GTS_DECLVAL(Return(Class::*)(__VA_ARGS__)))
 
-#define GTS_TYPE_DECLTYPE(...)   typename _GTD_0 = decltype(__VA_ARGS__)
+#define GTS_TYPE_DECLTYPE(...)   typename U_GTD_0 = decltype(__VA_ARGS__)
 
-#define GTS_TYPE_ENABLE_IF(...)   typename _GTEI_0 = gts::enable_if_t<__VA_ARGS__>
+#define GTS_TYPE_ENABLE_IF(...)   typename U_GTEI_0 = gts::enable_if_t<__VA_ARGS__>
 
 #define GTS_RTTR_TYPE(...)   rttr::type::get<__VA_ARGS__>()
 

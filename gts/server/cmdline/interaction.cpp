@@ -28,8 +28,7 @@
 
 #include "private/interaction_p.h"
 
-namespace gts { namespace cmdline
-{
+GTS_CMDLINE_NAMESPACE_BEGIN
 
 interaction::interaction(bool is_server) :
 	d_ptr(new interaction_private(is_server))
@@ -42,4 +41,4 @@ interaction::~interaction()
 	delete d_ptr;
 }
 
-}} //namespace gts::cmdline
+GTS_CMDLINE_NAMESPACE_END

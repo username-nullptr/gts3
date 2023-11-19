@@ -40,11 +40,11 @@ class GTS_DBI_API driver
 public:
 	driver() = default;
 	virtual ~driver() = 0;
-	virtual bool is_valid();
+	GTS_CXX_NODISCARD("") virtual bool is_valid();
 
 public:
-	virtual std::string name() = 0;
-	virtual std::string description() = 0;
+	GTS_CXX_NODISCARD("") virtual std::string name() = 0;
+	GTS_CXX_NODISCARD("") virtual std::string description() = 0;
 
 public:
 	virtual void set_default_connect_info(const dbi::connect_info &info) = 0;
@@ -54,24 +54,36 @@ public:
 	void set_default_connect_string_info(fmt::format_string<Args...> fmt, Args&&...args);
 
 public:
+	GTS_CXX_NODISCARD("")
 	virtual dbi::connect_info default_connect_info() const = 0;
+
+	GTS_CXX_NODISCARD("")
 	virtual std::string default_connect_string_info() const = 0;
 
 public:
-	virtual bool set_auto_commit(error_code &error, bool enable = true) noexcept = 0;
+	virtual bool set_auto_commit(error_code &error, bool enable) noexcept = 0;
 	void set_auto_commit(bool enable = true) noexcept(false);
-	virtual bool auto_commit() const = 0;
+	GTS_CXX_NODISCARD("") virtual bool auto_commit() const = 0;
 
 public:
+	GTS_CXX_NODISCARD("Create a database connection")
 	virtual connection_ptr create_connection(error_code &error, const dbi::connect_info &info) noexcept = 0;
+
+	GTS_CXX_NODISCARD("Create a database connection")
 	virtual connection_ptr create_connection(error_code &error, const std::string &info) noexcept = 0;
 
 public:
+	GTS_CXX_NODISCARD("Create a database connection")
 	virtual connection_ptr create_connection(error_code &error) noexcept;
+
+	GTS_CXX_NODISCARD("Create a database connection")
 	virtual connection_ptr create_connection() noexcept(false);
 
 public:
+	GTS_CXX_NODISCARD("Create a database connection")
 	connection_ptr create_connection(const dbi::connect_info &info) noexcept(false);
+
+	GTS_CXX_NODISCARD("Create a database connection")
 	connection_ptr create_connection(const std::string &info) noexcept(false);
 };
 

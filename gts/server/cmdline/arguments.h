@@ -31,8 +31,7 @@
 
 #include "gts/args_parser.h"
 
-namespace gts { namespace cmdline
-{
+GTS_CMDLINE_NAMESPACE_BEGIN
 
 #define GC_SA_START    "start"
 #define GC_SA_CFPATH   "-f"
@@ -50,7 +49,7 @@ namespace gts { namespace cmdline
 
 args_parser::arguments argument_check(int argc, const char *argv[], string_list &others);
 
-}} //namespace gts::cmdline
+GTS_CMDLINE_NAMESPACE_END
 
 
 #endif //ARGUMENTS_H

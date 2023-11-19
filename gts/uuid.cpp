@@ -33,7 +33,8 @@
 
 GTS_NAMESPACE_BEGIN
 
-uuid::uuid(const std::string &uuid)
+uuid::uuid(const std::string &uuid) :
+	_wide_integers{0}
 {
 	if( uuid.size() == 38 ) //aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee
 	{
@@ -45,8 +46,6 @@ uuid::uuid(const std::string &uuid)
 		sscanf(uuid.c_str(), "{%08" SCNx32 "-%04" SCNx16 "-%04" SCNx16 "-%02" SCNx8 "%02" SCNx8 "-%02" SCNx8 "%02" SCNx8 "%02" SCNx8 "%02" SCNx8 "%02" SCNx8 "%02" SCNx8 "}",
 			   &_uuid.d0, &_uuid.d1, &_uuid.d2, &_uuid.d3[0], &_uuid.d3[1], &_uuid.d3[2], &_uuid.d3[3], &_uuid.d3[4], &_uuid.d3[5], &_uuid.d3[6], &_uuid.d3[7]);
 	}
-	else
-		memset(this, 0, sizeof(uuid));
 }
 
 uuid uuid::generate()

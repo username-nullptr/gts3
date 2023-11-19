@@ -32,12 +32,11 @@
 #include "cmdline/app_core.h"
 #include "cmdline/arguments.h"
 
-namespace gts { namespace cmdline
-{
+GTS_CMDLINE_NAMESPACE_BEGIN
 
 void cmdline_handle(int argc, const char *argv[], args_parser::arguments &args_hash);
 
-}} //namespace gts::cmdline
+GTS_CMDLINE_NAMESPACE_END
 
 
 #endif //APP_CORE_P_H

@@ -37,8 +37,7 @@
 # include <openssl/ssl.h>
 #endif //ssl
 
-namespace gts { namespace cmdline
-{
+GTS_CMDLINE_NAMESPACE_BEGIN
 
 static std::list<rttr::library> g_lib_lists;
 
@@ -125,4 +124,4 @@ static std::string view_version(bool all)
 	return result;
 }
 
-}} //namespace gts::cmdline
+GTS_CMDLINE_NAMESPACE_END

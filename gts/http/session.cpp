@@ -67,7 +67,6 @@ public:
 	void restart(uint64_t s = 0)
 	{
 		m_timer.cancel();
-
 		if( s == 0 )
 			m_timer.expires_after(seconds(m_lifecycle));
 		else
@@ -87,7 +86,6 @@ public:
 				m_attributes.clear();
 				m_attrs_mutex.unlock();
 			}
-
 			g_rw_mutex.lock();
 			g_session_hash.erase(m_id);
 			g_rw_mutex.unlock();
@@ -95,7 +93,7 @@ public:
 	}
 
 public:
-	std::atomic<uint64_t> m_lifecycle;
+	std::atomic<uint64_t> m_lifecycle {0};
 	asio::steady_timer m_timer { io_context() };
 
 	std::string m_id { uuid::generate() };
@@ -116,7 +114,7 @@ session::session(const duration &s) :
 
 session::~session()
 {
-//	delete m_impl;
+	delete_later(m_impl);
 }
 
 std::string session::id() const

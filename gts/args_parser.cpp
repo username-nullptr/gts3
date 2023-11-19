@@ -52,13 +52,13 @@ typedef std::unordered_map<rule, arg_info>  args_cache;
 class GTS_DECL_HIDDEN args_parser_impl
 {
 public:
-	explicit args_parser_impl(const std::string &help_title);
+	explicit args_parser_impl(std::string &help_title);
 	void add(args_cache &cache, const rule &r, const description &d, const identification &i);
 
 public:
-	[[noreturn]] void print_version();
-	[[noreturn]] void print_v();
-	[[noreturn]] void print_help();
+	[[noreturn]] void print_version() const;
+	[[noreturn]] void print_v() const;
+	[[noreturn]] void print_help() const;
 
 public:
 	args_cache m_group;
@@ -74,8 +74,8 @@ public:
 	bool m_h = false;
 };
 
-args_parser_impl::args_parser_impl(const std::string &help_title) :
-	m_help_title(help_title)
+args_parser_impl::args_parser_impl(std::string &help_title) :
+	m_help_title(std::move(help_title))
 {
 
 }
@@ -102,7 +102,7 @@ void args_parser_impl::add(args_cache &cache, const rule &r, const description &
 	for(auto arg : str_split(r, ","))
 	{
 		arg = str_trimmed(arg);
-		if( check(arg) == false )
+		if( not check(arg) or arg == "--" )
 			continue;
 
 		else if( arg.size() == 1 )
@@ -110,27 +110,25 @@ void args_parser_impl::add(args_cache &cache, const rule &r, const description &
 			if( arg != "-" )
 				cache.emplace(arg, arg_info{buf, i.empty()? arg : i});
 		}
-		else if( arg == "--" )
-			continue ;
 		else
 			cache.emplace(arg, arg_info{buf, i.empty()? arg : i});
 	}
 	m_help += "    " + r + " :\n        " + d + "\n\n";
 }
 
-[[noreturn]] void args_parser_impl::print_version()
+[[noreturn]] void args_parser_impl::print_version() const
 {
 	std::cout << "\n" << m_version << "\n\n" << std::flush;
 	exit(0);
 }
 
-[[noreturn]] void args_parser_impl::print_v()
+[[noreturn]] void args_parser_impl::print_v() const
 {
 	std::cout << "\n" << m_v << "\n\n" << std::flush;
 	exit(0);
 }
 
-[[noreturn]] void args_parser_impl::print_help()
+[[noreturn]] void args_parser_impl::print_help() const
 {
 	std::cout << "\n";
 	if( not m_help_title.empty() )
@@ -159,7 +157,7 @@ void args_parser_impl::add(args_cache &cache, const rule &r, const description &
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-args_parser::args_parser(const std::string &help_title) :
+args_parser::args_parser(std::string help_title) :
 	m_impl(new args_parser_impl(help_title))
 {
 
@@ -220,7 +218,7 @@ args_parser &args_parser::set_help_extension(const description &d)
 
 static void group_check_duplication(parsing_cache &cache, const group_iden &group)
 {
-	if( cache.emplace(group).second == false )
+	if( not cache.emplace(group).second )
 	{
 		std::cerr << "Too many parameters." << std::endl;
 		exit(-1);
@@ -296,7 +294,6 @@ arguments args_parser::parsing(int argc, const char *argv[], string_list &other)
 				m_impl->print_help();
 			}
 		}
-
 		auto it = m_impl->m_group.find(arg);
 		if( it != m_impl->m_group.end() )
 		{
@@ -312,7 +309,6 @@ arguments args_parser::parsing(int argc, const char *argv[], string_list &other)
 			i++;
 			continue ;
 		}
-
 		it = m_impl->m_flag.find(arg);
 		if( it != m_impl->m_flag.end() )
 		{
@@ -320,15 +316,13 @@ arguments args_parser::parsing(int argc, const char *argv[], string_list &other)
 			result.emplace(it->second.iden, it->second.iden);
 			continue ;
 		}
-
-		if( arg.size() <= 2 )
+		else if( arg.size() <= 2 )
 		{
 			group_check_duplication(cache, arg);
 			other.emplace_back(arg);
 			continue;
 		}
-
-		auto pos = arg.find("=");
+		auto pos = arg.find('=');
 		if( pos != std::string::npos )
 		{
 			auto it2 = m_impl->m_group.find(arg.substr(0,pos));
@@ -344,14 +338,12 @@ arguments args_parser::parsing(int argc, const char *argv[], string_list &other)
 			}
 			continue;
 		}
-
 		if( arg[0] != '-' )
 		{
 			group_check_duplication(cache, arg);
 			other.emplace_back(arg);
 			continue;
 		}
-
 		bool flag = true;
 		std::size_t j = 1;
 
@@ -363,13 +355,12 @@ arguments args_parser::parsing(int argc, const char *argv[], string_list &other)
 				break;
 			}
 		}
-		if( flag == false )
+		if( not flag )
 		{
 			group_check_duplication(cache, arg);
 			other.emplace_back(arg);
 			continue;
 		}
-
 		for(j=1; j<arg.size()-1; j++)
 		{
 			auto it2 = m_impl->m_flag.find(std::string("-") + arg[j]);
@@ -395,7 +386,6 @@ arguments args_parser::parsing(int argc, const char *argv[], string_list &other)
 			result.emplace(it2->second.iden, it2->second.iden);
 			continue ;
 		}
-
 		it2 = m_impl->m_group.find(tmp);
 		if( it2 != m_impl->m_group.end() )
 		{

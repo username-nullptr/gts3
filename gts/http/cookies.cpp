@@ -35,13 +35,14 @@ cookie::cookie()
 	m_attributes.emplace("Path", "/");
 }
 
-cookie::cookie(cookie &&other) :
-	_vbase(std::move(other))
+cookie::cookie(cookie &&other) noexcept :
+	_vbase(std::move(other)),
+	m_attributes(std::move(other.m_attributes))
 {
-	m_attributes = std::move(other.m_attributes);
+
 }
 
-cookie &cookie::operator=(cookie &&other)
+cookie &cookie::operator=(cookie &&other) noexcept
 {
 	_vbase::operator=(static_cast<gts::value&&>(other));
 	m_attributes = std::move(other.m_attributes);
@@ -60,7 +61,7 @@ std::string cookie::path() const
 	return it == m_attributes.end()? "" : it->second;
 }
 
-std::size_t cookie::size() const
+std::size_t cookie::cookies_size() const
 {
 	auto it = m_attributes.find("Size");
 	return it == m_attributes.end()? 0 : it->second.get<std::size_t>();
@@ -75,31 +76,31 @@ uint64_t cookie::expires() const
 uint64_t cookie::max_age() const
 {
 	auto it = m_attributes.find("Max-age");
-	return it == m_attributes.end()? 0 : it->second.get<uint64_t>();
+	return it == m_attributes.end() ? 0 : it->second.get<uint64_t>();
 }
 
 bool cookie::http_only() const
 {
 	auto it = m_attributes.find("HttpOnly");
-	return it == m_attributes.end()? false : it->second.to_bool();
+	return it == m_attributes.end() ? false : it->second.to_bool();
 }
 
 bool cookie::secure() const
 {
 	auto it = m_attributes.find("Secure");
-	return it == m_attributes.end()? false : it->second.to_bool();
+	return it == m_attributes.end() ? false : it->second.to_bool();
 }
 
 std::string cookie::same_site() const
 {
 	auto it = m_attributes.find("SameSite");
-	return it == m_attributes.end()? "" : it->second;
+	return it == m_attributes.end() ? "" : it->second;
 }
 
 std::string cookie::priority() const
 {
 	auto it = m_attributes.find("Priority");
-	return it == m_attributes.end()? "" : it->second;
+	return it == m_attributes.end() ? "" : it->second;
 }
 
 cookie &cookie::set_domain(std::string domain)

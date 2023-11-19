@@ -37,8 +37,7 @@
 
 using njson = nlohmann::json;
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 static site_info_map g_site_infos;
 
@@ -380,4 +379,4 @@ std::string plugin_call_handle::extension::view_help()
 	return view_extension("gts.extension.plugin.view_help.");
 }
 
-} //namespace gts
+GTS_NAMESPACE_END

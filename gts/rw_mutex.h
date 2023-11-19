@@ -53,14 +53,19 @@ public:
 	void lock();
 	void unlock();
 
+public: // TODO ...
+//	GTS_CXX_NODISCARD("") bool try_lock_shared();
+//	GTS_CXX_NODISCARD("") bool try_lock();
+
 private:
 	std::atomic_uint m_reader {0};
 	std::atomic_bool m_writer {false};
 	std::condition_variable m_condition;
-	Mutex m_mutex;
+	mutex_type m_mutex;
 };
 
 using rw_mutex = basic_rw_mutex<std::mutex>;
+using timed_rw_mutex = basic_rw_mutex<std::timed_mutex>;
 
 template <typename Mutex>
 class GTS_DECL_HIDDEN basic_shared_lock
@@ -69,14 +74,24 @@ class GTS_DECL_HIDDEN basic_shared_lock
 
 public:
 	using mutex_type = Mutex;
-	explicit basic_shared_lock(basic_rw_mutex<Mutex> &mutex);
+	explicit basic_shared_lock(basic_rw_mutex<mutex_type> &mutex);
+
+	// TODO ...
+//	basic_shared_lock(basic_rw_mutex<mutex_type> &mutex, std::try_to_lock_t);
+//	const chrono::time_point<_Clock, _Duration>& __atime
+//	const chrono::duration<_Rep, _Period>& __rtime
+
 	~basic_shared_lock();
 
+public: // TODO ...
+//	GTS_CXX_NODISCARD("") bool owner() const;
+
 private:
-	basic_rw_mutex<Mutex> &m_mutex;
+	basic_rw_mutex<mutex_type> &m_mutex;
 };
 
 using shared_lock = basic_shared_lock<std::mutex>;
+using timed_shared_lock = basic_shared_lock<std::timed_mutex>;
 
 GTS_NAMESPACE_END
 #include <gts/detail/rw_mutex.h>

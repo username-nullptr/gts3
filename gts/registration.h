@@ -59,14 +59,14 @@ protected:
 	template <typename Func>
 	using is_function = enable_if_t<std::is_function<Func>::value, int>;
 
-	template <typename This, typename Func, typename _U0 = is_function<Func>>
+	template <typename This, typename Func, typename UU0 = is_function<Func>>
 	This &register_method(const std::string &prefix, const std::string &name, Func &&func);
 
 protected:
 	template <typename Func>
 	using not_is_function = enable_if_t<not std::is_function<Func>::value, int>;
 
-	template <typename This, typename Func, typename _U0 = not_is_function<Func>, typename _U1 = int>
+	template <typename This, typename Func, typename UU0 = not_is_function<Func>, typename UU1 = int>
 	This &register_method(const std::string &prefix, const std::string &name, Func &&func);
 
 protected:
@@ -109,15 +109,15 @@ public:
 
 	public:
 		template <typename Return>
-		class_ &init_method(Return(Class::*func)(void));
+		class_ &init_method(Return(Class::*func)());
 
 		template <typename Return, typename Str, GTS_TYPE_DECLTYPE(GTS_CLASS_METHOD_DECLVAL(Class, Return, Str)(std::string()))>
 		class_ &init_method(Return(Class::*func)(Str));
 
 		template <typename Return>
-		class_ &exit_method(Return(Class::*func)(void));
+		class_ &exit_method(Return(Class::*func)());
 
-		class_ &view_status_method(std::string(Class::*func)(void));
+		class_ &view_status_method(std::string(Class::*func)());
 
 	protected:
 		std::string m_class_name;

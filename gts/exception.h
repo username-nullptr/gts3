@@ -46,7 +46,9 @@ public:
 	explicit exception(fmt::format_string<Args...> fmt_value, Args&&...args);
 
 public:
+	GTS_CXX_NODISCARD("Get description of exception")
 	const char* what() const _GLIBCXX_NOTHROW override;
+
 #if GTS_CPLUSPLUS >= 201703L
 private: GTS_DISABLE_COPY_MOVE(exception)
 #else

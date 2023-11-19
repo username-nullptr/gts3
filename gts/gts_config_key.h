@@ -62,18 +62,18 @@
 
 
 #ifdef _WINDOWS
-# define _GTS_SSL_CRT_DEFAULT_FILE  ""
-# define _GTS_SSL_KEY_DEFAULT_FILE  ""
+# define GTS_SSL_CRT_DEFAULT_FILE  ""
+# define GTS_SSL_KEY_DEFAULT_FILE  ""
 #elif defined(__unix__)
-# define _GTS_SSL_CRT_DEFAULT_FILE  "~/.ssl/ssl.crt"
-# define _GTS_SSL_KEY_DEFAULT_FILE  "~/.ssl/ssl.key"
+# define GTS_SSL_CRT_DEFAULT_FILE  "~/.ssl/ssl.crt"
+# define GTS_SSL_KEY_DEFAULT_FILE  "~/.ssl/ssl.key"
 #else //other os
-# define _GTS_SSL_CRT_DEFAULT_FILE  ""
-# define _GTS_SSL_KEY_DEFAULT_FILE  ""
+# define GTS_SSL_CRT_DEFAULT_FILE  ""
+# define GTS_SSL_KEY_DEFAULT_FILE  ""
 #endif //os
 
-#define _GTS_DEFAULT_SITES_CONFIG    "sites.json"
-#define _GTS_DEFAULT_PLUGINS_CONFIG  "../plugins.json"
+#define GTS_DEFAULT_SITES_CONFIG    "sites.json"
+#define GTS_DEFAULT_PLUGINS_CONFIG  "../plugins.json"
 
 
 #endif //GTS_CONFIG_KEY_H

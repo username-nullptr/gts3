@@ -43,8 +43,7 @@
 #include <iostream>
 #include <fstream>
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 using njson = nlohmann::json;
 
@@ -74,7 +73,7 @@ tcp_server::tcp_server()
 
 	auto &_settings = settings::global_instance();
 
-	auto crt_file = _settings.read<std::string>(SINI_GROUP_GTS, SINI_GTS_SSL_CRT_FILE, _GTS_SSL_CRT_DEFAULT_FILE);
+	auto crt_file = _settings.read<std::string>(SINI_GROUP_GTS, SINI_GTS_SSL_CRT_FILE, GTS_SSL_CRT_DEFAULT_FILE);
 	if( not crt_file.empty() )
 	{
 		crt_file = app::absolute_path(crt_file);
@@ -84,7 +83,7 @@ tcp_server::tcp_server()
 		if( error )
 			gts_log_fatal("asio: ssl certificate file load failed: {}. ({})\n", error.message(), error.value());
 	}
-	auto key_file = _settings.read<std::string>(SINI_GROUP_GTS, SINI_GTS_SSL_KEY_FILE, _GTS_SSL_KEY_DEFAULT_FILE);
+	auto key_file = _settings.read<std::string>(SINI_GROUP_GTS, SINI_GTS_SSL_KEY_FILE, GTS_SSL_KEY_DEFAULT_FILE);
 	if( not key_file.empty() )
 	{
 		key_file = app::absolute_path(key_file);
@@ -107,7 +106,7 @@ tcp_server::~tcp_server()
 void tcp_server::start()
 {
 	auto &_settings = settings::global_instance();
-	auto json_file = READ_CONFIG(std::string, SINI_GTS_SITES_CONFIG, _GTS_DEFAULT_SITES_CONFIG);
+	auto json_file = READ_CONFIG(std::string, SINI_GTS_SITES_CONFIG, GTS_DEFAULT_SITES_CONFIG);
 
 	if( json_file.empty() )
 	{
@@ -184,7 +183,7 @@ void tcp_server::start()
 	}
 	file.close();
 
-	json_file = READ_CONFIG(std::string, SINI_GTS_PLUGINS_CONFIG, _GTS_DEFAULT_PLUGINS_CONFIG);
+	json_file = READ_CONFIG(std::string, SINI_GTS_PLUGINS_CONFIG, GTS_DEFAULT_PLUGINS_CONFIG);
 	if( json_file.empty() )
 	{
 		gts_log_fatal("gts::tcp_server::start: No plugins configuration found.");
@@ -421,4 +420,4 @@ void tcp_server::ssl_site::do_accept()
 
 #endif //ssl
 
-} //namespace gts
+GTS_NAMESPACE_END

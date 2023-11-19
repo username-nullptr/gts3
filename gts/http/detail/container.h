@@ -31,198 +31,198 @@
 
 GTS_HTTP_NAMESPACE_BEGIN
 
-template <typename V, typename _Compare>
-std::pair<typename map<V,_Compare>::base_type::iterator, bool>
-map<V,_Compare>::emplace(const std::string &key, const std::string &value)
+template <typename V, typename Compare>
+std::pair<typename map<V,Compare>::base_type::iterator, bool>
+map<V,Compare>::emplace(const std::string &key, const std::string &value)
 {
 	return base_type::emplace(key, V(value));
 }
 
-template <typename V, typename _Compare>
-std::pair<typename map<V,_Compare>::base_type::iterator, bool>
-map<V,_Compare>::emplace(const std::string &key, std::string &&value)
+template <typename V, typename Compare>
+std::pair<typename map<V,Compare>::base_type::iterator, bool>
+map<V,Compare>::emplace(const std::string &key, std::string &&value)
 {
 	return base_type::emplace(key, V(std::move(value)));
 }
 
-template <typename V, typename _Compare>
+template <typename V, typename Compare>
 template <typename T, typename U>
-std::pair<typename map<V,_Compare>::base_type::iterator, bool>
-map<V,_Compare>::emplace(const std::string &key, T &&value)
+std::pair<typename map<V,Compare>::base_type::iterator, bool>
+map<V,Compare>::emplace(const std::string &key, T &&value)
 {
 	return base_type::emplace(key, V(std::forward<T>(value)));
 }
 
-template <typename V, typename _Compare>
+template <typename V, typename Compare>
 template <typename...Args>
-std::pair<typename map<V,_Compare>::base_type::iterator, bool>
-map<V,_Compare>::emplace(const std::string &key, fmt::format_string<Args...> fmt_value, Args&&...args)
+std::pair<typename map<V,Compare>::base_type::iterator, bool>
+map<V,Compare>::emplace(const std::string &key, fmt::format_string<Args...> fmt_value, Args&&...args)
 {
 	return base_type::emplace(key, V(fmt_value, std::forward<Args>(args)...));
 }
 
-template <typename V, typename _Compare>
-V map<V,_Compare>::value(const std::string &key, const V &default_value) const
+template <typename V, typename Compare>
+V map<V,Compare>::value(const std::string &key, const V &default_value) const
 {
 	auto it = this->find(key);
 	return it == this->end()? default_value : it->second;
 }
 
-template <typename V, typename _Compare>
-bool map<V,_Compare>::value_bool(const std::string &key, bool default_value) const
+template <typename V, typename Compare>
+bool map<V,Compare>::value_bool(const std::string &key, bool default_value) const
 {
 	auto it = this->find(key);
 	return it == this->end()? default_value : it->second.to_bool();
 }
 
-template <typename V, typename _Compare>
-int32_t map<V,_Compare>::value_int(const std::string &key, int32_t default_value) const
+template <typename V, typename Compare>
+int32_t map<V,Compare>::value_int(const std::string &key, int32_t default_value) const
 {
 	auto it = this->find(key);
 	return it == this->end()? default_value : it->second.to_int();
 }
 
-template <typename V, typename _Compare>
-uint32_t map<V,_Compare>::value_uint(const std::string &key, uint32_t default_value) const
+template <typename V, typename Compare>
+uint32_t map<V,Compare>::value_uint(const std::string &key, uint32_t default_value) const
 {
 	auto it = this->find(key);
 	return it == this->end()? default_value : it->second.to_uint();
 }
 
-template <typename V, typename _Compare>
-int64_t map<V,_Compare>::value_long(const std::string &key, int64_t default_value) const
+template <typename V, typename Compare>
+int64_t map<V,Compare>::value_long(const std::string &key, int64_t default_value) const
 {
 	auto it = this->find(key);
 	return it == this->end()? default_value : it->second.to_long();
 }
 
-template <typename V, typename _Compare>
-uint64_t map<V,_Compare>::value_ulong(const std::string &key, uint64_t default_value) const
+template <typename V, typename Compare>
+uint64_t map<V,Compare>::value_ulong(const std::string &key, uint64_t default_value) const
 {
 	auto it = this->find(key);
 	return it == this->end()? default_value : it->second.to_ulong();
 }
 
-template <typename V, typename _Compare>
-float map<V,_Compare>::value_float(const std::string &key, float default_value) const
+template <typename V, typename Compare>
+float map<V,Compare>::value_float(const std::string &key, float default_value) const
 {
 	auto it = this->find(key);
 	return it == this->end()? default_value : it->second.to_float();
 }
 
-template <typename V, typename _Compare>
-double map<V,_Compare>::value_double(const std::string &key, double default_value) const
+template <typename V, typename Compare>
+double map<V,Compare>::value_double(const std::string &key, double default_value) const
 {
 	auto it = this->find(key);
 	return it == this->end()? default_value : it->second.to_double();
 }
 
-template <typename V, typename _Compare>
-long double map<V,_Compare>::value_ldouble(const std::string &key, long double default_value) const
+template <typename V, typename Compare>
+long double map<V,Compare>::value_ldouble(const std::string &key, long double default_value) const
 {
 	auto it = this->find(key);
 	return it == this->end()? default_value : it->second.to_ldouble();
 }
 
-template <typename V, typename _Compare>
-V &map<V,_Compare>::value(const std::string &key)
+template <typename V, typename Compare>
+V &map<V,Compare>::value(const std::string &key)
 {
 	auto it = this->find(key);
 	assert(it != this->end());
 	return it->second;
 }
 
-template <typename V, typename _Compare>
-const V &map<V,_Compare>::value(const std::string &key) const
+template <typename V, typename Compare>
+const V &map<V,Compare>::value(const std::string &key) const
 {
 	auto it = this->find(key);
 	assert(it != this->end());
 	return it->second;
 }
 
-template <typename V, typename _Compare>
-bool map<V,_Compare>::value_bool(const std::string &key) const
+template <typename V, typename Compare>
+bool map<V,Compare>::value_bool(const std::string &key) const
 {
 	auto it = this->find(key);
 	assert(it != this->end());
 	return it->second.to_bool();
 }
 
-template <typename V, typename _Compare>
-int32_t map<V,_Compare>::value_int(const std::string &key) const
+template <typename V, typename Compare>
+int32_t map<V,Compare>::value_int(const std::string &key) const
 {
 	auto it = this->find(key);
 	assert(it != this->end());
 	return it->second.to_int();
 }
 
-template <typename V, typename _Compare>
-uint32_t map<V,_Compare>::value_uint(const std::string &key) const
+template <typename V, typename Compare>
+uint32_t map<V,Compare>::value_uint(const std::string &key) const
 {
 	auto it = this->find(key);
 	assert(it != this->end());
 	return it->second.to_uint();
 }
 
-template <typename V, typename _Compare>
-int64_t map<V,_Compare>::value_long(const std::string &key) const
+template <typename V, typename Compare>
+int64_t map<V,Compare>::value_long(const std::string &key) const
 {
 	auto it = this->find(key);
 	assert(it != this->end());
 	return it->second.to_long();
 }
 
-template <typename V, typename _Compare>
-uint64_t map<V,_Compare>::value_ulong(const std::string &key) const
+template <typename V, typename Compare>
+uint64_t map<V,Compare>::value_ulong(const std::string &key) const
 {
 	auto it = this->find(key);
 	assert(it != this->end());
 	return it->second.to_ulong();
 }
 
-template <typename V, typename _Compare>
-float map<V,_Compare>::value_float(const std::string &key) const
+template <typename V, typename Compare>
+float map<V,Compare>::value_float(const std::string &key) const
 {
 	auto it = this->find(key);
 	assert(it != this->end());
 	return it->second.to_float();
 }
 
-template <typename V, typename _Compare>
-double map<V,_Compare>::value_double(const std::string &key) const
+template <typename V, typename Compare>
+double map<V,Compare>::value_double(const std::string &key) const
 {
 	auto it = this->find(key);
 	assert(it != this->end());
 	return it->second.to_double();
 }
 
-template <typename V, typename _Compare>
-long double map<V,_Compare>::value_ldouble(const std::string &key) const
+template <typename V, typename Compare>
+long double map<V,Compare>::value_ldouble(const std::string &key) const
 {
 	auto it = this->find(key);
 	assert(it != this->end());
 	return it->second.to_ldouble();
 }
 
-template <typename V, typename _Compare>
-template <typename T, typename _GTEI_0>
-T map<V,_Compare>::value(const std::string &key) const
+template <typename V, typename Compare>
+template <typename T, typename U_GTEI_0>
+T map<V,Compare>::value(const std::string &key) const
 {
 	auto it = this->find(key);
 	assert(it != this->end());
 	return it->second.template get<T>();
 }
 
-template <typename V, typename _Compare>
-template <typename T, typename _GTEI_0>
-T map<V,_Compare>::value(const std::string &key, T default_value) const
+template <typename V, typename Compare>
+template <typename T, typename U_GTEI_0>
+T map<V,Compare>::value(const std::string &key, T default_value) const
 {
 	auto it = this->find(key);
 	return it == this->end()? default_value : it->second.template get<T>();
 }
 
-template <typename V, typename _Compare>
-const V &map<V,_Compare>::operator[](const std::string &key) const
+template <typename V, typename Compare>
+const V &map<V,Compare>::operator[](const std::string &key) const
 {
 	auto it = this->find(key);
 	assert(it != this->end());

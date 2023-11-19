@@ -29,8 +29,7 @@
 #ifndef GTS_DETAIL_LOG_H
 #define GTS_DETAIL_LOG_H
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 template <typename...Args> inline
 log_buffer logger::debug(fmt::format_string<Args...> fmt_value, Args&&...args) {
@@ -132,7 +131,7 @@ void logger::cfatal(std::string category, T &&msg) {
 	_fatal(fmt::format("{}", std::forward<T>(msg)), std::move(category));
 }
 
-} //namespace gts
+GTS_NAMESPACE_END
 
 
 #endif //GTS_DETAIL_LOG_H

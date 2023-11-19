@@ -77,34 +77,41 @@ public:
 	void commit() noexcept(false);
 
 public:
-	template <typename...Args>
+	template <typename...Args> GTS_CXX_NODISCARD("Returns a query iterator")
 	result_iterator_ptr create_query(error_code &error, fmt::format_string<Args...> fmt, Args&&...args) noexcept;
 
-	template <typename...Args>
+	template <typename...Args> GTS_CXX_NODISCARD("Returns a 2 dimensional vector")
 	table_data query(error_code &error, fmt::format_string<Args...> fmt, Args&&...args) noexcept;
+
+	GTS_CXX_NODISCARD("Returns a 2 dimensional vector")
 	table_data query(error_code &error, const std::string &sql) noexcept;
 
-	template <typename...Args>
+	template <typename...Args> GTS_CXX_NODISCARD("Returns a query iterator")
 	result_iterator_ptr create_query(fmt::format_string<Args...> fmt, Args&&...args) noexcept(false);
 
-	template <typename...Args>
+	template <typename...Args> GTS_CXX_NODISCARD("Returns a 2 dimensional vector")
 	table_data query(fmt::format_string<Args...> fmt, Args&&...args) noexcept(false);
+
+	GTS_CXX_NODISCARD("Returns a 2 dimensional vector")
 	table_data query(const std::string &sql) noexcept(false);
 
+	GTS_CXX_NODISCARD("Returns a 2 dimensional vector")
 	virtual table_data prepare_query(const std::string &statement, error_code &error) noexcept(false);
 
 public:
-	virtual bool set_auto_commit(error_code &error, bool enable = true) noexcept = 0;
+	virtual bool set_auto_commit(error_code &error, bool enable) noexcept = 0;
 	void set_auto_commit(bool enable = true) noexcept(false);
-	virtual bool auto_commit() const = 0;
+	GTS_CXX_NODISCARD("") virtual bool auto_commit() const = 0;
 
 public:
 	virtual connection &set_query_string_buffer_size(std::size_t size);
-	virtual std::size_t query_string_buffer_size() const;
-	virtual dbi::driver &driver() const = 0;
+	GTS_CXX_NODISCARD("") virtual std::size_t query_string_buffer_size() const;
+	GTS_CXX_NODISCARD("") virtual dbi::driver &driver() const = 0;
 
 protected:
 	virtual connection &prepare_statement(const std::string &statement) noexcept = 0;
+
+	GTS_CXX_NODISCARD("Returns a 2 dimensional vector")
 	virtual result_iterator_ptr create_query_work(const std::string &statement, error_code &error) noexcept = 0;
 
 private:

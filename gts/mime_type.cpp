@@ -970,9 +970,9 @@ static const char *g_signatures_list4[] =
 	"\x04" "wide"                         , VIDEO "quicktime"
 };
 
-#define _LEN(x)  ( sizeof(x) / sizeof(x[0]) - 2 )
+#define LIST_LEN(x)  ( sizeof(x) / sizeof(x[0]) - 2 )
 
-static inline std::string __mime_search(const char **mimes, size_t len, const char *buf)
+static inline std::string s_mime_search(const char **mimes, size_t len, const char *buf)
 {
 	std::size_t bot = 0;
 	std::size_t top = len;
@@ -994,7 +994,7 @@ static inline std::string __mime_search(const char **mimes, size_t len, const ch
 	return "unknown";
 }
 
-static inline bool __is_text_file(std::fstream &file)
+static inline bool s_is_text_file(std::fstream &file)
 {
 	char buf[0x4000] = "";
 	file.read(buf, sizeof(buf));
@@ -1018,7 +1018,7 @@ static inline bool __is_text_file(std::fstream &file)
 	return true;
 }
 
-#define _BUF_LEN  256
+#define BUF_LEN  256
 
 static inline std::string mime_from_magic(const std::string &file_name)
 {
@@ -1026,14 +1026,14 @@ static inline std::string mime_from_magic(const std::string &file_name)
 	if( not file.is_open() )
 		return "unknown";
 
-	char buf[_BUF_LEN] = {0};
-	file.read(buf, _BUF_LEN);
+	char buf[BUF_LEN] = {0};
+	file.read(buf, BUF_LEN);
 
 	auto size = file.gcount();
-	if( size < _BUF_LEN )
+	if( size < BUF_LEN )
 	{
 		file.seekg(0, std::ios_base::beg);
-		if( __is_text_file(file) )
+		if( s_is_text_file(file) )
 		{
 			file.close();
 			return "text/plain";
@@ -1041,16 +1041,16 @@ static inline std::string mime_from_magic(const std::string &file_name)
 		file.close();
 //		return "unknwon";
 	}
-	auto mime_type = __mime_search(g_signatures_list, _LEN(g_signatures_list), buf);
+	auto mime_type = s_mime_search(g_signatures_list, LIST_LEN(g_signatures_list), buf);
 	if( mime_type.empty() )
-		mime_type = __mime_search(g_signatures_list4, _LEN(g_signatures_list4), buf + 4);
+		mime_type = s_mime_search(g_signatures_list4, LIST_LEN(g_signatures_list4), buf + 4);
 	return mime_type;
 }
 
 std::string get_mime_type(const std::string &file_name)
 {
 	auto name = file_name;
-	auto pos = file_name.rfind("/");
+	auto pos = file_name.rfind('/');
 
 	if( pos != std::string::npos )
 		name = file_name.substr(pos + 1);
@@ -1074,7 +1074,7 @@ bool is_text_file(const std::string &file_name)
 	std::fstream file(file_name);
 	if( file.is_open() )
 	{
-		__is_text_file(file);
+		s_is_text_file(file);
 		file.close();
 		return true;
 	}

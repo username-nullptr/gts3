@@ -28,8 +28,7 @@
 
 #include "app_info.h"
 
-namespace gts { namespace app
-{
+GTS_APP_NAMESPACE_BEGIN
 
 #define APP_TMP_DIR_PATH  "/tmp/gts3/"
 
@@ -43,4 +42,4 @@ std::string lock_file_name()
 	return tmp_dir_path() + "pid.lock";
 }
 
-}} //namespace gts::app
+GTS_APP_NAMESPACE_END

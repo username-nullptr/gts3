@@ -29,8 +29,7 @@
 #include "json.h"
 #include <gts/formatter.h>
 
-namespace gts { namespace njson_utls
-{
+GTS_NJSON_UTLS_NAMESPACE_BEGIN
 
 using type_error = njson::type_error;
 
@@ -411,4 +410,4 @@ void to_json_recursively(const rttr::instance obj2, njson &json_object)
 		write_variant(json_object, prop.get_name(), prop.get_value(obj));
 }
 
-}} //namespace gts::njson_utls
+GTS_NJSON_UTLS_NAMESPACE_END

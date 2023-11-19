@@ -29,8 +29,7 @@
 #ifndef GTS_DETAIL_APPLICATION_H
 #define GTS_DETAIL_APPLICATION_H
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 template <typename...Args>
 bool setenv(const std::string &key, fmt::format_string<Args...> fmt_value, Args&&...args)
@@ -44,13 +43,13 @@ bool setenv(const std::string &key, bool overwrite, fmt::format_string<Args...> 
 	return setenv(key, fmt::format(fmt_value, std::forward<Args>(args)...), overwrite);
 }
 
-template <typename T, typename _U>
+template <typename T, typename UU>
 bool setenv(const std::string &key, T &&value, bool overwrite = true)
 {
 	return setenv(key, fmt::format("{}", std::forward<T>(value)), overwrite);
 }
 
-} //namespace gts
+GTS_NAMESPACE_END
 
 
 #endif //GTS_DETAIL_APPLICATION_H

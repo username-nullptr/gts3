@@ -49,7 +49,7 @@ public:
 	constexpr flags(Enum f) noexcept;
 	constexpr flags(const flags &other);
 	constexpr flags(std::initializer_list<Enum> flags) noexcept;
-	const flags &operator=(const flags &other);
+	flags &operator=(const flags &other);
 
 public:
 	const flags &operator&=(int mask) noexcept;

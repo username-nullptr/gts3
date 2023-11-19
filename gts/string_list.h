@@ -44,10 +44,14 @@ public:
 	using basic_string_list::deque;
 
 public:
+	GTS_CXX_NODISCARD("")
 	std::vector<std::string> to_vector() const;
+
+	GTS_CXX_NODISCARD("")
 	std::vector<const char*> c_str_vector() const;
 
 public:
+	GTS_CXX_NODISCARD("")
 	std::string join(const std::string &splits = " ");
 };
 

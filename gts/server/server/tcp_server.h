@@ -39,8 +39,7 @@
 # include "gts/tcp_socket.h"
 #endif
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 class tcp_server
 {
@@ -113,7 +112,7 @@ private:
 	int m_buffer_size = 65536;
 };
 
-} //namespace gts
+GTS_NAMESPACE_END
 
 
 #endif //TCP_SERVER_H

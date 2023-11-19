@@ -157,46 +157,46 @@ void tcp_socket::async_read_some(void *buf, std::size_t size, std::function<void
 
 std::size_t tcp_socket::write_some(const std::string &buf) noexcept
 {
-	asio::error_code error;
-	auto res = write_some(buf, error);
-	if( error )
-		this->error(error, "write_some(std::string)");
+	asio::error_code _error;
+	auto res = write_some(buf, _error);
+	if( _error )
+		error(_error, "write_some(std::string)");
 	return res;
 }
 
 std::size_t tcp_socket::write_some(const void *buf, std::size_t size) noexcept
 {
-	asio::error_code error;
-	auto res = write_some(buf, size, error);
-	if( error )
-		this->error(error, "write_some(void*)");
+	asio::error_code _error;
+	auto res = write_some(buf, size, _error);
+	if( _error )
+		error(_error, "write_some(void*)");
 	return res;
 }
 
 std::size_t tcp_socket::read_some(std::string &buf) noexcept
 {
-	asio::error_code error;
-	auto res = read_some(buf, error);
-	if( error )
-		this->error(error, "read_some(std::string)");
+	asio::error_code _error;
+	auto res = read_some(buf, _error);
+	if( _error )
+		error(_error, "read_some(std::string)");
 	return res;
 }
 
 std::size_t tcp_socket::read_some(std::string &buf, std::size_t size) noexcept
 {
-	asio::error_code error;
-	auto res = read_some(buf, size, error);
-	if( error )
-		this->error(error, "read_some(void*)");
+	asio::error_code _error;
+	auto res = read_some(buf, size, _error);
+	if( _error )
+		error(_error, "read_some(void*)");
 	return res;
 }
 
 std::size_t tcp_socket::read_some(void *buf, std::size_t size) noexcept
 {
-	asio::error_code error;
-	auto res = read_some(buf, size, error);
-	if( error )
-		this->error(error, "read_some(void*)");
+	asio::error_code _error;
+	auto res = read_some(buf, size, _error);
+	if( _error )
+		error(_error, "read_some(void*)");
 	return res;
 }
 
@@ -285,31 +285,31 @@ std::size_t tcp_socket::read_some(void *buf, std::size_t size, const duration &t
 
 std::size_t tcp_socket::read_some(std::string &buf, const duration &timeout) noexcept
 {
-	asio::error_code error;
-	if( wait_readable(timeout, error) )
+	asio::error_code _error;
+	if( wait_readable(timeout, _error) )
 		return read_some(buf);
-	else if( error )
-		this->error(error, "read_some: wait_readable");
+	else if( _error )
+		error(_error, "read_some: wait_readable");
 	return 0;
 }
 
 std::size_t tcp_socket::read_some(std::string &buf, std::size_t size, const duration &timeout) noexcept
 {
-	asio::error_code error;
-	if( wait_readable(timeout, error) )
+	asio::error_code _error;
+	if( wait_readable(timeout, _error) )
 		return read_some(buf, size);
-	else if( error )
-		this->error(error, "read_some: wait_readable");
+	else if( _error )
+		error(_error, "read_some: wait_readable");
 	return 0;
 }
 
 std::size_t tcp_socket::read_some(void *buf, std::size_t size, const duration &timeout) noexcept
 {
-	asio::error_code error;
-	if( wait_readable(timeout, error) )
+	asio::error_code _error;
+	if( wait_readable(timeout, _error) )
 		return read_some(buf, size);
-	else if( error )
-		this->error(error, "read_some: wait_readable");
+	else if( _error )
+		error(_error, "read_some: wait_readable");
 	return 0;
 }
 
@@ -320,10 +320,10 @@ tcp::endpoint tcp_socket::remote_endpoint(asio::error_code &error) noexcept
 
 tcp::endpoint tcp_socket::remote_endpoint() noexcept
 {
-	asio::error_code error;
-	auto res = m_sock->remote_endpoint(error);
-	if( error )
-		this->error(error, "remote_endpoint");
+	asio::error_code _error;
+	auto res = m_sock->remote_endpoint(_error);
+	if( _error )
+		error(_error, "remote_endpoint");
 	return res;
 }
 
@@ -334,10 +334,10 @@ tcp::endpoint tcp_socket::local_endpoint(asio::error_code &error) noexcept
 
 tcp::endpoint tcp_socket::local_endpoint() noexcept
 {
-	asio::error_code error;
-	auto res = m_sock->local_endpoint(error);
-	if( error )
-		this->error(error, "local_endpoint");
+	asio::error_code _error;
+	auto res = m_sock->local_endpoint(_error);
+	if( _error )
+		error(_error, "local_endpoint");
 	return res;
 }
 
@@ -348,10 +348,10 @@ void tcp_socket::shutdown(asio::error_code &error, tcp::socket::shutdown_type wh
 
 void tcp_socket::shutdown(tcp::socket::shutdown_type what) noexcept
 {
-	asio::error_code error;
-	m_sock->shutdown(what, error);
-	if( error )
-		this->error(error, "shutdown");
+	asio::error_code _error;
+	m_sock->shutdown(what, _error);
+	if( _error )
+		error(_error, "shutdown");
 }
 
 bool tcp_socket::is_open() const
@@ -368,16 +368,16 @@ void tcp_socket::close(asio::error_code &error, bool _shutdown) noexcept
 
 void tcp_socket::close(bool _shutdown) noexcept
 {
-	asio::error_code error;
+	asio::error_code _error;
 	if( _shutdown )
 	{
-		shutdown(error, tcp::socket::shutdown_both);
-		if( error )
-			this->error(error, "close: shutdown");
+		shutdown(_error, tcp::socket::shutdown_both);
+		if( _error )
+			error(_error, "close: shutdown");
 	}
-	m_sock->close(error);
-	if( error )
-		this->error(error, "close");
+	m_sock->close(_error);
+	if( _error )
+		error(_error, "close");
 }
 
 void tcp_socket::non_blocking(bool mode, asio::error_code &error) noexcept
@@ -387,10 +387,10 @@ void tcp_socket::non_blocking(bool mode, asio::error_code &error) noexcept
 
 void tcp_socket::non_blocking(bool mode) noexcept
 {
-	asio::error_code error;
-	m_sock->non_blocking(mode, error);
-	if( error )
-		this->error(error, "non_blocking");
+	asio::error_code _error;
+	m_sock->non_blocking(mode, _error);
+	if( _error )
+		error(_error, "non_blocking");
 }
 
 bool tcp_socket::non_blocking() const noexcept

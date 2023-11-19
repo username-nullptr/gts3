@@ -44,14 +44,15 @@ public:
 	~settings();
 
 public:
+	GTS_CXX_NODISCARD("")
 	static settings &global_instance();
 
 public:
 	settings &set_file(const std::string &file);
-	std::string file_name() const;
+	GTS_CXX_NODISCARD("") std::string file_name() const;
 
 public:
-	template <typename T = std::string>
+	template <typename T = std::string> GTS_CXX_NODISCARD("")
 	T read(const std::string &group, const std::string &key, const T &default_value = T()) const;
 
 	template <typename T>
@@ -63,7 +64,7 @@ public:
 
 public:
 	settings &set_delete_on_flush(bool enable = true);
-	bool delete_on_flush() const;
+	GTS_CXX_NODISCARD("") bool delete_on_flush() const;
 
 public:
 	typedef std::unordered_multimap<std::string, rttr::variant>  ini_hash;
@@ -76,18 +77,18 @@ public:
 	typedef ini::IniFile::const_reverse_iterator  const_reverse_iterator;
 
 public:
-	iterator begin();
-	const_iterator begin() const;
-	iterator end();
-	const_iterator end() const;
-	reverse_iterator rbegin();
-	const_reverse_iterator rbegin() const;
-	reverse_iterator rend();
-	const_reverse_iterator rend() const;
+	GTS_CXX_NODISCARD("") iterator begin();
+	GTS_CXX_NODISCARD("") const_iterator begin() const;
+	GTS_CXX_NODISCARD("") iterator end();
+	GTS_CXX_NODISCARD("") const_iterator end() const;
+	GTS_CXX_NODISCARD("") reverse_iterator rbegin();
+	GTS_CXX_NODISCARD("") const_reverse_iterator rbegin() const;
+	GTS_CXX_NODISCARD("") reverse_iterator rend();
+	GTS_CXX_NODISCARD("") const_reverse_iterator rend() const;
 
 public:
-	iterator find(const std::string &group);
-	const_iterator find(const std::string &group) const;
+	GTS_CXX_NODISCARD("") iterator find(const std::string &group);
+	GTS_CXX_NODISCARD("") const_iterator find(const std::string &group) const;
 
 public:
 	ini::IniSectionBase<std::less<std::string>> &operator[](const std::string &group);

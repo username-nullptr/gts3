@@ -51,8 +51,7 @@
 
 #endif //os
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 cmdline_server::cmdline_server(tcp_server &_tcp_server) :
 	m_interaction(new cmdline::interaction()),
@@ -162,4 +161,4 @@ static std::string view_pid()
 #endif //os
 }
 
-} //namespace gts
+GTS_NAMESPACE_END

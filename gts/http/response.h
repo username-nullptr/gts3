@@ -75,38 +75,38 @@ public:
 	response &set_cookie(std::string key, fmt::format_string<Args...> fmt, Args&&...args);
 
 public:
-	std::string version() const;
-	http::status status() const;
+	GTS_CXX_NODISCARD("") std::string version() const;
+	GTS_CXX_NODISCARD("") http::status status() const;
 
 public:
-	const http::headers &headers() const;
-	http::headers &headers();
-	const http::cookies &cookies() const;
-	http::cookies &cookies();
+	GTS_CXX_NODISCARD("") const http::headers &headers() const;
+	GTS_CXX_NODISCARD("") http::headers &headers();
+	GTS_CXX_NODISCARD("") const http::cookies &cookies() const;
+	GTS_CXX_NODISCARD("") http::cookies &cookies();
 
 public:
-	bool headers_contains(const std::string &key) const;
-	value &header(const std::string &key) noexcept(false);
-	const value &header(const std::string &key) const noexcept(false);
-	value header_or(const std::string &key, value deft_value = {}) const noexcept;
+	GTS_CXX_NODISCARD("") bool headers_contains(const std::string &key) const;
+	GTS_CXX_NODISCARD("") value &header(const std::string &key) noexcept(false);
+	GTS_CXX_NODISCARD("") const value &header(const std::string &key) const noexcept(false);
+	GTS_CXX_NODISCARD("") value header_or(const std::string &key, value deft_value = {}) const noexcept;
 
 	template <typename T>
-	T header(const std::string &key) const noexcept(false);
+	GTS_CXX_NODISCARD("") T header(const std::string &key) const noexcept(false);
 
 	template <typename T, typename U = not_value_t<T>>
-	T header_or(const std::string &key, T deft_value) const noexcept;
+	GTS_CXX_NODISCARD("") T header_or(const std::string &key, T deft_value) const noexcept;
 
 public:
-	bool cookies_contains(const std::string &key) const;
-	http::cookie &cookie(const std::string &key) noexcept(false);
-	const http::cookie &cookie(const std::string &key) const noexcept(false);
-	http::cookie cookie_or(const std::string &key, http::cookie deft_value = {}) const noexcept;
+	GTS_CXX_NODISCARD("") bool cookies_contains(const std::string &key) const;
+	GTS_CXX_NODISCARD("") http::cookie &cookie(const std::string &key) noexcept(false);
+	GTS_CXX_NODISCARD("") const http::cookie &cookie(const std::string &key) const noexcept(false);
+	GTS_CXX_NODISCARD("") http::cookie cookie_or(const std::string &key, http::cookie deft_value = {}) const noexcept;
 
 	template <typename T>
-	T cookie(const std::string &key) const noexcept(false);
+	GTS_CXX_NODISCARD("") T cookie(const std::string &key) const noexcept(false);
 
 	template <typename T, typename U = not_cookie_t<T>>
-	T cookie_or(const std::string &key, T deft_value) const noexcept;
+	GTS_CXX_NODISCARD("") T cookie_or(const std::string &key, T deft_value) const noexcept;
 
 public:
 	response &write_default();
@@ -157,14 +157,17 @@ public:
 
 public:
 	static void set_resource_root(const std::string &path);
-	static std::string resource_root();
+	GTS_CXX_NODISCARD("") static std::string resource_root();
 
 public:
 	static void set_default_write(std::function<void(response&)>);
-	bool is_writed() const;
+	GTS_CXX_NODISCARD("") bool is_writed() const;
 
 public:
+	GTS_CXX_NODISCARD("Transfer management of socket")
 	tcp_socket_ptr take() const;
+
+	GTS_CXX_NODISCARD("Return false, if socket is disconnected or HTTP is invalid")
 	bool is_valid() const;
 
 private:

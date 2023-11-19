@@ -8,8 +8,7 @@
 #include <iostream>
 #include <cstring>
 
-namespace gts { namespace appinfo
-{
+GTS_APP_NAMESPACE_BEGIN
 
 std::string file_path()
 {
@@ -42,6 +41,7 @@ bool set_current_directory(const std::string& path)
 	return true;
 }
 
-}} //namespace gts
+GTS_APP_NAMESPACE_END
+
 
 #endif //__WINNT__ || _WINDOWS

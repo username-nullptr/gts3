@@ -33,8 +33,7 @@
 #include <functional>
 #include <string>
 
-namespace gts { namespace cmdline
-{
+GTS_CMDLINE_NAMESPACE_BEGIN
 
 class interaction_private;
 
@@ -65,7 +64,7 @@ private:
 	interaction_private *d_ptr;
 };
 
-}} //namespace gts::cmdline
+GTS_CMDLINE_NAMESPACE_END
 
 
 #endif //INTERACTION_H

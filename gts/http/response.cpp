@@ -89,31 +89,27 @@ public:
 		auto &sock = socket();
 		if( not sock.is_open() )
 			return false;
-		else if( is_chunked )
+		else if( not is_chunked )
+			return sock.write_some(body, size) > 0;
+
+		else if( m_chunk_attributes.empty() )
 		{
-			if( m_chunk_attributes.empty() )
-			{
-				if( sock.write_some(fmt::format("{:X}\r\n", size)) == 0 )
-					return false;
-			}
-			else
-			{
-				std::string attributes;
-				for(auto &attr : m_chunk_attributes)
-					attributes += attr + ";";
-
-				m_chunk_attributes.clear();
-				attributes.pop_back();
-
-				if( sock.write_some(fmt::format("{:X}; {}\r\n", size, attributes)) == 0 )
-					return false;
-			}
-			if( sock.write_some(body, size) == 0 or sock.write_some("\r\n") == 0 )
+			if( sock.write_some(fmt::format("{:X}\r\n", size)) == 0 )
 				return false;
 		}
-		else if( sock.write_some(body, size) == 0 )
-			return false;
-		return true;
+		else
+		{
+			std::string attributes;
+			for(auto &attr : m_chunk_attributes)
+				attributes += attr + ";";
+
+			m_chunk_attributes.clear();
+			attributes.pop_back();
+
+			if( sock.write_some(fmt::format("{:X}; {}\r\n", size, attributes)) == 0 )
+				return false;
+		}
+		return sock.write_some(body, size) > 0 and sock.write_some("\r\n") > 0;
 	}
 
 	bool write_body(const std::string &body, bool is_chunked) {
@@ -381,7 +377,7 @@ static std::string absolute_path(const std::string &path)
 	auto result = path;
 #ifdef _WINDOWS
 	// ......
-#else
+#else //__unix__
 	if( not str_starts_with(result, "/") )
 	{
 		if( str_starts_with(result, "~/") )
@@ -398,7 +394,7 @@ static std::string absolute_path(const std::string &path)
 		else
 			result = g_resource_root + result;
 	}
-#endif //unix
+#endif //_WINDOWS
 	return result;
 }
 
@@ -441,7 +437,7 @@ public:
 
 	void call()
 	{
-		if( check() == false )
+		if( not check() )
 			return ;
 		auto &headers = m_request.headers();
 
@@ -479,9 +475,7 @@ public:
 			m_file.read(fr_buf, buf_size);
 			auto size = m_file.gcount();
 
-			if( size == 0 )
-				break;
-			else if( m_response.m_impl->write_body(fr_buf, size, is_chunked) == false )
+			if( size == 0 or not m_response.m_impl->write_body(fr_buf, size, is_chunked) )
 				break;
 			std::this_thread::sleep_for(microseconds(512));
 		}
@@ -490,10 +484,8 @@ public:
 
 	void range_transfer(const std::string &_range_str)
 	{
-		using namespace std::chrono;
-
 		auto range_str = _range_str;
-		for(long i=range_str.size(); i>0; i--)
+		for(auto i=range_str.size(); i>0; i--)
 		{
 			if( range_str[i] == ' ' )
 				range_str.erase(i,1);
@@ -531,7 +523,7 @@ public:
 			range_value_queue.emplace_back();
 			auto &range_value = range_value_queue.back();
 
-			if( range_parsing(range_list[0], range_value.begin, range_value.end, range_value.size) == false )
+			if( not range_parsing(range_list[0], range_value.begin, range_value.end, range_value.size) )
 			{
 				m_response.write_default(http::hs_range_not_satisfiable);
 				return ;
@@ -558,7 +550,7 @@ public:
 			range_value_queue.emplace_back();
 			auto &range_value = range_value_queue.back();
 
-			if( range_parsing(str_trimmed(str), range_value.begin, range_value.end, range_value.size) == false )
+			if( not range_parsing(str_trimmed(str), range_value.begin, range_value.end, range_value.size) )
 			{
 				m_response.write_default(http::hs_range_not_satisfiable);
 				return ;
@@ -595,12 +587,13 @@ private:
 	struct range_value
 	{
 		std::string cr_line;
-		std::size_t begin, end, size;
+		std::size_t begin = 0, end = 0, size = 0;
 	};
 
 private:
 	bool range_parsing(const std::string &range_str, std::size_t &begin, std::size_t &end, std::size_t &size)
 	{
+		size = 0;
 		auto list = str_split(range_str, '-', false);
 
 		if( list.size() > 2 )
@@ -617,14 +610,13 @@ private:
 				gts_log_debug("Range format error.");
 				return false;
 			}
-
 			std::sscanf(list[1].c_str(), "%zu", &size);
+
 			if( size == 0 or size > file_size )
 			{
 				gts_log_debug("Range size is invalid.");
 				return false;
 			}
-
 			end   = file_size - 1;
 			begin = file_size - size;
 		}
@@ -635,7 +627,6 @@ private:
 				gts_log_debug("Range format error.");
 				return false;
 			}
-
 			std::sscanf(list[0].c_str(), "%zu", &begin);
 			end = file_size - 1;
 
@@ -644,7 +635,7 @@ private:
 				gts_log_debug("Range is invalid.");
 				return false;
 			}
-			size  = file_size - begin;
+			size = file_size - begin;
 		}
 		else
 		{
@@ -656,7 +647,7 @@ private:
 				gts_log_debug("Range is invalid.");
 				return false;
 			}
-			size  = end - begin + 1;
+			size = end - begin + 1;
 		}
 		return true;
 	}
@@ -682,9 +673,7 @@ private:
 					m_file.read(buf, value.size);
 					auto size = m_file.gcount();
 
-					if( size == 0 )
-						break;
-					else if( m_response.m_impl->write_body(buf, size, is_chunked) == false )
+					if( size == 0 or not m_response.m_impl->write_body(buf, size, is_chunked) )
 						break;
 
 					std::this_thread::sleep_for(microseconds(512));
@@ -693,7 +682,7 @@ private:
 				m_file.read(buf, buf_size);
 				auto size = m_file.gcount();
 
-				if( m_response.m_impl->write_body(buf, size, is_chunked) == false )
+				if( not m_response.m_impl->write_body(buf, size, is_chunked) )
 					break;
 
 				value.size -= buf_size;
@@ -710,11 +699,16 @@ private:
 
 		for(auto &value : range_value_queue)
 		{
-			if( m_response.m_impl->write_body("--" + boundary + "\r\n" +
-											  ct_line + "\r\n" +
-											  value.cr_line + "\r\n" +
-											  "\r\n",
-											  is_chunked) == false )
+			std::string body;
+			body.reserve(2 + boundary.size() + 2 +
+						 ct_line.size() + 2 +
+						 value.cr_line.size() + 2 +
+						 2);
+			body.append("--").append(boundary).append("\r\n")
+				.append(ct_line).append("\r\n")
+				.append(value.cr_line).append("\r\n"
+											  "\r\n");
+			if( not m_response.m_impl->write_body(body, is_chunked) )
 				return ;
 			m_file.seekg(value.begin, std::ios_base::beg);
 
@@ -731,7 +725,7 @@ private:
 					buf[size + 0] = '\r';
 					buf[size + 1] = '\n';
 
-					if( m_response.m_impl->write_body(buf, size + 2, is_chunked) == false )
+					if( not m_response.m_impl->write_body(buf, size + 2, is_chunked) )
 						return ;
 
 					std::this_thread::sleep_for(microseconds(512));
@@ -740,9 +734,7 @@ private:
 				m_file.read(buf, buf_size);
 				auto size = m_file.gcount();
 
-				if( size == 0 )
-					break;
-				else if( m_response.m_impl->write_body(buf, size) == false )
+				if( size == 0 or not m_response.m_impl->write_body(buf, size) )
 					return ;
 
 				value.size -= buf_size;
@@ -853,7 +845,7 @@ std::string response::resource_root()
 
 void response::set_default_write(std::function<void(response&)> func)
 {
-	g_write_default = func;
+	g_write_default = std::move(func);
 }
 
 bool response::is_writed() const

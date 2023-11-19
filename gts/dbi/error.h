@@ -43,8 +43,8 @@ public:
 	error_code(error_code &&other) noexcept;
 
 public:
-	int value() const;
-	std::string message() const;
+	GTS_CXX_NODISCARD("") int value() const;
+	GTS_CXX_NODISCARD("") std::string message() const;
 
 public:
 	operator bool() const;
@@ -62,15 +62,17 @@ class exception : public gts::basic_exception, public error_code
 {
 public:
 	exception(int value, std::string message);
-	exception(const error_code &other);
-	exception(error_code &&other) noexcept;
+	explicit exception(const error_code &other);
+	explicit exception(error_code &&other) noexcept;
 
 public:
 	template <typename...Args>
 	explicit exception(int value, fmt::format_string<Args...> fmt_value, Args&&...args);
 
 public:
+	GTS_CXX_NODISCARD("Get description of exception")
 	const char *what() const _GLIBCXX_USE_NOEXCEPT override;
+
 #if GTS_CPLUSPLUS >= 201703L
 private: GTS_DISABLE_COPY_MOVE(exception)
 #else

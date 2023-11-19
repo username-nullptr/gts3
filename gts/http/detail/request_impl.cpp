@@ -99,7 +99,7 @@ void request_impl::finish(std::string &body)
 	}
 	if( m_version == "1.1" )
 	{
-		auto it = m_headers.find("connection");
+		it = m_headers.find("connection");
 		if( it != m_headers.end() and str_to_lower(it->second) == "upgrade" )
 		{
 			it = m_headers.find("upgrade");
@@ -218,7 +218,7 @@ std::size_t request_impl::read_body_chunked_mode(std::error_code &error, void *b
 	while( not abuf.empty() )
 	{
 		auto pos = abuf.find("\r\n");
-		if( pos == abuf.npos )
+		if( pos == std::string::npos )
 		{
 			if( abuf.size() >= 1024 )
 			{
@@ -233,8 +233,8 @@ std::size_t request_impl::read_body_chunked_mode(std::error_code &error, void *b
 		if( m_rb_status == rb_status::wait_size )
 		{
 			line_buf.erase(pos);
-			auto pos = line_buf.find(";");
-			if( pos != line_buf.npos )
+			pos = line_buf.find(';');
+			if( pos != std::string::npos )
 				line_buf.erase(pos);
 
 			if( line_buf.size() > 16 )
@@ -267,7 +267,7 @@ std::size_t request_impl::read_body_chunked_mode(std::error_code &error, void *b
 				break;
 			}
 			auto colon_index = line_buf.find(':');
-			if( colon_index == line_buf.npos )
+			if( colon_index == std::string::npos )
 			{
 				lambda_reset("Invalid header line.");
 				return 0;
@@ -284,9 +284,9 @@ std::size_t request_impl::read_body_chunked_mode(std::error_code &error, void *b
 			for(auto &statement : list)
 			{
 				statement = str_trimmed(statement);
-				auto pos = statement.find("=");
+				pos = statement.find('=');
 
-				if( pos == statement.npos )
+				if( pos == std::string::npos )
 				{
 					lambda_reset("Invalid header line.");
 					return 0;

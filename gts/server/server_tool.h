@@ -32,8 +32,7 @@
 #include "gts/tcp_socket.h"
 #include "gts/string_list.h"
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 GTSCORE_API site_info_map &server_get_site_infos();
 
@@ -61,7 +60,7 @@ public:
 	};
 };
 
-} //namespace gts
+GTS_NAMESPACE_END
 
 
 #endif //SERVER_TOOL_H

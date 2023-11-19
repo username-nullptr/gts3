@@ -48,8 +48,7 @@
 # include <cstdio>
 #endif //__unix__
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 static class GTS_DECL_HIDDEN applictaion_impl
 {
@@ -181,12 +180,12 @@ void applictaion_impl::set_config_file(const cmdline::args_parser::arguments &ar
 
 	settings::ini_hash sample_gts
 	{
-		{ SINI_GTS_PLUGINS_CONFIG , _GTS_DEFAULT_PLUGINS_CONFIG },
-		{ SINI_GTS_SITES_CONFIG   , _GTS_DEFAULT_SITES_CONFIG   },
-		{ SINI_GTS_TCP_BUF_SIZE   , 65536                       },
-		{ SINI_GTS_SSL_CRT_FILE   , ""                          },
-		{ SINI_GTS_SSL_KEY_FILE   , ""                          },
-		{ SINI_GTS_SSL_KEY        , ""                          }
+		{ SINI_GTS_PLUGINS_CONFIG , GTS_DEFAULT_PLUGINS_CONFIG },
+		{ SINI_GTS_SITES_CONFIG   , GTS_DEFAULT_SITES_CONFIG   },
+		{ SINI_GTS_TCP_BUF_SIZE   , 65536                      },
+		{ SINI_GTS_SSL_CRT_FILE   , ""                         },
+		{ SINI_GTS_SSL_KEY_FILE   , ""                         },
+		{ SINI_GTS_SSL_KEY        , ""                         }
 	};
 	settings::ini_file_check(SINI_GROUP_GTS, sample_gts);
 
@@ -308,4 +307,4 @@ static void signal_hander(int signo)
 }
 #endif //__unix__
 
-} //namespace gts
+GTS_NAMESPACE_END

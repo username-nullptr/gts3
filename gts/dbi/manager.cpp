@@ -41,7 +41,7 @@ void manager::register_driver(dbi::driver *driver, bool as_default) noexcept(fal
 {
 	assert(driver);
 	auto pair = g_driver_map.emplace(driver->name(), driver);
-	if( pair.second == false )
+	if( not pair.second )
 	{
 		gts_log_error("db_interface::manager::register_driver: multiple registration.");
 		if( pair.first->second == driver )
@@ -75,24 +75,27 @@ void manager::unregister_driver(dbi::driver *driver)
 static class GTS_DECL_EXPORT invalid_driver : public driver
 {
 public:
-	std::string name() override { return ""; }
-	std::string description() override { return ""; }
+	GTS_CXX_NODISCARD("") std::string name() override { return ""; }
+	GTS_CXX_NODISCARD("") std::string description() override { return ""; }
 	void set_default_connect_info(const dbi::connect_info&) override {}
 	void set_default_connect_string_info(const std::string&) override {}
-	dbi::connect_info default_connect_info() const override { return {}; }
-	std::string default_connect_string_info() const override { return ""; }
-	bool set_auto_commit(error_code&, bool = true) noexcept override { return false; }
-	bool auto_commit() const override { return false; }
+	GTS_CXX_NODISCARD("") dbi::connect_info default_connect_info() const override { return {}; }
+	GTS_CXX_NODISCARD("") std::string default_connect_string_info() const override { return ""; }
+	bool set_auto_commit(error_code&, bool) noexcept override { return false; }
+	GTS_CXX_NODISCARD("") bool auto_commit() const override { return false; }
 
+	GTS_CXX_NODISCARD("")
 	connection_ptr create_connection(error_code &error, const dbi::connect_info&) noexcept override
 	{
 		error = error_code(-200, "Invalid driver.");
-		return connection_ptr(nullptr);
+		return connection_ptr{nullptr};
 	}
+
+	GTS_CXX_NODISCARD("")
 	connection_ptr create_connection(error_code &error, const std::string&) noexcept override
 	{
 		error = error_code(-200, "Invalid driver.");
-		return connection_ptr(nullptr);
+		return connection_ptr{nullptr};
 	}
 }
 g_invalid_driver;

@@ -42,7 +42,7 @@ class GTS_DECL_HIDDEN parser_impl
 	GTS_DISABLE_COPY_MOVE(parser_impl)
 
 public:
-	parser_impl(int buf_size) :
+	explicit parser_impl(int buf_size) :
 		m_cache(new request())
 	{
 		m_buffer.reserve(buf_size);
@@ -79,11 +79,10 @@ public:
 		m_cache->m_impl->m_version = request_line_parts[2].substr(5,3);
 
 		auto resource_line = from_percent_encoding(request_line_parts[1]);
-		auto pos = resource_line.find("?");
+		auto pos = resource_line.find('?');
 
-		if( pos == resource_line.npos )
+		if( pos == std::string::npos )
 			m_cache->m_impl->m_path = resource_line;
-
 		else
 		{
 			m_cache->m_impl->m_path = resource_line.substr(0, pos);
@@ -91,14 +90,13 @@ public:
 
 			for(auto &para_str : str_split(m_cache->m_impl->m_parameters_string, "&"))
 			{
-				auto pos = para_str.find("=");
-				if( pos == para_str.npos )
+				pos = para_str.find('=');
+				if( pos == std::string::npos )
 					m_cache->m_impl->m_parameters.emplace(para_str, para_str);
 				else
 					m_cache->m_impl->m_parameters.emplace(para_str.substr(0, pos), para_str.substr(pos+1));
 			}
 		}
-
 		auto n_it = std::unique(m_cache->m_impl->m_path.begin(), m_cache->m_impl->m_path.end(), [](char c0, char c1){
 			return c0 == c1 and c0 == '/';
 		});
@@ -115,7 +113,7 @@ public:
 			return next_request_ready();
 
 		auto colon_index = line_buf.find(':');
-		if( colon_index == line_buf.npos )
+		if( colon_index == std::string::npos )
 		{
 			gts_log_info("Invalid header line.");
 			reset();
@@ -134,9 +132,9 @@ public:
 		for(auto &statement : list)
 		{
 			statement = str_trimmed(statement);
-			auto pos = statement.find("=");
+			auto pos = statement.find('=');
 
-			if( pos == statement.npos )
+			if( pos == std::string::npos )
 			{
 				gts_log_info("Invalid header line.");
 				reset();
@@ -197,7 +195,7 @@ bool parser::write(const std::string &data)
 	while( not m_impl->m_buffer.empty() )
 	{
 		auto pos = m_impl->m_buffer.find("\r\n");
-		if( pos == m_impl->m_buffer.npos )
+		if( pos == std::string::npos )
 		{
 			if( m_impl->m_buffer.size() < 1024 )
 				return false;
@@ -238,7 +236,7 @@ service_context_ptr parser::get_request(tcp_socket_ptr socket)
 		return {};
 
 	auto tmp = m_impl->m_context;
-	tmp->request().m_impl->m_socket = socket;
+	tmp->request().m_impl->m_socket = std::move(socket);
 
 	m_impl->m_context.reset();
 	return tmp;

@@ -34,8 +34,7 @@
 #include <asio.hpp>
 #include <list>
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 #define gts_app  gts::applictaion::instance()
 
@@ -63,7 +62,7 @@ public:
 	void exit(int code);
 };
 
-} //namespace gts
+GTS_NAMESPACE_END
 
 
 #endif //APPLICATION_H

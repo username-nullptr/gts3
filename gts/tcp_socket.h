@@ -97,12 +97,12 @@ public:
 	bool wait_readable(const duration &ms) noexcept;
 
 public:
-	tcp::endpoint remote_endpoint(asio::error_code &error) noexcept;
-	tcp::endpoint remote_endpoint() noexcept;
+	GTS_CXX_NODISCARD("") tcp::endpoint remote_endpoint(asio::error_code &error) noexcept;
+	GTS_CXX_NODISCARD("") tcp::endpoint remote_endpoint() noexcept;
 
 public:
-	tcp::endpoint local_endpoint(asio::error_code &error) noexcept;
-	tcp::endpoint local_endpoint() noexcept;
+	GTS_CXX_NODISCARD("") tcp::endpoint local_endpoint(asio::error_code &error) noexcept;
+	GTS_CXX_NODISCARD("") tcp::endpoint local_endpoint() noexcept;
 
 public:
 	template <typename SettableSocketOption>
@@ -122,17 +122,22 @@ public:
 	void shutdown(tcp::socket::shutdown_type what = tcp::socket::shutdown_both) noexcept;
 
 public:
-	bool is_open() const;
+	GTS_CXX_NODISCARD("") bool is_open() const;
 	void close(asio::error_code &error, bool shutdown = false) noexcept;
 	void close(bool shutdown = false) noexcept;
 
 public:
 	void non_blocking(bool mode, asio::error_code& error) noexcept;
 	void non_blocking(bool mode) noexcept;
+
+	GTS_CXX_NODISCARD("")
 	bool non_blocking() const noexcept;
 
 public:
+	GTS_CXX_NODISCARD("Get const asio::tcp::socket")
 	const tcp::socket &native() const noexcept;
+
+	GTS_CXX_NODISCARD("Get asio::tcp::socket")
 	tcp::socket &native() noexcept;
 
 protected:

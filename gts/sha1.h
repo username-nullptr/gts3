@@ -40,12 +40,12 @@ class GTSCORE_API sha1
 public:
 	sha1(const std::string &text = "");
 	sha1(const sha1 &other);
-	sha1(sha1 &&other);
+	sha1(sha1 &&other) noexcept;
 	~sha1();
 
 public:
 	sha1 &operator=(const sha1 &other);
-	sha1 &operator=(sha1 &&other);
+	sha1 &operator=(sha1 &&other) noexcept;
 
 public:
 	sha1 &append(uint8_t x);
@@ -60,8 +60,8 @@ public:
 
 public:
 	sha1 &finalize();
-	std::string hex(bool upper_case = true) const;
-	std::string base64() const;
+	GTS_CXX_NODISCARD("") std::string hex(bool upper_case = true) const;
+	GTS_CXX_NODISCARD("") std::string base64() const;
 
 private:
 	sha1_impl *m_impl;
@@ -70,4 +70,4 @@ private:
 GTS_NAMESPACE_END
 
 
-#endif //GTS_SHA1H
+#endif //GTS_SHA1_H

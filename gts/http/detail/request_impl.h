@@ -73,7 +73,7 @@ public:
 	response *m_response = nullptr;
 	tcp_socket_ptr m_socket;
 
-	http::method m_method;
+	http::method m_method = GET;
 	std::string m_version;
 	std::string m_path;
 

@@ -31,12 +31,11 @@
 
 #include "gts/global.h"
 
-namespace gts
-{
-
-namespace cmdline {
+GTS_CMDLINE_NAMESPACE_BEGIN
 class interaction;
-}
+GTS_CMDLINE_NAMESPACE_END
+
+GTS_NAMESPACE_BEGIN
 
 class tcp_server;
 
@@ -58,7 +57,7 @@ private:
 	char *m_buf;
 };
 
-} //namespace gts
+GTS_NAMESPACE_END
 
 
 #endif //CMDLINE_SERVER_H

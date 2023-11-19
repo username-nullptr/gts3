@@ -31,10 +31,9 @@
 
 #include <gts/log.h>
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
-template <typename This, typename Func, typename _U0>
+template <typename This, typename Func, typename UU0>
 This &registration_base::register_method(const std::string &prefix, const std::string &name, Func &&func)
 {
 	auto addr = reinterpret_cast<const void*>(&func);
@@ -45,14 +44,14 @@ This &registration_base::register_method(const std::string &prefix, const std::s
 	return *reinterpret_cast<This*>(this);
 }
 
-template <typename This, typename Func, typename _U0, typename _U1>
+template <typename This, typename Func, typename UU0, typename UU1>
 This &registration_base::register_method(const std::string &prefix, const std::string &name, Func &&func)
 {
 	rttr::registration::method(fmt::format("gts{}.plugin{}.co.{}", prefix, name, g_gfs_counter++), std::forward<Func>(func));
 	return *reinterpret_cast<This*>(this);
 }
 
-template <typename Func, typename _GTD_0>
+template <typename Func, typename U_GTD_0>
 registration &registration::new_connection(Func &&func, uint16_t port)
 {
 	if( g_func_set.emplace(reinterpret_cast<const void*>(reinterpret_cast<const char*>(&func) + port)).second )
@@ -62,25 +61,25 @@ registration &registration::new_connection(Func &&func, uint16_t port)
 	return *this;
 }
 
-template <typename Func, typename _GTD_0>
+template <typename Func, typename U_GTD_0>
 registration &registration::init_method(Func &&func)
 {
 	return register_method<registration>("", ".init", std::forward<Func>(func));
 }
 
-template <typename Func, typename _GTD_0, int U0>
+template <typename Func, typename U_GTD_0, int U0>
 registration &registration::init_method(Func &&func)
 {
 	return register_method<registration>("", ".init", std::forward<Func>(func));
 }
 
-template <typename Func, typename _GTD_0>
+template <typename Func, typename U_GTD_0>
 registration &registration::exit_method(Func &&func)
 {
 	return register_method<registration>("", ".exit", std::forward<Func>(func));
 }
 
-template <typename Func, typename _GTD_0>
+template <typename Func, typename U_GTD_0>
 registration &registration::view_status_method(Func &&func)
 {
 	return register_method<registration>("", ".view_status", std::forward<Func>(func));
@@ -97,14 +96,14 @@ registration::class_<Class>::class_() :
 
 template <typename Class>
 template <typename Return>
-registration::class_<Class> &registration::class_<Class>::init_method(Return(Class::*func)(void))
+registration::class_<Class> &registration::class_<Class>::init_method(Return(Class::*func)())
 {
 	m_class_->method(fmt::format("init.{}", m_type.get_id()), func);
 	return *this;
 }
 
 template <typename Class>
-template <typename Return, typename Str, typename _GTD_0>
+template <typename Return, typename Str, typename U_GTD_0>
 registration::class_<Class> &registration::class_<Class>::init_method(Return(Class::*func)(Str))
 {
 	m_class_->method(fmt::format("init.{}", m_type.get_id()), func);
@@ -113,67 +112,66 @@ registration::class_<Class> &registration::class_<Class>::init_method(Return(Cla
 
 template <typename Class>
 template <typename Return>
-registration::class_<Class> &registration::class_<Class>::exit_method(Return(Class::*func)(void))
+registration::class_<Class> &registration::class_<Class>::exit_method(Return(Class::*func)())
 {
 	m_class_->method(fmt::format("exit.{}", m_type.get_id()), func);
 	return *this;
 }
 
 template <typename Class>
-registration::class_<Class> &registration::class_<Class>::view_status_method(std::string(Class::*func)(void))
+registration::class_<Class> &registration::class_<Class>::view_status_method(std::string(Class::*func)())
 {
 	m_class_->method(fmt::format("view_status.{}", m_type.get_id()), func);
 	return *this;
 }
 
-namespace extension
-{
+GTS_NAMESPACE_END
 
-template <typename Func, typename _GTD_0>
+GTS_EXTENSION_NAMESPACE_BEGIN
+
+template <typename Func, typename U_GTD_0>
 registration &registration::init_method(Func &&func)
 {
 	return register_method<registration>(".extension", ".init", std::forward<Func>(func));
 }
 
-template <typename Func, typename _GTD_0, int U0>
+template <typename Func, typename U_GTD_0, int U0>
 registration &registration::init_method(Func &&func)
 {
 	return register_method<registration>(".extension", ".init", std::forward<Func>(func));
 }
 
-template <typename Func, typename _GTD_0>
+template <typename Func, typename U_GTD_0>
 registration &registration::exit_method(Func &&func)
 {
 	return register_method<registration>(".extension", ".exit", std::forward<Func>(func));
 }
 
-template <typename Func, typename _GTD_0>
+template <typename Func, typename U_GTD_0>
 registration &registration::args_parsing_method(Func &&func)
 {
 	return register_method<registration>(".extension", ".args_parsing", std::forward<Func>(func));
 }
 
-template <typename Func, typename _GTD_0, int U0>
+template <typename Func, typename U_GTD_0, int U0>
 registration &registration::args_parsing_method(Func &&func)
 {
 	return register_method<registration>(".extension", ".args_parsing", std::forward<Func>(func));
 }
 
-template <typename Func, typename _GTD_0>
+template <typename Func, typename U_GTD_0>
 registration &registration::view_version_method(Func &&func)
 {
 	return register_method<registration>(".extension", ".view_version", std::forward<Func>(func));
 }
 
-template <typename Func, typename _GTD_0>
+template <typename Func, typename U_GTD_0>
 registration &registration::view_help_method(Func &&func)
 {
 	return register_method<registration>(".extension", ".view_help", std::forward<Func>(func));
 }
 
-} //namespace extension
-
-} //namespace gts
+GTS_EXTENSION_NAMESPACE_END
 
 
 #endif //GTS_DETAIL_REGISTRATION_H

@@ -45,12 +45,12 @@ public:
 	~service_context();
 
 public:
-	http::request &request();
-	http::response &response();
+	GTS_CXX_NODISCARD("") http::request &request();
+	GTS_CXX_NODISCARD("") http::response &response();
 
 public:
-	tcp_socket &socket();
-	bool is_valid() const;
+	GTS_CXX_NODISCARD("") tcp_socket &socket();
+	GTS_CXX_NODISCARD("") bool is_valid() const;
 
 private:
 	service_context_impl *m_impl;

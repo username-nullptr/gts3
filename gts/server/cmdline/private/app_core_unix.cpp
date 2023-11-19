@@ -41,8 +41,7 @@
 #include <signal.h>
 #include <sys/file.h>
 
-namespace gts { namespace cmdline
-{
+GTS_CMDLINE_NAMESPACE_BEGIN
 
 static int become_child_process();
 
@@ -229,6 +228,6 @@ static void trimmed(std::string &str)
 	}
 }
 
-}} //namespace gts::cmdline
+GTS_CMDLINE_NAMESPACE_END
 
 #endif //__unix__

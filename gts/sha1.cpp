@@ -178,7 +178,7 @@ public:
 	}
 
 private:
-	uint32_t make_word(const uint8_t *p)
+	static uint32_t make_word(const uint8_t *p)
 	{
 		return ( static_cast<uint32_t>(p[0]) << 24 ) |
 			   ( static_cast<uint32_t>(p[1]) << 16 ) |
@@ -186,7 +186,7 @@ private:
 			   ( static_cast<uint32_t>(p[3]) <<  0 );
 	}
 
-	uint32_t rol32(uint32_t x, uint32_t n)
+	static uint32_t rol32(uint32_t x, uint32_t n)
 	{
 		return (x << n) | (x >> (32 - n));
 	}
@@ -219,7 +219,7 @@ sha1::sha1(const sha1 &other) :
 	operator=(other);
 }
 
-sha1::sha1(sha1 &&other) :
+sha1::sha1(sha1 &&other) noexcept :
 	m_impl(other.m_impl)
 {
 	other.m_impl = nullptr;
@@ -244,7 +244,7 @@ sha1 &sha1::operator=(const sha1 &other)
 	return *this;
 }
 
-sha1 &sha1::operator=(sha1 &&other)
+sha1 &sha1::operator=(sha1 &&other) noexcept
 {
 	if( m_impl )
 		delete m_impl;
@@ -273,9 +273,7 @@ sha1 &sha1::append(char c)
 
 sha1 &sha1::append(const void *data, std::size_t size)
 {
-	if( m_impl == nullptr )
-		return *this;
-	else if( data == nullptr )
+	if( m_impl == nullptr or data == nullptr )
 		return *this;
 
 	auto ptr = static_cast<const uint8_t*>(data);
@@ -295,9 +293,7 @@ sha1 &sha1::append(const void *data, std::size_t size)
 
 sha1 &sha1::append(const std::string &text)
 {
-	if( m_impl == nullptr )
-		return *this;
-	else if( text.empty() )
+	if( m_impl == nullptr or text.empty() )
 		return *this;
 	return append(text.c_str(), text.size());
 }
@@ -342,7 +338,8 @@ std::string sha1::hex(bool upper_case) const
 	auto alphabet = upper_case ? upper : lower;
 	int k = 0;
 
-	for(int i=0; i<5; i++)
+//	for(int i=0; i<5; i++)
+	for(int i : {0,1,2,3,4})
 	{
 		for(int j=7; j>=0; j--)
 			_hex[k++] = alphabet[(m_impl->m_state[i] >> (j << 2)) & 0x0F];

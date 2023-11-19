@@ -31,8 +31,7 @@
 
 #include "gts/application.h"
 
-namespace gts { namespace app
-{
+GTS_APP_NAMESPACE_BEGIN
 
 GTSCORE_API std::string set_instance_name(const std::string &name);
 
@@ -40,8 +39,7 @@ GTSCORE_API std::string tmp_dir_path();
 
 GTSCORE_API std::string lock_file_name();
 
-
-}} //namespace gts::app
+GTS_APP_NAMESPACE_END
 
 
 #endif //APP_INFO_H

@@ -61,55 +61,55 @@ public:
 	~request();
 
 public:
-	http::method method() const;
-	std::string version() const;
-	std::string path() const;
+	GTS_CXX_NODISCARD("") http::method method() const;
+	GTS_CXX_NODISCARD("") std::string version() const;
+	GTS_CXX_NODISCARD("") std::string path() const;
 
 public:
-	std::string parameters_string() const;
-	const http::parameters &parameters() const;
-	const http::headers &headers() const;
-	const basic_cookies &cookies() const;
+	GTS_CXX_NODISCARD("") std::string parameters_string() const;
+	GTS_CXX_NODISCARD("") const http::parameters &parameters() const;
+	GTS_CXX_NODISCARD("") const http::headers &headers() const;
+	GTS_CXX_NODISCARD("") const basic_cookies &cookies() const;
 
 public:
 	template <class Sesn = http::session>
-	std::shared_ptr<Sesn> session() const;
+	GTS_CXX_NODISCARD("") std::shared_ptr<Sesn> session() const;
 
 	template <class Sesn = http::session>
-	std::shared_ptr<Sesn> session(bool create = true);
+	GTS_CXX_NODISCARD("") std::shared_ptr<Sesn> session(bool create = true);
 
 public:
-	bool parameters_contains(const std::string &key) const;
-	const value &parameter(const std::string &key) const noexcept(false);
-	value parameter_or(const std::string &key, value deft_value = {}) const noexcept;
+	GTS_CXX_NODISCARD("") bool parameters_contains(const std::string &key) const;
+	GTS_CXX_NODISCARD("") const value &parameter(const std::string &key) const noexcept(false);
+	GTS_CXX_NODISCARD("") value parameter_or(const std::string &key, value deft_value = {}) const noexcept;
 
 	template <typename T>
-	T parameter(const std::string &key) const noexcept(false);
+	GTS_CXX_NODISCARD("") T parameter(const std::string &key) const noexcept(false);
 
 	template <typename T, typename U = not_value_t<T>>
-	T parameter_or(const std::string &key, T deft_value) const noexcept;
+	GTS_CXX_NODISCARD("") T parameter_or(const std::string &key, T deft_value) const noexcept;
 
 public:
-	bool headers_contains(const std::string &key) const;
-	const value &header(const std::string &key) const noexcept(false);
-	value header_or(const std::string &key, value deft_value = {}) const noexcept;
+	GTS_CXX_NODISCARD("") bool headers_contains(const std::string &key) const;
+	GTS_CXX_NODISCARD("") const value &header(const std::string &key) const noexcept(false);
+	GTS_CXX_NODISCARD("") value header_or(const std::string &key, value deft_value = {}) const noexcept;
 
 	template <typename T>
-	T header(const std::string &key) const noexcept(false);
+	GTS_CXX_NODISCARD("") T header(const std::string &key) const noexcept(false);
 
 	template <typename T, typename U = not_value_t<T>>
-	T header_or(const std::string &key, T deft_value) const noexcept;
+	GTS_CXX_NODISCARD("") T header_or(const std::string &key, T deft_value) const noexcept;
 
 public:
-	bool cookies_contains(const std::string &key) const;
-	const value &cookie(const std::string &key) const noexcept(false);
-	value cookie_or(const std::string &key, value deft_value) const noexcept;
+	GTS_CXX_NODISCARD("") bool cookies_contains(const std::string &key) const;
+	GTS_CXX_NODISCARD("") const value &cookie(const std::string &key) const noexcept(false);
+	GTS_CXX_NODISCARD("") value cookie_or(const std::string &key, value deft_value) const noexcept;
 
 	template <typename T>
-	T cookie(const std::string &key) const noexcept(false);
+	GTS_CXX_NODISCARD("") T cookie(const std::string &key) const noexcept(false);
 
 	template <typename T, typename U = not_value_t<T>>
-	T cookie_or(const std::string &key, T deft_value) const noexcept;
+	GTS_CXX_NODISCARD("") T cookie_or(const std::string &key, T deft_value) const noexcept;
 
 public:
 	std::string read_body(std::error_code &error, std::size_t size = 0);
@@ -128,15 +128,15 @@ public:
 	std::size_t save_file_part(const std::string &file_name, std::size_t total_size, std::size_t begin = 0);
 
 public:
-	bool is_websocket_handshake() const;
-	bool keep_alive() const;
-	bool support_gzip() const;
-	bool can_read_body() const;
-	bool is_valid() const;
+	GTS_CXX_NODISCARD("") bool is_websocket_handshake() const;
+	GTS_CXX_NODISCARD("") bool keep_alive() const;
+	GTS_CXX_NODISCARD("") bool support_gzip() const;
+	GTS_CXX_NODISCARD("") bool can_read_body() const;
+	GTS_CXX_NODISCARD("") bool is_valid() const;
 
 public:
-	asio::ip::tcp::endpoint remote_endpoint() const;
-	asio::ip::tcp::endpoint local_endpoint() const;
+	GTS_CXX_NODISCARD("") asio::ip::tcp::endpoint remote_endpoint() const;
+	GTS_CXX_NODISCARD("") asio::ip::tcp::endpoint local_endpoint() const;
 
 private:
 	void set_cookie_session_id(std::string id);

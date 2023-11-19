@@ -47,24 +47,24 @@ public:
 
 public:
 	cookie();
-	cookie(cookie &&other);
-	cookie &operator=(cookie &&other);
+	cookie(cookie &&other) noexcept;
+	cookie &operator=(cookie &&other) noexcept;
 	cookie(const cookie &other) = default;
 	cookie &operator=(const cookie &other) = default;
 
 public:
-	std::string domain() const;
-	std::string path() const;
-	std::size_t size() const;
+	GTS_CXX_NODISCARD("") std::string domain() const;
+	GTS_CXX_NODISCARD("") std::string path() const;
+	GTS_CXX_NODISCARD("") std::size_t cookies_size() const;
 
-	uint64_t expires() const;
-	uint64_t max_age() const;
+	GTS_CXX_NODISCARD("") uint64_t expires() const;
+	GTS_CXX_NODISCARD("") uint64_t max_age() const;
 
-	bool http_only() const;
-	bool secure() const;
+	GTS_CXX_NODISCARD("") bool http_only() const;
+	GTS_CXX_NODISCARD("") bool secure() const;
 
-	std::string same_site() const;
-	std::string priority() const;
+	GTS_CXX_NODISCARD("") std::string same_site() const;
+	GTS_CXX_NODISCARD("") std::string priority() const;
 
 public:
 	cookie &set_domain(std::string domain);
@@ -81,8 +81,8 @@ public:
 	cookie &priority(std::string pt);
 
 public:
-	cookie_attributes &attributes();
-	const cookie_attributes &attributes() const;
+	GTS_CXX_NODISCARD("") cookie_attributes &attributes();
+	GTS_CXX_NODISCARD("") const cookie_attributes &attributes() const;
 
 	cookie &set_attribute(std::string key, std::string value);
 
@@ -100,14 +100,14 @@ public:
 	template <typename...Args>
 	cookie &set_value(fmt::format_string<Args...> fmt_value, Args&&...args);
 
-	template <typename T, typename U = not_cookie_t<T>>
+	template <typename T, typename UU = not_cookie_t<T>>
 	cookie &set_value(T &&v);
 
 public:
-	template <typename...Args>
+	template <typename...Args> GTS_CXX_NODISCARD("")
 	static cookie from(fmt::format_string<Args...> fmt_value, Args&&...args);
 
-	template <typename T, typename U = not_cookie_t<T>>
+	template <typename T, typename U = not_cookie_t<T>> GTS_CXX_NODISCARD("")
 	static cookie from(T &&v);
 
 private:

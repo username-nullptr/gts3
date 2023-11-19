@@ -62,8 +62,8 @@ public:
 		context() = default;
 		context(const context &other) = default;
 		context &operator=(const context &other) = default;
-		context(context &&other);
-		context &operator=(context &&other);
+		context(context &&other) noexcept;
+		context &operator=(context &&other) noexcept;
 	};
 
 public:

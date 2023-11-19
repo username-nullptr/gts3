@@ -52,18 +52,21 @@ public:
 	virtual ~session();
 
 public:
-	std::string id() const;
-	uint64_t create_time() const;
-	bool is_valid() const;
+	GTS_CXX_NODISCARD("") std::string id() const;
+	GTS_CXX_NODISCARD("") uint64_t create_time() const;
+	GTS_CXX_NODISCARD("") bool is_valid() const;
 
 public:
+	GTS_CXX_NODISCARD("")
 	rttr::variant attribute(const std::string &key) const noexcept(false);
+
+	GTS_CXX_NODISCARD("")
 	rttr::variant attribute_or(const std::string &key, rttr::variant deft_value = {}) const noexcept;
 
-	template <typename T>
+	template <typename T> GTS_CXX_NODISCARD("")
 	T attribute(const std::string &key) const noexcept(false);
 
-	template <typename T, typename U = not_variant_t<T>>
+	template <typename T, typename U = not_variant_t<T>> GTS_CXX_NODISCARD("")
 	T attribute_or(const std::string &key, T deft_value) const noexcept;
 
 public:
@@ -75,28 +78,28 @@ public:
 	session &unset_attribute(const std::string &key);
 
 public:
-	std::size_t attribute_count() const;
-	session_attributes attributes() const;
-	string_list attribute_key_list() const;
-	std::set<std::string> attribute_key_set() const;
+	GTS_CXX_NODISCARD("") std::size_t attribute_count() const;
+	GTS_CXX_NODISCARD("") session_attributes attributes() const;
+	GTS_CXX_NODISCARD("") string_list attribute_key_list() const;
+	GTS_CXX_NODISCARD("") std::set<std::string> attribute_key_set() const;
 
 public:
-	uint64_t lifecycle() const;
+	GTS_CXX_NODISCARD("") uint64_t lifecycle() const;
 	session &set_lifecycle(const duration &seconds = duration(0));
 	session &expand(const duration &seconds = duration(0));
 	void invalidate();
 
 public:
-	static std::shared_ptr<session> make_shared(const duration &seconds = duration(0));
-	static std::shared_ptr<session> get(const std::string &id);
+	GTS_CXX_NODISCARD("") static std::shared_ptr<session> make_shared(const duration &seconds = duration(0));
+	GTS_CXX_NODISCARD("") static std::shared_ptr<session> get(const std::string &id);
 	static void set(session *obj);
 
-	template <class Sesn>
+	template <class Sesn> GTS_CXX_NODISCARD("")
 	static std::shared_ptr<Sesn> get(const std::string &id) noexcept(false);
 
 public:
 	static void set_global_lifecycle(const duration &seconds);
-	static duration global_lifecycle();
+	GTS_CXX_NODISCARD("") static duration global_lifecycle();
 
 private:
 	session_impl *m_impl;

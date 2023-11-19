@@ -53,7 +53,7 @@ public:
 public:
 	value() = default;
 	value(const std::string &str);
-	value(const gts::value &other);
+	value(const gts::value &other) = default;
 	value(std::string &&str) noexcept;
 	value(gts::value &&other) noexcept;
 	value(const char *str, size_type len);
@@ -62,66 +62,66 @@ public:
 	value(T &&v);
 
 public:
-	bool        to_bool   () const;
-	int32_t     to_int    () const;
-	uint32_t    to_uint   () const;
-	int64_t     to_long   () const;
-	uint64_t    to_ulong  () const;
-	float       to_float  () const;
-	double      to_double () const;
-	long double to_ldouble() const;
+	GTS_CXX_NODISCARD("") bool        to_bool   () const;
+	GTS_CXX_NODISCARD("") int32_t     to_int    () const;
+	GTS_CXX_NODISCARD("") uint32_t    to_uint   () const;
+	GTS_CXX_NODISCARD("") int64_t     to_long   () const;
+	GTS_CXX_NODISCARD("") uint64_t    to_ulong  () const;
+	GTS_CXX_NODISCARD("") float       to_float  () const;
+	GTS_CXX_NODISCARD("") double      to_double () const;
+	GTS_CXX_NODISCARD("") long double to_ldouble() const;
 
 public:
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, bool), int)>
-	bool get() const;
+	GTS_CXX_NODISCARD("") bool get() const;
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, signed char), int)>
-	signed char get() const;
+	GTS_CXX_NODISCARD("") signed char get() const;
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned char), int)>
-	unsigned char get() const;
+	GTS_CXX_NODISCARD("") unsigned char get() const;
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, short), int)>
-	short get() const;
+	GTS_CXX_NODISCARD("") short get() const;
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned short), int)>
-	unsigned short get() const;
+	GTS_CXX_NODISCARD("") unsigned short get() const;
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, int), int)>
-	int get() const;
+	GTS_CXX_NODISCARD("") int get() const;
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned int), int)>
-	unsigned int get() const;
+	GTS_CXX_NODISCARD("") unsigned int get() const;
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, long), int)>
-	long get() const;
+	GTS_CXX_NODISCARD("") long get() const;
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned long), int)>
-	unsigned long get() const;
+	GTS_CXX_NODISCARD("") unsigned long get() const;
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, long long), int)>
-	long long get() const;
+	GTS_CXX_NODISCARD("") long long get() const;
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, unsigned long long), int)>
-	unsigned long long get() const;
+	GTS_CXX_NODISCARD("") unsigned long long get() const;
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, float), int)>
-	float get() const;
+	GTS_CXX_NODISCARD("") float get() const;
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, double), int)>
-	double get() const;
+	GTS_CXX_NODISCARD("") double get() const;
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, long double), int)>
-	long double get() const;
+	GTS_CXX_NODISCARD("") long double get() const;
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, std::string), int)>
-	std::string &get();
+	GTS_CXX_NODISCARD("") std::string &get();
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, std::string), int)>
-	const std::string &get() const;
+	GTS_CXX_NODISCARD("") const std::string &get() const;
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_enum(T), int)>
-	T get() const;
+	GTS_CXX_NODISCARD("") T get() const;
 
 public:
 	value &set_value(const std::string &v);
@@ -135,10 +135,10 @@ public:
 
 public:
 	template <typename...Args>
-	static value from(fmt::format_string<Args...> fmt_value, Args&&...args);
+	GTS_CXX_NODISCARD("") static value from(fmt::format_string<Args...> fmt_value, Args&&...args);
 
 	template <typename T, typename U = not_type_t<T,int>>
-	static value from(T &&v);
+	GTS_CXX_NODISCARD("") static value from(T &&v);
 
 public:
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_arithmetic(decay_t<T>),int)>
@@ -146,9 +146,9 @@ public:
 
 public:
 	value &operator=(const std::string &other);
-	value &operator=(const gts::value &other);
-	value &operator=(std::string &&other);
-	value &operator=(gts::value &&other);
+	value &operator=(const gts::value &other) = default;
+	value &operator=(std::string &&other) noexcept;
+	value &operator=(gts::value &&other) noexcept;
 };
 
 using value_list = std::deque<gts::value>;
@@ -165,4 +165,4 @@ template<> struct hash<gts::value> : public __hash_base<size_t, gts::value> {
 GTS_NAMESPACE_END
 #include <gts/detail/value.h>
 
-#endif //GTS_PAIR_H
+#endif //GTS_VALUE_H

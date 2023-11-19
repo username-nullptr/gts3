@@ -40,7 +40,7 @@ public:
 	uuid(const uuid &other) = default;
 
 public:
-	static uuid generate();
+	GTS_CXX_NODISCARD("") static uuid generate();
 
 public:
 	uuid &operator=(const uuid &other) = default;
@@ -54,7 +54,7 @@ public:
 
 public:
 	// aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee
-	std::string to_string(bool parcel = false) const;
+	GTS_CXX_NODISCARD("") std::string to_string(bool parcel = false) const;
 	operator std::string() const { return to_string(); }
 
 public:

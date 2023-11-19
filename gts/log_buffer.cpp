@@ -31,14 +31,14 @@
 
 GTS_NAMESPACE_BEGIN
 
-log_buffer::context::context(context &&other)
+log_buffer::context::context(context &&other) noexcept
 {
 	operator=(std::move(other));
 }
 
-log_buffer::context &log_buffer::context::operator=(context &&other)
+log_buffer::context &log_buffer::context::operator=(context &&other) noexcept
 {
-	time     = std::move(other.time);
+	time     = other.time;
 	category = std::move(other.category);
 	file     = other.file;
 	func     = other.func;

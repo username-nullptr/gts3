@@ -29,8 +29,7 @@
 #ifndef GTS_DETAIL_RW_MUTEX_H
 #define GTS_DETAIL_RW_MUTEX_H
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 template <typename Mutex>
 basic_rw_mutex<Mutex>::~basic_rw_mutex() noexcept(false)
@@ -85,7 +84,7 @@ basic_shared_lock<Mutex>::~basic_shared_lock()
 	m_mutex.unlock();
 }
 
-} //namespace gts
+GTS_NAMESPACE_END
 
 
 #endif //GTS_DETAIL_RW_MUTEX_H

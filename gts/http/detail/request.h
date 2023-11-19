@@ -80,7 +80,7 @@ std::shared_ptr<Sesn> request::session(bool create)
 	}
 	else if( create )
 	{
-		auto ptr = http::make_session<Sesn>();
+		ptr = http::make_session<Sesn>();
 		set_cookie_session_id(ptr->id());
 		return ptr;
 	}

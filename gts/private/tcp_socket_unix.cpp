@@ -31,8 +31,7 @@
 #include "gts/tcp_socket.h"
 #include <poll.h>
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 static bool wait(int fd, int event, const std::chrono::milliseconds &ms, asio::error_code &error)
 {
@@ -87,6 +86,6 @@ bool tcp_socket::wait_readable(const duration &ms) noexcept
 	return res;
 }
 
-} //namespace gts
+GTS_NAMESPACE_END
 
 #endif //__unix__

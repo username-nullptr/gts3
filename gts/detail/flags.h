@@ -29,8 +29,7 @@
 #ifndef GTS_DETAIL_FLAGS_H
 #define GTS_DETAIL_FLAGS_H
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 template <typename Enum>
 constexpr inline flags<Enum>::flags(Enum f) noexcept :
@@ -54,7 +53,7 @@ constexpr inline flags<Enum>::flags(std::initializer_list<Enum> flags) noexcept 
 }
 
 template <typename Enum>
-const inline flags<Enum> &flags<Enum>::operator=(const flags<Enum> &other)
+inline flags<Enum> &flags<Enum>::operator=(const flags<Enum> &other)
 {
 	m_value = other.m_value;
 	return *this;
@@ -187,7 +186,7 @@ constexpr inline int flags<Enum>::initializer_list_helper(iterator it, iterator 
 	return (it == end ? 0 : (*it | initializer_list_helper(it + 1, end)));
 }
 
-} //namespace gts
+GTS_NAMESPACE_END
 
 
 #endif //GTS_DETAIL_FLAGS_H

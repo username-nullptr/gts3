@@ -35,10 +35,9 @@
 #include <cstring>
 #include <unistd.h>
 
-extern char **environ;
+/* extern char **environ; */
 
-namespace gts { namespace app
-{
+GTS_APP_NAMESPACE_BEGIN
 
 std::string file_path()
 {
@@ -113,6 +112,6 @@ envs_t getenvs()
 	return envs;
 }
 
-}} //namespace gts::app
+GTS_APP_NAMESPACE_END
 
 #endif //__unix__

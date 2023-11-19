@@ -29,17 +29,10 @@
 #ifndef GTS_DETAIL_VALUE_H
 #define GTS_DETAIL_VALUE_H
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 inline value::value(const std::string &str) :
 	base_type(str)
-{
-
-}
-
-inline value::value(const gts::value &other) :
-	base_type(other)
 {
 
 }
@@ -109,103 +102,103 @@ inline long double value::to_ldouble() const
 	return get<long double>();
 }
 
-template <typename T, typename _GTEI_0>
+template <typename T, typename U_GTEI_0>
 bool value::get() const
 {
 	return gts::stob(*this);
 }
 
-template <typename T, typename _GTEI_0>
+template <typename T, typename U_GTEI_0>
 signed char value::get() const
 {
 	return gts::stoi8(*this);
 }
 
-template <typename T, typename _GTEI_0>
+template <typename T, typename U_GTEI_0>
 unsigned char value::get() const
 {
 	return gts::stoui8(*this);
 }
 
-template <typename T, typename _GTEI_0>
+template <typename T, typename U_GTEI_0>
 short value::get() const
 {
 	return gts::stoi16(*this);
 }
 
-template <typename T, typename _GTEI_0>
+template <typename T, typename U_GTEI_0>
 unsigned short value::get() const
 {
 	return gts::stoui16(*this);
 }
 
-template <typename T, typename _GTEI_0>
+template <typename T, typename U_GTEI_0>
 int value::get() const
 {
 	return gts::stoi32(*this);
 }
 
-template <typename T, typename _GTEI_0>
+template <typename T, typename U_GTEI_0>
 unsigned int value::get() const
 {
 	return gts::stoui32(*this);
 }
 
-template <typename T, typename _GTEI_0>
+template <typename T, typename U_GTEI_0>
 long value::get() const
 {
 	return gts::stoi64(*this);
 }
 
-template <typename T, typename _GTEI_0>
+template <typename T, typename U_GTEI_0>
 unsigned long value::get() const
 {
 	return gts::stoui64(*this);
 }
 
-template <typename T, typename _GTEI_0>
+template <typename T, typename U_GTEI_0>
 long long value::get() const
 {
-	return gts::stoui64(*this);
+	return static_cast<long long>(gts::stoui64(*this));
 }
 
-template <typename T, typename _GTEI_0>
+template <typename T, typename U_GTEI_0>
 unsigned long long value::get() const
 {
 	return gts::stoui64(*this);
 }
 
-template <typename T, typename _GTEI_0>
+template <typename T, typename U_GTEI_0>
 float value::get() const
 {
 	return gts::stof(*this);
 }
 
-template <typename T, typename _GTEI_0>
+template <typename T, typename U_GTEI_0>
 double value::get() const
 {
 	return gts::stod(*this);
 }
 
-template <typename T, typename _GTEI_0>
+template <typename T, typename U_GTEI_0>
 long double value::get() const
 {
 	return gts::stold(*this);
 }
 
-template <typename T, typename _GTEI_0>
+template <typename T, typename U_GTEI_0>
 std::string &value::get()
 {
 	return *this;
 }
 
-template <typename T, typename _GTEI_0>
+template <typename T, typename U_GTEI_0>
 const std::string &value::get() const
 {
 	return *this;
 }
 
-template <typename T, typename _GTEI_0>
+template <typename T, typename U_GTEI_0>
 T value::get() const
 {
 	return static_cast<T>(get<int>());
@@ -253,7 +246,7 @@ value value::from(T &&v)
 	return hv;
 }
 
-template <typename T, typename _GTEI_0>
+template <typename T, typename U_GTEI_0>
 value &value::operator=(T value)
 {
 	operator=(std::to_string(value));
@@ -266,25 +259,19 @@ inline value &value::operator=(const std::string &other)
 	return *this;
 }
 
-inline value &value::operator=(const gts::value &other)
-{
-	base_type::operator=(other);
-	return *this;
-}
-
-inline value &value::operator=(std::string &&other)
+inline value &value::operator=(std::string &&other) noexcept
 {
 	base_type::operator=(std::move(other));
 	return *this;
 }
 
-inline value &value::operator=(gts::value &&other)
+inline value &value::operator=(gts::value &&other) noexcept
 {
 	base_type::operator=(std::move(other));
 	return *this;
 }
 
-} //namespace gts
+GTS_NAMESPACE_END
 
 namespace std
 {

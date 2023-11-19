@@ -175,7 +175,7 @@ public:
 		else if( var.get_type() == GTS_RTTR_TYPE(unsigned short) )
 			str = fmt::format("{}", var.get_value<unsigned short>());
 
-		else if( var.get_type() == GTS_RTTR_TYPE(int) )
+		else if( var.get_type() == GTS_RTTR_TYPE(int) or var.get_type().is_enumeration() )
 			str = fmt::format("{}", var.get_value<int>());
 		else if( var.get_type() == GTS_RTTR_TYPE(unsigned int) )
 			str = fmt::format("{}", var.get_value<unsigned int>());
@@ -204,8 +204,6 @@ public:
 		else if( var.get_type() == GTS_RTTR_TYPE(rttr::string_view) )
 			str = fmt::format("'{}'", var.get_value<rttr::string_view>());
 
-		else if( var.get_type().is_enumeration() )
-			str = fmt::format("{}", var.get_value<int>());
 		return format_to(context.out(), "rttr::variant({}:{})", var.get_type().get_name().data(), str);
 	}
 };

@@ -30,9 +30,9 @@
 #define GTS_UTLS_DB_CONVERT_H
 
 #include <gts/utls/registration.h>
+#include <gts/dbi/types.h>
 
-namespace gts { namespace dbi
-{
+GTS_DBI_NAMESPACE_BEGIN
 
 template <std::size_t...indexes, typename T>
 void cell_to_struct_by_index(const row_vector &row, T &obj) noexcept(false);
@@ -60,8 +60,7 @@ void table_to_struct_by_name(const table_data &table, std::vector<T> &obj);
 template <typename T>
 std::vector<T> table_to_struct_by_name(const table_data &table);
 
-}} //namespace gts::dbi
-
+GTS_DBI_NAMESPACE_END
 #include <gts/utls/detail/db_convert.h>
 
 #endif //GTS_UTLS_DB_CONVERT_H

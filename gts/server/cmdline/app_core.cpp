@@ -37,8 +37,7 @@
 #include <iostream>
 #include <map>
 
-namespace gts { namespace cmdline
-{
+GTS_CMDLINE_NAMESPACE_BEGIN
 
 static void server_is_running_check();
 
@@ -174,4 +173,4 @@ static void server_is_running_check()
 	exit(0);
 }
 
-}} //namespace gts::cmdline
+GTS_CMDLINE_NAMESPACE_END

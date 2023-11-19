@@ -39,14 +39,14 @@ GTS_HTTP_NAMESPACE_BEGIN
 template <typename T = gts::value, GTS_TYPE_ENABLE_IF(gts_is_base_of(gts::value, T), int)>
 using pair = std::pair<std::string, T>;
 
-template <typename V = gts::value, typename _Compare = std::less<std::string>>
-class map : public std::map<std::string, V, _Compare>
+template <typename V = gts::value, typename Compare = std::less<std::string>>
+class map : public std::map<std::string, V, Compare>
 {
 	static_assert(gts_is_base_of(gts::value, V),
 	"The template argument 'V' must be a 'gts::http::value' or derived class of 'gts::value'.");
 
 public:
-	using base_type = std::map<std::string, V, _Compare>;
+	using base_type = std::map<std::string, V, Compare>;
 	using base_type::base_type;
 
 public:
@@ -60,40 +60,40 @@ public:
 	std::pair<typename base_type::iterator, bool> emplace(const std::string &key, fmt::format_string<Args...> fmt_value, Args&&...args);
 
 public:
-	V value(const std::string &key, const V &default_value) const;
-	bool value_bool(const std::string &key, bool default_value) const;
+	GTS_CXX_NODISCARD("") V value(const std::string &key, const V &default_value) const;
+	GTS_CXX_NODISCARD("") bool value_bool(const std::string &key, bool default_value) const;
 
-	int32_t value_int(const std::string &key, int32_t default_value) const;
-	uint32_t value_uint(const std::string &key, uint32_t default_value) const;
+	GTS_CXX_NODISCARD("") int32_t value_int(const std::string &key, int32_t default_value) const;
+	GTS_CXX_NODISCARD("") uint32_t value_uint(const std::string &key, uint32_t default_value) const;
 
-	int64_t value_long(const std::string &key, int64_t default_value) const;
-	uint64_t value_ulong(const std::string &key, uint64_t default_value) const;
+	GTS_CXX_NODISCARD("") int64_t value_long(const std::string &key, int64_t default_value) const;
+	GTS_CXX_NODISCARD("") uint64_t value_ulong(const std::string &key, uint64_t default_value) const;
 
-	float value_float(const std::string &key, float default_value) const;
-	double value_double(const std::string &key, double default_value) const;
-	long double value_ldouble(const std::string &key, long double default_value) const;
+	GTS_CXX_NODISCARD("") float value_float(const std::string &key, float default_value) const;
+	GTS_CXX_NODISCARD("") double value_double(const std::string &key, double default_value) const;
+	GTS_CXX_NODISCARD("") long double value_ldouble(const std::string &key, long double default_value) const;
 
 public:
-	V &value(const std::string &key);
-	const V &value(const std::string &key) const;
-	bool value_bool(const std::string &key) const;
+	GTS_CXX_NODISCARD("") V &value(const std::string &key);
+	GTS_CXX_NODISCARD("") const V &value(const std::string &key) const;
+	GTS_CXX_NODISCARD("") bool value_bool(const std::string &key) const;
 
-	int32_t value_int(const std::string &key) const;
-	uint32_t value_uint(const std::string &key) const;
+	GTS_CXX_NODISCARD("") int32_t value_int(const std::string &key) const;
+	GTS_CXX_NODISCARD("") uint32_t value_uint(const std::string &key) const;
 
-	int64_t value_long(const std::string &key) const;
-	uint64_t value_ulong(const std::string &key) const;
+	GTS_CXX_NODISCARD("") int64_t value_long(const std::string &key) const;
+	GTS_CXX_NODISCARD("") uint64_t value_ulong(const std::string &key) const;
 
-	float value_float(const std::string &key) const;
-	double value_double(const std::string &key) const;
-	long double value_ldouble(const std::string &key) const;
+	GTS_CXX_NODISCARD("") float value_float(const std::string &key) const;
+	GTS_CXX_NODISCARD("") double value_double(const std::string &key) const;
+	GTS_CXX_NODISCARD("") long double value_ldouble(const std::string &key) const;
 
 public:
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_arithmetic(T), int)>
-	T value(const std::string &key) const;
+	GTS_CXX_NODISCARD("") T value(const std::string &key) const;
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_arithmetic(T), int)>
-	T value(const std::string &key, T default_value) const;
+	GTS_CXX_NODISCARD("") T value(const std::string &key, T default_value) const;
 
 public:
 	using base_type::operator[];
@@ -104,7 +104,7 @@ struct less_case_insensitive
 {
 	bool operator()(const std::string &v1, const std::string &v2) const;
 	struct nocase_compare {
-		bool operator()(const unsigned char c1, const unsigned char c2) const;
+		bool operator()(unsigned char c1, unsigned char c2) const;
 	};
 };
 
@@ -129,33 +129,33 @@ public:
 	std::pair<typename base_type::iterator, bool> emplace(const std::string &key, fmt::format_string<Args...> fmt_value, Args&&...args);
 
 public:
-	V value(const std::string &key, const V &default_value) const;
-	bool value_bool(const std::string &key, bool default_value) const;
+	GTS_CXX_NODISCARD("") V value(const std::string &key, const V &default_value) const;
+	GTS_CXX_NODISCARD("") bool value_bool(const std::string &key, bool default_value) const;
 
-	int32_t value_int(const std::string &key, int32_t default_value) const;
-	uint32_t value_uint(const std::string &key, uint32_t default_value) const;
+	GTS_CXX_NODISCARD("") int32_t value_int(const std::string &key, int32_t default_value) const;
+	GTS_CXX_NODISCARD("") uint32_t value_uint(const std::string &key, uint32_t default_value) const;
 
-	int64_t value_long(const std::string &key, int64_t default_value) const;
-	uint64_t value_ulong(const std::string &key, uint64_t default_value) const;
+	GTS_CXX_NODISCARD("") int64_t value_long(const std::string &key, int64_t default_value) const;
+	GTS_CXX_NODISCARD("") uint64_t value_ulong(const std::string &key, uint64_t default_value) const;
 
-	float value_float(const std::string &key, float default_value) const;
-	double value_double(const std::string &key, double default_value) const;
-	long double value_ldouble(const std::string &key, long double default_value) const;
+	GTS_CXX_NODISCARD("") float value_float(const std::string &key, float default_value) const;
+	GTS_CXX_NODISCARD("") double value_double(const std::string &key, double default_value) const;
+	GTS_CXX_NODISCARD("") long double value_ldouble(const std::string &key, long double default_value) const;
 
 public:
-	V &value(const std::string &key);
-	const V &value(const std::string &key) const;
-	bool value_bool(const std::string &key) const;
+	GTS_CXX_NODISCARD("") V &value(const std::string &key);
+	GTS_CXX_NODISCARD("") const V &value(const std::string &key) const;
+	GTS_CXX_NODISCARD("") bool value_bool(const std::string &key) const;
 
-	int32_t value_int(const std::string &key) const;
-	uint32_t value_uint(const std::string &key) const;
+	GTS_CXX_NODISCARD("") int32_t value_int(const std::string &key) const;
+	GTS_CXX_NODISCARD("") uint32_t value_uint(const std::string &key) const;
 
-	int64_t value_long(const std::string &key) const;
-	uint64_t value_ulong(const std::string &key) const;
+	GTS_CXX_NODISCARD("") int64_t value_long(const std::string &key) const;
+	GTS_CXX_NODISCARD("") uint64_t value_ulong(const std::string &key) const;
 
-	float value_float(const std::string &key) const;
-	double value_double(const std::string &key) const;
-	long double value_ldouble(const std::string &key) const;
+	GTS_CXX_NODISCARD("") float value_float(const std::string &key) const;
+	GTS_CXX_NODISCARD("") double value_double(const std::string &key) const;
+	GTS_CXX_NODISCARD("") long double value_ldouble(const std::string &key) const;
 
 public:
 	using base_type::operator[];

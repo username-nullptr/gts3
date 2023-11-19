@@ -14,8 +14,7 @@
 #include <cstdio>
 #include <set>
 
-namespace gts { namespace cmdline
-{
+GTS_CMDLINE_NAMESPACE_BEGIN
 
 interaction_private::interaction_private(bool is_server)
 {
@@ -61,6 +60,6 @@ void interaction::cancel()
 {
 }
 
-}} // namespace gts::cmdline
+GTS_CMDLINE_NAMESPACE_END
 
 #endif //__WINNT__ || _WINDOWS

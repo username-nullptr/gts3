@@ -56,7 +56,7 @@ class GTSCORE_API logger
 public:
 	struct context
 	{
-		std::string dir      = "";
+		std::string dir   /* = "" */;
 		std::string category = "default";
 
 		std::size_t max_size_one_file = 10240;
@@ -78,8 +78,8 @@ public:
 	static void set_header_breaks_aline(bool enable = true); //default false
 
 public:
-	static context get_context();
-	static bool get_header_breaks_aline();
+	GTS_CXX_NODISCARD("") static context get_context();
+	GTS_CXX_NODISCARD("") static bool get_header_breaks_aline();
 
 public:
 	template <typename...Args>

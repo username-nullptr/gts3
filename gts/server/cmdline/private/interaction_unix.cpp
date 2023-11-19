@@ -41,8 +41,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
-namespace gts { namespace cmdline
-{
+GTS_CMDLINE_NAMESPACE_BEGIN
 
 class GTS_DECL_HIDDEN pipe_ope
 {
@@ -390,6 +389,6 @@ void interaction::cancel()
 	d_ptr->m_ope->cancel();
 }
 
-}} //namespace gts::cmdline
+GTS_CMDLINE_NAMESPACE_END
 
 #endif //__unix__

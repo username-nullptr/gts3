@@ -115,7 +115,7 @@ std::string method_string(method m)
 	default: break;
 	}
 	assert(false);
-	return "Unkown";
+//	return "Unkown";
 }
 
 gts::http::method from_method_string(const std::string &m)

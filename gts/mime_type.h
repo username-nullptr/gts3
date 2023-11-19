@@ -33,13 +33,17 @@
 
 GTS_NAMESPACE_BEGIN
 
-GTSCORE_API std::string get_mime_type(const std::string &file_name);
+GTSCORE_API GTS_CXX_NODISCARD("")
+std::string get_mime_type(const std::string &file_name);
 
-GTSCORE_API bool is_text_file(const std::string &file_name);
+GTSCORE_API GTS_CXX_NODISCARD("")
+bool is_text_file(const std::string &file_name);
 
-inline bool is_binary_file(const std::string &file_name) { return is_text_file(file_name); }
+GTS_CXX_NODISCARD("") inline
+bool is_binary_file(const std::string &file_name) { return is_text_file(file_name); }
 
-GTSCORE_API std::string get_text_file_encoding(const std::string &file_name);
+GTSCORE_API GTS_CXX_NODISCARD("")
+std::string get_text_file_encoding(const std::string &file_name);
 
 GTS_NAMESPACE_END
 

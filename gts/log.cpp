@@ -81,7 +81,7 @@ namespace core { namespace filesystem
 
 static time_t create_time(const std::string &file)
 {
-	struct stat buf;
+	struct stat buf = {0};
 	stat(file.c_str(), &buf);
 	return buf.st_ctime;
 }
@@ -319,7 +319,7 @@ private:
 		std::string msg;
 
 		node(log_buffer::type type, context_ptr context, log_buffer::context &&runtime_context, std::string &&msg) :
-			type(type), context(context), runtime_context(runtime_context), msg(msg) {}
+			type(type), context(std::move(context)), runtime_context(runtime_context), msg(msg) {}
 	};
 
 private:
@@ -327,7 +327,7 @@ private:
 	std::list<node_ptr> m_message_qeueue;
 
 public:
-	void produce(log_buffer::type type, context_ptr context, log_buffer::context &&runtime_context, std::string &&msg)
+	void produce(log_buffer::type type, const context_ptr &context, log_buffer::context &&runtime_context, std::string &&msg)
 	{
 		auto _node = std::make_shared<node>(type, context, std::move(runtime_context), std::move(msg));
 
@@ -380,9 +380,9 @@ GTS_DECL_HIDDEN void message_handler(log_buffer::type type, log_buffer::context 
 	g_context_rwlock.unlock();
 
 	if( context->async and type != log_buffer::fetal )
-		task_thread::instance().produce(type, std::move(context), std::move(runtime_context), std::move(msg));
+		task_thread::instance().produce(type, context, std::move(runtime_context), std::move(msg));
 	else
-		_output(type, *context, std::move(runtime_context), std::move(msg));
+		_output(type, *context, runtime_context, msg);
 }
 
 static struct GTS_DECL_HIDDEN curr_log_file
@@ -404,7 +404,7 @@ static struct GTS_DECL_HIDDEN curr_log_file
 g_curr_log_file;
 
 static bool open_log_output_device
-(const std::string &category, const logger::context &info, const log_buffer::otime &time, int log_size, FILE *std_dev, FILE **fp);
+(const std::string &category, const logger::context &context, const log_buffer::otime &time, std::size_t log_size, FILE *std_dev, FILE **fp);
 
 static void _output(log_buffer::type type, const logger::context &context,
 					const log_buffer::context &runtime_context, const std::string &msg, bool async)
@@ -433,7 +433,6 @@ static void _output(log_buffer::type type, const logger::context &context,
 		case log_buffer::error  : SET_LOG(1, "Error"  , stderr); break;
 
 		case log_buffer::fetal:
-		{
 			SET_LOG(0, "Fetal", stderr);
 			log_text += "\n\n";
 			g_file_mutex.lock();
@@ -448,15 +447,13 @@ static void _output(log_buffer::type type, const logger::context &context,
 			}
 			abort();
 
-		} break;
-
 		default:
 			std::cerr << "*** Error: Log: _output: Invalid message type" << std::endl;
 			abort();
 	}
 	log_text += "\n\n";
 
-	int res = 0;
+	std::size_t res = 0;
 	if( not async )
 	{
 		g_file_mutex.lock();
@@ -469,18 +466,16 @@ static void _output(log_buffer::type type, const logger::context &context,
 		res = std::fwrite(log_text.c_str(), 1, log_text.size(), fp);
 		std::fflush(fp);
 	}
-
-	if( res < static_cast<int>(log_text.size()) and not context.dir.empty() )
+	if( res < log_text.size() and not context.dir.empty() )
 		std::fprintf(stderr, "*** Error: Log: _output: The log file write error: %s.\n", strerror(errno));
-
 	if( need_close )
 		std::fclose(fp);
 }
 
-static void size_check(const logger::context &context, const std::string &dir_name, int log_size);
+static void size_check(const logger::context &context, const std::string &dir_name, std::size_t log_size);
 
 static bool open_log_output_device
-(const std::string &category, const logger::context &context, const log_buffer::otime &time, int log_size, FILE *std_dev, FILE **fp)
+(const std::string &category, const logger::context &context, const log_buffer::otime &time, std::size_t log_size, FILE *std_dev, FILE **fp)
 {
 	if( context.dir.empty() )
 	{
@@ -510,7 +505,7 @@ static bool open_log_output_device
 		dir_name += fmt::format("{:%Y-%m-%d}", time) + "/";
 	}
 	std::error_code error;
-	if( not fs::exists(dir_name) and fs::create_directories(dir_name, error) == false )
+	if( not fs::exists(dir_name) and not fs::create_directories(dir_name, error) )
 	{
 		std::cerr << "*** Error: Log: open_log_output_device: Log directory make failed: " << error.message() << std::endl;
 		*fp = std_dev;
@@ -560,9 +555,9 @@ static bool open_log_output_device
 }
 
 static void list_push_back(std::list<fs::directory_entry> &list, const std::string &dir);
-static void remove_if_too_big(const std::list<fs::directory_entry> &list, int64_t max_size, int log_size);
+static void remove_if_too_big(const std::list<fs::directory_entry> &list, std::size_t max_size, std::size_t log_size);
 
-static void size_check(const logger::context &context, const std::string &dir_name, int log_size)
+static void size_check(const logger::context &context, const std::string &dir_name, std::size_t log_size)
 {
 	std::list<fs::directory_entry> file_info_list;
 
@@ -574,7 +569,7 @@ static void size_check(const logger::context &context, const std::string &dir_na
 		for(auto &entry : fs::directory_iterator(dir_name))
 		{
 			if( entry.is_directory() )
-				dir_info_list.emplace_back(std::move(entry));
+				dir_info_list.emplace_back(entry);
 		}
 	}
 	catch(...)
@@ -618,7 +613,7 @@ static void list_push_back(std::list<fs::directory_entry> &list, const std::stri
 		for(auto &entry : fs::directory_iterator(dir))
 		{
 			if( not entry.is_directory() )
-				list.emplace_back(std::move(entry));
+				list.emplace_back(entry);
 		}
 	}
 	catch(...)
@@ -631,9 +626,9 @@ static void list_push_back(std::list<fs::directory_entry> &list, const std::stri
 	});
 }
 
-static void remove_if_too_big(const std::list<fs::directory_entry> &list, int64_t max_size, int log_size)
+static void remove_if_too_big(const std::list<fs::directory_entry> &list, std::size_t max_size, std::size_t log_size)
 {
-	int64_t size = 0;
+	std::size_t size = 0;
 	for(auto &info : list)
 		size += fs::file_size(info.path());
 

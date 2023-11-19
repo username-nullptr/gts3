@@ -72,7 +72,7 @@ bool is_absolute_path(const std::string &path)
 	return str_starts_with(path, "/")
 #ifdef __unix__
 			or str_starts_with(path, "~/")
-#endif //unix
+#endif //__unix__
 			;
 }
 

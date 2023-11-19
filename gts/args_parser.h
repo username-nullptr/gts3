@@ -47,7 +47,7 @@ public:
 	typedef std::unordered_map<rule, value>  arguments;
 
 public:
-	explicit args_parser(const std::string &help_title = {});
+	explicit args_parser(std::string help_title = {});
 	~args_parser();
 
 public:

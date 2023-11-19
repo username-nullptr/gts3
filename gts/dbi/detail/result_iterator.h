@@ -1,4 +1,3 @@
-
 /************************************************************************************
 *                                                                                   *
 *   Copyright (c) 2023 Xiaoqiang <username_nullptr@163.com>                         *
@@ -26,40 +25,28 @@
 *                                                                                   *
 *************************************************************************************/
 
-#ifndef GTS_DETAIL_EXCEPTION_H
-#define GTS_DETAIL_EXCEPTION_H
+#ifndef GTS_DBI_DETAIL_RESULT_ITERATOR_H
+#define GTS_DBI_DETAIL_RESULT_ITERATOR_H
 
-GTS_NAMESPACE_BEGIN
+GTS_DBI_NAMESPACE_BEGIN
 
-inline exception::exception(std::string what) :
-	m_what(std::move(what))
-{
-
+inline cpp::optional<std::string> result_iterator::get_opt_string(std::size_t column) const {
+	return get_opt_string(column, 1024);
 }
 
-template <typename...Args>
-exception::exception(fmt::format_string<Args...> fmt_value, Args&&...args) :
-	m_what(fmt::format(fmt_value, std::forward<Args>(args)...))
-{
-
+inline cpp::optional<std::string> result_iterator::get_opt_string(const std::string &column_name) const {
+	return get_opt_string(column_name, 1024);
 }
 
-inline const char *exception::what() const _GLIBCXX_NOTHROW
-{
-	return m_what.c_str();
+inline std::string result_iterator::get_string(std::size_t column) const {
+	return get_string(column, 1024);
 }
 
-#if GTS_CPLUSPLUS < 201703L
-
-inline exception::exception(exception &&other) noexcept :
-	m_what(std::move(other.m_what))
-{
-
+inline std::string result_iterator::get_string(const std::string &column_name) const {
+	return get_string(column_name, 1024);
 }
 
-#endif
-
-GTS_NAMESPACE_END
+GTS_DBI_NAMESPACE_END
 
 
-#endif //GTS_DETAIL_EXCEPTION_H
+#endif //GTS_DBI_DETAIL_RESULT_ITERATOR_H
