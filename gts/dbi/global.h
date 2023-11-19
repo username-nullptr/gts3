@@ -41,7 +41,7 @@
 # define GTS_DBI_NAMESPACE_BEGIN  namespace gts::dbi {
 # define GTS_DBI_NAMESPACE_END    } //namespace gts::dbi
 #else //cpp17
-# define GTS_DBI_NAMESPACE_BEGIN  namespace gts { namespace http {
+# define GTS_DBI_NAMESPACE_BEGIN  namespace gts { namespace dbi {
 # define GTS_DBI_NAMESPACE_END    }} //namespace gts::dbi
 #endif //cpp17
 

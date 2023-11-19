@@ -45,7 +45,7 @@
 #else //cpp17
 # define GTS_WEB_NAMESPACE_BEGIN  namespace gts { namespace web {
 # define GTS_WEB_NAMESPACE_END    }} //namespace gts::web
-# define GTS_WEB_SOCKET_PROTOCOL_NAMESPACE_BEGIN  namespace gts { namespace web { socket_protocol {
+# define GTS_WEB_SOCKET_PROTOCOL_NAMESPACE_BEGIN  namespace gts { namespace web { namespace socket_protocol {
 # define GTS_WEB_SOCKET_PROTOCOL_NAMESPACE_END    }}} //namespace gts::web::socket_protocol
 #endif //cpp17
 
