@@ -29,8 +29,7 @@
 #include "log_buffer.h"
 #include <thread>
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 log_buffer::context::context(context &&other)
 {
@@ -94,4 +93,4 @@ log_buffer::~log_buffer()
 	delete m_data;
 }
 
-} //namespace gts
+GTS_NAMESPACE_END

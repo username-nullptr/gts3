@@ -1,7 +1,7 @@
 project(GTS VERSION 3.0.0)
 
 set(target_name gtscore)
-add_definitions(-DGTS_VERSION_STR="3.0.0 dev5")
+add_definitions(-DGTS_VERSION_STR="3.0.0 dev6")
 
 if (WIN32)
 	set(OS_CPP win)

@@ -26,13 +26,12 @@
 *                                                                                   *
 *************************************************************************************/
 
-#ifndef PLUGIN_SERVICE_H
-#define PLUGIN_SERVICE_H
+#ifndef GTS_WEB_PLUGIN_SERVICE_H
+#define GTS_WEB_PLUGIN_SERVICE_H
 
-#include "gts/web/registration.h"
+#include <gts/web/registration.h>
 
-namespace gts { namespace web
-{
+GTS_WEB_NAMESPACE_BEGIN
 
 class service_io;
 
@@ -57,7 +56,7 @@ private:
 	service_io &m_sio;
 };
 
-}} //namespace gts::web
+GTS_WEB_NAMESPACE_END
 
 
-#endif //PLUGIN_SERVICE_H
+#endif //GTS_WEB_PLUGIN_SERVICE_H

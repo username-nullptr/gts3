@@ -29,8 +29,7 @@
 #include "ssl_socket.h"
 #ifdef GTS_ENABLE_SSL
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 ssl_socket::ssl_socket(ssl_stream *sock) :
 	tcp_socket(&sock->next_layer()),
@@ -136,6 +135,6 @@ ssl::context &ssl_socket::asio_ssl_context()
 	return ssl_context;
 }
 
-} //namespace gts
+GTS_NAMESPACE_END
 
 #endif //GTS_ENABLE_SSL

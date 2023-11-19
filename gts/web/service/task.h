@@ -26,22 +26,19 @@
 *                                                                                   *
 *************************************************************************************/
 
-#ifndef TASK_H
-#define TASK_H
+#ifndef GTS_WEB_TASK_H
+#define GTS_WEB_TASK_H
 
-#include "gts/http/service_context.h"
-#include "gts/tcp_socket.h"
+#include <gts/web/global.h>
+#include <gts/http/service_context.h>
+#include <gts/tcp_socket.h>
 #include <functional>
 
-namespace gts
-{
-
-namespace http {
+GTS_HTTP_NAMESPACE_BEGIN
 class request;
-} //namespace http
+GTS_HTTP_NAMESPACE_END
 
-namespace web
-{
+GTS_WEB_NAMESPACE_BEGIN
 
 class GTS_DECL_HIDDEN task
 {
@@ -67,7 +64,7 @@ private:
 	std::function<void(bool)> m_call_back;
 };
 
-}} //namespace gts::web
+GTS_WEB_NAMESPACE_END
 
 
-#endif //TASK_H
+#endif //GTS_WEB_TASK_H

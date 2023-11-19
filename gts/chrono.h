@@ -34,7 +34,11 @@
 
 #if GTS_CPLUSPLUS < 202002L
 
+#if GTS_CPLUSPLUS >= 201703L
+namespace std::chrono
+#else //cpp17
 namespace std { namespace chrono
+#endif //cpp17
 {
 
 using days   = std::chrono::duration<int64_t, std::ratio<86400>>;
@@ -42,7 +46,11 @@ using weeks  = std::chrono::duration<int64_t, std::ratio<604800>>;
 using years  = std::chrono::duration<int64_t, std::ratio<31556952>>;
 using months = std::chrono::duration<int64_t, std::ratio<2629746>>;
 
-}} //namespace std::chrono
+}
+#if GTS_CPLUSPLUS < 201703L
+}
+#endif //cpp17
+// namespace std::chrono
 
 #endif //C++20
 

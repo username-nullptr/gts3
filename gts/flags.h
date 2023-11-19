@@ -32,8 +32,7 @@
 #include <initializer_list>
 #include <gts/utility.h>
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 template <typename Enum>
 class flags
@@ -83,8 +82,7 @@ private:
 	int m_value = 0;
 };
 
-} //namespace gts
-
+GTS_NAMESPACE_END
 #include <gts/detail/flags.h>
 
 #define GTS_DECLARE_FLAGS(_flags, _enum)  using _flags = flags<_enum>;

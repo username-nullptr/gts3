@@ -32,8 +32,7 @@
 #include <gts/algorithm.h>
 #include <cppformat>
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 class value : public std::string
 {
@@ -163,8 +162,7 @@ template<> struct hash<gts::value> : public __hash_base<size_t, gts::value> {
 	size_t operator()(const gts::value &v) const noexcept;
 };
 
-} //namespace std
-
+GTS_NAMESPACE_END
 #include <gts/detail/value.h>
 
 #endif //GTS_PAIR_H

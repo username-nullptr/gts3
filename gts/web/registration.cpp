@@ -28,8 +28,7 @@
 
 #include "registration.h"
 
-namespace gts { namespace web
-{
+GTS_WEB_NAMESPACE_BEGIN
 
 std::set<const void*> registration::g_global_func_set;
 
@@ -50,4 +49,4 @@ std::size_t registration::log2(http::method n)
 	return res;
 }
 
-}} //namespace gts::web
+GTS_WEB_NAMESPACE_END

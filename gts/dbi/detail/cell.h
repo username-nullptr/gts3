@@ -33,8 +33,7 @@
 # include <cxxabi.h>
 #endif //VS
 
-namespace gts { namespace dbi
-{
+GTS_DBI_NAMESPACE_BEGIN
 
 inline cell::cell(const std::string &column_name) :
 	m_column_name(column_name)
@@ -674,7 +673,7 @@ inline std::string operator+(const std::string &str, const cell &cell)
 	return cell.has_value() ? str + cell.to_string() : str;
 }
 
-}} //namespace gts::dbi
+GTS_DBI_NAMESPACE_END
 
 
 #endif //GTS_DBI_CELL_DETAIL_H

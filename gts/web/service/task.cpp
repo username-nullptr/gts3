@@ -39,8 +39,7 @@
 #include "gts/web/thread_pool.h"
 #include <cppfilesystem>
 
-namespace gts { namespace web
-{
+GTS_WEB_NAMESPACE_BEGIN
 
 task::task(tcp_socket_ptr socket) :
 	m_socket(std::move(socket))
@@ -278,4 +277,5 @@ static void _CONNECT(service_io &sio) {
 static void _TRACH(service_io &sio) {
 	sio.return_to_null(http::hs_service_unavailable);
 }
-}} //namespace gts::web
+
+GTS_WEB_NAMESPACE_END

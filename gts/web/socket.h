@@ -34,8 +34,7 @@
 #include <gts/http/response.h>
 
 // Not Implemented
-namespace gts { namespace web
-{
+GTS_WEB_NAMESPACE_BEGIN
 
 class socket_impl;
 
@@ -105,7 +104,9 @@ using socket_ptr = std::shared_ptr<socket>;
 template <typename...Args>
 socket_ptr make_socket_ptr(Args&&...args);
 
-} //namespace web
+GTS_WEB_NAMESPACE_END
+
+GTS_NAMESPACE_BEGIN
 
 using websocket = web::socket;
 
@@ -114,8 +115,7 @@ using websocket_ptr = web::socket_ptr;
 template <typename...Args>
 websocket_ptr make_websocket_ptr(Args&&...args);
 
-} //namespace gts
-
+GTS_NAMESPACE_END
 #include <gts/web/detail/socket.h>
 
 #endif //GTS_WEB_SOCKET_H

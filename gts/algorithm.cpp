@@ -29,8 +29,7 @@
 #include "algorithm.h"
 #include <algorithm>
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 int8_t stoi8(const std::string &str, int base)
 {
@@ -338,4 +337,4 @@ std::string file_path(const std::string &file_name)
 	return file_name.substr(0, pos + 1);
 }
 
-} //namespace gts
+GTS_NAMESPACE_END

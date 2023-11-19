@@ -46,10 +46,12 @@ namespace dt = std::chrono;
 # include <Windows.h>
 
 #ifdef CORE_USE_STD_FS
-namespace std { namespace filesystem
-#else
+namespace std::filesystem
+#elif GTS_CPLUSPLUS >= 201703L
+namespace core::filesystem
+#else //cpp17
 namespace core { namespace filesystem
-#endif
+#endif //cpp17
 {
 
 static time_t create_time(const std::string &/*file*/)
@@ -58,17 +60,23 @@ static time_t create_time(const std::string &/*file*/)
 	return 0;
 }
 
-}} //namespace xxx::filesystem
+}
+#if GTS_CPLUSPLUS < 201703L
+}
+#endif //cpp17
+// namespace xxx::filesystem
 
 #else //other os
 
 # include <sys/stat.h>
 
 #ifdef CORE_USE_STD_FS
-namespace std { namespace filesystem
-#else
+namespace std::filesystem
+#elif GTS_CPLUSPLUS >= 201703L
+namespace core::filesystem
+#else //cpp17
 namespace core { namespace filesystem
-#endif
+#endif //cpp17
 {
 
 static time_t create_time(const std::string &file)
@@ -78,14 +86,17 @@ static time_t create_time(const std::string &file)
 	return buf.st_ctime;
 }
 
-}} //namespace xxx::filesystem
+}
+#if GTS_CPLUSPLUS < 201703L
+}
+#endif //cpp17
+// namespace xxx::filesystem
 
 #endif //os
 
 /*---------------------------------------------------------------------------------------------------------------*/
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 class GTS_DECL_HIDDEN logger_impl
 {
@@ -639,4 +650,4 @@ static void remove_if_too_big(const std::list<fs::directory_entry> &list, int64_
 	}
 }
 
-} //namespace gts
+GTS_NAMESPACE_END

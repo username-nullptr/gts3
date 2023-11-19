@@ -34,8 +34,7 @@
 #include "gts/application.h"
 #include "gts/settings.h"
 
-namespace gts { namespace web
-{
+GTS_WEB_NAMESPACE_BEGIN
 
 static asio::thread_pool *g_pool = nullptr;
 
@@ -118,4 +117,4 @@ GTS_PLUGIN_NEW_CONNECTION(socket){
 	connection::new_connection(std::move(socket));
 }
 
-}} //namespace gts::web
+GTS_WEB_NAMESPACE_END

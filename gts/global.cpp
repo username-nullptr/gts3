@@ -28,8 +28,7 @@
 
 #include "global.h"
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 std::string version_string()
 {
@@ -44,4 +43,4 @@ asio::io_context &io_context()
 	return *io;
 }
 
-} //namespace gts
+GTS_NAMESPACE_END

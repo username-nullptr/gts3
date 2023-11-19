@@ -31,8 +31,7 @@
 #include "gts/algorithm.h"
 #include "gts/log.h"
 
-namespace gts { namespace app
-{
+GTS_APP_NAMESPACE_BEGIN
 
 static std::string g_instace_name = "gts";
 
@@ -105,4 +104,4 @@ bool unsetenv(const std::string &key)
 	return true;
 }
 
-}} //namespace gts::app
+GTS_APP_NAMESPACE_END

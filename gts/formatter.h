@@ -38,8 +38,7 @@
 #include <atomic>
 #include <memory>
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 class no_parse_formatter
 {
@@ -231,7 +230,7 @@ public:
 	}
 };
 
-} //namespace fmt
+GTS_NAMESPACE_END
 
 
 #endif //GTS_FORMATTER_H

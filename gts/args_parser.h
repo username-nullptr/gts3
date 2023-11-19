@@ -32,10 +32,9 @@
 #include <gts/value.h>
 #include <functional>
 
-namespace gts { namespace cmdline
-{
+GTS_CMDLINE_NAMESPACE_BEGIN
 
-class parser_impl;
+class args_parser_impl;
 
 class GTSCORE_API args_parser
 {
@@ -77,10 +76,10 @@ public:
 	arguments parsing(int argc, const char *argv[]); // exit if other.
 
 private:
-	parser_impl *m_impl;
+	args_parser_impl *m_impl;
 };
 
-}} //namespace gts::cmdline
+GTS_CMDLINE_NAMESPACE_END
 
 GTSCORE_API bool operator&(const gts::cmdline::args_parser::arguments &args_hash, const gts::cmdline::args_parser::rule &key);
 GTSCORE_API bool operator&(const gts::cmdline::args_parser::rule &key, const gts::cmdline::args_parser::arguments &args_hash);

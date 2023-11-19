@@ -32,8 +32,7 @@
 #include <gts/dbi/global.h>
 #include <gts/exception.h>
 
-namespace gts { namespace dbi
-{
+GTS_DBI_NAMESPACE_BEGIN
 
 class error_code
 {
@@ -81,7 +80,7 @@ public:
 #endif
 };
 
-}} //namespace gts::dbi
+GTS_DBI_NAMESPACE_END
 
 namespace fmt
 {

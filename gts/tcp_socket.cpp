@@ -30,8 +30,7 @@
 #include "gts/log.h"
 #include <cppformat>
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 tcp_socket::tcp_socket(tcp::socket *sock) :
 	m_sock(sock)
@@ -414,4 +413,4 @@ void tcp_socket::error(const asio::error_code &error, const char *func) noexcept
 	gts_log_error("gts::tcp_socket::{}: {}", func, error);
 }
 
-} //namespace gts
+GTS_NAMESPACE_END

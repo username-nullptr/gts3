@@ -32,8 +32,7 @@
 #include <gts/http/request.h>
 #include <gts/http/response.h>
 
-namespace gts { namespace http
-{
+GTS_HTTP_NAMESPACE_BEGIN
 
 class service_context_impl;
 
@@ -58,7 +57,7 @@ private:
 };
 using service_context_ptr = std::shared_ptr<service_context>;
 
-}} //namespace gts::http
+GTS_HTTP_NAMESPACE_END
 
 
 #endif //GTS_HTTP_SERVICE_CONTEXT_H

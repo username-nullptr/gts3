@@ -32,15 +32,15 @@
 #include <gts/web/global.h>
 #include <gts/http/container.h>
 
-namespace gts { namespace web
-{
+GTS_WEB_NAMESPACE_BEGIN
 
 using environment = http::pair<gts::value>;
 
 using environments = http::unordered_map<gts::value>;
 
-namespace socket_protocol
-{
+GTS_WEB_NAMESPACE_END
+
+GTS_WEB_SOCKET_PROTOCOL_NAMESPACE_BEGIN
 
 enum version
 {
@@ -99,10 +99,7 @@ public:
 	data_type type;
 };
 
-} //namespace socket_protocol
-
-}} //namespace gts::web
-
+GTS_WEB_SOCKET_PROTOCOL_NAMESPACE_END
 #include <gts/web/detail/types.h>
 
 #endif //GTS_WEB_TYPES_H

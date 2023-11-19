@@ -29,25 +29,19 @@
 #ifndef GTS_WEB_DETAIL_SOCKET_H
 #define GTS_WEB_DETAIL_SOCKET_H
 
-namespace gts
-{
-
-namespace web
-{
-
+GTS_WEB_NAMESPACE_BEGIN
 template <typename...Args>
 inline socket_ptr make_socket_ptr(Args&&...args) {
 	return std::make_shared<socket>(std::forward<Args>(args)...);
 }
+GTS_WEB_NAMESPACE_END
 
-} //namespace web
-
+GTS_NAMESPACE_BEGIN
 template <typename...Args>
 inline websocket_ptr make_websocket_ptr(Args&&...args) {
 	return std::make_shared<websocket>(std::forward<Args>(args)...);
 }
-
-} //namespace gts
+GTS_NAMESPACE_END
 
 
 #endif //GTS_WEB_DETAIL_SOCKET_H

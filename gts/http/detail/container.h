@@ -29,8 +29,7 @@
 #ifndef GTS_HTTP_DETAIL_CONTAINER_H
 #define GTS_HTTP_DETAIL_CONTAINER_H
 
-namespace gts { namespace http
-{
+GTS_HTTP_NAMESPACE_BEGIN
 
 template <typename V, typename _Compare>
 std::pair<typename map<V,_Compare>::base_type::iterator, bool>
@@ -421,7 +420,6 @@ const V &unordered_map<V>::operator[](const std::string &key) const
 	return it->second;
 }
 
-}} //namespace gts::http
-
+GTS_HTTP_NAMESPACE_END
 
 #endif //GTS_HTTP_DETAIL_CONTAINER_H

@@ -31,8 +31,7 @@
 
 #include <gts/dbi/driver.h>
 
-namespace gts { namespace dbi
-{
+GTS_DBI_NAMESPACE_BEGIN
 
 class GTS_DBI_API manager
 {
@@ -51,7 +50,7 @@ public:
 
 #define GTS_DBI_CREATE_CONNECTION_BN(_driver_name, ...)  gts::dbi::manager::driver(_driver_name).create_connection(__VA_ARGS__)
 
-}} //namespace gts::dbi
+GTS_DBI_NAMESPACE_END
 
 
 #endif //GTS_DBI_MANAGER_H

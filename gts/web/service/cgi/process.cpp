@@ -38,8 +38,7 @@
 	bool process::is_running() const
 	void process::join()
 */
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 process_impl::process_impl(asio::io_context &io) :
 	m_io(io)
@@ -126,4 +125,4 @@ void process::error(const asio::error_code &error, const char *func)
 	gts_log_error("gts::process::{}: {}", func, error);
 }
 
-} //namespace gts
+GTS_NAMESPACE_END

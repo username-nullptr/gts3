@@ -32,11 +32,7 @@
 #include <gts/registration.h>
 #include <gts/web/socket.h>
 
-namespace gts
-{
-
-namespace web
-{
+GTS_WEB_NAMESPACE_BEGIN
 
 class plugins_service;
 
@@ -298,8 +294,7 @@ private:
 	friend class plugins_service;
 };
 
-}} //namespace gts::web
-
+GTS_WEB_NAMESPACE_END
 #include <gts/web/detail/registration.h>
 
 #define GTS_PLUGIN_HTTP_REQUEST_FILTER(_path, ...) \
@@ -316,5 +311,6 @@ private:
 	GTS_DECL_AUTO_FUNC_VOID(__VA_ARGS__); \
 	GTS_PLUGIN_REGISTRATION{ gts::web::registration().new_websocket_connection<_method>(_path, GTS_AUTO_FUNC_NAME); } \
 	GTS_DECL_AUTO_FUNC_VOID(__VA_ARGS__)
+
 
 #endif //GTS_WEB_REGISTRATION_H

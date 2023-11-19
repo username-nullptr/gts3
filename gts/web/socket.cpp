@@ -29,8 +29,7 @@
 #include "socket.h"
 #include <gts/sha1.h>
 
-namespace gts { namespace web
-{
+GTS_WEB_NAMESPACE_BEGIN
 
 namespace sp = socket_protocol;
 
@@ -247,4 +246,4 @@ tcp_socket_ptr socket::native() noexcept
 	return m_impl->m_socket;
 }
 
-}} //namespace gts::web
+GTS_WEB_NAMESPACE_END

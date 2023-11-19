@@ -27,10 +27,9 @@
 *************************************************************************************/
 
 #include "types.h"
-#include <assert.h>
+#include <cassert>
 
-namespace gts { namespace http
-{
+GTS_HTTP_NAMESPACE_BEGIN
 
 std::string status_description(int s)
 {
@@ -156,4 +155,4 @@ const char *header::user_agent        = "User-Agent";
 const char *header::upgrade           = "Upgrade";
 #endif //c++17
 
-}} //namespace gts::http
+GTS_HTTP_NAMESPACE_END

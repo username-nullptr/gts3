@@ -26,14 +26,13 @@
 *                                                                                   *
 *************************************************************************************/
 
-#ifndef CONNECTION_H
-#define CONNECTION_H
+#ifndef GTS_WEB_CONNECTION_H
+#define GTS_WEB_CONNECTION_H
 
-#include "gts/http/parser.h"
-#include "task.h"
+#include <gts/web/service/task.h>
+#include <gts/http/parser.h>
 
-namespace gts { namespace web
-{
+GTS_WEB_NAMESPACE_BEGIN
 
 class GTS_DECL_HIDDEN connection
 {
@@ -67,8 +66,8 @@ private:
 	task m_task;
 };
 
-}} //namespace gts::web
+GTS_WEB_NAMESPACE_END
 
 
-#endif //CONNECTION_H
+#endif //GTS_WEB_CONNECTION_H
 

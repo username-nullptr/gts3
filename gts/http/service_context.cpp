@@ -29,8 +29,7 @@
 #include "service_context.h"
 #include "detail/request_impl.h"
 
-namespace gts { namespace http
-{
+GTS_HTTP_NAMESPACE_BEGIN
 
 class GTS_DECL_HIDDEN service_context_impl
 {
@@ -86,4 +85,4 @@ bool service_context::is_valid() const
 	return m_impl->m_requst->is_valid();
 }
 
-}} //namespace gts::http
+GTS_HTTP_NAMESPACE_END

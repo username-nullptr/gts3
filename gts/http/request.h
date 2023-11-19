@@ -33,8 +33,7 @@
 #include <gts/log.h>
 #include <asio.hpp>
 
-namespace gts { namespace http
-{
+GTS_HTTP_NAMESPACE_BEGIN
 
 class parser;
 class parser_impl;
@@ -153,8 +152,7 @@ private:
 	request_impl *m_impl;
 };
 
-}} //namespace gts::http
-
+GTS_HTTP_NAMESPACE_END
 #include <gts/http/detail/request.h>
 
 #endif //GTS_HTTP_REQUEST_H

@@ -33,8 +33,7 @@
 
 using namespace std::chrono;
 
-namespace gts { namespace http
-{
+GTS_HTTP_NAMESPACE_BEGIN
 
 static std::atomic<uint64_t> g_global_lifecycle {1800}; //s
 
@@ -274,4 +273,4 @@ duration session::global_lifecycle()
 	return duration(g_global_lifecycle);
 }
 
-}} //namespace gts::http
+GTS_HTTP_NAMESPACE_END

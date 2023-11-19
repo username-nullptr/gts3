@@ -30,8 +30,7 @@
 
 using namespace std::chrono;
 
-namespace gts { namespace http
-{
+GTS_HTTP_NAMESPACE_BEGIN
 
 tcp_socket &request_impl::socket() const
 {
@@ -313,4 +312,4 @@ std::size_t request_impl::read_body_chunked_mode(std::error_code &error, void *b
 	return sum;
 }
 
-}} //namespace gts::http
+GTS_HTTP_NAMESPACE_END

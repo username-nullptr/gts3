@@ -33,8 +33,7 @@
 #include <rttr/variant.h>
 #include <inicpp.h>
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 class GTSCORE_API settings
 {
@@ -99,8 +98,7 @@ private:
 	bool m_delete_on_flush = true;
 };
 
-} //namespace gts
-
+GTS_NAMESPACE_END
 #include <gts/detail/settings.h>
 
 #endif //GTS_SETTINGS_H

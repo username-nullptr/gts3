@@ -29,8 +29,7 @@
 #ifndef GTS_WEB_DETAIL_TYPES_H
 #define GTS_WEB_DETAIL_TYPES_H
 
-namespace gts { namespace web { namespace socket_protocol
-{
+GTS_WEB_SOCKET_PROTOCOL_NAMESPACE_BEGIN
 
 inline buffer::buffer(std::string data, data_type type) :
 	data(std::move(data)), type(type)
@@ -57,7 +56,7 @@ inline buffer &buffer::operator=(buffer &&other)
 	return *this;
 }
 
-}}} //namespace gts::web::socket_protocol
+GTS_WEB_SOCKET_PROTOCOL_NAMESPACE_END
 
 
 #endif //GTS_WEB_DETAIL_TYPES_H

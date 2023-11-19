@@ -30,12 +30,12 @@
 #define CGI_SERVICE_H
 
 #include "process.h"
+#include <gts/web/global.h>
 #include <condition_variable>
 #include <atomic>
 #include <mutex>
 
-namespace gts { namespace web
-{
+GTS_WEB_NAMESPACE_BEGIN
 
 #define _BUF_SIZE  65536
 
@@ -81,7 +81,7 @@ private:
 	std::mutex m_mutex;
 };
 
-}} //namespace gts::web
+GTS_WEB_NAMESPACE_END
 
 
 #endif //CGI_SERVICE_H

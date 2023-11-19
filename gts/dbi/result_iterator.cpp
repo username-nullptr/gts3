@@ -28,8 +28,7 @@
 
 #include "result_iterator.h"
 
-namespace gts { namespace dbi
-{
+GTS_DBI_NAMESPACE_BEGIN
 
 result_iterator::~result_iterator()
 {
@@ -125,4 +124,4 @@ int result_iterator::row_id() const
 	return res? *res : -1;
 }
 
-}} //namespace gts::dbi
+GTS_DBI_NAMESPACE_END

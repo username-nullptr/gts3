@@ -32,8 +32,7 @@
 #include <gts/http/container.h>
 #include <gts/exception.h>
 
-namespace gts { namespace http
-{
+GTS_HTTP_NAMESPACE_BEGIN
 
 class session_impl;
 
@@ -108,8 +107,7 @@ using session_ptr = std::shared_ptr<session>;
 template <class Sesn = session>
 std::shared_ptr<Sesn> make_session(const std::chrono::seconds &seconds = std::chrono::seconds(0));
 
-}} //namespace gts::http
-
+GTS_HTTP_NAMESPACE_END
 #include <gts/http/detail/session.h>
 
 #endif //GTS_HTTP_SESSION_H

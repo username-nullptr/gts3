@@ -33,8 +33,7 @@
 #include <cppoptional>
 #include <memory>
 
-namespace gts { namespace dbi
-{
+GTS_DBI_NAMESPACE_BEGIN
 
 class GTS_DBI_API result_iterator
 {
@@ -115,7 +114,7 @@ public:
 
 using result_iterator_ptr = std::shared_ptr<result_iterator>;
 
-}} //namespace gts::dbi
+GTS_DBI_NAMESPACE_END
 
 
 #endif //GTS_DBI_RESULT_ITERATOR_H

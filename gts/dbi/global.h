@@ -37,5 +37,13 @@
 # define GTS_DBI_API  GTS_DECL_IMPORT
 #endif //gtsdbi_EXPORTS
 
+#if GTS_CPLUSPLUS >= 201703L
+# define GTS_DBI_NAMESPACE_BEGIN  namespace gts::dbi {
+# define GTS_DBI_NAMESPACE_END    } //namespace gts::dbi
+#else //cpp17
+# define GTS_DBI_NAMESPACE_BEGIN  namespace gts { namespace http {
+# define GTS_DBI_NAMESPACE_END    }} //namespace gts::dbi
+#endif //cpp17
+
 
 #endif //GTS_DBI_GLOBAL_H

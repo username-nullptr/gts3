@@ -5,8 +5,7 @@
 #include <mutex>
 #include <map>
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 process_impl::~process_impl()
 {
@@ -64,6 +63,6 @@ void process::join()
 {
 }
 
-} //namespace gts
+GTS_NAMESPACE_END
 
 #endif //__WINNT__ || _WINDOWS

@@ -29,8 +29,7 @@
 #ifndef GTS_HTTP_DETAIL_REQUEST_H
 #define GTS_HTTP_DETAIL_REQUEST_H
 
-namespace gts { namespace http
-{
+GTS_HTTP_NAMESPACE_BEGIN
 
 template <class Sesn>
 std::shared_ptr<Sesn> request::session() const
@@ -148,7 +147,7 @@ inline std::size_t request::save_file_part(const std::string &file_name, std::si
 	return save_file_part(file_name, error, total_size, begin);
 }
 
-}} //namespace gts::http
+GTS_HTTP_NAMESPACE_END
 
 
 #endif //GTS_HTTP_DETAIL_REQUEST_H

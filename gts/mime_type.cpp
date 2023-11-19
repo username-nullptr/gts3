@@ -32,8 +32,7 @@
 #include <unordered_map>
 #include <fstream>
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 #define APPLICATION  "application/"
 #define AUDIO        "audio/"
@@ -1114,4 +1113,4 @@ std::string get_text_file_encoding(const std::string &file_name)
 	return result;
 }
 
-} //namespace gts
+GTS_NAMESPACE_END

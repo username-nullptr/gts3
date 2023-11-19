@@ -58,8 +58,10 @@
 #define GTS_DISABLE_COPY_MOVE(_class) \
 	GTS_DISABLE_COPY(_class) GTS_DISABLE_MOVE(_class)
 
-namespace gts
-{
+#define GTS_NAMESPACE_BEGIN  namespace gts {
+#define GTS_NAMESPACE_END    } //namespace gts
+
+GTS_NAMESPACE_BEGIN
 
 template <typename T>
 inline const char *type_name(T &&t) {
@@ -87,7 +89,7 @@ using decay_t = typename std::decay<T>::type;
 
 #define gts_is_base_of(...)   std::is_base_of<__VA_ARGS__>::value
 
-} //namesapce gts
+GTS_NAMESPACE_END
 
 #define GTS_DECLVAL(...)   std::declval<__VA_ARGS__>()
 

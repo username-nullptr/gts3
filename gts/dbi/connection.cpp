@@ -28,8 +28,7 @@
 
 #include "connection.h"
 
-namespace gts { namespace dbi
-{
+GTS_DBI_NAMESPACE_BEGIN
 
 class GTS_DECL_HIDDEN connection_impl
 {
@@ -90,4 +89,4 @@ std::size_t connection::query_string_buffer_size() const
 	return m_impl->m_query_string_buffer_size;
 }
 
-}} //namespace gts::dbi
+GTS_DBI_NAMESPACE_END

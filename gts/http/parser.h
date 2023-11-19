@@ -32,8 +32,7 @@
 #include <gts/http/service_context.h>
 #include <gts/tcp_socket.h>
 
-namespace gts { namespace http
-{
+GTS_HTTP_NAMESPACE_BEGIN
 
 class parser_impl;
 
@@ -53,7 +52,7 @@ private:
 	parser_impl *m_impl;
 };
 
-}} //namespace gts::http
+GTS_HTTP_NAMESPACE_END
 
 
 #endif //GTS_HTTP_PARSER_H

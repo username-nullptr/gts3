@@ -33,8 +33,7 @@
 
 using namespace std::chrono;
 
-namespace gts { namespace http
-{
+GTS_HTTP_NAMESPACE_BEGIN
 
 request::request() :
 	m_impl(new request_impl())
@@ -365,4 +364,4 @@ void request::set_cookie_session_id(std::string id)
 		m_impl->m_cookies["session_id"] = std::move(id);
 }
 
-}} //namespace gts::http
+GTS_HTTP_NAMESPACE_END

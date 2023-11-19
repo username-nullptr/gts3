@@ -29,8 +29,7 @@
 #ifndef GTS_DBI_DETAIL_DRIVER_H
 #define GTS_DBI_DETAIL_DRIVER_H
 
-namespace gts { namespace dbi
-{
+GTS_DBI_NAMESPACE_BEGIN
 
 inline driver::~driver() {}
 
@@ -82,7 +81,7 @@ inline connection_ptr driver::create_connection(const std::string &info) noexcep
 	return res;
 }
 
-}} //namespace gts::dbi
+GTS_DBI_NAMESPACE_END
 
 
 #endif //GTS_DBI_DETAIL_DRIVER_H

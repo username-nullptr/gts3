@@ -34,8 +34,7 @@
 #include <vector>
 #include <deque>
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 using basic_string_list = std::deque<std::string>;
 
@@ -52,7 +51,7 @@ public:
 	std::string join(const std::string &splits = " ");
 };
 
-} //namespace gts
+GTS_NAMESPACE_END
 
 
 #endif //GTS_STRING_LIST_H

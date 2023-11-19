@@ -29,8 +29,7 @@
 #ifndef GTS_WEB_DETAIL_REGISTRATION_H
 #define GTS_WEB_DETAIL_REGISTRATION_H
 
-namespace gts { namespace web
-{
+GTS_WEB_NAMESPACE_BEGIN
 
 template <typename Func, typename _GTD_0>
 registration &registration::init_method(Func &&func)
@@ -540,7 +539,7 @@ inline std::unordered_map<rttr::type, rttr::variant> &registration::obj_hash()
 	return g_obj_hash;
 }
 
-}} //namespace gts::web
+GTS_WEB_NAMESPACE_END
 
 
 #endif //GTS_WEB_DETAIL_REGISTRATION_H

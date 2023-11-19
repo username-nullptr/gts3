@@ -35,8 +35,7 @@
 #include <cppformat>
 #include <future>
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 using future_void = std::future<void>;
 
@@ -131,8 +130,9 @@ protected:
 	friend class plugin_call_handle;
 };
 
-namespace extension
-{
+GTS_NAMESPACE_END
+
+GTS_EXTENSION_NAMESPACE_BEGIN
 
 class registration : public registration_base
 {
@@ -168,10 +168,7 @@ public:
 	registration &view_help_method(Func &&func);
 };
 
-} //namespace extension
-
-} //namespace gts
-
+GTS_EXTENSION_NAMESPACE_END
 #include <gts/detail/registration.h>
 
 #define GTS_AUTO_XX_NAME(_prefix)  RTTR_CAT(_prefix, __LINE__)

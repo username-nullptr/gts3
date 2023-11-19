@@ -31,8 +31,7 @@
 
 #include <gts/dbi/connection.h>
 
-namespace gts { namespace dbi
-{
+GTS_DBI_NAMESPACE_BEGIN
 
 class GTS_DBI_API driver
 {
@@ -76,8 +75,7 @@ public:
 	connection_ptr create_connection(const std::string &info) noexcept(false);
 };
 
-}} //namespace gts::dbi
-
+GTS_DBI_NAMESPACE_END
 #include <gts/dbi/detail/driver.h>
 
 #endif //GTS_DBI_DRIVER_H

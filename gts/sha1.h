@@ -31,8 +31,7 @@
 
 #include <gts/global.h>
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 class sha1_impl;
 
@@ -68,7 +67,7 @@ private:
 	sha1_impl *m_impl;
 };
 
-} //namespace gts
+GTS_NAMESPACE_END
 
 
 #endif //GTS_SHA1H

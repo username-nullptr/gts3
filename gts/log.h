@@ -32,8 +32,7 @@
 #include <gts/log_buffer.h>
 #include <gts/formatter.h>
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 #define gts_log_debug    gts::logger(__FILE__, __func__, __LINE__).debug
 #define gts_log_info     gts::logger(__FILE__, __func__, __LINE__).info
@@ -161,8 +160,7 @@ private:
 	logger_impl *m_impl;
 };
 
-} //namespace gts
-
+GTS_NAMESPACE_END
 #include <gts/detail/log.h>
 
 #endif //GTS_LOG_H

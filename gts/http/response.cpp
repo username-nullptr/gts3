@@ -36,8 +36,7 @@
 
 using namespace std::chrono;
 
-namespace gts { namespace http
-{
+GTS_HTTP_NAMESPACE_BEGIN
 
 class GTS_DECL_HIDDEN response_impl
 {
@@ -877,4 +876,4 @@ bool response::is_valid() const
 	return m_impl->m_request.is_valid();
 }
 
-}} //namespace gts::http
+GTS_HTTP_NAMESPACE_END

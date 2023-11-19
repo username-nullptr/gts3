@@ -29,8 +29,7 @@
 #include "parser.h"
 #include "detail/request_impl.h"
 
-namespace gts { namespace http
-{
+GTS_HTTP_NAMESPACE_BEGIN
 
 enum class state
 {
@@ -245,4 +244,4 @@ service_context_ptr parser::get_request(tcp_socket_ptr socket)
 	return tmp;
 }
 
-}} //namespace gts::http
+GTS_HTTP_NAMESPACE_END

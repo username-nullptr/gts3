@@ -32,8 +32,7 @@
 #include <unordered_set>
 #include <iostream>
 
-namespace gts { namespace cmdline
-{
+GTS_CMDLINE_NAMESPACE_BEGIN
 
 typedef args_parser::rule            rule;
 typedef args_parser::description     description;
@@ -50,10 +49,10 @@ struct arg_info
 };
 typedef std::unordered_map<rule, arg_info>  args_cache;
 
-class GTS_DECL_HIDDEN parser_impl
+class GTS_DECL_HIDDEN args_parser_impl
 {
 public:
-	explicit parser_impl(const std::string &help_title);
+	explicit args_parser_impl(const std::string &help_title);
 	void add(args_cache &cache, const rule &r, const description &d, const identification &i);
 
 public:
@@ -75,7 +74,7 @@ public:
 	bool m_h = false;
 };
 
-parser_impl::parser_impl(const std::string &help_title) :
+args_parser_impl::args_parser_impl(const std::string &help_title) :
 	m_help_title(help_title)
 {
 
@@ -94,7 +93,7 @@ static bool check(const std::string &str)
 	return true;
 }
 
-void parser_impl::add(args_cache &cache, const rule &r, const description &d, const identification &i)
+void args_parser_impl::add(args_cache &cache, const rule &r, const description &d, const identification &i)
 {
 	static std::size_t id_source = 0;
 	char buf[128] = "";
@@ -119,19 +118,19 @@ void parser_impl::add(args_cache &cache, const rule &r, const description &d, co
 	m_help += "    " + r + " :\n        " + d + "\n\n";
 }
 
-[[noreturn]] void parser_impl::print_version()
+[[noreturn]] void args_parser_impl::print_version()
 {
 	std::cout << "\n" << m_version << "\n\n" << std::flush;
 	exit(0);
 }
 
-[[noreturn]] void parser_impl::print_v()
+[[noreturn]] void args_parser_impl::print_v()
 {
 	std::cout << "\n" << m_v << "\n\n" << std::flush;
 	exit(0);
 }
 
-[[noreturn]] void parser_impl::print_help()
+[[noreturn]] void args_parser_impl::print_help()
 {
 	std::cout << "\n";
 	if( not m_help_title.empty() )
@@ -161,7 +160,7 @@ void parser_impl::add(args_cache &cache, const rule &r, const description &d, co
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
 args_parser::args_parser(const std::string &help_title) :
-	m_impl(new parser_impl(help_title))
+	m_impl(new args_parser_impl(help_title))
 {
 
 }
@@ -429,7 +428,7 @@ arguments args_parser::parsing(int argc, const char *argv[])
 	return res;
 }
 
-}} //namespace gts::cmdline
+GTS_CMDLINE_NAMESPACE_END
 
 using namespace gts::cmdline;
 

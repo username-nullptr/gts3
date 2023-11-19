@@ -26,8 +26,8 @@
 *                                                                                   *
 *************************************************************************************/
 
-#ifndef PROCESS_P_H
-#define PROCESS_P_H
+#ifndef GTS_PROCESS_P_H
+#define GTS_PROCESS_P_H
 
 #include "process.h"
 #include "gts/log.h"
@@ -43,8 +43,7 @@
 # include <unistd.h>
 #endif
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 class GTS_DECL_HIDDEN process_impl
 {
@@ -89,6 +88,7 @@ public:
 #endif //os
 };
 
-} //namespace gts
+GTS_NAMESPACE_END
 
-#endif //PROCESS_P_H
+
+#endif //GTS_PROCESS_P_H

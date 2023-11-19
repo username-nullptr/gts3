@@ -33,8 +33,7 @@
 #include <rttr/variant.h>
 #include <unordered_map>
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 GTSCORE_API int8_t   stoi8  (const std::string &str, int base = 10);
 GTSCORE_API uint8_t  stoui8 (const std::string &str, int base = 10);
@@ -72,7 +71,7 @@ inline string_list str_split(const std::string &str, char splits, bool ignore_em
 GTSCORE_API std::string file_name(const std::string &file_name);
 GTSCORE_API std::string file_path(const std::string &file_name);
 
-} //namespace gts
+GTS_NAMESPACE_END
 
 
 #endif //GTS_ALGORITHM_H

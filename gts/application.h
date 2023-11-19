@@ -33,8 +33,7 @@
 #include <gts/formatter.h>
 #include <cppoptional>
 
-namespace gts { namespace app
-{
+GTS_APP_NAMESPACE_BEGIN
 
 GTSCORE_API std::string instance_name();
 
@@ -64,8 +63,7 @@ template <typename T, typename _U = enable_if_t<not gts_is_same(decay_t<T>, std:
 												not gts_is_same(T, char*), int>>
 bool setenv(const std::string &key, T &&value, bool overwrite = true);
 
-}} //namespace gts::app
-
+GTS_APP_NAMESPACE_END
 #include <gts/detail/application.h>
 
 #endif //GTS_APPLICATION_H

@@ -29,8 +29,7 @@
 #include "string_list.h"
 #include "algorithm.h"
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 std::vector<std::string> string_list::to_vector() const
 {
@@ -53,4 +52,4 @@ std::string string_list::join(const std::string &splits)
 	return str_list_join(*this, splits);
 }
 
-} //namespace gts
+GTS_NAMESPACE_END

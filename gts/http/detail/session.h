@@ -29,8 +29,7 @@
 #ifndef GTS_HTTP_DETAIL_SESSION_H
 #define GTS_HTTP_DETAIL_SESSION_H
 
-namespace gts { namespace http
-{
+GTS_HTTP_NAMESPACE_BEGIN
 
 template <class Sesn>
 std::shared_ptr<Sesn> make_session(const std::chrono::seconds &seconds)
@@ -73,7 +72,7 @@ std::shared_ptr<Sesn> session::get(const std::string &id) noexcept(false)
 	return dy_ptr;
 }
 
-}} //namespace gts::http
+GTS_HTTP_NAMESPACE_END
 
 
 #endif //GTS_HTTP_DETAIL_SESSION_H

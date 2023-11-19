@@ -32,8 +32,7 @@
 #include <gts/http/types.h>
 #include <gts/formatter.h>
 
-namespace gts { namespace http
-{
+GTS_HTTP_NAMESPACE_BEGIN
 
 class enum_formatter
 {
@@ -74,7 +73,7 @@ public:
 	}
 };
 
-}} //namespace gts::http
+GTS_HTTP_NAMESPACE_END
 
 namespace fmt
 {

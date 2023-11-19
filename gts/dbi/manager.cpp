@@ -31,8 +31,7 @@
 #include <cassert>
 #include <map>
 
-namespace gts { namespace dbi
-{
+GTS_DBI_NAMESPACE_BEGIN
 
 static std::map<std::string, driver*>  g_driver_map;
 
@@ -135,4 +134,4 @@ void manager::set_default_driver(const std::string &name)
 		g_default_driver = it->second;
 }
 
-}} //namespace gts::dbi
+GTS_DBI_NAMESPACE_END

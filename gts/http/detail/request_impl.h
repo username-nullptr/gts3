@@ -34,8 +34,7 @@
 #include "gts/http/session.h"
 #include "gts/tcp_socket.h"
 
-namespace gts { namespace http
-{
+GTS_HTTP_NAMESPACE_BEGIN
 
 class GTS_DECL_HIDDEN request_impl
 {
@@ -86,7 +85,7 @@ public:
 	std::string m_body;
 };
 
-}} //namespace gts::http
+GTS_HTTP_NAMESPACE_END
 
 
 #endif //GTS_HTTP_REQUEST_IMPL_H

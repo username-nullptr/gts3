@@ -33,8 +33,7 @@
 #include <cppoptional>
 #include <cstring>
 
-namespace gts { namespace dbi
-{
+GTS_DBI_NAMESPACE_BEGIN
 
 class GTS_DBI_API cell
 {
@@ -263,8 +262,7 @@ private:
 	cpp::optional<std::string> m_data;
 };
 
-}} //namespace gts::dbi
-
+GTS_DBI_NAMESPACE_END
 #include <gts/dbi/detail/cell.h>
 
 #endif //GTS_DBI_CELL_H

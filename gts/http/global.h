@@ -37,5 +37,13 @@
 # define GTS_HTTP_API  GTS_DECL_IMPORT
 #endif //gtshttp_EXPORTS
 
+#if GTS_CPLUSPLUS >= 201703L
+# define GTS_HTTP_NAMESPACE_BEGIN  namespace gts::http {
+# define GTS_HTTP_NAMESPACE_END    } //namespace gts::http
+#else //cpp17
+# define GTS_HTTP_NAMESPACE_BEGIN  namespace gts { namespace http {
+# define GTS_HTTP_NAMESPACE_END    }} //namespace gts::http
+#endif //cpp17
+
 
 #endif //GTS_HTTP_GLOBAL_H

@@ -35,8 +35,7 @@
 #include <signal.h>
 #include <sys/wait.h>
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 static std::map<pid_t, process*> g_process_map;
 //static std::mutex g_mutex;
@@ -384,6 +383,6 @@ void process_impl::signal_hander(int signo)
 		pre_signal_hander(signo);
 }
 
-} //namespace gts
+GTS_NAMESPACE_END
 
 #endif //__unix__

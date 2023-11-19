@@ -28,8 +28,7 @@
 
 #include "sha1.h"
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 class GTS_DECL_HIDDEN sha1_impl
 {
@@ -386,4 +385,4 @@ std::string sha1::base64() const
 	return _base64;
 }
 
-} //namespace gts
+GTS_NAMESPACE_END

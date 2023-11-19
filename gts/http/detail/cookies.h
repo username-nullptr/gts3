@@ -29,8 +29,7 @@
 #ifndef GTS_HTTP_DETAIL_COOKIES_H
 #define GTS_HTTP_DETAIL_COOKIES_H
 
-namespace gts { namespace http
-{
+GTS_HTTP_NAMESPACE_BEGIN
 
 template <typename...Args>
 cookie &cookie::set_attribute(std::string key, fmt::format_string<Args...> fmt_value, Args&&...args)
@@ -82,7 +81,7 @@ cookie cookie::from(T &&v)
 	return c;
 }
 
-}} //namespace gts::http
+GTS_HTTP_NAMESPACE_END
 
 
 #endif //GTS_HTTP_DETAIL_COOKIES_H

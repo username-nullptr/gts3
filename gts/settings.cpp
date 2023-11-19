@@ -29,8 +29,7 @@
 #include "settings.h"
 #include <cppfilesystem>
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 settings::settings(const std::string &file_name) :
 	m_file_name(file_name),
@@ -140,4 +139,4 @@ void settings::ini_file_check(const std::string &group, const ini_hash &sample)
 		_settings.flush(); //io
 }
 
-} //namespace gts
+GTS_NAMESPACE_END

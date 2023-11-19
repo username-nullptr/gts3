@@ -31,8 +31,7 @@
 
 #include <gts/global.h>
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 union GTSCORE_API uuid //version 4
 {
@@ -80,7 +79,7 @@ public:
 	_bytes;
 };
 
-} //namespace gts
+GTS_NAMESPACE_END
 
 
 #endif //GTS_UUID_H

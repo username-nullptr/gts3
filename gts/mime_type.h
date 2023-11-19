@@ -31,8 +31,7 @@
 
 #include <gts/global.h>
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 GTSCORE_API std::string get_mime_type(const std::string &file_name);
 
@@ -42,7 +41,7 @@ inline bool is_binary_file(const std::string &file_name) { return is_text_file(f
 
 GTSCORE_API std::string get_text_file_encoding(const std::string &file_name);
 
-} //namespace gts
+GTS_NAMESPACE_END
 
 
 #endif //GTS_MIME_TYPE_H

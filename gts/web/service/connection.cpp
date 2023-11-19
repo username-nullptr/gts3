@@ -27,13 +27,13 @@
 *************************************************************************************/
 
 #include "connection.h"
-#include "gts/web/config_key.h"
-#include "gts/settings.h"
+#include <gts/web/global.h>
+#include <gts/web/config_key.h>
+#include <gts/settings.h>
 
 using namespace std::chrono;
 
-namespace gts { namespace web
-{
+GTS_WEB_NAMESPACE_BEGIN
 
 static std::atomic_long g_counter {0};
 
@@ -204,5 +204,4 @@ void connection::time_out_destory(const asio::error_code &was_cancel)
 	cancel();
 }
 
-}} //namespace gts::web
-
+GTS_WEB_NAMESPACE_END

@@ -36,8 +36,7 @@
 
 namespace ssl = asio::ssl;
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 using ssl_stream = ssl::stream<tcp::socket>;
 
@@ -70,7 +69,7 @@ protected:
 	ssl_stream *m_ssl_sock;
 };
 
-} //namespace gts
+GTS_NAMESPACE_END
 
 #endif //ssl
 

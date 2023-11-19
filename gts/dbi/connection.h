@@ -32,8 +32,7 @@
 #include <gts/dbi/result_iterator.h>
 #include <gts/dbi/formatter.h>
 
-namespace gts { namespace dbi
-{
+GTS_DBI_NAMESPACE_BEGIN
 
 class driver;
 class connection_impl;
@@ -114,8 +113,7 @@ private:
 
 using connection_ptr = std::shared_ptr<connection>;
 
-}} //namespace gts::dbi
-
+GTS_DBI_NAMESPACE_END
 #include <gts/dbi/detail/connection.h>
 
 #endif //GTS_DBI_CONNECTION_H

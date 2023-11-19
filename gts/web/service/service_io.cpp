@@ -29,8 +29,7 @@
 #include "service_io.h"
 #include "gts/http/detail/request_impl.h"
 
-namespace gts { namespace web
-{
+GTS_WEB_NAMESPACE_BEGIN
 
 service_io::service_io(http::service_context &context) :
 	context(context), socket(context.socket())
@@ -73,4 +72,4 @@ http::response &service_io::response()
 	return context.response();
 }
 
-}} //namespace gts::web
+GTS_WEB_NAMESPACE_END

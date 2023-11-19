@@ -33,8 +33,7 @@
 #include <gts/http/session.h>
 #include <gts/flags.h>
 
-namespace gts { namespace http
-{
+GTS_HTTP_NAMESPACE_BEGIN
 
 enum status
 {
@@ -182,7 +181,7 @@ using headers = http::map<value, http::less_case_insensitive>;
 using parameter  = http::pair<value>;
 using parameters = http::unordered_map<value>;
 
-}} //namespace gts::http
+GTS_HTTP_NAMESPACE_END
 
 
 #endif //GTS_HTTP_TYPES_H

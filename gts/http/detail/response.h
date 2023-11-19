@@ -29,8 +29,7 @@
 #ifndef GTS_HTTP_DETAIL_RESPONSE_H
 #define GTS_HTTP_DETAIL_RESPONSE_H
 
-namespace gts { namespace http
-{
+GTS_HTTP_NAMESPACE_BEGIN
 
 template <typename...Args>
 response &response::set_header(std::string key, fmt::format_string<Args...> value_fmt, Args&&...args) {
@@ -103,7 +102,7 @@ inline response &response::write_file(const std::string &file_name, std::size_t 
 	return write_file(file_name, range_vector{{begin, end}});
 }
 
-}} //namespace gts { namespace http
+GTS_HTTP_NAMESPACE_END
 
 
 #endif //GTS_HTTP_DETAIL_RESPONSE_H

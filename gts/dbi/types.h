@@ -33,8 +33,7 @@
 #include <vector>
 #include <map>
 
-namespace gts { namespace dbi
-{
+GTS_DBI_NAMESPACE_BEGIN
 
 struct connect_info
 {
@@ -67,7 +66,7 @@ public:
 
 using table_data = std::vector<row_vector>;
 
-}} //namespace gts::dbi
+GTS_DBI_NAMESPACE_END
 
 
 #endif //GTS_DBI_TYPES_H

@@ -26,15 +26,14 @@
 *                                                                                   *
 *************************************************************************************/
 
-#ifndef SERVICE_IO_H
-#define SERVICE_IO_H
+#ifndef GTS_WEB_SERVICE_IO_H
+#define GTS_WEB_SERVICE_IO_H
 
-#include "gts/web/global.h"
-#include "gts/http/service_context.h"
-#include "gts/tcp_socket.h"
+#include <gts/web/global.h>
+#include <gts/http/service_context.h>
+#include <gts/tcp_socket.h>
 
-namespace gts { namespace web
-{
+GTS_WEB_NAMESPACE_BEGIN
 
 class GTS_DECL_HIDDEN service_io
 {
@@ -54,7 +53,7 @@ public:
 	tcp_socket &socket;
 };
 
-}} //namespace gts::web
+GTS_WEB_NAMESPACE_END
 
 
-#endif //SERVICE_IO_H
+#endif //GTS_WEB_SERVICE_IO_H

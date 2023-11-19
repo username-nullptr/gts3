@@ -28,8 +28,7 @@
 
 #include "cookies.h"
 
-namespace gts { namespace http
-{
+GTS_HTTP_NAMESPACE_BEGIN
 
 cookie::cookie()
 {
@@ -181,4 +180,4 @@ cookie &cookie::unset_attribute(const std::string &key)
 	return *this;
 }
 
-}} //namespace gts::http
+GTS_HTTP_NAMESPACE_END

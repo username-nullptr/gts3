@@ -43,8 +43,7 @@
 # include "gts/gts_config_key.h"
 #endif //ssl
 
-namespace gts { namespace web
-{
+GTS_WEB_NAMESPACE_BEGIN
 
 cgi_service::cgi_service(service_io &sio) :
 	m_sio(sio), m_cgi(io_context(), sio.url_name)
@@ -275,4 +274,4 @@ std::string cgi_service::replace_http_to_env(const std::string &str)
 	return result;
 }
 
-}} //namespace gts::web
+GTS_WEB_NAMESPACE_END

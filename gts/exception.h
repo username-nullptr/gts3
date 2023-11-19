@@ -33,8 +33,7 @@
 #include <gts/formatter.h>
 #include <exception>
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 class basic_exception : public std::exception {};
 
@@ -74,8 +73,7 @@ public:
 	}
 };
 
-} //namespace fmt
-
+GTS_NAMESPACE_END
 #include <gts/detail/exception.h>
 
 #endif //GTS_EXCEPTION_H

@@ -34,8 +34,7 @@
 #include <unordered_map>
 #include <map>
 
-namespace gts { namespace http
-{
+GTS_HTTP_NAMESPACE_BEGIN
 
 template <typename T = gts::value, GTS_TYPE_ENABLE_IF(gts_is_base_of(gts::value, T), int)>
 using pair = std::pair<std::string, T>;
@@ -163,8 +162,7 @@ public:
 	const V &operator[](const std::string &key) const;
 };
 
-}} //namespace gts::http
-
+GTS_HTTP_NAMESPACE_END
 #include <gts/http/detail/container.h>
 
 #endif //GTS_HTTP_CONTAINER_H

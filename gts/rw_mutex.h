@@ -36,8 +36,7 @@
 #include <atomic>
 #include <mutex>
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 template <typename Mutex>
 class GTSCORE_API basic_rw_mutex
@@ -79,8 +78,7 @@ private:
 
 using shared_lock = basic_shared_lock<std::mutex>;
 
-} //namespace gts
-
+GTS_NAMESPACE_END
 #include <gts/detail/rw_mutex.h>
 
 #endif //GTS_RW_MUTEX_H

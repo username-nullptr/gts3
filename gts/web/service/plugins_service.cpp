@@ -33,10 +33,8 @@
 #include <nlohmann/json.hpp>
 #include <rttr/library.h>
 #include <cppfilesystem>
-#include <iostream>
 
-namespace gts { namespace web
-{
+GTS_WEB_NAMESPACE_BEGIN
 
 using njson = nlohmann::json;
 
@@ -242,4 +240,4 @@ registration::service *plugins_service::find_filter(const std::string &url)
 	return nullptr;
 }
 
-}} //namespace gts::web
+GTS_WEB_NAMESPACE_END

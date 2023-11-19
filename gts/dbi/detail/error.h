@@ -29,8 +29,7 @@
 #ifndef GTS_DBI_DETAIL_ERROR_H
 #define GTS_DBI_DETAIL_ERROR_H
 
-namespace gts { namespace dbi
-{
+GTS_DBI_NAMESPACE_BEGIN
 
 inline error_code::error_code(int value, std::string message) :
 	m_value(value), m_message(std::move(message))
@@ -119,7 +118,7 @@ inline exception::exception(exception &&other) noexcept
 
 #endif
 
-}} //namespace gts::dbi
+GTS_DBI_NAMESPACE_END
 
 
 #endif //GTS_DBI_DETAIL_ERROR_H

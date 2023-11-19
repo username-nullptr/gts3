@@ -29,8 +29,7 @@
 #ifndef GTS_DBI_DETAIL_CONNECTION_H
 #define GTS_DBI_DETAIL_CONNECTION_H
 
-namespace gts { namespace dbi
-{
+GTS_DBI_NAMESPACE_BEGIN
 
 inline void connection::connect(const connect_info &info) noexcept(false)
 {
@@ -140,7 +139,7 @@ inline void connection::set_auto_commit(bool enable) noexcept(false)
 		throw exception(error);
 }
 
-}} //namespace gts::dbi
+GTS_DBI_NAMESPACE_END
 
 
 #endif //GTS_DBI_DETAIL_CONNECTION_H

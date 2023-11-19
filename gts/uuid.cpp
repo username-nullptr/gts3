@@ -31,8 +31,7 @@
 #include <cstdio>
 #include <cinttypes>
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 uuid::uuid(const std::string &uuid)
 {
@@ -121,4 +120,4 @@ std::string uuid::to_string(bool parcel) const
 	return buffer;
 }
 
-} //namespace gts
+GTS_NAMESPACE_END

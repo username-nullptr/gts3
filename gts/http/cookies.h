@@ -31,8 +31,7 @@
 
 #include <gts/http/container.h>
 
-namespace gts { namespace http
-{
+GTS_HTTP_NAMESPACE_BEGIN
 
 using cookie_attribute  = http::pair<gts::value>;
 using cookie_attributes = http::map<gts::value, less_case_insensitive>;
@@ -121,8 +120,7 @@ using basic_cookies = http::unordered_map<value>;
 using cookie_pair = http::pair<cookie>;
 using cookies = http::unordered_map<cookie>;
 
-}} //namespace gts::http
-
+GTS_HTTP_NAMESPACE_END
 #include <gts/http/detail/cookies.h>
 
 #endif //GTS_HTTP_COOKIES_H

@@ -26,8 +26,8 @@
 *                                                                                   *
 *************************************************************************************/
 
-#ifndef PROCESS_H
-#define PROCESS_H
+#ifndef GTS_PROCESS_H
+#define GTS_PROCESS_H
 
 #include "gts/string_list.h"
 #include <unordered_map>
@@ -35,8 +35,7 @@
 #include <cppformat>
 #include <asio.hpp>
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 #define _GTS_PROCESS_NOT_STRING \
 	template <typename T> \
@@ -120,7 +119,7 @@ process::ns_type<T> &process::add_env(const std::string &key, T &&value) {
 	return add_env(key, fmt::format("{}", std::forward<T>(value)));
 }
 
-} //namespace gts
+GTS_NAMESPACE_END
 
 
-#endif //PROCESS_H
+#endif //GTS_PROCESS_H

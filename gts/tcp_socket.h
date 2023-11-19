@@ -34,8 +34,7 @@
 
 using namespace asio::ip;
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 class GTSCORE_API tcp_socket
 {
@@ -143,8 +142,7 @@ protected:
 
 using tcp_socket_ptr = std::shared_ptr<tcp_socket>;
 
-} //namespace gts
-
+GTS_NAMESPACE_END
 #include <gts/detail/tcp_socket.h>
 
 #endif //GTS_TCP_SOCKET_H

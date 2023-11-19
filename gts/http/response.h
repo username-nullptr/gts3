@@ -33,8 +33,7 @@
 #include <gts/tcp_socket.h>
 #include <functional>
 
-namespace gts { namespace http
-{
+GTS_HTTP_NAMESPACE_BEGIN
 
 class request;
 class response_impl;
@@ -173,8 +172,7 @@ private:
 	response_impl *m_impl;
 };
 
-}} //namespace gts::http
-
+GTS_HTTP_NAMESPACE_END
 #include <gts/http/detail/response.h>
 
 #endif //GTS_HTTP_RESPONSE_H

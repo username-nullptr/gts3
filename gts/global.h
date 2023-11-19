@@ -35,8 +35,23 @@
 #include <asio.hpp>
 #include <vector>
 
-namespace gts
-{
+#if GTS_CPLUSPLUS >= 201703L
+# define GTS_APP_NAMESPACE_BEGIN  namespace gts::app {
+# define GTS_APP_NAMESPACE_END    } //namespace gts::app
+# define GTS_CMDLINE_NAMESPACE_BEGIN  namespace gts::cmdline {
+# define GTS_CMDLINE_NAMESPACE_END    } //namespace gts::cmdline
+# define GTS_EXTENSION_NAMESPACE_BEGIN  namespace gts::extension {
+# define GTS_EXTENSION_NAMESPACE_END    } //namespace gts::extension
+#else //cpp17
+# define GTS_APP_NAMESPACE_BEGIN  namespace gts { namespace app {
+# define GTS_APP_NAMESPACE_END    }} //namespace gts::app
+# define GTS_CMDLINE_NAMESPACE_BEGIN  namespace gts { namespace cmdline {
+# define GTS_CMDLINE_NAMESPACE_END    }} //namespace gts::cmdline
+# define GTS_EXTENSION_NAMESPACE_BEGIN  namespace gts { namespace extension {
+# define GTS_EXTENSION_NAMESPACE_END    }} //namespace gts::extension
+#endif //cpp17
+
+GTS_NAMESPACE_BEGIN
 
 #ifdef _MSC_VER
 
@@ -118,7 +133,7 @@ typedef std::map<std::string, site_info>  site_info_map;
 
 GTSCORE_API site_info_map get_site_infos();
 
-} //namespace gts
+GTS_NAMESPACE_END
 
 
 #endif //GTS_GLOBAL_H

@@ -37,12 +37,21 @@
 # define GTS_WEB_API  GTS_DECL_IMPORT
 #endif //gtsweb_EXPORTS
 
-namespace gts { namespace web
-{
+#if GTS_CPLUSPLUS >= 201703L
+# define GTS_WEB_NAMESPACE_BEGIN  namespace gts::web {
+# define GTS_WEB_NAMESPACE_END    } //namespace gts::web
+# define GTS_WEB_SOCKET_PROTOCOL_NAMESPACE_BEGIN  namespace gts::web::socket_protocol {
+# define GTS_WEB_SOCKET_PROTOCOL_NAMESPACE_END    } //namespace gts::web::socket_protocol
+#else //cpp17
+# define GTS_WEB_NAMESPACE_BEGIN  namespace gts { namespace web {
+# define GTS_WEB_NAMESPACE_END    }} //namespace gts::web
+# define GTS_WEB_SOCKET_PROTOCOL_NAMESPACE_BEGIN  namespace gts { namespace web { socket_protocol {
+# define GTS_WEB_SOCKET_PROTOCOL_NAMESPACE_END    }}} //namespace gts::web::socket_protocol
+#endif //cpp17
 
+GTS_WEB_NAMESPACE_BEGIN
 GTS_WEB_API std::string resource_root();
-
-}} //namespace gts::web
+GTS_WEB_NAMESPACE_END
 
 
 #endif //GTS_WEB_GLOBAL_H

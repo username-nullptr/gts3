@@ -34,8 +34,7 @@
 #include <chrono>
 #include <cstdio>
 
-namespace gts
-{
+GTS_NAMESPACE_BEGIN
 
 class logger;
 
@@ -97,8 +96,7 @@ private:
 	friend class logger;
 };
 
-} //namespace gts
-
+GTS_NAMESPACE_END
 #include <gts/detail/log_buffer.h>
 
 #endif //GTS_LOG_BUFFER_H
