@@ -59,7 +59,7 @@ public:
 	~applictaion_impl();
 
 private:
-	void set_config_file(const cmdline::args_parser::arguments &args_hash);
+	static void set_config_file(const cmdline::args_parser::arguments &args_hash);
 
 public:
 	string_list m_args;
@@ -85,7 +85,7 @@ applictaion_impl::applictaion_impl(int argc, const char *argv[])
 	: m_sigs(gts::io_context(), SIGINT, SIGTERM, SIGPIPE)
 #endif //__unix__
 {
-	if( app::set_current_directory(app::dir_path()) == false )
+	if( not app::set_current_directory(app::dir_path()) )
 		gts_log_fatal("set_current_directory failed: {}. ({})", strerror(errno), errno);
 
 	cmdline::args_parser::arguments args_hash = cmdline::startup(argc, argv);

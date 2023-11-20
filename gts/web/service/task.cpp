@@ -153,14 +153,14 @@ void task::cancel()
 	m_call_back = nullptr;
 }
 
-static void _GET    (service_io &sio);
-static void _POST   (service_io &sio);
-static void _PUT    (service_io &sio);
-static void _HEAD   (service_io &sio);
-static void _DELETE (service_io &sio);
-static void _OPTIONS(service_io &sio);
-static void _CONNECT(service_io &sio);
-static void _TRACH  (service_io &sio);
+static void CALL_GET    (service_io &sio);
+static void CALL_POST   (service_io &sio);
+static void CALL_PUT    (service_io &sio);
+static void CALL_HEAD   (service_io &sio);
+static void CALL_DELETE (service_io &sio);
+static void CALL_OPTIONS(service_io &sio);
+static void CALL_CONNECT(service_io &sio);
+static void CALL_TRACH  (service_io &sio);
 
 void task::run()
 {
@@ -169,21 +169,21 @@ void task::run()
 
 	gts_log_debug("URL: '{}' ({:s})", m_context->request().path(), method);
 
-	if(      method == http::GET     ) _GET    (sio);
-	else if( method == http::POST    ) _POST   (sio);
-	else if( method == http::HEAD    ) _HEAD   (sio);
-	else if( method == http::PUT     ) _PUT    (sio);
-	else if( method == http::DELETE  ) _DELETE (sio);
-	else if( method == http::OPTIONS ) _OPTIONS(sio);
-	else if( method == http::CONNECT ) _CONNECT(sio);
-	else if( method == http::TRACH   ) _TRACH  (sio);
+	if(      method == http::GET     ) CALL_GET    (sio);
+	else if( method == http::POST    ) CALL_POST   (sio);
+	else if( method == http::HEAD    ) CALL_HEAD   (sio);
+	else if( method == http::PUT     ) CALL_PUT    (sio);
+	else if( method == http::DELETE  ) CALL_DELETE (sio);
+	else if( method == http::OPTIONS ) CALL_OPTIONS(sio);
+	else if( method == http::CONNECT ) CALL_CONNECT(sio);
+	else if( method == http::TRACH   ) CALL_TRACH  (sio);
 
 	else sio.response().write_default(http::hs_bad_request);
 	if( not m_context->request().keep_alive() )
 		m_socket->close(true);
 }
 
-#define _TASK_DO_PARSING(sio) \
+#define TASK_DO_PARSING(sio) \
 ({ \
 	sio.url_name = sio.request().path(); \
 	if( sio.url_name.empty() ) \
@@ -191,7 +191,7 @@ void task::run()
 	auto ps = std::make_shared<plugins_service>(sio); \
 	if( ps->call() ) \
 		return ; \
-	auto pos = sio.url_name.find("/",1); \
+	auto pos = sio.url_name.find('/',1); \
 	if( pos != std::string::npos ) { \
 		auto prefix = sio.url_name.substr(0,pos); \
 		if( prefix == g_cgi_access ) { \
@@ -209,9 +209,9 @@ void task::run()
 	ps; \
 })
 
-static void _GET(service_io &sio)
+static void CALL_GET(service_io &sio)
 {
-	auto ps = _TASK_DO_PARSING(sio);
+	auto _ps = TASK_DO_PARSING(sio);
 	if( sio.url_name == "/" )
 		sio.url_name = g_default_resource;
 	sio.url_name = resource_root() + sio.url_name;
@@ -219,23 +219,23 @@ static void _GET(service_io &sio)
 	if( fs::is_directory(sio.url_name) )
 		return sio.return_to_null(http::hs_not_found);
 
-	if( ps->call_filter() == false )
+	if( not _ps->call_filter() )
 		sio.response().write_file(sio.url_name);
 }
 
-static void _POST(service_io &sio)
+static void CALL_POST(service_io &sio)
 {
-	_TASK_DO_PARSING(sio);
+	TASK_DO_PARSING(sio);
 	sio.return_to_null(http::hs_not_implemented);
 }
 
-static void _PUT(service_io &sio)
+static void CALL_PUT(service_io &sio)
 {
-	_TASK_DO_PARSING(sio);
+	TASK_DO_PARSING(sio);
 	sio.return_to_null(http::hs_not_implemented);
 }
 
-static void _HEAD(service_io &sio)
+static void CALL_HEAD(service_io &sio)
 {
 	sio.url_name = sio.request().path();
 	if( sio.url_name.empty() )
@@ -244,7 +244,7 @@ static void _HEAD(service_io &sio)
 	if( plugins_service(sio).exists() )
 		return sio.return_to_null();
 
-	auto pos = sio.url_name.find("/",1);
+	auto pos = sio.url_name.find('/',1);
 	if( pos != std::string::npos )
 	{
 		auto prefix = sio.url_name.substr(0,pos);
@@ -260,21 +260,21 @@ static void _HEAD(service_io &sio)
 		sio.return_to_null();
 }
 
-static void _DELETE(service_io &sio)
+static void CALL_DELETE(service_io &sio)
 {
-	_TASK_DO_PARSING(sio);
+	TASK_DO_PARSING(sio);
 	sio.return_to_null(http::hs_not_implemented);
 }
 
-static void _OPTIONS(service_io &sio) {
+static void CALL_OPTIONS(service_io &sio) {
 	sio.return_to_null(http::hs_service_unavailable);
 }
 
-static void _CONNECT(service_io &sio) {
+static void CALL_CONNECT(service_io &sio) {
 	sio.return_to_null(http::hs_service_unavailable);
 }
 
-static void _TRACH(service_io &sio) {
+static void CALL_TRACH(service_io &sio) {
 	sio.return_to_null(http::hs_service_unavailable);
 }
 

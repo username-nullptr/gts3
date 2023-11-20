@@ -80,12 +80,12 @@ public:
 	bool wait_readable(const duration &ms) noexcept;
 
 public:
-	tcp::endpoint remote_endpoint(asio::error_code &error) noexcept;
-	tcp::endpoint remote_endpoint() noexcept;
+	GTS_CXX_NODISCARD("") tcp::endpoint remote_endpoint(asio::error_code &error) noexcept;
+	GTS_CXX_NODISCARD("") tcp::endpoint remote_endpoint() noexcept;
 
 public:
-	tcp::endpoint local_endpoint(asio::error_code &error) noexcept;
-	tcp::endpoint local_endpoint() noexcept;
+	GTS_CXX_NODISCARD("") tcp::endpoint local_endpoint(asio::error_code &error) noexcept;
+	GTS_CXX_NODISCARD("") tcp::endpoint local_endpoint() noexcept;
 
 public:
 	GTS_CXX_NODISCARD("") bool is_open() const;

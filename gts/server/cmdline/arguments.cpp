@@ -82,7 +82,7 @@ args_parser::arguments argument_check(int argc, const char *argv[], string_list 
 
 			.parsing(argc, argv, others);
 
-	if( not others.empty() and plugin_call_handle::extension::args_parsing(others) == false )
+	if( not others.empty() and not plugin_call_handle::extension::args_parsing(others) )
 	{
 		std::cerr << "Invalid arguments." << std::endl;
 		exit(-1);

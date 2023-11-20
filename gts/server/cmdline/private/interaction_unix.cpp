@@ -54,15 +54,16 @@ public:
 	void close();
 
 public:
+	GTS_CXX_NODISCARD("")
 	bool is_open() const;
 
 public:
-	int read(char *buf, int len, int timeout);
-	int write(const char *buf, int len, int timeout);
+	ssize_t read(char *buf, ssize_t len, int timeout);
+	ssize_t write(const char *buf, ssize_t len, int timeout);
 
 public:
-	void async_read(char *buf, int len, std::function<void(int len)> call_back);
-	void async_write(char *buf, int len, std::function<void(int len)> call_back);
+	void async_read(char *buf, ssize_t len, std::function<void(ssize_t)> call_back);
+	void async_write(char *buf, ssize_t len, std::function<void(ssize_t)> call_back);
 	void cancel();
 
 private:
@@ -101,8 +102,7 @@ bool pipe_ope::open()
 {
 	if( is_open() )
 		return true;
-
-	for(int i=0; i<2; i++)
+	for(int i : {0,1})
 	{
 		if( not fs::exists(m_file_names[i]) and mkfifo(m_file_names[i].c_str(), 0644) < 0 )
 		{
@@ -110,14 +110,12 @@ bool pipe_ope::open()
 			return false;
 		}
 	}
-
 	m_pipe[0] = ::open(m_file_names[0].c_str(), O_RDWR);
 	if( m_pipe[0] < 0 )
 	{
 		gts_log_error("pipe '{}' open failed: {}.", m_file_names[0], strerror(errno));
 		return false;
 	}
-
 	m_pipe[1] = ::open(m_file_names[1].c_str(), O_RDWR);
 	if( m_pipe[1] < 0 )
 	{
@@ -125,7 +123,6 @@ bool pipe_ope::open()
 		::close(m_pipe[0]);
 		return false;
 	}
-
 	else if( q_ptr->m_is_server )
 	{
 		m_write_pipe = new descriptor(gts::io_context(), m_pipe[1]);
@@ -143,7 +140,6 @@ void pipe_ope::close()
 {
 	if( not is_open() )
 		return ;
-
 	cancel();
 	if( m_reading )
 	{
@@ -151,9 +147,11 @@ void pipe_ope::close()
 		m_read_pipe->non_blocking(false, error);
 		m_read_pipe->write_some(asio::buffer("__c", 3), error);
 	}
+	delete m_write_pipe;
+	m_write_pipe = nullptr;
 
-	delete m_write_pipe; m_write_pipe = nullptr;
-	delete m_read_pipe; m_read_pipe = nullptr;
+	delete m_read_pipe;
+	m_read_pipe = nullptr;
 
 	m_pipe[0] = -1;
 	m_pipe[1] = -1;
@@ -167,7 +165,7 @@ bool pipe_ope::is_open() const
 	return m_pipe[0] != -1;
 }
 
-int pipe_ope::read(char *buf, int len, int timeout)
+ssize_t pipe_ope::read(char *buf, ssize_t len, int timeout)
 {
 	GTS_UNUSED(timeout);
 	if( not is_open() )
@@ -175,7 +173,6 @@ int pipe_ope::read(char *buf, int len, int timeout)
 		gts_log_error("pipe not open.");
 		return -1;
 	}
-
 	assert(buf);
 	if( len < 0 )
 		return -1;
@@ -185,10 +182,10 @@ int pipe_ope::read(char *buf, int len, int timeout)
 	m_reading = true;
 	m_read_pipe->non_blocking(true);
 
-	struct pollfd fds;
+	struct pollfd fds {0};
 	fds.events = POLLIN;
 	fds.fd = m_read_pipe->native_handle();
-	int res = poll(&fds, 1, timeout);
+	long res = poll(&fds, 1, timeout);
 
 	if( res == 0 )
 		return 0;
@@ -200,7 +197,6 @@ int pipe_ope::read(char *buf, int len, int timeout)
 		gts_log_error("read: poll error: {}", strerror(errno));
 		return res;
 	}
-
 	res = ::read(fds.fd, buf, len);
 	m_reading = false;
 
@@ -217,7 +213,7 @@ int pipe_ope::read(char *buf, int len, int timeout)
 	return res;
 }
 
-int pipe_ope::write(const char *buf, int len, int timeout)
+ssize_t pipe_ope::write(const char *buf, ssize_t len, int timeout)
 {
 	GTS_UNUSED(timeout);
 	if( not is_open() )
@@ -225,19 +221,17 @@ int pipe_ope::write(const char *buf, int len, int timeout)
 		gts_log_error("pipe not open.");
 		return -1;
 	}
-
 	assert(buf);
 	if( len < 0 )
 		return -1;
 	else if( len == 0 )
 		return 0;
-
 	m_write_pipe->non_blocking(true);
 
-	struct pollfd fds;
+	struct pollfd fds {0};
 	fds.events = POLLOUT;
 	fds.fd = m_write_pipe->native_handle();
-	int res = poll(&fds, 1, timeout);
+	long res = poll(&fds, 1, timeout);
 
 	if( res == 0 )
 		return 0;
@@ -249,14 +243,13 @@ int pipe_ope::write(const char *buf, int len, int timeout)
 		gts_log_error("write: poll error: {}", strerror(errno));
 		return res;
 	}
-
 	res = ::write(fds.fd, buf, len);
 	if( res < len )
 		gts_log_error("write: {}.", strerror(errno));
 	return res;
 }
 
-void pipe_ope::async_read(char *buf, int len, std::function<void(int)> call_back)
+void pipe_ope::async_read(char *buf, ssize_t len, std::function<void(ssize_t)> call_back)
 {
 	if( not is_open() )
 	{
@@ -266,15 +259,14 @@ void pipe_ope::async_read(char *buf, int len, std::function<void(int)> call_back
 		});
 		return ;
 	}
-
 	assert(buf);
 	if( len < 0 )
 		return call_back(-1);
 	else if( len == 0 )
 		return call_back(0);
 
-	m_read_pipe->async_read_some
-			(asio::buffer(buf, len), [call_back](const asio::error_code &error, std::size_t size)
+	m_read_pipe->async_read_some(asio::buffer(buf, len),
+	[call_back](const asio::error_code &error, std::size_t size)
 	{
 		if( error )
 		{
@@ -287,11 +279,11 @@ void pipe_ope::async_read(char *buf, int len, std::function<void(int)> call_back
 			}
 		}
 		else
-			call_back(size);
+			call_back(static_cast<ssize_t>(size));
 	});
 }
 
-void pipe_ope::async_write(char *buf, int len, std::function<void(int)> call_back)
+void pipe_ope::async_write(char *buf, ssize_t len, std::function<void(ssize_t)> call_back)
 {
 	if( not is_open() )
 	{
@@ -301,15 +293,14 @@ void pipe_ope::async_write(char *buf, int len, std::function<void(int)> call_bac
 		});
 		return ;
 	}
-
 	assert(buf);
 	if( len < 0 )
 		return call_back(-1);
 	else if( len == 0 )
 		return call_back(0);
 
-	m_write_pipe->async_write_some
-			(asio::buffer(buf, len), [call_back](const asio::error_code &error, std::size_t size)
+	m_write_pipe->async_write_some(asio::buffer(buf, len),
+	[call_back](const asio::error_code &error, std::size_t size)
 	{
 		if( error )
 		{
@@ -322,7 +313,7 @@ void pipe_ope::async_write(char *buf, int len, std::function<void(int)> call_bac
 			}
 		}
 		else
-			call_back(size);
+			call_back(static_cast<ssize_t>(size));
 	});
 }
 
@@ -364,22 +355,22 @@ bool interaction::is_open() const
 	return d_ptr->m_ope->is_open();
 }
 
-int interaction::read(char *buf, int len, int timeout)
+ssize_t interaction::read(char *buf, ssize_t len, int timeout)
 {
 	return d_ptr->m_ope->read(buf, len, timeout);
 }
 
-int interaction::write(const char *buf, int len, int timeout)
+ssize_t interaction::write(const char *buf, ssize_t len, int timeout)
 {
 	return d_ptr->m_ope->write(buf, len, timeout);
 }
 
-void interaction::async_read(char *buf, int len, std::function<void(int)> call_back)
+void interaction::async_read(char *buf, ssize_t len, std::function<void(ssize_t)> call_back)
 {
 	d_ptr->m_ope->async_read(buf, len, std::move(call_back));
 }
 
-void interaction::async_write(char *buf, int len, std::function<void(int)> call_back)
+void interaction::async_write(char *buf, ssize_t len, std::function<void(ssize_t)> call_back)
 {
 	d_ptr->m_ope->async_write(buf, len, std::move(call_back));
 }

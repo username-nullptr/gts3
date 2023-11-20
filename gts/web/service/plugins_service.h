@@ -40,17 +40,16 @@ class GTS_DECL_HIDDEN plugins_service
 	GTS_DISABLE_COPY_MOVE(plugins_service)
 
 public:
-	plugins_service(service_io &sio);
-	bool exists();
+	explicit plugins_service(service_io &sio);
+	GTS_CXX_NODISCARD("") bool exists();
 
 public:
-	bool call();
-	bool call_filter();
+	GTS_CXX_NODISCARD("") bool call();
+	GTS_CXX_NODISCARD("") bool call_filter();
 
 private:
 	registration::service_array *check();
-	rttr::variant method_call(rttr::method &method, rttr::instance obj, const rttr::type &p1_type);
-	registration::service *find_filter(const std::string &url);
+	rttr::variant method_call(rttr::method &method, const rttr::instance &obj, const rttr::type &p1_type);
 
 private:
 	service_io &m_sio;

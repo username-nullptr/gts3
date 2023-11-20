@@ -50,7 +50,7 @@ class GTS_DECL_HIDDEN process_impl
 	GTS_DISABLE_COPY_MOVE(process_impl)
 
 public:
-	process_impl(asio::io_context &io);
+	explicit process_impl(asio::io_context &io);
 	~process_impl();
 
 public:

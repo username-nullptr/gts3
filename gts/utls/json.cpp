@@ -61,7 +61,7 @@ static rttr::variant extract_basic_types(const rttr::type &type, const njson &js
 
 		else if( type == GTS_RTTR_TYPE(int) )
 			return json_value.get<int>();
-		else if( type == GTS_RTTR_TYPE(unsigned int) )
+		else if( type == GTS_RTTR_TYPE(unsigned int) or type == GTS_RTTR_TYPE(float) or type == GTS_RTTR_TYPE(double) or type == GTS_RTTR_TYPE(long double) )
 			return json_value.get<unsigned int>();
 
 		else if( type == GTS_RTTR_TYPE(long) )
@@ -74,8 +74,6 @@ static rttr::variant extract_basic_types(const rttr::type &type, const njson &js
 		else if( type == GTS_RTTR_TYPE(unsigned long long) )
 			return json_value.get<unsigned long long>();
 
-		else if( type == GTS_RTTR_TYPE(float) or type == GTS_RTTR_TYPE(double) or type == GTS_RTTR_TYPE(long double) )
-			return json_value.get<uint32_t>();
 		throw type_error::create(1, fmt::format("字段类型下匹 (Json:'arithmetic', Struct:'{}'", type.get_name()), nullptr);
 	}
 	else if( json_value.type() == njson_type::number_float )
@@ -117,8 +115,8 @@ static void write_associative_view_recursively(rttr::variant_associative_view &v
 
 		if( value_type.is_valid() )
 		{
-			auto key_json = json_index_value["key"];
-			auto value_json = json_index_value["value"];
+			auto &key_json = json_index_value["key"];
+			auto &value_json = json_index_value["value"];
 
 			auto key_var = extract_value(key_json, key_type);
 			auto value_var = extract_value(value_json, value_type);
@@ -163,7 +161,7 @@ static void write_array_recursively(rttr::variant_sequential_view &view, const n
 	}
 }
 
-void from_json_recursively(rttr::instance obj2, const njson &json_object)
+void from_json_recursively(const rttr::instance &obj2, const njson &json_object)
 {
 	auto obj = obj2.get_type().get_raw_type().is_wrapper() ? obj2.get_wrapped_instance() : obj2;
 	const auto prop_list = obj.get_derived_type().get_properties();
@@ -401,7 +399,7 @@ static void write_variant(njson &json_object, rttr::string_view name, const rttr
 	throw type_error::create(1, fmt::format("无效的字段类型:'{}'", value_type.get_name()), nullptr);
 }
 
-void to_json_recursively(const rttr::instance obj2, njson &json_object)
+void to_json_recursively(const rttr::instance &obj2, njson &json_object)
 {
 	auto obj = obj2.get_type().get_raw_type().is_wrapper() ? obj2.get_wrapped_instance() : obj2;
 	auto prop_list = obj.get_derived_type().get_properties();

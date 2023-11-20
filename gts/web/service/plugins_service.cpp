@@ -27,16 +27,12 @@
 *************************************************************************************/
 
 #include "plugins_service.h"
-#include "gts/private/app_info.h"
 #include "service_io.h"
 
-#include <nlohmann/json.hpp>
 #include <rttr/library.h>
 #include <cppfilesystem>
 
 GTS_WEB_NAMESPACE_BEGIN
-
-using njson = nlohmann::json;
 
 plugins_service::plugins_service(service_io &sio) :
 	m_sio(sio)
@@ -70,7 +66,7 @@ bool plugins_service::call()
 	auto it = headers.find(http::header::connection);
 	if( it != headers.end() and str_to_lower(it->second) == "upgrade" )
 	{
-		auto it = headers.find(http::header::upgrade);
+		it = headers.find(http::header::upgrade);
 		if( it != headers.end() and str_to_lower(it->second) == "websocket" )
 			p1_type = GTS_RTTR_TYPE(web::socket_ptr);
 	}
@@ -143,7 +139,7 @@ static environments make_envs(service_io &sio)
 	};
 }
 
-rttr::variant plugins_service::method_call(rttr::method &method, rttr::instance obj, const rttr::type &p1_type)
+rttr::variant plugins_service::method_call(rttr::method &method, const rttr::instance &obj, const rttr::type &p1_type)
 {
 	auto para_array = method.get_parameter_infos();
 	if( para_array.size() == 1 )
@@ -159,7 +155,7 @@ rttr::variant plugins_service::method_call(rttr::method &method, rttr::instance 
 			{
 				try {
 					auto socket = make_websocket_ptr(m_sio.request(), m_sio.response());
-					return method.invoke(obj, std::move(socket));
+					return method.invoke(obj, socket);
 				}
 				catch(...){
 					return {};
@@ -223,21 +219,6 @@ rttr::variant plugins_service::method_call(rttr::method &method, rttr::instance 
 	}
 	gts_log_fatal("*** Code bug !!! : service function type error !!!");
 	return {};
-}
-
-registration::service *plugins_service::find_filter(const std::string &url)
-{
-	auto it = registration::g_filter_path_map.lower_bound(url);
-	if( it != registration::g_filter_path_map.begin() )
-	{
-		if( it != registration::g_filter_path_map.end() and it->first == url )
-			return &it->second;
-
-		--it;
-		if( it->first == url.substr(0, it->first.size()) )
-			return &it->second;
-	}
-	return nullptr;
 }
 
 GTS_WEB_NAMESPACE_END

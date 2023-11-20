@@ -37,7 +37,7 @@
 
 GTS_WEB_NAMESPACE_BEGIN
 
-#define _BUF_SIZE  65536
+#define BUF_SIZE  65536
 
 class service_io;
 
@@ -70,9 +70,9 @@ private:
 	process m_cgi;
 
 private:
-	char m_cgi_read_buf[_BUF_SIZE];
+	char m_cgi_read_buf[BUF_SIZE];
 	std::size_t m_content_length = 0;
-	std::size_t m_tcp_buf_size = _BUF_SIZE;
+	std::size_t m_tcp_buf_size = BUF_SIZE;
 	char *m_sock_read_buf = nullptr;
 
 private:

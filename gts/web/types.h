@@ -88,15 +88,15 @@ public:
 
 public:
 	buffer(const buffer&) = default;
-	buffer(buffer &&other);
+	buffer(buffer &&other) noexcept;
 
 public:
 	buffer &operator=(const buffer&) = default;
-	buffer &operator=(buffer &&other);
+	buffer &operator=(buffer &&other) noexcept;
 
 public:
+	data_type type = data_type::text;
 	std::string data;
-	data_type type;
 };
 
 GTS_WEB_SOCKET_PROTOCOL_NAMESPACE_END

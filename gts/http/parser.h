@@ -41,7 +41,7 @@ class GTS_HTTP_API parser
 	GTS_DISABLE_COPY_MOVE(parser)
 
 public:
-	explicit parser(int buf_size = 65536);
+	explicit parser(std::size_t buf_size = 65536);
 	~parser();
 
 public:

@@ -55,6 +55,7 @@ public:
 	asio::io_context &io_context();
 
 public:
+	GTS_CXX_NODISCARD("")
 	string_list args() const;
 
 public:

@@ -37,8 +37,8 @@
 #include <fstream>
 #include <thread>
 
+#include <csignal>
 #include <unistd.h>
-#include <signal.h>
 #include <sys/file.h>
 
 GTS_CMDLINE_NAMESPACE_BEGIN
@@ -95,7 +95,7 @@ void app_unlock()
 	fs::remove(app::lock_file_name());
 }
 
-#define __END(noreturn, code) \
+#define X_END(noreturn, code) \
 ({ \
 	if( noreturn ) \
 		::exit(code); \
@@ -110,9 +110,8 @@ void stop_app(bool noreturn)
 	if( not fs::exists(app::lock_file_name()) )
 	{
 		std::cout << "The server is not running." << std::endl;
-		__END(noreturn, 0);
+		X_END(noreturn, 0);
 	}
-
 	std::fstream file(app::lock_file_name(), std::ios_base::in);
 	if( not file.is_open() )
 		gts_log_fatal("The file '{}' open failed: {}.", app::lock_file_name(), strerror(errno));
@@ -124,19 +123,17 @@ void stop_app(bool noreturn)
 	if( buf[0] == '\0' )
 	{
 		std::cout << "The server is not running." << std::endl;
-		__END(noreturn, 0);
+		X_END(noreturn, 0);
 	}
-
 	std::string str(buf);
 	trimmed(str);
 
-	pid_t pid = stoui32(str);
+	pid_t pid = stoi32(str);
 	if( pid < 1 )
 	{
 		fs::remove(app::lock_file_name());
 		gts_log_fatal("PID error, server may have stopped. (auto rm pid-file)");
 	}
-
 	std::cout << "server pid is " << pid << "." << std::endl;
 
 	for(int i=0; i<3; i++)
@@ -147,21 +144,19 @@ void stop_app(bool noreturn)
 		{
 			std::cerr << "Unable to kill server process: " << strerror(errno) << std::endl;
 			std::cout << "If the server has stopped, you can remove '" << app::lock_file_name() << "'." << std::endl;
-			__END(true, -1);
+			X_END(true, -1);
 		}
-
-		for(int i=0; i<100; i++)
+		for(int j=0; j<100; j++)
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 			if( kill(pid, 0) < 0 )
 			{
 				std::cout << "Server is stop." << std::endl;
-				__END(noreturn, 0);
+				X_END(noreturn, 0);
 			}
 		}
 	}
-
 	std::cerr << "Stop timeout." << std::endl;
 	exit(1);
 }
@@ -189,7 +184,7 @@ static int become_child_process()
 			P_ERROR("Parent process: signal");
 
 		char buf[64] = {};
-		int res = read(pipefd[0], buf, 64);
+		auto res = read(pipefd[0], buf, 64);
 
 		gts_log_info("\nParent process exit. child PID = {}.", pid);
 
@@ -199,7 +194,7 @@ static int become_child_process()
 		else if( res == 0 )
 			gts_log_fatal("Child process exit, daemon not start.");
 
-		else if( strcmp(buf, "ok") )
+		else if( strcmp(buf, "ok") != 0 )
 		{
 			gts_log_warning() << "Code error:" << __FILE__ << __LINE__;
 			exit(1);

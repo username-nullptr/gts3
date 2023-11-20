@@ -82,7 +82,7 @@ process &process::add_env(const std::string &key, const std::string &value)
 		return *this;
 
 	auto pair = m_impl->m_env.emplace(key, value);
-	if( pair.second == false )
+	if( not pair.second )
 		pair.first->second = value;
 	return *this;
 }
@@ -103,20 +103,20 @@ std::size_t process::read_some(void *buf, std::size_t size, const duration &time
 
 std::size_t process::read_some(void *buf, std::size_t size, const duration &timeout)
 {
-	asio::error_code error;
-	if( wait_readable(timeout, error) )
+	asio::error_code _error;
+	if( wait_readable(timeout, _error) )
 		return read_some(buf, size);
-	else if( error )
-		this->error(error, "read_some: wait_readable");
+	else if( _error )
+		error(_error, "read_some: wait_readable");
 	return 0;
 }
 
 std::size_t process::read_some(void *buf, std::size_t size)
 {
-	asio::error_code error;
-	auto res = read_some(buf, size, error);
-	if( error )
-		this->error(error, "read_some");
+	asio::error_code _error;
+	auto res = read_some(buf, size, _error);
+	if( _error )
+		error(_error, "read_some");
 	return res;
 }
 

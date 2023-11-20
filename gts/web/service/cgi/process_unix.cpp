@@ -32,7 +32,6 @@
 #include <mutex>
 #include <map>
 
-#include <signal.h>
 #include <sys/wait.h>
 
 GTS_NAMESPACE_BEGIN
@@ -152,15 +151,14 @@ void process::kill()
 		::kill(m_impl->m_pid, SIGKILL);
 }
 
-static bool wait(int fd, int event, const std::chrono::milliseconds &ms, asio::error_code &error)
+static bool wait(int fd, short event, const std::chrono::milliseconds &ms, asio::error_code &error)
 {
-	struct pollfd fds;
+	struct pollfd fds {0};
 	fds.fd = fd;
 	fds.events = event;
 
-	int tt = ms.count() > 0? ms.count() : -1;
+	int tt = ms.count() > 0? static_cast<int>(ms.count()) : -1;
 	error = std::make_error_code(static_cast<std::errc>(0));
-
 	for(;;)
 	{
 		int res = poll(&fds, 1, tt);
@@ -189,19 +187,19 @@ bool process::wait_readable(const duration &ms, asio::error_code &error)
 
 bool process::wait_writeable(const duration &ms)
 {
-	asio::error_code error ;
-	bool res = wait(m_impl->m_write_fd->native_handle(), POLLOUT, ms, error);
-	if( error )
-		this->error(error, "wait_writeable");
+	asio::error_code _error ;
+	bool res = wait(m_impl->m_write_fd->native_handle(), POLLOUT, ms, _error);
+	if( _error )
+		error(_error, "wait_writeable");
 	return res;
 }
 
 bool process::wait_readable(const duration &ms)
 {
-	asio::error_code error ;
-	bool res = wait(m_impl->m_read_fd->native_handle(), POLLIN, ms, error);
-	if( error )
-		this->error(error, "wait_readable");
+	asio::error_code _error ;
+	bool res = wait(m_impl->m_read_fd->native_handle(), POLLIN, ms, _error);
+	if( _error )
+		error(_error, "wait_readable");
 	return res;
 }
 
@@ -240,9 +238,8 @@ void process::async_read_some(char *buf, std::size_t size, std::function<void(as
 		});
 		return ;
 	}
-
 	m_impl->m_read_fd->non_blocking(true);
-	int res = ::read(m_impl->m_read_fd->native_handle(), buf, size);
+	auto res = ::read(m_impl->m_read_fd->native_handle(), buf, size);
 
 	if( res > 0 )
 	{

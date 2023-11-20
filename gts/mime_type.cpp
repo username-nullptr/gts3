@@ -135,6 +135,7 @@ static std::unordered_map<std::string, std::string> g_suffix_hash
 	{ ".cda"           , APPLICATION "x-cdf"                                                           },
 	{ ".cdf"           , APPLICATION "x-netcdf"                                                        },
 	{ ".cdx"           , CHEMICAL "x-cdx"                                                              },
+	{ ".cfg"           , TEXT "x-config"                                                               },
 	{ ".cfm"           , TEXT "x-coldfusion"                                                           },
 	{ ".cfs"           , APPLICATION "x-cfs-compressed"                                                },
 	{ ".cgi"           , TEXT "x-cgi"                                                                  },
@@ -481,6 +482,7 @@ static std::unordered_map<std::string, std::string> g_suffix_hash
 	{ ".otp"           , APPLICATION "vnd.oasis.opendocument.presentation-template"                    },
 	{ ".ots"           , APPLICATION "vnd.oasis.opendocument.spreadsheet-template"                     },
 	{ ".ott"           , APPLICATION "vnd.oasis.opendocument.text-template"                            },
+	{ ".ova"           , APPLICATION "x-ova"                                                           },
 	{ ".oxps"          , APPLICATION "oxps"                                                            },
 	{ ".oz"            , TEXT "x-oz"                                                                   },
 	{ ".p"             , TEXT "x-pascal"                                                               },
@@ -552,7 +554,7 @@ static std::unordered_map<std::string, std::string> g_suffix_hash
 	{ ".ram"           , AUDIO "vnd.rn-realaudio"                                                      },
 	{ ".raml"          , TEXT "x-yaml"                                                                 },
 	{ ".rar"           , APPLICATION "vnd.rar"                                                         },
-	{ ".rar "          , APPLICATION "vnd.rar"                                                         },
+	{ ".rar"           , APPLICATION "vnd.rar"                                                         },
 	{ ".ras"           , IMAGE "x-sun-raster"                                                          },
 	{ ".raw"           , IMAGE "x-raw-panasonic"                                                       },
 	{ ".rb"            , TEXT "x-ruby"                                                                 },
@@ -994,7 +996,7 @@ static inline std::string s_mime_search(const char **mimes, size_t len, const ch
 	return "unknown";
 }
 
-static inline bool s_is_text_file(std::fstream &file)
+static inline bool s_is_text_file(std::ifstream &file)
 {
 	char buf[0x4000] = "";
 	file.read(buf, sizeof(buf));
@@ -1022,7 +1024,7 @@ static inline bool s_is_text_file(std::fstream &file)
 
 static inline std::string mime_from_magic(const std::string &file_name)
 {
-	std::fstream file(file_name);
+	std::ifstream file(file_name);
 	if( not file.is_open() )
 		return "unknown";
 
@@ -1049,16 +1051,9 @@ static inline std::string mime_from_magic(const std::string &file_name)
 
 std::string get_mime_type(const std::string &file_name)
 {
-	auto name = file_name;
-	auto pos = file_name.rfind('/');
+	auto name = gts::file_name(file_name);
+	auto pos = name.rfind('.');
 
-	if( pos != std::string::npos )
-		name = file_name.substr(pos + 1);
-
-	if( name.empty() )
-		return "unkown";
-
-	pos = name.rfind('.');
 	if( pos == std::string::npos )
 		return mime_from_magic(file_name);
 
@@ -1071,7 +1066,7 @@ std::string get_mime_type(const std::string &file_name)
 
 bool is_text_file(const std::string &file_name)
 {
-	std::fstream file(file_name);
+	std::ifstream file(file_name);
 	if( file.is_open() )
 	{
 		s_is_text_file(file);

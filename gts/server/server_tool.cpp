@@ -51,7 +51,7 @@ site_info_map &server_get_site_infos()
 	return g_site_infos;
 }
 
-#define _CHECK_RETURN_CALL(...) \
+#define CHECK_RETURN_CALL(...) \
 ({ \
 	if( method.get_return_type() == GTS_RTTR_TYPE(future_ptr) ) { \
 		rttr::variant var = method.invoke(__VA_ARGS__); \
@@ -66,10 +66,10 @@ static void call_init(const rttr::method &method, Ins obj, std::list<future_ptr>
 {
 	auto para_list = method.get_parameter_infos();
 	if( para_list.empty() )
-		_CHECK_RETURN_CALL(obj);
+		CHECK_RETURN_CALL(obj);
 
 	else if( para_list.size() == 1 and para_list.begin()->get_type() == GTS_RTTR_TYPE(std::string) )
-		_CHECK_RETURN_CALL(obj, config_file);
+		CHECK_RETURN_CALL(obj, config_file);
 }
 
 static bool load_library(const njson &name_json, const njson &lib_json, const std::string &json_file_path)
@@ -177,7 +177,7 @@ void plugin_call_handle::init(const std::string &json_file, const std::string &c
 				continue;
 
 			auto pair = registration::g_obj_hash.emplace(type, rttr::variant());
-			if( pair.second == false )
+			if( not pair.second )
 				continue ;
 
 			pair.first->second = type.create();
@@ -203,7 +203,7 @@ static void call_exit(const rttr::method &method, Ins obj, std::list<future_ptr>
 {
 	auto para_list = method.get_parameter_infos();
 	if( para_list.empty() )
-		_CHECK_RETURN_CALL(obj);
+		CHECK_RETURN_CALL(obj);
 }
 
 void plugin_call_handle::exit()
@@ -244,9 +244,9 @@ static bool _new_connection_method_call(const std::string &method_suffix, tcp_so
 
 bool plugin_call_handle::new_connection(tcp_socket *sock, bool universal)
 {
-	if( universal or _new_connection_method_call(fmt::format("new_connection.{}", sock->local_endpoint().port()), sock) == false )
+	if( universal or not _new_connection_method_call(fmt::format("new_connection.{}", sock->local_endpoint().port()), sock) )
 	{
-		if( _new_connection_method_call("new_connection", sock) == false )
+		if( not _new_connection_method_call("new_connection", sock) )
 			return false;
 	}
 	return true;
@@ -285,7 +285,7 @@ void plugin_call_handle::extension::init(const std::string &config_file)
 			continue;
 
 		auto list = method.get_parameter_infos();
-		if( list.size() == 0 )
+		if( list.empty() )
 			method.invoke({});
 
 		else if( list.size() == 1 and list.begin()->get_type() == GTS_RTTR_TYPE(std::string) )
@@ -323,7 +323,7 @@ bool plugin_call_handle::extension::args_parsing(const string_list &args)
 				continue;
 			ct++;
 			static auto other_args_vector = args.c_str_vector();
-			if( method.invoke({}, static_cast<int>(other_args_vector.size()), other_args_vector.data()).to_bool() == false )
+			if( not method.invoke({}, static_cast<int>(other_args_vector.size()), other_args_vector.data()).to_bool() )
 				return false;
 		}
 		else if( para.size() == 1 and para.begin()->get_type() == GTS_RTTR_TYPE(string_list) )
@@ -331,7 +331,7 @@ bool plugin_call_handle::extension::args_parsing(const string_list &args)
 			if( method.get_return_type() != GTS_RTTR_TYPE(bool) )
 				continue ;
 			ct++;
-			if( method.invoke({}, args).to_bool() == false )
+			if( not method.invoke({}, args).to_bool() )
 				return false;
 		}
 	}
@@ -346,17 +346,16 @@ static std::string view_extension(const char *method_name)
 	for(int i=0; it!=rttr::type::get_global_methods().end(); it=std::next(rttr::type::get_global_methods().begin(), ++i))
 	{
 		auto &method = *it;
-		if( not str_starts_with(method.get_name().to_string(), method_name) )
-			continue;
-
-		else if( method.get_return_type() != GTS_RTTR_TYPE(std::string) or not method.get_parameter_infos().empty() )
+		if( not str_starts_with(method.get_name().to_string(), method_name) or
+			method.get_return_type() != GTS_RTTR_TYPE(std::string) or
+			not method.get_parameter_infos().empty() )
 			continue;
 
 		auto str = method.invoke({}).to_string();
 		if( str.empty() )
 			continue;
 
-		int j = str.size() - 1;
+		int j = static_cast<int>(str.size()) - 1;
 		for(; j>=0; j--)
 		{
 			if( str[j] != '\n' )

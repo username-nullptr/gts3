@@ -32,24 +32,24 @@
 GTS_WEB_SOCKET_PROTOCOL_NAMESPACE_BEGIN
 
 inline buffer::buffer(std::string data, data_type type) :
-	data(std::move(data)), type(type)
+	type(type), data(std::move(data))
 {
 
 }
 
 inline buffer::buffer(void *data, std::size_t size, data_type type) :
-	data(reinterpret_cast<const char*>(data), size), type(type)
+	type(type), data(reinterpret_cast<const char*>(data), size)
 {
 
 }
 
-inline buffer::buffer(buffer &&other) :
-	data(std::move(other.data)), type(other.type)
+inline buffer::buffer(buffer &&other) noexcept :
+	type(other.type), data(std::move(other.data))
 {
 
 }
 
-inline buffer &buffer::operator=(buffer &&other)
+inline buffer &buffer::operator=(buffer &&other) noexcept
 {
 	data = std::move(other.data);
 	type = other.type;

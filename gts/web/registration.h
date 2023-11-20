@@ -146,19 +146,19 @@ public:
 		GTS_DISABLE_COPY_MOVE(class_)
 
 	public:
-		explicit class_(const std::string &path = "");
+		explicit class_(std::string path = "");
 
 	public:
 		template <typename Return>
-		class_ &init_method(Return(Class::*func)(void));
+		class_ &init_method(Return(Class::*func)());
 
 		template <typename Return, typename Str, GTS_TYPE_DECLTYPE(GTS_CLASS_METHOD_DECLVAL(Class, Return, Str)(std::string()))>
 		class_ &init_method(Return(Class::*func)(Str));
 
 		template <typename Return>
-		class_ &exit_method(Return(Class::*func)(void));
+		class_ &exit_method(Return(Class::*func)());
 
-		class_ &view_status_method(std::string(Class::*func)(void));
+		class_ &view_status_method(std::string(Class::*func)());
 
 	public:
 		template <int...http_method, typename Return, typename Res, GTS_TYPE_DECLTYPE

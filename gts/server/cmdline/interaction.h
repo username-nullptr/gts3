@@ -48,15 +48,17 @@ public:
 public:
 	bool open();
 	void close();
+
+	GTS_CXX_NODISCARD("")
 	bool is_open() const;
 
 public:
-	int read(char *buf, int len, int timeout = -1);
-	int write(const char *buf, int len, int timeout = -1);
+	ssize_t read(char *buf, ssize_t len, int timeout = -1);
+	ssize_t write(const char *buf, ssize_t len, int timeout = -1);
 
 public:
-	void async_read(char *buf, int len, std::function<void(int len)> call_back);
-	void async_write(char *buf, int len, std::function<void(int len)> call_back);
+	void async_read(char *buf, ssize_t len, std::function<void(ssize_t)> call_back);
+	void async_write(char *buf, ssize_t len, std::function<void(ssize_t)> call_back);
 	void cancel();
 
 private:

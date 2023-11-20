@@ -31,151 +31,151 @@
 
 GTS_WEB_NAMESPACE_BEGIN
 
-template <typename Func, typename _GTD_0>
+template <typename Func, typename U_GTD_0>
 registration &registration::init_method(Func &&func)
 {
 	return reinterpret_cast<registration&>(gts::registration::init_method(std::forward<Func>(func)));
 }
 
-template <typename Func, typename _GTD_0, int U0>
+template <typename Func, typename U_GTD_0, int U0>
 registration &registration::init_method(Func &&func)
 {
 	return reinterpret_cast<registration&>(gts::registration::init_method(std::forward<Func>(func)));
 }
 
-template <typename Func, typename _GTD_0>
+template <typename Func, typename U_GTD_0>
 registration &registration::exit_method(Func &&func)
 {
 	return reinterpret_cast<registration&>(gts::registration::exit_method(std::forward<Func>(func)));
 }
 
-template <typename Func, typename _GTEI_0>
+template <typename Func, typename U_GTEI_0>
 registration &registration::view_status_method(Func &&func)
 {
 	return reinterpret_cast<registration&>(gts::registration::view_status_method(std::forward<Func>(func)));
 }
 
-template <int...http_method, typename Func, typename _GTD_0>
+template <int...http_method, typename Func, typename U_GTD_0>
 registration &registration::request_handle_method(const std::string &path, Func &&func)
 {
 	return _request_handle_method<static_cast<http::method>(http_method)...>(path, std::forward<Func>(func));
 }
 
-template <int...http_method, typename Func, typename _GTD_0, int8_t U0>
+template <int...http_method, typename Func, typename U_GTD_0, int8_t U0>
 registration &registration::request_handle_method(const std::string &path, Func &&func)
 {
 	return _request_handle_method<static_cast<http::method>(http_method)...>(path, std::forward<Func>(func));
 }
 
-template <int...http_method, typename Func, typename _GTD_0, uint8_t U0>
+template <int...http_method, typename Func, typename U_GTD_0, uint8_t U0>
 registration &registration::request_handle_method(const std::string &path, Func &&func)
 {
 	return _request_handle_method<static_cast<http::method>(http_method)...>(path, std::forward<Func>(func));
 }
 
-template <int...http_method, typename Func, typename _GTD_0, int16_t U0>
+template <int...http_method, typename Func, typename U_GTD_0, int16_t U0>
 registration &registration::request_handle_method(const std::string &path, Func &&func)
 {
 	return _request_handle_method<static_cast<http::method>(http_method)...>(path, std::forward<Func>(func));
 }
 
-template <int...http_method, typename Func, typename _GTD_0, uint16_t U0>
+template <int...http_method, typename Func, typename U_GTD_0, uint16_t U0>
 registration &registration::request_handle_method(const std::string &path, Func &&func)
 {
 	return _request_handle_method<static_cast<http::method>(http_method)...>(path, std::forward<Func>(func));
 }
 
-template <int...http_method, typename Func, typename _GTD_0, int32_t U0>
+template <int...http_method, typename Func, typename U_GTD_0, int32_t U0>
 registration &registration::request_handle_method(const std::string &path, Func &&func)
 {
 	return _request_handle_method<static_cast<http::method>(http_method)...>(path, std::forward<Func>(func));
 }
 
-template <int...http_method, typename Func, typename _GTD_0, uint32_t U0>
+template <int...http_method, typename Func, typename U_GTD_0, uint32_t U0>
 registration &registration::request_handle_method(const std::string &path, Func &&func)
 {
 	return _request_handle_method<static_cast<http::method>(http_method)...>(path, std::forward<Func>(func));
 }
 
-template <int...http_method, typename Func, typename _GTD_0, int64_t U0>
+template <int...http_method, typename Func, typename U_GTD_0, int64_t U0>
 registration &registration::request_handle_method(const std::string &path, Func &&func)
 {
 	return _request_handle_method<static_cast<http::method>(http_method)...>(path, std::forward<Func>(func));
 }
 
-template <int...http_method, typename Func, typename _GTD_0, uint64_t U0>
+template <int...http_method, typename Func, typename U_GTD_0, uint64_t U0>
 registration &registration::request_handle_method(const std::string &path, Func &&func)
 {
 	return _request_handle_method<static_cast<http::method>(http_method)...>(path, std::forward<Func>(func));
 }
 
-template <typename Func, typename _GTEI_0>
+template <typename Func, typename U_GTEI_0>
 registration &registration::filter_method(const std::string &path, Func &&func)
 {
 	return _filter_method(path, std::forward<Func>(func));
 }
 
-template <typename Func, typename _GTEI_0, int8_t U0>
+template <typename Func, typename U_GTEI_0, int8_t U0>
 registration &registration::filter_method(const std::string &path, Func &&func)
 {
 	return _filter_method(path, std::forward<Func>(func));
 }
 
-template <typename Func, typename _GTEI_0, uint8_t U0>
+template <typename Func, typename U_GTEI_0, uint8_t U0>
 registration &registration::filter_method(const std::string &path, Func &&func)
 {
 	return _filter_method(path, std::forward<Func>(func));
 }
 
-template <typename Func, typename _GTEI_0, int16_t U0>
+template <typename Func, typename U_GTEI_0, int16_t U0>
 registration &registration::filter_method(const std::string &path, Func &&func)
 {
 	return _filter_method(path, std::forward<Func>(func));
 }
 
-template <typename Func, typename _GTEI_0, uint16_t U0>
+template <typename Func, typename U_GTEI_0, uint16_t U0>
 registration &registration::filter_method(const std::string &path, Func &&func)
 {
 	return _filter_method(path, std::forward<Func>(func));
 }
 
-template <typename Func, typename _GTEI_0, int32_t U0>
+template <typename Func, typename U_GTEI_0, int32_t U0>
 registration &registration::filter_method(const std::string &path, Func &&func)
 {
 	return _filter_method(path, std::forward<Func>(func));
 }
 
-template <typename Func, typename _GTEI_0, uint32_t U0>
+template <typename Func, typename U_GTEI_0, uint32_t U0>
 registration &registration::filter_method(const std::string &path, Func &&func)
 {
 	return _filter_method(path, std::forward<Func>(func));
 }
 
-template <typename Func, typename _GTEI_0, int64_t U0>
+template <typename Func, typename U_GTEI_0, int64_t U0>
 registration &registration::filter_method(const std::string &path, Func &&func)
 {
 	return _filter_method(path, std::forward<Func>(func));
 }
 
-template <typename Func, typename _GTEI_0, uint64_t U0>
+template <typename Func, typename U_GTEI_0, uint64_t U0>
 registration &registration::filter_method(const std::string &path, Func &&func)
 {
 	return _filter_method(path, std::forward<Func>(func));
 }
 
-template <int...http_method, typename Func, typename _GTD_0>
+template <int...http_method, typename Func, typename U_GTD_0>
 registration &registration::new_websocket_connection(const std::string &path, Func &&func)
 {
 	return _request_handle_method<static_cast<http::method>(http_method)...>(path, std::forward<Func>(func));
 }
 
-template <int...http_method, typename Func, typename _GTD_0, int8_t U0>
+template <int...http_method, typename Func, typename U_GTD_0, int8_t U0>
 registration &registration::new_websocket_connection(const std::string &path, Func &&func)
 {
 	return _request_handle_method<static_cast<http::method>(http_method)...>(path, std::forward<Func>(func));
 }
 
-template <int...http_method, typename Func, typename _GTD_0, uint8_t U0>
+template <int...http_method, typename Func, typename U_GTD_0, uint8_t U0>
 registration &registration::new_websocket_connection(const std::string &path, Func &&func)
 {
 	return _request_handle_method<static_cast<http::method>(http_method)...>(path, std::forward<Func>(func));
@@ -250,7 +250,7 @@ registration &registration::_filter_method(std::string path, Func &&func)
 			path = "/" + path;
 	}
 	auto pair = g_filter_path_map.emplace(path, service());
-	if( pair.second == false )
+	if( not pair.second )
 		gts_log_fatal("service filter '{}' multiple registration.", path);
 
 	auto method_name = "gts.web.plugin.filter_method." + path;
@@ -260,8 +260,8 @@ registration &registration::_filter_method(std::string path, Func &&func)
 }
 
 template <typename Class>
-registration::class_<Class>::class_(const std::string &path) :
-	m_path(path)
+registration::class_<Class>::class_(std::string path) :
+	m_path(std::move(path))
 {
 	if( m_path == "/" )
 		return ;
@@ -284,151 +284,151 @@ registration::class_<Class>::class_(const std::string &path) :
 
 template <typename Class>
 template <typename Return>
-registration::class_<Class> &registration::class_<Class>::init_method(Return(Class::*func)(void)) {
+registration::class_<Class> &registration::class_<Class>::init_method(Return(Class::*func)()) {
 	return reinterpret_cast<class_&>(gts::registration::class_<Class>::init_method(func));
 }
 
 template <typename Class>
-template <typename Return, typename Str, typename _GTD_0>
+template <typename Return, typename Str, typename U_GTD_0>
 registration::class_<Class> &registration::class_<Class>::init_method(Return(Class::*func)(Str)) {
 	return reinterpret_cast<class_&>(gts::registration::class_<Class>::init_method(func));
 }
 
 template <typename Class>
 template <typename Return>
-registration::class_<Class> &registration::class_<Class>::exit_method(Return(Class::*func)(void)) {
+registration::class_<Class> &registration::class_<Class>::exit_method(Return(Class::*func)()) {
 	return reinterpret_cast<class_&>(gts::registration::class_<Class>::exit_method(func));
 }
 
 template <typename Class>
-registration::class_<Class> &registration::class_<Class>::view_status_method(std::string(Class::*func)(void)) {
+registration::class_<Class> &registration::class_<Class>::view_status_method(std::string(Class::*func)()) {
 	return reinterpret_cast<class_&>(gts::registration::class_<Class>::view_status_method(func));
 }
 
 template <typename Class>
-template <int...http_method, typename Return, typename Res, typename _GTD_0>
+template <int...http_method, typename Return, typename Res, typename U_GTD_0>
 registration::class_<Class> &registration::class_<Class>::request_handle_method(const std::string &path, Return(Class::*func)(Res)) {
 	return _request_handle_method<static_cast<http::method>(http_method)...>(path, func);
 }
 
 template <typename Class>
-template <int...http_method, typename Return, typename Req, typename Res, typename _GTD_0>
+template <int...http_method, typename Return, typename Req, typename Res, typename U_GTD_0>
 registration::class_<Class> &registration::class_<Class>::request_handle_method(const std::string &path, Return(Class::*func)(Req, Res)) {
 	return _request_handle_method<static_cast<http::method>(http_method)...>(path, func);
 }
 
 template <typename Class>
-template <int...http_method, typename Return, typename Res, typename Req, typename _GTD_0, int8_t U0>
+template <int...http_method, typename Return, typename Res, typename Req, typename U_GTD_0, int8_t U0>
 registration::class_<Class> &registration::class_<Class>::request_handle_method(const std::string &path, Return(Class::*func)(Res, Req)) {
 	return _request_handle_method<static_cast<http::method>(http_method)...>(path, func);
 }
 
 template <typename Class>
-template <int...http_method, typename Return, typename Req, typename Res, typename Env, typename _GTD_0, uint8_t U0>
+template <int...http_method, typename Return, typename Req, typename Res, typename Env, typename U_GTD_0, uint8_t U0>
 registration::class_<Class> &registration::class_<Class>::request_handle_method(const std::string &path, Return(Class::*func)(Req, Res, Env)) {
 	return _request_handle_method<static_cast<http::method>(http_method)...>(path, func);
 }
 
 template <typename Class>
-template <int...http_method, typename Return, typename Res, typename Req, typename Env, typename _GTD_0, int16_t U0>
+template <int...http_method, typename Return, typename Res, typename Req, typename Env, typename U_GTD_0, int16_t U0>
 registration::class_<Class> &registration::class_<Class>::request_handle_method(const std::string &path, Return(Class::*func)(Res, Req, Env)) {
 	return _request_handle_method<static_cast<http::method>(http_method)...>(path, func);
 }
 
 template <typename Class>
-template <int...http_method, typename Return, typename Res, typename Env, typename Req, typename _GTD_0, uint16_t U0>
+template <int...http_method, typename Return, typename Res, typename Env, typename Req, typename U_GTD_0, uint16_t U0>
 registration::class_<Class> &registration::class_<Class>::request_handle_method(const std::string &path, Return(Class::*func)(Res, Env, Req)) {
 	return _request_handle_method<static_cast<http::method>(http_method)...>(path, func);
 }
 
 template <typename Class>
-template <int...http_method, typename Return, typename Env, typename Res, typename Req, typename _GTD_0, int32_t U0>
+template <int...http_method, typename Return, typename Env, typename Res, typename Req, typename U_GTD_0, int32_t U0>
 registration::class_<Class> &registration::class_<Class>::request_handle_method(const std::string &path, Return(Class::*func)(Env, Res, Req)) {
 	return _request_handle_method<static_cast<http::method>(http_method)...>(path, func);
 }
 
 template <typename Class>
-template <int...http_method, typename Return, typename Env, typename Req, typename Res, typename _GTD_0, uint32_t U0>
+template <int...http_method, typename Return, typename Env, typename Req, typename Res, typename U_GTD_0, uint32_t U0>
 registration::class_<Class> &registration::class_<Class>::request_handle_method(const std::string &path, Return(Class::*func)(Env, Req, Res)) {
 	return _request_handle_method<static_cast<http::method>(http_method)...>(path, func);
 }
 
 template <typename Class>
-template <int...http_method, typename Return, typename Req, typename Env, typename Res, typename _GTD_0, int64_t U0>
+template <int...http_method, typename Return, typename Req, typename Env, typename Res, typename U_GTD_0, int64_t U0>
 registration::class_<Class> &registration::class_<Class>::request_handle_method(const std::string &path, Return(Class::*func)(Req, Env, Res)) {
 	return _request_handle_method<static_cast<http::method>(http_method)...>(path, func);
 }
 
 template <typename Class>
-template <typename Req, typename _GTD_0>
+template <typename Req, typename U_GTD_0>
 registration::class_<Class> &registration::class_<Class>::filter_method(const std::string &path, bool(Class::*func)(Req)) {
 	return _filter_method(path, func);
 }
 
 template <typename Class>
-template <typename Req, typename Res, typename _GTD_0>
+template <typename Req, typename Res, typename U_GTD_0>
 registration::class_<Class> &registration::class_<Class>::filter_method(const std::string &path, bool(Class::*func)(Req, Res)) {
 	return _filter_method(path, func);
 }
 
 template <typename Class>
-template <typename Res, typename Req, typename _GTD_0, int8_t U0>
+template <typename Res, typename Req, typename U_GTD_0, int8_t U0>
 registration::class_<Class> &registration::class_<Class>::filter_method(const std::string &path, bool(Class::*func)(Res, Req)) {
 	return _filter_method(path, func);
 }
 
 template <typename Class>
-template <typename Req, typename Res, typename Env, typename _GTD_0, uint8_t U0>
+template <typename Req, typename Res, typename Env, typename U_GTD_0, uint8_t U0>
 registration::class_<Class> &registration::class_<Class>::filter_method(const std::string &path, bool(Class::*func)(Req, Res, Env)) {
 	return _filter_method(path, func);
 }
 
 template <typename Class>
-template <typename Res, typename Req, typename Env, typename _GTD_0, int16_t U0>
+template <typename Res, typename Req, typename Env, typename U_GTD_0, int16_t U0>
 registration::class_<Class> &registration::class_<Class>::filter_method(const std::string &path, bool(Class::*func)(Res, Req, Env)) {
 	return _filter_method(path, func);
 }
 
 template <typename Class>
-template <typename Res, typename Env, typename Req, typename _GTD_0, uint16_t U0>
+template <typename Res, typename Env, typename Req, typename U_GTD_0, uint16_t U0>
 registration::class_<Class> &registration::class_<Class>::filter_method(const std::string &path, bool(Class::*func)(Res, Env, Req)) {
 	return _filter_method(path, func);
 }
 
 template <typename Class>
-template <typename Env, typename Res, typename Req, typename _GTD_0, int32_t U0>
+template <typename Env, typename Res, typename Req, typename U_GTD_0, int32_t U0>
 registration::class_<Class> &registration::class_<Class>::filter_method(const std::string &path, bool(Class::*func)(Env, Res, Req)) {
 	return _filter_method(path, func);
 }
 
 template <typename Class>
-template <typename Env, typename Req, typename Res, typename _GTD_0, uint32_t U0>
+template <typename Env, typename Req, typename Res, typename U_GTD_0, uint32_t U0>
 registration::class_<Class> &registration::class_<Class>::filter_method(const std::string &path, bool(Class::*func)(Env, Req, Res)) {
 	return _filter_method(path, func);
 }
 
 template <typename Class>
-template <typename Req, typename Env, typename Res, typename _GTD_0, int64_t U0>
+template <typename Req, typename Env, typename Res, typename U_GTD_0, int64_t U0>
 registration::class_<Class> &registration::class_<Class>::filter_method(const std::string &path, bool(Class::*func)(Req, Env, Res)) {
 	return _filter_method(path, func);
 }
 
 template <typename Class>
-template <int...http_method, typename Return, typename WebSockPtr, typename _GTD_0>
+template <int...http_method, typename Return, typename WebSockPtr, typename U_GTD_0>
 registration::class_<Class> &registration::class_<Class>::new_websocket_connection(const std::string &path, Return(Class::*func)(WebSockPtr))
 {
 	return _request_handle_method<static_cast<http::method>(http_method)...>(path, func);
 }
 
 template <typename Class>
-template <int...http_method, typename Return, typename WebSockPtr, typename Env, typename _GTD_0, int8_t U0>
+template <int...http_method, typename Return, typename WebSockPtr, typename Env, typename U_GTD_0, int8_t U0>
 registration::class_<Class> &registration::class_<Class>::new_websocket_connection(const std::string &path, Return(Class::*func)(WebSockPtr, Env))
 {
 	return _request_handle_method<static_cast<http::method>(http_method)...>(path, func);
 }
 
 template <typename Class>
-template <int...http_method, typename Return, typename Env, typename WebSockPtr, typename _GTD_0, uint8_t U0>
+template <int...http_method, typename Return, typename Env, typename WebSockPtr, typename U_GTD_0, uint8_t U0>
 registration::class_<Class> &registration::class_<Class>::new_websocket_connection(const std::string &path, Return(Class::*func)(Env, WebSockPtr))
 {
 	return _request_handle_method<static_cast<http::method>(http_method)...>(path, func);
@@ -523,7 +523,7 @@ registration::class_<Class> &registration::class_<Class>::_filter_method(std::st
 		path = "/" + path;
 
 	auto pair = g_filter_path_map.emplace(path, service());
-	if( pair.second == false )
+	if( not pair.second )
 		gts_log_fatal("service filter '{}' multiple registration.", path);
 
 	auto method_name = "filter_method." + path;

@@ -54,10 +54,11 @@ public:
 	void stop();
 
 public:
+	GTS_CXX_NODISCARD("")
 	std::string view_status() const;
 
 private:
-	void service(tcp_socket *sock, bool universal);
+	void service(tcp_socket *sock, bool universal) const;
 
 private:
 	class basic_site
@@ -69,7 +70,9 @@ private:
 		virtual ~basic_site() = 0;
 
 	public:
+		GTS_CXX_NODISCARD("")
 		virtual std::string view_status() const;
+
 		virtual bool start();
 		void stop();
 
@@ -85,8 +88,8 @@ private:
 	{
 	public:
 		using basic_site::basic_site;
-		std::string view_status() const override;
-		bool start() override;
+		GTS_CXX_NODISCARD("") std::string view_status() const override;
+		GTS_CXX_NODISCARD("") bool start() override;
 
 	private:
 		void do_accept();
@@ -97,8 +100,8 @@ private:
 	{
 	public:
 		using basic_site::basic_site;
-		std::string view_status() const override;
-		bool start() override;
+		GTS_CXX_NODISCARD("") std::string view_status() const override;
+		GTS_CXX_NODISCARD("") bool start() override;
 
 	private:
 		void do_accept();

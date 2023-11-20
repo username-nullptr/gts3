@@ -27,7 +27,6 @@
 *************************************************************************************/
 
 #include "connection.h"
-#include <gts/web/global.h>
 #include <gts/web/config_key.h>
 #include <gts/settings.h>
 
@@ -145,7 +144,9 @@ void connection::do_recv()
 		return delete_later(this);
 
 	m_timer.expires_after(std::chrono::milliseconds(g_idle_time_tv));
-	m_timer.async_wait(std::bind(&connection::time_out_allow_preemptionx, this, std::placeholders::_1));
+	m_timer.async_wait([this](const asio::error_code &was_cancel){
+		time_out_allow_preemptionx(was_cancel);
+	});
 
 	m_socket->async_read_some(m_asio_buffer, m_ab_size,
 				[this](const asio::error_code &error, std::size_t size)
@@ -156,7 +157,7 @@ void connection::do_recv()
 		if( error or size == 0 )
 			return delete_later(this);
 
-		if( m_parser->write(std::string(m_asio_buffer, size)) == false )
+		if( not m_parser->write(std::string(m_asio_buffer, size)) )
 			return do_recv();
 
 		auto context = m_parser->get_request(m_socket);
@@ -191,7 +192,9 @@ void connection::time_out_allow_preemptionx(const asio::error_code &was_cancel)
 	g_timeout_set.emplace(this);
 
 	m_timer.expires_after(std::chrono::milliseconds(g_max_idle_time));
-	m_timer.async_wait(std::bind(&connection::time_out_destory, this, std::placeholders::_1));
+	m_timer.async_wait([this](const asio::error_code &was_cancel){
+		time_out_destory(was_cancel);
+	});
 }
 
 void connection::time_out_destory(const asio::error_code &was_cancel)

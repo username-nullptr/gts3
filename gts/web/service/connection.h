@@ -37,7 +37,7 @@ GTS_WEB_NAMESPACE_BEGIN
 class GTS_DECL_HIDDEN connection
 {
 	GTS_DISABLE_COPY_MOVE(connection)
-	connection(tcp_socket_ptr socket);
+	explicit connection(tcp_socket_ptr socket);
 
 public:
 	~connection();

@@ -135,7 +135,7 @@ void tcp_server::start()
 			auto &name = it.key();
 			auto pair = si_map.emplace(name, site_info());
 
-			if( pair.second == false )
+			if( not pair.second )
 			{
 				gts_log_error("Site '{}' exists.", pair.first->first);
 				continue;
@@ -223,7 +223,7 @@ void tcp_server::start()
 						 false
 #endif //ssl
 						 );
-			m_sites.emplace(std::move(pair.first), std::move(site));
+			m_sites.emplace(pair.first, std::move(site));
 		}
 		else
 			gts_log_error("Site '{}' start failed.", pair.first);
@@ -253,7 +253,7 @@ std::string tcp_server::view_status() const
 	return status + plugin_call_handle::view_status();
 }
 
-void tcp_server::service(tcp_socket *sock, bool universal)
+void tcp_server::service(tcp_socket *sock, bool universal) const
 {
 	asio::error_code error;
 	sock->set_option(tcp::socket::send_buffer_size(m_buffer_size), error);
@@ -264,7 +264,7 @@ void tcp_server::service(tcp_socket *sock, bool universal)
 	if( error )
 		gts_log_error("asio: set socket receive buffer error: {}. ({})\n", error.message(), error.value());
 
-	if( plugin_call_handle::new_connection(sock, universal) == false )
+	if( not plugin_call_handle::new_connection(sock, universal) )
 		gts_log_fatal("gts.plugin error: new connection method is null.");
 }
 

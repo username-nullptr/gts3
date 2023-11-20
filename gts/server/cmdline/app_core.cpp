@@ -66,13 +66,12 @@ void cmdline_handle(int argc, const char *argv[], args_parser::arguments &args_h
 		_args_hash & GC_SA_STSS or
 		_args_hash & GC_SA_SPSS )
 		short_cmd_check(_args_hash);
-
 	do {
 		if( _args_hash & GC_SA_START )
 		{
 			if( not fs::exists(app::tmp_dir_path()) )
 			{
-				if( fs::create_directories(app::tmp_dir_path()) == false )
+				if( not fs::create_directories(app::tmp_dir_path()) )
 					gts_log_fatal("Run(tmp) diractory make failed!");
 			}
 			break;
@@ -90,11 +89,10 @@ void cmdline_handle(int argc, const char *argv[], args_parser::arguments &args_h
 			server_is_running_check();
 			stop_app(true); //exit
 		}
-
 		std::cout << "If you want to start the server, add the argument 'start'." << std::endl;
 		exit(-1);
 	}
-	while(0);
+	while(false);
 	args_hash = std::move(_args_hash);
 }
 
@@ -110,11 +108,11 @@ static void server_is_running_check()
 }
 
 #ifdef _WINDOWS
-# define _BUF_SIZE  8192
+# define BUF_SIZE  8192
 #elif defined(__unix__)
-# define _BUF_SIZE  8192
+# define BUF_SIZE  8192
 #else //other os
-# define _BUF_SIZE  8192
+# define BUF_SIZE  8192
 #endif //os
 
 [[noreturn]] static void short_cmd_check(const args_parser::arguments &args_hash)
@@ -148,21 +146,20 @@ static void server_is_running_check()
 	server_is_running_check();
 
 	interaction _interaction(false);
-	if( _interaction.open() == false )
+	if( not _interaction.open() )
 		gts_log_fatal("cmd line interaction open failed.");
 
-	int res = _interaction.write(cmd_str.c_str(), cmd_str.size(), 5000);
+	auto res = _interaction.write(cmd_str.c_str(), static_cast<ssize_t>(cmd_str.size()), 5000);
 	if( res == 0 )
 	{
 		std::cerr << "Error: request operation timeout." << std::endl;
 		exit(-1);
 	}
-
-	char buf[_BUF_SIZE] = "";
-	res = _interaction.read(buf, _BUF_SIZE, 5000);
+	char buf[BUF_SIZE] = "";
+	res = _interaction.read(buf, BUF_SIZE, 5000);
 
 	if( res < 0 )
-		exit(res);
+		exit(static_cast<int>(res));
 	else if( res == 0 )
 	{
 		std::cerr << "Error: wait for reply operation timeout." << std::endl;

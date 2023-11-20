@@ -37,17 +37,17 @@
 #ifdef _WINDOWS
 
 # include <windows.h>
-# define _BUF_SIZE  8192
+# define BUF_SIZE  8192
 
 #elif defined(__unix__)
 
 # include <unistd.h>
-# define _BUF_SIZE  8192
+# define BUF_SIZE  8192
 
 #else //other os
 
 # include <xxx>
-# define _BUF_SIZE  8192
+# define BUF_SIZE  8192
 
 #endif //os
 
@@ -56,9 +56,9 @@ GTS_NAMESPACE_BEGIN
 cmdline_server::cmdline_server(tcp_server &_tcp_server) :
 	m_interaction(new cmdline::interaction()),
 	m_tcp_server(_tcp_server),
-	m_buf(new char[_BUF_SIZE])
+	m_buf(new char[BUF_SIZE])
 {
-	if( m_interaction->open() == false )
+	if( not m_interaction->open() )
 		gts_log_fatal("cmd line iteraction open failed.");
 }
 
@@ -73,7 +73,7 @@ static std::string view_pid();
 
 void cmdline_server::start()
 {
-	m_interaction->async_read(m_buf, _BUF_SIZE, [this](int size)
+	m_interaction->async_read(m_buf, BUF_SIZE, [this](int size)
 	{
 		if( size == 0 )
 			return ;
@@ -97,25 +97,22 @@ void cmdline_server::start()
 		}
 		else if( str_starts_with(str, CCMD_SPSS) )
 		{
-			int pos = str.find("\r\n");
+			auto pos = str.find("\r\n");
 			str = str.substr(pos + 2);
 //            for(auto &name : string_split(str, ','))
 //                gts_sm.stop(trimmed(name));
 			str = "accepted";
 		}
-
 		else if( str == CCMD_STSSA )
 		{
 //            gts_sm.start_all();
 			str = "accepted";
 		}
-
 		else if( str == CCMD_SPSSA )
 		{
 //            gts_sm.stop_all();
 			str = "accepted";
 		}
-
 		else if( str == CCMD_VASS )
 //            str = gts_sm.view_all_server();
 			str = "unrealized";
@@ -126,7 +123,7 @@ void cmdline_server::start()
 
 		else return start();
 
-		int i = str.size() - 1;
+		int i = static_cast<int>(str.size()) - 1;
 		for(; i>=0; i--)
 		{
 			if( str[i] != '\n' )
@@ -137,7 +134,7 @@ void cmdline_server::start()
 		if( not str.empty() )
 		{
 			str += "\n";
-			m_interaction->write(str.c_str(), str.size());
+			m_interaction->write(str.c_str(), static_cast<ssize_t>(str.size()));
 		}
 		start();
 	});

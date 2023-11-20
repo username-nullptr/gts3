@@ -37,13 +37,6 @@
 
 GTS_NAMESPACE_BEGIN
 
-#define _GTS_PROCESS_NOT_STRING \
-	template <typename T> \
-	enable_if_t< \
-		not gts_is_dsame(T, std::string) and \
-		not gts_is_dsame(T, char*), \
-	process>&
-
 class process_impl;
 
 class GTSCORE_API process
@@ -64,7 +57,7 @@ public:
 
 public:
 	process &set_file(const std::string &file_name);
-	std::string file() const;
+	GTS_CXX_NODISCARD("") std::string file() const;
 
 public:
 	template <typename...Args>
@@ -83,7 +76,7 @@ public:
 	void kill();
 
 public:
-	bool is_running() const;
+	GTS_CXX_NODISCARD("") bool is_running() const;
 	bool join(int *ret_val = nullptr);
 
 public:

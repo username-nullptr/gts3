@@ -44,7 +44,7 @@ class cmdline_server
 	GTS_DISABLE_COPY_MOVE(cmdline_server)
 
 public:
-	cmdline_server(tcp_server &tcp_server);
+	explicit cmdline_server(tcp_server &tcp_server);
 	~cmdline_server();
 
 public:

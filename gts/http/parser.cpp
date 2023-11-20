@@ -42,7 +42,7 @@ class GTS_DECL_HIDDEN parser_impl
 	GTS_DISABLE_COPY_MOVE(parser_impl)
 
 public:
-	explicit parser_impl(int buf_size) :
+	explicit parser_impl(std::size_t buf_size) :
 		m_cache(new request())
 	{
 		m_buffer.reserve(buf_size);
@@ -178,7 +178,7 @@ public:
 
 /*-------------------------------------------------------------------------------------------------------------------------*/
 
-parser::parser(int buf_size) :
+parser::parser(std::size_t buf_size) :
 	m_impl(new parser_impl(buf_size))
 {
 
