@@ -67,14 +67,14 @@ public:
 	GTS_CXX_NODISCARD("") bool delete_on_flush() const;
 
 public:
-	typedef std::unordered_multimap<std::string, rttr::variant>  ini_hash;
-	static void ini_file_check(const std::string &group, const ini_hash &sample);
+	using ini_hash = std::unordered_multimap<std::string, rttr::variant>;
+	void ini_file_check(const std::string &group, const ini_hash &sample);
 
 public:
-	typedef ini::IniFile::iterator  iterator;
-	typedef ini::IniFile::const_iterator  const_iterator;
-	typedef ini::IniFile::reverse_iterator  reverse_iterator;
-	typedef ini::IniFile::const_reverse_iterator  const_reverse_iterator;
+	using iterator = ini::IniFile::iterator;
+	using const_iterator = ini::IniFile::const_iterator;
+	using reverse_iterator = ini::IniFile::reverse_iterator;
+	using const_reverse_iterator = ini::IniFile::const_reverse_iterator;
 
 public:
 	GTS_CXX_NODISCARD("") iterator begin();

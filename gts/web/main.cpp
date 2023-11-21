@@ -60,7 +60,9 @@ std::string resource_root()
 
 GTS_PLUGIN_INIT()
 {
-	gts_log_debug("gts web plugin init. (config file: {})", settings::global_instance().file_name());
+	auto &_settings = settings::global_instance();
+	gts_log_debug("gts web plugin init. (config file: {})", _settings.file_name());
+
 	settings::ini_hash sample_gts
 	{
 		{ SINI_WEB_DEFAULT_RESOURCE  , "/index.html"             },
@@ -76,9 +78,7 @@ GTS_PLUGIN_INIT()
 		{ SINI_WEB_WSS_NAME          , ""                        },
 		{ SINI_WEB_WSS_PORT          , ""                        }
 	};
-	settings::ini_file_check(SINI_GROUP_WEB, sample_gts);
-
-	auto &_settings = settings::global_instance();
+	_settings.ini_file_check(SINI_GROUP_WEB, sample_gts);
 	g_resource_path = _settings.read<std::string>(SINI_GROUP_WEB, SINI_WEB_RC_PATH, g_resource_path);
 
 	g_resource_path = app::absolute_path(g_resource_path);

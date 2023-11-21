@@ -99,12 +99,10 @@ void settings::ini_file_check(const std::string &group, const ini_hash &sample)
 			5. Copy the remaining elements of the hash table as missing entries
 			6. Save missing items
 	*/
-	auto &_settings = gts::settings::global_instance();
-
 	auto tmp = sample; //O(n)
 	{
-		auto it = _settings.find(group); //O(1)
-		if( it != _settings.end() )
+		auto it = find(group); //O(1)
+		if( it != end() )
 		{
 			for(auto &pair : it->second) //O(n)
 			{
@@ -123,20 +121,20 @@ void settings::ini_file_check(const std::string &group, const ini_hash &sample)
 	for(auto &pair : tmp) //O(n)
 	{
 		if( pair.second.get_type() == GTS_RTTR_TYPE(int) )
-			_settings.write(group, pair.first, pair.second.get_value<int>()); //O(log)
+			write(group, pair.first, pair.second.get_value<int>()); //O(log)
 
 		else if( pair.second.get_type() == GTS_RTTR_TYPE(bool) )
-			_settings.write(group, pair.first, pair.second.get_value<bool>()); //O(log)
+			write(group, pair.first, pair.second.get_value<bool>()); //O(log)
 
 		else if( pair.second.get_type() == GTS_RTTR_TYPE(std::string) )
-			_settings.write(group, pair.first, pair.second.get_value<std::string>()); //O(log)
+			write(group, pair.first, pair.second.get_value<std::string>()); //O(log)
 
 		else if( pair.second.get_type() == GTS_RTTR_TYPE(const char*) )
-			_settings.write(group, pair.first, pair.second.get_value<const char*>()); //O(log)
+			write(group, pair.first, pair.second.get_value<const char*>()); //O(log)
 		c++;
 	}
 	if( c > 0 )
-		_settings.flush(); //io
+		flush(); //io
 }
 
 GTS_NAMESPACE_END

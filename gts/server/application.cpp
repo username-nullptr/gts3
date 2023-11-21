@@ -187,7 +187,7 @@ void applictaion_impl::set_config_file(const cmdline::args_parser::arguments &ar
 		{ SINI_GTS_SSL_KEY_FILE   , ""                         },
 		{ SINI_GTS_SSL_KEY        , ""                         }
 	};
-	settings::ini_file_check(SINI_GROUP_GTS, sample_gts);
+	_settings.ini_file_check(SINI_GROUP_GTS, sample_gts);
 
 	settings::ini_hash sample_gtslog
 	{
@@ -199,7 +199,7 @@ void applictaion_impl::set_config_file(const cmdline::args_parser::arguments &ar
 		{ SINI_GTS_LOG_MAXOD    , 10485760   },
 		{ SINI_GTS_LOG_MAX      , 1073741824 },
 	};
-	settings::ini_file_check(SINI_GROUP_GTSLOG, sample_gtslog);
+	_settings.ini_file_check(SINI_GROUP_GTSLOG, sample_gtslog);
 }
 
 /*----------------------------------------------------------------------------------------------------------*/
