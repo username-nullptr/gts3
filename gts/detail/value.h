@@ -102,6 +102,16 @@ inline long double value::to_ldouble() const
 	return get<long double>();
 }
 
+inline const std::string &value::to_string() const
+{
+	return *this;
+}
+
+inline std::string &value::to_string()
+{
+	return *this;
+}
+
 template <typename T, typename U_GTEI_0>
 bool value::get() const
 {

@@ -29,7 +29,7 @@
 #ifndef GTS_SETTINGS_H
 #define GTS_SETTINGS_H
 
-#include <gts/global.h>
+#include <gts/value.h>
 #include <rttr/variant.h>
 #include <inicpp.h>
 
@@ -38,6 +38,18 @@ GTS_NAMESPACE_BEGIN
 class GTSCORE_API settings
 {
 	GTS_DISABLE_COPY_MOVE(settings)
+
+	template <typename T>
+	using is_string = gts::value::is_string<T>;
+
+	template <typename CT>
+	using enum_t = enable_if_t<gts_is_enum(CT), int>;
+
+	template <typename CT>
+	using value_t = enable_if_t<is_string<CT>::value, int>;
+
+	template <typename CT>
+	using not_value_enum_t = enable_if_t<not is_string<CT>::value and not gts_is_enum(CT), int>;
 
 public:
 	explicit settings(const std::string &file_name = std::string());
@@ -52,8 +64,14 @@ public:
 	GTS_CXX_NODISCARD("") std::string file_name() const;
 
 public:
-	template <typename T = std::string> GTS_CXX_NODISCARD("")
+	template <typename T, typename U0 = not_value_enum_t<T>> GTS_CXX_NODISCARD("")
 	T read(const std::string &group, const std::string &key, const T &default_value = T()) const;
+
+	template <typename T, typename U0 = enum_t<T>, typename U1 = char> GTS_CXX_NODISCARD("")
+	T read(const std::string &group, const std::string &key, T default_value = T()) const;
+
+	template <typename T = gts::value, typename U0 = value_t<T>> GTS_CXX_NODISCARD("")
+	gts::value read(const std::string &group, const std::string &key, T default_value = T()) const;
 
 	template <typename T>
 	settings &write(const std::string &group, const std::string &key, T &&value);

@@ -120,7 +120,7 @@ void settings::ini_file_check(const std::string &group, const ini_hash &sample)
 	int c = 0;
 	for(auto &pair : tmp) //O(n)
 	{
-		if( pair.second.get_type() == GTS_RTTR_TYPE(int) )
+		if( pair.second.get_type() == GTS_RTTR_TYPE(int) or pair.second.get_type().is_enumeration() )
 			write(group, pair.first, pair.second.get_value<int>()); //O(log)
 
 		else if( pair.second.get_type() == GTS_RTTR_TYPE(bool) )

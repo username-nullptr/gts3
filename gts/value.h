@@ -71,6 +71,9 @@ public:
 	GTS_CXX_NODISCARD("") double      to_double () const;
 	GTS_CXX_NODISCARD("") long double to_ldouble() const;
 
+	GTS_CXX_NODISCARD("") const std::string &to_string() const;
+	GTS_CXX_NODISCARD("") std::string &to_string();
+
 public:
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, bool), int)>
 	GTS_CXX_NODISCARD("") bool get() const;
@@ -115,10 +118,10 @@ public:
 	GTS_CXX_NODISCARD("") long double get() const;
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, std::string), int)>
-	GTS_CXX_NODISCARD("") std::string &get();
+	GTS_CXX_NODISCARD("") const std::string &get() const;
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_same(T, std::string), int)>
-	GTS_CXX_NODISCARD("") const std::string &get() const;
+	GTS_CXX_NODISCARD("") std::string &get();
 
 	template <typename T, GTS_TYPE_ENABLE_IF(gts_is_enum(T), int)>
 	GTS_CXX_NODISCARD("") T get() const;

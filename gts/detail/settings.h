@@ -31,7 +31,7 @@
 
 GTS_NAMESPACE_BEGIN
 
-template <typename T> inline
+template <typename T, typename U0>
 T settings::read(const std::string &group, const std::string &key, const T &default_value) const
 {
 	auto group_it = m_ini_map.find(group);
@@ -41,9 +41,42 @@ T settings::read(const std::string &group, const std::string &key, const T &defa
 	auto key_it = group_it->second.find(key);
 	if( key_it == group_it->second.end() )
 		return default_value;
-
 	try {
 		return key_it->second.as<T>();
+	}
+	catch(...) {}
+	return default_value;
+}
+
+template <typename T, typename U0, typename U1>
+T settings::read(const std::string &group, const std::string &key, T default_value) const
+{
+	auto group_it = m_ini_map.find(group);
+	if( group_it == m_ini_map.end() )
+		return default_value;
+
+	auto key_it = group_it->second.find(key);
+	if( key_it == group_it->second.end() )
+		return default_value;
+	try {
+		return static_cast<T>(key_it->second.as<int>());
+	}
+	catch(...) {}
+	return default_value;
+}
+
+template <typename T, typename U0>
+gts::value settings::read(const std::string &group, const std::string &key, T default_value) const
+{
+	auto group_it = m_ini_map.find(group);
+	if( group_it == m_ini_map.end() )
+		return default_value;
+
+	auto key_it = group_it->second.find(key);
+	if( key_it == group_it->second.end() )
+		return default_value;
+	try {
+		return key_it->second.as<std::string>();
 	}
 	catch(...) {}
 	return default_value;

@@ -31,15 +31,13 @@
 
 #include <gts/global.h>
 #include <gts/exception.h>
-
-#include <condition_variable>
 #include <atomic>
 #include <mutex>
 
 GTS_NAMESPACE_BEGIN
 
 template <typename Mutex>
-class GTSCORE_API basic_rw_mutex
+class basic_rw_mutex
 {
 	GTS_DISABLE_COPY_MOVE(basic_rw_mutex)
 
@@ -53,41 +51,75 @@ public:
 	void lock();
 	void unlock();
 
-public: // TODO ...
-//	GTS_CXX_NODISCARD("") bool try_lock_shared();
-//	GTS_CXX_NODISCARD("") bool try_lock();
+public:
+	GTS_CXX_NODISCARD("") bool try_lock_shared() noexcept;
+	GTS_CXX_NODISCARD("") bool try_lock() noexcept;
+
+	template <class Clock, class Duration> GTS_CXX_NODISCARD("")
+	bool try_lock_shared_until(const std::chrono::time_point<Clock, Duration>& atime);
+
+	template <class Clock, class Duration> GTS_CXX_NODISCARD("")
+	bool try_lock_for_until(const std::chrono::time_point<Clock, Duration>& atime);
+
+	template <class Rep, class Period> GTS_CXX_NODISCARD("")
+	bool try_lock_shared_for(const std::chrono::duration<Rep, Period>& rtime);
+
+	template <class Rep, class Period> GTS_CXX_NODISCARD("")
+	bool try_lock_for(const std::chrono::duration<Rep, Period>& rtime);
 
 private:
 	std::atomic_uint m_reader {0};
 	std::atomic_bool m_writer {false};
-	std::condition_variable m_condition;
 	mutex_type m_mutex;
 };
 
 using rw_mutex = basic_rw_mutex<std::mutex>;
 using timed_rw_mutex = basic_rw_mutex<std::timed_mutex>;
 
+/*--------------------------------------------------------------------------------------------------------------------*/
+
 template <typename Mutex>
-class GTS_DECL_HIDDEN basic_shared_lock
+class basic_shared_lock
 {
-	GTS_DISABLE_COPY_MOVE(basic_shared_lock)
+	GTS_DISABLE_COPY(basic_shared_lock)
 
 public:
 	using mutex_type = Mutex;
 	explicit basic_shared_lock(basic_rw_mutex<mutex_type> &mutex);
+	basic_shared_lock(basic_rw_mutex<mutex_type> &mutex, std::try_to_lock_t);
 
-	// TODO ...
-//	basic_shared_lock(basic_rw_mutex<mutex_type> &mutex, std::try_to_lock_t);
-//	const chrono::time_point<_Clock, _Duration>& __atime
-//	const chrono::duration<_Rep, _Period>& __rtime
+	template <class Clock, class Duration>
+	basic_shared_lock(basic_rw_mutex<mutex_type> &mutex, const std::chrono::time_point<Clock, Duration>& atime);
 
+	template <class Rep, class Period>
+	basic_shared_lock(basic_rw_mutex<mutex_type> &mutex, const std::chrono::duration<Rep, Period>& rtime);
+
+public:
+	basic_shared_lock(basic_shared_lock &&other) noexcept;
+	basic_shared_lock &operator=(basic_shared_lock &&other) noexcept;
 	~basic_shared_lock();
 
-public: // TODO ...
-//	GTS_CXX_NODISCARD("") bool owner() const;
+public:
+	void lock_shared();
+	void unlock();
+
+public:
+	GTS_CXX_NODISCARD("") bool try_lock_shared() noexcept;
+	GTS_CXX_NODISCARD("") bool owns_lock() const;
+
+	template <class Clock, class Duration> GTS_CXX_NODISCARD("")
+	bool try_lock_shared_until(const std::chrono::time_point<Clock, Duration>& atime);
+
+	template <class Rep, class Period> GTS_CXX_NODISCARD("")
+	bool try_lock_shared_for(const std::chrono::duration<Rep, Period>& rtime);
+
+public:
+	void swap(basic_shared_lock& other) noexcept;
+	mutex_type *release() noexcept;
 
 private:
-	basic_rw_mutex<mutex_type> &m_mutex;
+	basic_rw_mutex<mutex_type> *m_mutex;
+	std::atomic_bool m_owns {false};
 };
 
 using shared_lock = basic_shared_lock<std::mutex>;

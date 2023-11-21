@@ -44,7 +44,7 @@ public:
 	typedef std::string  rule;
 	typedef std::string  description;
 	typedef std::string  identification;
-	typedef std::unordered_map<rule, value>  arguments;
+	typedef std::unordered_map<rule, gts::value>  arguments;
 
 public:
 	explicit args_parser(std::string help_title = {});

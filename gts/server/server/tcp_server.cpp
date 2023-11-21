@@ -49,8 +49,8 @@ using njson = nlohmann::json;
 
 namespace ip = asio::ip;
 
-#define READ_CONFIG(_type, _key, _default) \
-	gts::settings::global_instance().read<_type>(SINI_GROUP_GTS, _key, _default)
+#define READ_CONFIG(_key, _default) \
+	gts::settings::global_instance().read(SINI_GROUP_GTS, _key, _default)
 
 tcp_server::tcp_server()
 {
@@ -106,7 +106,7 @@ tcp_server::~tcp_server()
 void tcp_server::start()
 {
 	auto &_settings = settings::global_instance();
-	auto json_file = READ_CONFIG(std::string, SINI_GTS_SITES_CONFIG, GTS_DEFAULT_SITES_CONFIG);
+	auto json_file = READ_CONFIG(SINI_GTS_SITES_CONFIG, GTS_DEFAULT_SITES_CONFIG).to_string();
 
 	if( json_file.empty() )
 	{
@@ -183,7 +183,7 @@ void tcp_server::start()
 	}
 	file.close();
 
-	json_file = READ_CONFIG(std::string, SINI_GTS_PLUGINS_CONFIG, GTS_DEFAULT_PLUGINS_CONFIG);
+	json_file = READ_CONFIG(SINI_GTS_PLUGINS_CONFIG, GTS_DEFAULT_PLUGINS_CONFIG);
 	if( json_file.empty() )
 	{
 		gts_log_fatal("gts::tcp_server::start: No plugins configuration found.");
@@ -196,7 +196,7 @@ void tcp_server::start()
 		return ;
 	}
 	plugin_call_handle::init(json_file, _settings.file_name());
-	m_buffer_size = READ_CONFIG(int, SINI_GTS_TCP_BUF_SIZE, m_buffer_size);
+	m_buffer_size = READ_CONFIG(SINI_GTS_TCP_BUF_SIZE, m_buffer_size);
 
 	if( m_buffer_size < 1024 )
 		m_buffer_size = 1024;
