@@ -46,13 +46,18 @@ tcp_socket::~tcp_socket() noexcept
 
 std::size_t tcp_socket::write_some(const std::string &buf, asio::error_code &error) noexcept
 {
-	m_sock->non_blocking(false);
+	non_blocking(false, error);
+	if( error )
+		return 0;
 	return write_some(buf.c_str(), buf.size(), error);
 }
 
 std::size_t tcp_socket::write_some(const void *buf, std::size_t size, asio::error_code &error) noexcept
 {
-	m_sock->non_blocking(false);
+	non_blocking(false, error);
+	if( error )
+		return 0;
+
 	const char *cbuf = static_cast<const char*>(buf);
 	std::size_t counter = 0;
 
@@ -79,7 +84,10 @@ std::size_t tcp_socket::read_some(std::string &buf, asio::error_code &error) noe
 	tcp::socket::receive_buffer_size option;
 	get_option(option);
 
-	m_sock->non_blocking(false);
+	non_blocking(false, error);
+	if( error )
+		return 0;
+
 	char *tmp = new char[option.value()] {0};
 	auto res = m_sock->read_some(asio::buffer(tmp, option.value()), error);
 
@@ -90,13 +98,17 @@ std::size_t tcp_socket::read_some(std::string &buf, asio::error_code &error) noe
 
 std::size_t tcp_socket::read_some(std::string &buf, std::size_t size, asio::error_code &error) noexcept
 {
-	m_sock->non_blocking(false);
+	non_blocking(false, error);
+	if( error )
+		return 0;
 	return m_sock->read_some(asio::buffer(buf, size), error);
 }
 
 std::size_t tcp_socket::read_some(void *buf, std::size_t size, asio::error_code &error) noexcept
 {
-	m_sock->non_blocking(false);
+	non_blocking(false, error);
+	if( error )
+		return 0;
 	return m_sock->read_some(asio::buffer(buf, size), error);
 }
 

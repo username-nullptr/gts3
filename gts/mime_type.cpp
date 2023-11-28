@@ -1049,8 +1049,25 @@ static inline std::string mime_from_magic(const std::string &file_name)
 	return mime_type;
 }
 
-std::string get_mime_type(const std::string &file_name)
+std::string get_mime_type(const std::string &file_name, bool magic_first)
 {
+	if( magic_first )
+	{
+		auto type = mime_from_magic(file_name);
+		if( type != "unknown" )
+			return type;
+
+		auto name = gts::file_name(file_name);
+		auto pos = name.rfind('.');
+
+		if( pos == std::string::npos )
+			return type;
+
+		auto it = g_suffix_hash.find(str_to_lower(name.substr(pos)));
+		if( it == g_suffix_hash.end() )
+			return type;
+		return it->second;
+	}
 	auto name = gts::file_name(file_name);
 	auto pos = name.rfind('.');
 
@@ -1060,7 +1077,6 @@ std::string get_mime_type(const std::string &file_name)
 	auto it = g_suffix_hash.find(str_to_lower(name.substr(pos)));
 	if( it == g_suffix_hash.end() )
 		return mime_from_magic(file_name);
-
 	return it->second;
 }
 

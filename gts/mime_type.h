@@ -34,7 +34,7 @@
 GTS_NAMESPACE_BEGIN
 
 GTSCORE_API GTS_CXX_NODISCARD("")
-std::string get_mime_type(const std::string &file_name);
+std::string get_mime_type(const std::string &file_name, bool magic_first = false);
 
 GTSCORE_API GTS_CXX_NODISCARD("")
 bool is_text_file(const std::string &file_name);

@@ -45,7 +45,10 @@ ssl_socket::~ssl_socket() noexcept
 
 std::size_t ssl_socket::write_some(const void *buf, std::size_t size, asio::error_code &error) noexcept
 {
-	m_sock->non_blocking(false);
+	non_blocking(false, error);
+	if( error )
+		return 0;
+
 	const char *cbuf = static_cast<const char*>(buf);
 	std::size_t counter = 0;
 
@@ -69,20 +72,27 @@ std::size_t ssl_socket::write_some(const void *buf, std::size_t size, asio::erro
 
 std::size_t ssl_socket::read_some(std::string &buf, asio::error_code &error) noexcept
 {
-	m_sock->non_blocking(false);
+	non_blocking(false, error);
+	if( error )
+		return 0;
+
 	tcp::socket::receive_buffer_size option; get_option(option);
 	return m_ssl_sock->read_some(asio::buffer(buf, option.value()), error);
 }
 
 std::size_t ssl_socket::read_some(std::string &buf, std::size_t size, asio::error_code &error) noexcept
 {
-	m_sock->non_blocking(false);
+	non_blocking(false, error);
+	if( error )
+		return 0;
 	return m_ssl_sock->read_some(asio::buffer(buf, size), error);
 }
 
 std::size_t ssl_socket::read_some(void *buf, std::size_t size, asio::error_code &error) noexcept
 {
-	m_sock->non_blocking(false);
+	non_blocking(false, error);
+	if( error )
+		return 0;
 	return m_ssl_sock->read_some(asio::buffer(buf, size), error);
 }
 
