@@ -27,6 +27,8 @@
 *************************************************************************************/
 
 #include "socket.h"
+#include "socket_frame_parser.h"
+#include "socket_frame_writer.h"
 #include <gts/sha1.h>
 
 GTS_WEB_NAMESPACE_BEGIN
@@ -63,6 +65,9 @@ public:
 public:
 	tcp_socket_ptr m_socket;
 	sp::version m_version = sp::version_unknown;
+
+	socket_frame_parser m_parser;
+	socket_frame_writer m_writer;
 
     std::string m_tcp_all_buf;
     std::string m_tcp_once_buf;

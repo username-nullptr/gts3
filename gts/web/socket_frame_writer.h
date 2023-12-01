@@ -26,68 +26,24 @@
 *                                                                                   *
 *************************************************************************************/
 
-#ifndef GTS_DBI_DRIVER_H
-#define GTS_DBI_DRIVER_H
+#ifndef GTS_WEB_SOCKET_FRAME_WRITER_H
+#define GTS_WEB_SOCKET_FRAME_WRITER_H
 
-#include <gts/dbi/connection.h>
+#include <gts/web/types.h>
 
-GTS_DBI_NAMESPACE_BEGIN
+GTS_WEB_NAMESPACE_BEGIN
 
-class GTS_DBI_API driver
+class GTS_WEB_API socket_frame_writer
 {
-	GTS_DISABLE_COPY_MOVE(driver)
+	GTS_DISABLE_COPY_MOVE(socket_frame_writer)
 
 public:
-	driver() = default;
-	virtual ~driver() = 0;
-	GTS_CXX_NODISCARD("") virtual bool is_valid();
+	socket_frame_writer() = default;
 
 public:
-	GTS_CXX_NODISCARD("") virtual std::string name() = 0;
-	GTS_CXX_NODISCARD("") virtual std::string description() = 0;
-
-public:
-	virtual void set_default_connect_info(const dbi::connect_info &info) = 0;
-	virtual void set_default_connect_string_info(const std::string &info) = 0;
-
-	template <typename...Args>
-	void set_default_connect_string_info(fmt::format_string<Args...> fmt, Args&&...args);
-
-public:
-	GTS_CXX_NODISCARD("")
-	virtual dbi::connect_info default_connect_info() const = 0;
-
-	GTS_CXX_NODISCARD("")
-	virtual std::string default_connect_string_info() const = 0;
-
-public:
-	virtual bool set_auto_commit(error_code &error, bool enable) noexcept = 0;
-	void set_auto_commit(bool enable) noexcept(false);
-	GTS_CXX_NODISCARD("") virtual bool auto_commit() const = 0;
-
-public:
-	GTS_CXX_NODISCARD("Create a database connection")
-	virtual connection_ptr create_connection(error_code &error, const dbi::connect_info &info) noexcept = 0;
-
-	GTS_CXX_NODISCARD("Create a database connection")
-	virtual connection_ptr create_connection(error_code &error, const std::string &info) noexcept = 0;
-
-public:
-	GTS_CXX_NODISCARD("Create a database connection")
-	virtual connection_ptr create_connection(error_code &error) noexcept;
-
-	GTS_CXX_NODISCARD("Create a database connection")
-	virtual connection_ptr create_connection() noexcept(false);
-
-public:
-	GTS_CXX_NODISCARD("Create a database connection")
-	connection_ptr create_connection(const dbi::connect_info &info) noexcept(false);
-
-	GTS_CXX_NODISCARD("Create a database connection")
-	connection_ptr create_connection(const std::string &info) noexcept(false);
 };
 
-GTS_DBI_NAMESPACE_END
-#include <gts/dbi/detail/driver.h>
+GTS_WEB_NAMESPACE_END
 
-#endif //GTS_DBI_DRIVER_H
+
+#endif //GTS_WEB_SOCKET_FRAME_WRITER_H
