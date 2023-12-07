@@ -32,6 +32,11 @@
 
 GTS_NAMESPACE_BEGIN
 
+using function_void_mw = move_wrapper<std::function<void()>>;
+using function_size_mw = move_wrapper<std::function<void(std::size_t)>>;
+using function_error_mw = move_wrapper<std::function<void(asio::error_code)>>;
+using function_error_size_mw = move_wrapper<std::function<void(asio::error_code,std::size_t)>>;
+
 tcp_socket::tcp_socket(tcp::socket *sock) :
 	m_sock(sock)
 {
@@ -112,10 +117,12 @@ std::size_t tcp_socket::read_some(void *buf, std::size_t size, asio::error_code 
 	return m_sock->read_some(asio::buffer(buf, size), error);
 }
 
-void tcp_socket::async_write_some(const std::string &buf, std::function<void(asio::error_code, std::size_t)> callback) noexcept
+void tcp_socket::async_write_some(const std::string &buf, function_error_size callback) noexcept
 {
-	m_sock->async_write_some(asio::buffer(buf), [this, &buf, callback](const asio::error_code &error, std::size_t size)
+	function_error_size_mw callback_mw(std::move(callback));
+	m_sock->async_write_some(asio::buffer(buf), [this, &buf, callback_mw](const asio::error_code &error, std::size_t size)
 	{
+		auto callback = callback_mw.take();
 		if( error or size >= buf.size() )
 			callback(error, size);
 		else
@@ -123,10 +130,12 @@ void tcp_socket::async_write_some(const std::string &buf, std::function<void(asi
 	});
 }
 
-void tcp_socket::async_write_some(const void *buf, std::size_t size, std::function<void(asio::error_code, std::size_t)> callback) noexcept
+void tcp_socket::async_write_some(const void *buf, std::size_t size, function_error_size callback) noexcept
 {
-	m_sock->async_write_some(asio::buffer(buf, size), [this, buf, size, callback](const asio::error_code &error, std::size_t rsize)
+	function_error_size_mw callback_mw(std::move(callback));
+	m_sock->async_write_some(asio::buffer(buf, size), [this, buf, size, callback_mw](const asio::error_code &error, std::size_t rsize)
 	{
+		auto callback = callback_mw.take();
 		if( error or rsize >= size )
 			callback(error, rsize);
 		else
@@ -134,37 +143,41 @@ void tcp_socket::async_write_some(const void *buf, std::size_t size, std::functi
 	});
 }
 
-void tcp_socket::async_read_some(std::string &buf, std::function<void(asio::error_code)> callback) noexcept
+void tcp_socket::async_read_some(std::string &buf, function_error callback) noexcept
 {
 	tcp::socket::receive_buffer_size option;
 	get_option(option);
 
 	char *tmp = new char[option.value()] {0};
-	m_sock->async_read_some(asio::buffer(tmp, option.value()), [&buf, callback, tmp](const asio::error_code &error, std::size_t size)
+	function_error_mw callback_mw(std::move(callback));
+
+	m_sock->async_read_some(asio::buffer(tmp, option.value()), [&buf, tmp, callback_mw](const asio::error_code &error, std::size_t size)
 	{
 		buf = std::string(tmp,size);
 		delete[] tmp;
-		callback(error);
+		(*callback_mw)(error);
 	});
 }
 
-void tcp_socket::async_read_some(std::string &buf, std::size_t size, std::function<void(asio::error_code)> callback) noexcept
+void tcp_socket::async_read_some(std::string &buf, std::size_t size, function_error callback) noexcept
 {
 	if( size == 0 )
 		return callback(asio::error_code());
-	char *tmp = new char[size] {0};
 
-	m_sock->async_read_some(asio::buffer(tmp, size), [&buf, callback, tmp](const asio::error_code &error, std::size_t size)
+	char *tmp = new char[size] {0};
+	function_error_mw callback_mw(std::move(callback));
+
+	m_sock->async_read_some(asio::buffer(tmp, size), [&buf, tmp, callback_mw](const asio::error_code &error, std::size_t size)
 	{
 		buf = std::string(tmp,size);
 		delete[] tmp;
-		callback(error);
+		(*callback_mw)(error);
 	});
 }
 
-void tcp_socket::async_read_some(void *buf, std::size_t size, std::function<void(asio::error_code, std::size_t)> callback) noexcept
+void tcp_socket::async_read_some(void *buf, std::size_t size, function_error_size callback) noexcept
 {
-	m_sock->async_read_some(asio::buffer(buf, size), callback);
+	m_sock->async_read_some(asio::buffer(buf, size), std::move(callback));
 }
 
 std::size_t tcp_socket::write_some(const std::string &buf) noexcept
@@ -212,53 +225,58 @@ std::size_t tcp_socket::read_some(void *buf, std::size_t size) noexcept
 	return res;
 }
 
-void tcp_socket::async_write_some(const std::string &buf, std::function<void(std::size_t)> callback) noexcept
+void tcp_socket::async_write_some(const std::string &buf, function_size callback) noexcept
 {
-	async_write_some(buf, [callback](const asio::error_code &error, std::size_t size)
+	function_size_mw callback_mw(std::move(callback));
+	async_write_some(buf, [callback_mw](const asio::error_code &error, std::size_t size)
 	{
 		if( error )
 			tcp_socket::error(error, "async_write_some(std::string)");
-		callback(size);
+		(*callback_mw)(size);
 	});
 }
 
-void tcp_socket::async_write_some(const void *buf, std::size_t size, std::function<void(std::size_t)> callback) noexcept
+void tcp_socket::async_write_some(const void *buf, std::size_t size, function_size callback) noexcept
 {
-	async_write_some(buf, size, [callback](const asio::error_code &error, std::size_t size)
+	function_size_mw callback_mw(std::move(callback));
+	async_write_some(buf, size, [callback_mw](const asio::error_code &error, std::size_t size)
 	{
 		if( error )
 			tcp_socket::error(error, "async_write_some(void*)");
-		callback(size);
+		(*callback_mw)(size);
 	});
 }
 
-void tcp_socket::async_read_some(std::string &buf, std::function<void()> callback) noexcept
+void tcp_socket::async_read_some(std::string &buf, function_void callback) noexcept
 {
-	async_read_some(buf, [callback](const asio::error_code &error)
+	function_void_mw callback_mw(std::move(callback));
+	async_read_some(buf, [callback_mw](const asio::error_code &error)
 	{
 		if( error )
 			tcp_socket::error(error, "async_read_some(std::string)");
-		callback();
+		(*callback_mw)();
 	});
 }
 
-void tcp_socket::async_read_some(std::string &buf, std::size_t size, std::function<void()> callback) noexcept
+void tcp_socket::async_read_some(std::string &buf, std::size_t size, function_void callback) noexcept
 {
-	async_read_some(buf, size, [callback](const asio::error_code &error)
+	function_void_mw callback_mw(std::move(callback));
+	async_read_some(buf, size, [callback_mw](const asio::error_code &error)
 	{
 		if( error )
 			tcp_socket::error(error, "async_read_some(std::string,std::size_t)");
-		callback();
+		(*callback_mw)();
 	});
 }
 
-void tcp_socket::async_read_some(void *buf, std::size_t size, std::function<void(std::size_t)> callback) noexcept
+void tcp_socket::async_read_some(void *buf, std::size_t size, function_size callback) noexcept
 {
-	async_read_some(buf, size, [callback](const asio::error_code &error, std::size_t size)
+	function_size_mw callback_mw(std::move(callback));
+	async_read_some(buf, size, [callback_mw](const asio::error_code &error, std::size_t size)
 	{
 		if( error )
 			tcp_socket::error(error, "async_read_some(void*)");
-		callback(size);
+		(*callback_mw)(size);
 	});
 }
 

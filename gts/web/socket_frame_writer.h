@@ -45,5 +45,9 @@ public:
 
 GTS_WEB_NAMESPACE_END
 
+GTS_NAMESPACE_BEGIN
+using websocket_frame_writer = web::socket_frame_writer;
+GTS_NAMESPACE_END
+
 
 #endif //GTS_WEB_SOCKET_FRAME_WRITER_H

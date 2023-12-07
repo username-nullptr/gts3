@@ -41,7 +41,6 @@ class socket_impl;
 class GTS_WEB_API socket
 {
 	GTS_DISABLE_COPY_MOVE(socket)
-	using buffer = socket_protocol::buffer;
 	using duration = std::chrono::milliseconds;
 
 public:
@@ -51,6 +50,21 @@ public:
 public:
 	GTS_CXX_NODISCARD("Get the protocol version of websocket")
 	socket_protocol::version version() const;
+
+public:
+	enum class buffer_type {
+		text, binary
+	};
+
+	struct buffer
+	{
+		buffer() = default;
+		buffer(std::string data, buffer_type type = buffer_type::text);
+		buffer(void *data, std::size_t size, buffer_type type = buffer_type::text);
+
+		buffer_type type = buffer_type::text;
+		std::string data;
+	};
 
 public:
 	std::size_t write_some(const buffer &buf, asio::error_code &error) noexcept;
@@ -102,6 +116,9 @@ public:
 private:
 	socket_impl *m_impl;
 };
+
+using socket_buffer_type = socket::buffer_type;
+using socket_buffer = socket::buffer;
 
 using socket_ptr = std::shared_ptr<socket>;
 

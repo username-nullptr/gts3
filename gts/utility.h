@@ -29,8 +29,8 @@
 #ifndef GTS_UTILITY_H
 #define GTS_UTILITY_H
 
+#include <gts/move_wrapper.h>
 #include <rttr/variant.h>
-#include <gts/cplusplus.hpp>
 
 #ifdef __GNUC__
 # include <cxxabi.h>
@@ -44,7 +44,7 @@
 #if defined(_WIN64) || defined(__x86_64__) || defined(__arm64__) || defined(__aarch64__)
 # define GTS_OS_64BIT
 #else
-# define _OS_32BIT
+# define GTS_OS_32BIT
 #endif // 32bit & 64bit
 
 #define GTS_DISABLE_COPY(_class) \
@@ -57,17 +57,6 @@
 
 #define GTS_DISABLE_COPY_MOVE(_class) \
 	GTS_DISABLE_COPY(_class) GTS_DISABLE_MOVE(_class)
-
-#if GTS_CPLUSPLUS >= 202002L
-# define GTS_CXX_NODISCARD(_d)  [[nodiscard(_d)]]
-#elif __cplusplus >= 201703L
-# define GTS_CXX_NODISCARD(_d)  [[nodiscard]]
-#else
-# define GTS_CXX_NODISCARD(_d)
-#endif
-
-#define GTS_NAMESPACE_BEGIN  namespace gts {
-#define GTS_NAMESPACE_END    } //namespace gts
 
 GTS_NAMESPACE_BEGIN
 
@@ -87,6 +76,8 @@ using enable_if_t = typename std::enable_if<C,T>::type;
 template <typename T>
 using decay_t = typename std::decay<T>::type;
 
+GTS_NAMESPACE_END
+
 #define gts_is_arithmetic(...)  std::is_arithmetic<__VA_ARGS__>::value
 
 #define gts_is_enum(...)   std::is_enum<__VA_ARGS__>::value
@@ -96,8 +87,6 @@ using decay_t = typename std::decay<T>::type;
 #define gts_is_dsame(x,y)   std::is_same<gts::decay_t<x>, y>::value
 
 #define gts_is_base_of(...)   std::is_base_of<__VA_ARGS__>::value
-
-GTS_NAMESPACE_END
 
 #define GTS_DECLVAL(...)   std::declval<__VA_ARGS__>()
 

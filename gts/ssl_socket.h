@@ -55,12 +55,12 @@ public:
 	std::size_t read_some(void *buf, std::size_t size, asio::error_code &error) noexcept override;
 
 public:
-	void async_write_some(const std::string &buf, std::function<void(asio::error_code, std::size_t)>) noexcept override;
-	void async_write_some(const void *buf, std::size_t size, std::function<void(asio::error_code, std::size_t)>) noexcept override;
+	void async_write_some(const std::string &buf, function_error_size callback) noexcept override;
+	void async_write_some(const void *buf, std::size_t size, function_error_size callback) noexcept override;
 
-	void async_read_some(std::string &buf, std::function<void(asio::error_code)>) noexcept override;
-	void async_read_some(std::string &buf, std::size_t size, std::function<void(asio::error_code)>) noexcept override;
-	void async_read_some(void *buf, std::size_t size, std::function<void(asio::error_code, std::size_t)>) noexcept override;
+	void async_read_some(std::string &buf, function_error callback) noexcept override;
+	void async_read_some(std::string &buf, std::size_t size, function_error callback) noexcept override;
+	void async_read_some(void *buf, std::size_t size, function_error_size callback) noexcept override;
 
 public:
 	static ssl::context &asio_ssl_context();

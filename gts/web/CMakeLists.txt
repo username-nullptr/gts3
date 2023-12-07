@@ -5,6 +5,7 @@ set(web_sources
 	socket.cpp
 	socket_frame_parser.cpp
 	socket_frame_writer.cpp
+	socket_protocol.cpp
 	registration.cpp
 	service/connection.cpp
 	service/task.cpp
@@ -21,6 +22,7 @@ set(web_gts_headers
 	socket.h
 	socket_frame_parser.h
 	socket_frame_writer.h
+	socket_protocol.h
 	config_key.h
 	thread_pool.h
 	registration.h
@@ -29,7 +31,6 @@ set(web_gts_headers
 set(web_gts_detail_headers
 	detail/registration.h
 	detail/socket.h
-	detail/types.h
 )
 
 set(web_sp_headers

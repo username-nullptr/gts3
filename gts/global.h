@@ -30,75 +30,19 @@
 #define GTS_GLOBAL_H
 
 #include <gts/gts_enable_ssl.h>
-#include <nlohmann/json.hpp>
 #include <gts/utility.h>
+
+#include <nlohmann/json.hpp>
 #include <asio.hpp>
 #include <vector>
-
-#if GTS_CPLUSPLUS >= 201703L
-# define GTS_APP_NAMESPACE_BEGIN  namespace gts::app {
-# define GTS_APP_NAMESPACE_END    } //namespace gts::app
-# define GTS_CMDLINE_NAMESPACE_BEGIN  namespace gts::cmdline {
-# define GTS_CMDLINE_NAMESPACE_END    } //namespace gts::cmdline
-# define GTS_EXTENSION_NAMESPACE_BEGIN  namespace gts::extension {
-# define GTS_EXTENSION_NAMESPACE_END    } //namespace gts::extension
-#else //cpp17
-# define GTS_APP_NAMESPACE_BEGIN  namespace gts { namespace app {
-# define GTS_APP_NAMESPACE_END    }} //namespace gts::app
-# define GTS_CMDLINE_NAMESPACE_BEGIN  namespace gts { namespace cmdline {
-# define GTS_CMDLINE_NAMESPACE_END    }} //namespace gts::cmdline
-# define GTS_EXTENSION_NAMESPACE_BEGIN  namespace gts { namespace extension {
-# define GTS_EXTENSION_NAMESPACE_END    }} //namespace gts::extension
-#endif //cpp17
-
-GTS_NAMESPACE_BEGIN
-
-#ifdef _MSC_VER
-
-# define GTS_DECL_EXPORT  __declspec(dllexport)
-# define GTS_DECL_IMPORT  __declspec(dllimport)
-# define GTS_DECL_HIDDEN
-
-# define __attribute_used__    __declspec(used)
-# define __attribute_unused__  __declspec(unused)
-
-# define __attribute_weak__              __declspec(weak)
-# define __attribute_weakref__(_symbol)  __declspec(weakref(_symbol))
-
-#elif defined(__GNUC__)
-
-# define GTS_DECL_EXPORT  __attribute__((visibility("default")))
-# define GTS_DECL_IMPORT
-# define GTS_DECL_HIDDEN  __attribute__((visibility("hidden")))
-
-# define GTS_CXX_ATTR_USED    __attribute__((used))
-# define GTS_CXX_ATTR_UNUSED  __attribute__((unused))
-
-# define GTS_CXX_ATTR_WEAK              __attribute__((weak))
-# define GTS_CXX_ATTR_WEAKREF(_symbol)  __attribute__((weakref(_symbol)))
-
-#else // other compiler
-
-# define GTS_DECL_EXPORT
-# define GTS_DECL_IMPORT
-# define GTS_DECL_HIDDEN
-
-# define GTS_CXX_ATTR_USED
-# define GTS_CXX_ATTR_UNUSED
-
-# define GTS_CXX_ATTR_WEAK
-# define GTS_CXX_ATTR_WEAKREF(_symbol)
-
-#endif //compiler
-
-#define C_VIRTUAL_FUNC             __attribute_weak__
-#define C_VIRTUAL_SYMBOL(_symbol)  __attribute_weakref__(_symbol)
 
 #ifdef gtscore_EXPORTS
 # define GTSCORE_API  GTS_DECL_EXPORT
 #else //gtscore_EXPORTS
 # define GTSCORE_API  GTS_DECL_IMPORT
 #endif //gtscore_EXPORTS
+
+GTS_NAMESPACE_BEGIN
 
 GTSCORE_API GTS_CXX_NODISCARD("") std::string version_string();
 

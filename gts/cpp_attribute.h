@@ -26,19 +26,57 @@
 *                                                                                   *
 *************************************************************************************/
 
-#ifndef GTS_WEB_TYPES_H
-#define GTS_WEB_TYPES_H
+#ifndef GTS_CPP_ATTRIBUTE_H
+#define GTS_CPP_ATTRIBUTE_H
 
-#include <gts/web/socket_protocol.h>
-#include <gts/http/container.h>
+#ifdef _MSC_VER
 
-GTS_WEB_NAMESPACE_BEGIN
+# define GTS_DECL_EXPORT  __declspec(dllexport)
+# define GTS_DECL_IMPORT  __declspec(dllimport)
+# define GTS_DECL_HIDDEN
 
-using environment = http::pair<gts::value>;
+# define __attribute_used__    __declspec(used)
+# define __attribute_unused__  __declspec(unused)
 
-using environments = http::unordered_map<gts::value>;
+# define __attribute_weak__              __declspec(weak)
+# define __attribute_weakref__(_symbol)  __declspec(weakref(_symbol))
 
-GTS_WEB_NAMESPACE_END
+#elif defined(__GNUC__)
+
+# define GTS_DECL_EXPORT  __attribute__((visibility("default")))
+# define GTS_DECL_IMPORT
+# define GTS_DECL_HIDDEN  __attribute__((visibility("hidden")))
+
+# define GTS_CXX_ATTR_USED    __attribute__((used))
+# define GTS_CXX_ATTR_UNUSED  __attribute__((unused))
+
+# define GTS_CXX_ATTR_WEAK              __attribute__((weak))
+# define GTS_CXX_ATTR_WEAKREF(_symbol)  __attribute__((weakref(_symbol)))
+
+#else // other compiler
+
+# define GTS_DECL_EXPORT
+# define GTS_DECL_IMPORT
+# define GTS_DECL_HIDDEN
+
+# define GTS_CXX_ATTR_USED
+# define GTS_CXX_ATTR_UNUSED
+
+# define GTS_CXX_ATTR_WEAK
+# define GTS_CXX_ATTR_WEAKREF(_symbol)
+
+#endif //compiler
+
+#define C_VIRTUAL_FUNC             __attribute_weak__
+#define C_VIRTUAL_SYMBOL(_symbol)  __attribute_weakref__(_symbol)
+
+#if GTS_CPLUSPLUS >= 202002L
+# define GTS_CXX_NODISCARD(_d)  [[nodiscard(_d)]]
+#elif __cplusplus >= 201703L
+# define GTS_CXX_NODISCARD(_d)  [[nodiscard]]
+#else
+# define GTS_CXX_NODISCARD(_d)
+#endif
 
 
-#endif //GTS_WEB_TYPES_H
+#endif //GTS_CPP_ATTRIBUTE_H

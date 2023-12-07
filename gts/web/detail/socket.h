@@ -30,10 +30,24 @@
 #define GTS_WEB_DETAIL_SOCKET_H
 
 GTS_WEB_NAMESPACE_BEGIN
+
+inline socket_buffer::buffer(std::string data, buffer_type type) :
+	type(type), data(std::move(data))
+{
+
+}
+
+inline socket_buffer::buffer(void *data, std::size_t size, buffer_type type) :
+	type(type), data(reinterpret_cast<const char*>(data), size)
+{
+
+}
+
 template <typename...Args>
 inline socket_ptr make_socket_ptr(Args&&...args) {
 	return std::make_shared<socket>(std::forward<Args>(args)...);
 }
+
 GTS_WEB_NAMESPACE_END
 
 GTS_NAMESPACE_BEGIN

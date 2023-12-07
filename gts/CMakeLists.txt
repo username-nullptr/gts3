@@ -31,6 +31,9 @@ set(core_sources
 
 set(core_gts_headers
 	cplusplus.hpp
+	cpp_attribute.h
+	gts_namespace.h
+	move_wrapper.h
 	utility.h
 	global.h
 	value.h
@@ -56,6 +59,7 @@ set(core_gts_headers
 )
 
 set(core_gts_detail_headers
+	detail/move_wrapper.h
 	detail/value.h
 	detail/application.h
 	detail/settings.h

@@ -189,7 +189,7 @@ parser::~parser()
 	delete m_impl;
 }
 
-bool parser::write(const std::string &data)
+bool parser::load(const std::string &data)
 {
 	m_impl->m_buffer.append(data);
 	while( not m_impl->m_buffer.empty() )

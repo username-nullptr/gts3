@@ -26,37 +26,69 @@
 *                                                                                   *
 *************************************************************************************/
 
-#ifndef GTS_WEB_DETAIL_TYPES_H
-#define GTS_WEB_DETAIL_TYPES_H
+#ifndef GTS_DETAIL_MOVE_WRAPPER_H
+#define GTS_DETAIL_MOVE_WRAPPER_H
 
-GTS_WEB_SOCKET_PROTOCOL_NAMESPACE_BEGIN
+GTS_NAMESPACE_BEGIN
 
-inline buffer::buffer(std::string data, data_type type) :
-	type(type), data(std::move(data))
+template <typename T>
+move_wrapper<T>::move_wrapper(T &&obj) :
+	m_obj(std::move(obj))
 {
 
 }
 
-inline buffer::buffer(void *data, std::size_t size, data_type type) :
-	type(type), data(reinterpret_cast<const char*>(data), size)
+template <typename T>
+move_wrapper<T>::move_wrapper(const move_wrapper &other) :
+	m_obj(std::move(other.m_obj))
 {
 
 }
 
-inline buffer::buffer(buffer &&other) noexcept :
-	type(other.type), data(std::move(other.data))
+template <typename T>
+move_wrapper<T>::move_wrapper(move_wrapper &&other) noexcept :
+	m_obj(std::move(other.m_obj))
 {
 
 }
 
-inline buffer &buffer::operator=(buffer &&other) noexcept
+template <typename T>
+const T &move_wrapper<T>::operator*() const
 {
-	data = std::move(other.data);
-	type = other.type;
-	return *this;
+	return m_obj;
 }
 
-GTS_WEB_SOCKET_PROTOCOL_NAMESPACE_END
+template <typename T>
+T &move_wrapper<T>::operator*()
+{
+	return m_obj;
+}
+
+template <typename T>
+const T *move_wrapper<T>::operator->() const
+{
+	return &m_obj;
+}
+
+template <typename T>
+T *move_wrapper<T>::operator->()
+{
+	return &m_obj;
+}
+
+template <typename T>
+T &&move_wrapper<T>::take() const
+{
+	return std::move(m_obj);
+}
+
+template <typename T, typename...Args>
+move_wrapper<T> make_move_wrapper(Args&&...args)
+{
+	return move_wrapper<T>(T(std::forward<Args>(args)...));
+}
+
+GTS_NAMESPACE_END
 
 
-#endif //GTS_WEB_DETAIL_TYPES_H
+#endif //GTS_DETAIL_MOVE_WRAPPER_H

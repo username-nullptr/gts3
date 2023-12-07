@@ -41,6 +41,12 @@ class GTSCORE_API tcp_socket
 	GTS_DISABLE_COPY_MOVE(tcp_socket)
 	using duration = std::chrono::milliseconds;
 
+protected:
+	using function_void = std::function<void()>;
+	using function_size = std::function<void(std::size_t)>;
+	using function_error = std::function<void(asio::error_code)>;
+	using function_error_size = std::function<void(asio::error_code,std::size_t)>;
+
 public:
 	explicit tcp_socket(tcp::socket *sock);
 	virtual ~tcp_socket() noexcept;
@@ -54,12 +60,12 @@ public:
 	virtual std::size_t read_some(void *buf, std::size_t size, asio::error_code &error) noexcept;
 
 public:
-	virtual void async_write_some(const std::string &buf, std::function<void(asio::error_code, std::size_t)>) noexcept;
-	virtual void async_write_some(const void *buf, std::size_t size, std::function<void(asio::error_code, std::size_t)>) noexcept;
+	virtual void async_write_some(const std::string &buf, function_error_size callback) noexcept;
+	virtual void async_write_some(const void *buf, std::size_t size, function_error_size callback) noexcept;
 
-	virtual void async_read_some(std::string &buf, std::function<void(asio::error_code)>) noexcept;
-	virtual void async_read_some(std::string &buf, std::size_t, std::function<void(asio::error_code)>) noexcept;
-	virtual void async_read_some(void *buf, std::size_t size, std::function<void(asio::error_code, std::size_t)>) noexcept;
+	virtual void async_read_some(std::string &buf, function_error callback) noexcept;
+	virtual void async_read_some(std::string &buf, std::size_t, function_error callback) noexcept;
+	virtual void async_read_some(void *buf, std::size_t size, function_error_size callback) noexcept;
 
 public:
 	std::size_t write_some(const std::string &buf) noexcept;
@@ -70,12 +76,12 @@ public:
 	std::size_t read_some(void *buf, std::size_t size) noexcept;
 
 public:
-	void async_write_some(const std::string &buf, std::function<void(std::size_t)>) noexcept;
-	void async_write_some(const void *buf, std::size_t size, std::function<void(std::size_t)>) noexcept;
+	void async_write_some(const std::string &buf, function_size callback) noexcept;
+	void async_write_some(const void *buf, std::size_t size, function_size callback) noexcept;
 
-	void async_read_some(std::string &buf, std::function<void()>) noexcept;
-	void async_read_some(std::string &buf, std::size_t, std::function<void()>) noexcept;
-	void async_read_some(void *buf, std::size_t size, std::function<void(std::size_t)>) noexcept;
+	void async_read_some(std::string &buf, function_void callback) noexcept;
+	void async_read_some(std::string &buf, std::size_t, function_void callback) noexcept;
+	void async_read_some(void *buf, std::size_t size, function_size callback) noexcept;
 
 public:
 	void write_some_nonblock(std::string buf) noexcept;

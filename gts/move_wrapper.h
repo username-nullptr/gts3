@@ -26,19 +26,54 @@
 *                                                                                   *
 *************************************************************************************/
 
-#ifndef GTS_WEB_TYPES_H
-#define GTS_WEB_TYPES_H
+#ifndef GTS_MOVE_WRAPPER_H
+#define GTS_MOVE_WRAPPER_H
 
-#include <gts/web/socket_protocol.h>
-#include <gts/http/container.h>
+#include <gts/gts_namespace.h>
+#include <gts/cpp_attribute.h>
+#include <bits/move.h>
 
-GTS_WEB_NAMESPACE_BEGIN
+GTS_NAMESPACE_BEGIN
 
-using environment = http::pair<gts::value>;
+template <typename T>
+class move_wrapper
+{
+public:
+	move_wrapper() = default;
+	explicit move_wrapper(T &&obj);
 
-using environments = http::unordered_map<gts::value>;
+public:
+	move_wrapper(const move_wrapper &other);
+	move_wrapper(move_wrapper &&other) noexcept;
 
-GTS_WEB_NAMESPACE_END
+public:
+	const T &operator*() const;
+	T &operator*();
+
+public:
+	const T *operator->() const;
+	T *operator->();
+
+public:
+	T &&take() const;
+
+private:
+	move_wrapper &operator=(const move_wrapper&) = default;
+	move_wrapper &operator=(move_wrapper&&) noexcept = default;
+	mutable T m_obj;
+};
+
+template <typename T, typename...Args>
+move_wrapper<T> make_move_wrapper(Args&&...args);
+
+GTS_NAMESPACE_END
+#include <gts/detail/move_wrapper.h>
+
+#if GTS_CPLUSPLUS < 201402L
+# define GTS_LAMBDA_MOVE(x)  x
+#else //cpp11
+# define GTS_LAMBDA_MOVE(x)  x = std::move(x)
+#endif //cpp
 
 
-#endif //GTS_WEB_TYPES_H
+#endif //GTS_MOVE_WRAPPER_H

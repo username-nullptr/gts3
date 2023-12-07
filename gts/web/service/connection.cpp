@@ -157,7 +157,7 @@ void connection::do_recv()
 		if( error or size == 0 )
 			return delete_later(this);
 
-		if( not m_parser->write(std::string(m_asio_buffer, size)) )
+		if( not m_parser->load(std::string(m_asio_buffer, size)) )
 			return do_recv();
 
 		auto context = m_parser->get_request(m_socket);

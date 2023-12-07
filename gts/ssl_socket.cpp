@@ -31,6 +31,11 @@
 
 GTS_NAMESPACE_BEGIN
 
+using function_void_mw = move_wrapper<std::function<void()>>;
+using function_size_mw = move_wrapper<std::function<void(std::size_t)>>;
+using function_error_mw = move_wrapper<std::function<void(asio::error_code)>>;
+using function_error_size_mw = move_wrapper<std::function<void(asio::error_code,std::size_t)>>;
+
 ssl_socket::ssl_socket(ssl_stream *sock) :
 	tcp_socket(&sock->next_layer()),
 	m_ssl_sock(sock)
@@ -96,47 +101,51 @@ std::size_t ssl_socket::read_some(void *buf, std::size_t size, asio::error_code 
 	return m_ssl_sock->read_some(asio::buffer(buf, size), error);
 }
 
-void ssl_socket::async_write_some(const std::string &buf, std::function<void(asio::error_code, std::size_t)> callback) noexcept
+void ssl_socket::async_write_some(const std::string &buf, function_error_size callback) noexcept
 {
-	m_ssl_sock->async_write_some(asio::buffer(buf), callback);
+	m_ssl_sock->async_write_some(asio::buffer(buf), std::move(callback));
 }
 
-void ssl_socket::async_write_some(const void *buf, std::size_t size, std::function<void(asio::error_code, std::size_t)> callback) noexcept
+void ssl_socket::async_write_some(const void *buf, std::size_t size, function_error_size callback) noexcept
 {
-	m_ssl_sock->async_write_some(asio::buffer(buf, size), callback);
+	m_ssl_sock->async_write_some(asio::buffer(buf, size), std::move(callback));
 }
 
-void ssl_socket::async_read_some(std::string &buf, std::function<void(asio::error_code)> callback) noexcept
+void ssl_socket::async_read_some(std::string &buf, function_error callback) noexcept
 {
 	tcp::socket::receive_buffer_size option;
 	get_option(option);
 
 	char *tmp = new char[option.value()] {0};
-	m_ssl_sock->async_read_some(asio::buffer(tmp, option.value()), [&buf, callback, tmp](const asio::error_code &error, std::size_t size)
+	function_error_mw callback_mw(std::move(callback));
+
+	m_ssl_sock->async_read_some(asio::buffer(tmp, option.value()), [&buf, tmp, callback_mw](const asio::error_code &error, std::size_t size)
 	{
 		buf = std::string(tmp,size);
 		delete[] tmp;
-		callback(error);
+		(*callback_mw)(error);
 	});
 }
 
-void ssl_socket::async_read_some(std::string &buf, std::size_t size, std::function<void(asio::error_code)> callback) noexcept
+void ssl_socket::async_read_some(std::string &buf, std::size_t size, function_error callback) noexcept
 {
 	if( size == 0 )
 		return callback(asio::error_code());
-	char *tmp = new char[size] {0};
 
-	m_ssl_sock->async_read_some(asio::buffer(tmp, size), [&buf, callback, tmp](const asio::error_code &error, std::size_t size)
+	char *tmp = new char[size] {0};
+	function_error_mw callback_mw(std::move(callback));
+
+	m_ssl_sock->async_read_some(asio::buffer(tmp, size), [&buf, tmp, callback_mw](const asio::error_code &error, std::size_t size)
 	{
 		buf = std::string(tmp,size);
 		delete[] tmp;
-		callback(error);
+		(*callback_mw)(error);
 	});
 }
 
-void ssl_socket::async_read_some(void *buf, std::size_t size, std::function<void(asio::error_code, std::size_t)> callback) noexcept
+void ssl_socket::async_read_some(void *buf, std::size_t size, function_error_size callback) noexcept
 {
-	m_ssl_sock->async_read_some(asio::buffer(buf, size), callback);
+	m_ssl_sock->async_read_some(asio::buffer(buf, size), std::move(callback));
 }
 
 ssl::context &ssl_socket::asio_ssl_context()

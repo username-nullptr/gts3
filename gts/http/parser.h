@@ -46,7 +46,7 @@ public:
 
 public:
 	GTS_CXX_NODISCARD("Returns true if the parsing is complete")
-	bool write(const std::string &data);
+	bool load(const std::string &data);
 
 	GTS_CXX_NODISCARD("Get the context of this service")
 	service_context_ptr get_request(tcp_socket_ptr socket);

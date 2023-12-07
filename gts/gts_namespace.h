@@ -26,19 +26,33 @@
 *                                                                                   *
 *************************************************************************************/
 
-#ifndef GTS_WEB_TYPES_H
-#define GTS_WEB_TYPES_H
+#ifndef GTS_GTS_NAMESPACE_H
+#define GTS_GTS_NAMESPACE_H
 
-#include <gts/web/socket_protocol.h>
-#include <gts/http/container.h>
+#include <gts/cplusplus.hpp>
 
-GTS_WEB_NAMESPACE_BEGIN
+#define GTS_NAMESPACE_BEGIN  namespace gts {
+#define GTS_NAMESPACE_END    } //namespace gts
 
-using environment = http::pair<gts::value>;
+#if GTS_CPLUSPLUS >= 201703L
 
-using environments = http::unordered_map<gts::value>;
+# define GTS_APP_NAMESPACE_BEGIN  namespace gts::app {
+# define GTS_APP_NAMESPACE_END    } //namespace gts::app
+# define GTS_CMDLINE_NAMESPACE_BEGIN  namespace gts::cmdline {
+# define GTS_CMDLINE_NAMESPACE_END    } //namespace gts::cmdline
+# define GTS_EXTENSION_NAMESPACE_BEGIN  namespace gts::extension {
+# define GTS_EXTENSION_NAMESPACE_END    } //namespace gts::extension
 
-GTS_WEB_NAMESPACE_END
+#else //cpp17
+
+# define GTS_APP_NAMESPACE_BEGIN  namespace gts { namespace app {
+# define GTS_APP_NAMESPACE_END    }} //namespace gts::app
+# define GTS_CMDLINE_NAMESPACE_BEGIN  namespace gts { namespace cmdline {
+# define GTS_CMDLINE_NAMESPACE_END    }} //namespace gts::cmdline
+# define GTS_EXTENSION_NAMESPACE_BEGIN  namespace gts { namespace extension {
+# define GTS_EXTENSION_NAMESPACE_END    }} //namespace gts::extension
+
+#endif //cpp17
 
 
-#endif //GTS_WEB_TYPES_H
+#endif //GTS_GTS_NAMESPACE_H
