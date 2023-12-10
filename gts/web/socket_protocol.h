@@ -58,6 +58,8 @@ enum op_code
 	oc_reserved_f = 0x0F
 };
 
+GTS_WEB_API bool is_op_code_reserved(op_code code);
+
 GTS_WEB_SOCKET_PROTOCOL_NAMESPACE_END
 
 

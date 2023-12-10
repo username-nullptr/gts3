@@ -26,81 +26,113 @@
 *                                                                                   *
 *************************************************************************************/
 
-#ifndef GTS_UTILITY_H
-#define GTS_UTILITY_H
+#include "detail/socket_frame_impl.h"
+#include "socket_frame.h"
 
-#include <gts/move_wrapper.h>
-#include <rttr/variant.h>
+GTS_WEB_NAMESPACE_BEGIN
 
-#ifdef __GNUC__
-# include <cxxabi.h>
-# define GTS_ABI_CXA_DEMANGLE(name)  abi::__cxa_demangle(name, nullptr, nullptr, nullptr)
-#else //_MSVC
-# define GTS_ABI_CXA_DEMANGLE(name)  name
-#endif //compiler
+socket_frame::socket_frame() :
+	m_impl(new socket_frame_impl())
+{
 
-#define GTS_UNUSED(x)  (void)(x)
-
-#if defined(_WIN64) || defined(__x86_64__) || defined(__arm64__) || defined(__aarch64__)
-# define GTS_OS_64BIT
-#else
-# define GTS_OS_32BIT
-#endif // 32bit & 64bit
-
-#define GTS_DISABLE_COPY(_class) \
-	explicit _class(const _class&) = delete; \
-	void operator=(const _class&) = delete;
-
-#define GTS_DISABLE_MOVE(_class) \
-	explicit _class(_class&&) = delete; \
-	void operator=(_class&&) = delete;
-
-#define GTS_DISABLE_COPY_MOVE(_class) \
-	GTS_DISABLE_COPY(_class) GTS_DISABLE_MOVE(_class)
-
-GTS_NAMESPACE_BEGIN
-
-template <typename T>
-inline const char *type_name(T &&t) {
-	return GTS_ABI_CXA_DEMANGLE(typeid(t).name());
 }
 
-template <typename T>
-inline const char *type_name() {
-	return GTS_ABI_CXA_DEMANGLE(typeid(T).name());
+socket_frame::~socket_frame()
+{
+	if( m_impl )
+		delete m_impl;
 }
 
-template <bool C, typename T = void>
-using enable_if_t = typename std::enable_if<C,T>::type;
+socket_frame::socket_frame(socket_frame &&other) noexcept :
+	m_impl(other.m_impl)
+{
+	other.m_impl = nullptr;
+}
 
-template <typename T>
-using decay_t = typename std::decay<T>::type;
+socket_frame &socket_frame::operator=(socket_frame &&other) noexcept
+{
+	if( m_impl )
+		delete m_impl;
 
-GTS_NAMESPACE_END
+	m_impl = other.m_impl;
+	other.m_impl = nullptr;
+	return *this;
+}
 
-#define gts_is_integral(...)  std::is_integral<__VA_ARGS__>::value
+socket_frame &socket_frame::swap(socket_frame &other)
+{
+	std::swap(m_impl, other.m_impl);
+	return *this;
+}
 
-#define gts_is_arithmetic(...)  std::is_arithmetic<__VA_ARGS__>::value
+bool socket_frame::is_final_frame() const
+{
+	return m_impl and m_impl->m_final_frame;
+}
 
-#define gts_is_enum(...)   std::is_enum<__VA_ARGS__>::value
+bool socket_frame::is_data_frame() const
+{
+	return m_impl and m_impl->m_data_frame;
+}
 
-#define gts_is_same(...)   std::is_same<__VA_ARGS__>::value
+bool socket_frame::is_control_frame() const
+{
+	return m_impl and (m_impl->m_op_code & 0x08) == 0x08;
+}
 
-#define gts_is_dsame(x,y)   std::is_same<gts::decay_t<x>, y>::value
+bool socket_frame::is_continuation_frame() const
+{
+	return m_impl and m_impl->m_continuation_frame;
+}
 
-#define gts_is_base_of(...)   std::is_base_of<__VA_ARGS__>::value
+bool socket_frame::rsv1() const
+{
+	return m_impl and m_impl->m_rsv1;
+}
 
-#define GTS_DECLVAL(...)   std::declval<__VA_ARGS__>()
+bool socket_frame::rsv2() const
+{
+	return m_impl and m_impl->m_rsv2;
+}
 
-#define GTS_CLASS_METHOD_DECLVAL(Class, Return, ...)   (GTS_DECLVAL(Class).*GTS_DECLVAL(Return(Class::*)(__VA_ARGS__)))
+bool socket_frame::rsv3() const
+{
+	return m_impl and m_impl->m_rsv3;
+}
 
-#define GTS_TYPE_DECLTYPE(...)   typename U_GTD_0 = decltype(__VA_ARGS__)
+bool socket_frame::has_mask() const
+{
+	return m_impl and m_impl->m_mask > 0;
+}
 
-#define GTS_TYPE_ENABLE_IF(...)   typename U_GTEI_0 = gts::enable_if_t<__VA_ARGS__>
+uint32_t socket_frame::mask() const
+{
+	return m_impl ? m_impl->m_mask : 0;
+}
 
-#define GTS_RTTR_TYPE(...)   rttr::type::get<__VA_ARGS__>()
+sp_close_code socket_frame::close_code() const
+{
+	return m_impl ? m_impl->m_close_code : static_cast<sp_close_code>(0);
+}
 
-#define GTS_RTTR_TYPE_BY_NAME(...)   rttr::type::get_by_name(__VA_ARGS__)
+sp_op_code socket_frame::op_code() const
+{
+	return m_impl ? m_impl->m_op_code : static_cast<sp_op_code>(0);
+}
 
+std::string socket_frame::payload() const
+{
+	return m_impl ? m_impl->m_payload : "";
+}
 
-#endif //GTS_UTILITY_H
+uint64_t socket_frame::length() const
+{
+	return m_impl ? m_impl->m_length : 0;
+}
+
+bool socket_frame::is_valid() const
+{
+	return m_impl and m_impl->m_valid;
+}
+
+GTS_WEB_NAMESPACE_END

@@ -79,6 +79,8 @@ public:
     std::function<void(asio::error_code)> m_read_callback = nullptr;
 };
 
+/*--------------------------------------------------------------------------------------------------------------------*/
+
 socket::socket(const http::request &req, http::response &resp, const std::string &sec_websocket_protocol) noexcept(false) :
 	m_impl(new socket_impl())
 {

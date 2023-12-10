@@ -11,6 +11,7 @@ endif()
 
 set(core_sources
 	global.cpp
+	byte_order.cpp
 	args_parser.cpp
 	application.cpp
 	string_list.cpp
@@ -36,6 +37,7 @@ set(core_gts_headers
 	move_wrapper.h
 	utility.h
 	global.h
+	byte_order.h
 	value.h
 	args_parser.h
 	application.h
@@ -60,6 +62,7 @@ set(core_gts_headers
 
 set(core_gts_detail_headers
 	detail/move_wrapper.h
+	detail/byte_order.h
 	detail/value.h
 	detail/application.h
 	detail/settings.h

@@ -26,81 +26,40 @@
 *                                                                                   *
 *************************************************************************************/
 
-#ifndef GTS_UTILITY_H
-#define GTS_UTILITY_H
+#ifndef GTS_WEB_DETAIL_SOCKET_FRAME_IMPL_H
+#define GTS_WEB_DETAIL_SOCKET_FRAME_IMPL_H
 
-#include <gts/move_wrapper.h>
-#include <rttr/variant.h>
+#include "gts/web/socket_frame.h"
 
-#ifdef __GNUC__
-# include <cxxabi.h>
-# define GTS_ABI_CXA_DEMANGLE(name)  abi::__cxa_demangle(name, nullptr, nullptr, nullptr)
-#else //_MSVC
-# define GTS_ABI_CXA_DEMANGLE(name)  name
-#endif //compiler
+GTS_WEB_NAMESPACE_BEGIN
 
-#define GTS_UNUSED(x)  (void)(x)
+using sp_close_code = socket_protocol::close_code;
+using sp_op_code = socket_protocol::op_code;
 
-#if defined(_WIN64) || defined(__x86_64__) || defined(__arm64__) || defined(__aarch64__)
-# define GTS_OS_64BIT
-#else
-# define GTS_OS_32BIT
-#endif // 32bit & 64bit
+class GTS_DECL_HIDDEN socket_frame_impl
+{
+public:
+	bool m_final_frame = false;
+	bool m_data_frame = false;
+	bool m_continuation_frame = false;
+	uint64_t m_length = 0;
 
-#define GTS_DISABLE_COPY(_class) \
-	explicit _class(const _class&) = delete; \
-	void operator=(const _class&) = delete;
+public:
+	bool m_rsv1 = false;
+	bool m_rsv2 = false;
+	bool m_rsv3 = false;
+	uint32_t m_mask = 0;
 
-#define GTS_DISABLE_MOVE(_class) \
-	explicit _class(_class&&) = delete; \
-	void operator=(_class&&) = delete;
+public:
+	sp_close_code m_close_code;
+	sp_op_code m_op_code;
+	std::string m_payload;
 
-#define GTS_DISABLE_COPY_MOVE(_class) \
-	GTS_DISABLE_COPY(_class) GTS_DISABLE_MOVE(_class)
+public:
+	bool m_valid = false;
+};
 
-GTS_NAMESPACE_BEGIN
-
-template <typename T>
-inline const char *type_name(T &&t) {
-	return GTS_ABI_CXA_DEMANGLE(typeid(t).name());
-}
-
-template <typename T>
-inline const char *type_name() {
-	return GTS_ABI_CXA_DEMANGLE(typeid(T).name());
-}
-
-template <bool C, typename T = void>
-using enable_if_t = typename std::enable_if<C,T>::type;
-
-template <typename T>
-using decay_t = typename std::decay<T>::type;
-
-GTS_NAMESPACE_END
-
-#define gts_is_integral(...)  std::is_integral<__VA_ARGS__>::value
-
-#define gts_is_arithmetic(...)  std::is_arithmetic<__VA_ARGS__>::value
-
-#define gts_is_enum(...)   std::is_enum<__VA_ARGS__>::value
-
-#define gts_is_same(...)   std::is_same<__VA_ARGS__>::value
-
-#define gts_is_dsame(x,y)   std::is_same<gts::decay_t<x>, y>::value
-
-#define gts_is_base_of(...)   std::is_base_of<__VA_ARGS__>::value
-
-#define GTS_DECLVAL(...)   std::declval<__VA_ARGS__>()
-
-#define GTS_CLASS_METHOD_DECLVAL(Class, Return, ...)   (GTS_DECLVAL(Class).*GTS_DECLVAL(Return(Class::*)(__VA_ARGS__)))
-
-#define GTS_TYPE_DECLTYPE(...)   typename U_GTD_0 = decltype(__VA_ARGS__)
-
-#define GTS_TYPE_ENABLE_IF(...)   typename U_GTEI_0 = gts::enable_if_t<__VA_ARGS__>
-
-#define GTS_RTTR_TYPE(...)   rttr::type::get<__VA_ARGS__>()
-
-#define GTS_RTTR_TYPE_BY_NAME(...)   rttr::type::get_by_name(__VA_ARGS__)
+GTS_WEB_NAMESPACE_END
 
 
-#endif //GTS_UTILITY_H
+#endif //GTS_WEB_DETAIL_SOCKET_FRAME_IMPL_H

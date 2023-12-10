@@ -3,6 +3,7 @@ set(target_name gtsweb)
 set(web_sources
 	main.cpp
 	socket.cpp
+	socket_frame.cpp
 	socket_frame_parser.cpp
 	socket_frame_writer.cpp
 	socket_protocol.cpp
@@ -20,6 +21,7 @@ set(web_gts_headers
 	global.h
 	types.h
 	socket.h
+	socket_frame.h
 	socket_frame_parser.h
 	socket_frame_writer.h
 	socket_protocol.h
@@ -29,8 +31,9 @@ set(web_gts_headers
 )
 
 set(web_gts_detail_headers
-	detail/registration.h
 	detail/socket.h
+	detail/socket_frame_impl.h
+	detail/registration.h
 )
 
 set(web_sp_headers

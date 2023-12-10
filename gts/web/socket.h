@@ -62,6 +62,7 @@ public:
 		buffer(std::string data, buffer_type type = buffer_type::text);
 		buffer(void *data, std::size_t size, buffer_type type = buffer_type::text);
 
+		bool is_end = true;
 		buffer_type type = buffer_type::text;
 		std::string data;
 	};

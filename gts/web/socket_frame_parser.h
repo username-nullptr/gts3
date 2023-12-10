@@ -29,7 +29,7 @@
 #ifndef GTS_WEB_SOCKET_FRAME_PARSER_H
 #define GTS_WEB_SOCKET_FRAME_PARSER_H
 
-#include <gts/web/types.h>
+#include <gts/web/socket_frame.h>
 
 GTS_WEB_NAMESPACE_BEGIN
 
@@ -41,33 +41,13 @@ class GTS_WEB_API socket_frame_parser
 
 public:
 	socket_frame_parser() = default;
+	bool append(const std::string &data);
 
 public:
-	GTS_CXX_NODISCARD("") bool is_final_frame() const;
-	GTS_CXX_NODISCARD("") bool is_control_frame() const;
-	GTS_CXX_NODISCARD("") bool is_data_frame() const;
-	GTS_CXX_NODISCARD("") bool is_continuation_frame() const;
-
-public:
-	GTS_CXX_NODISCARD("") bool rsv1() const;
-	GTS_CXX_NODISCARD("") bool rsv2() const;
-	GTS_CXX_NODISCARD("") bool rsv3() const;
-
-public:
-	GTS_CXX_NODISCARD("") bool has_mask() const;
-	GTS_CXX_NODISCARD("") uint32_t mask() const;
-
-public:
-	GTS_CXX_NODISCARD("") socket_protocol::close_code close_code() const;
-	GTS_CXX_NODISCARD("") socket_protocol::op_code op_code() const;
-	GTS_CXX_NODISCARD("") std::string payload() const;
-
-public:
-	GTS_CXX_NODISCARD("") bool is_valid() const;
 	GTS_CXX_NODISCARD("") bool is_done() const;
+	GTS_CXX_NODISCARD("") socket_frame next_frame() const;
 
 public:
-	bool load(const std::string &data);
 	void clear();
 
 public:

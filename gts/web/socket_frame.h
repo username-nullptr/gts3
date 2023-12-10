@@ -26,81 +26,67 @@
 *                                                                                   *
 *************************************************************************************/
 
-#ifndef GTS_UTILITY_H
-#define GTS_UTILITY_H
+#ifndef GTS_WEB_SOCKET_FRAME_H
+#define GTS_WEB_SOCKET_FRAME_H
 
-#include <gts/move_wrapper.h>
-#include <rttr/variant.h>
+#include <gts/web/types.h>
 
-#ifdef __GNUC__
-# include <cxxabi.h>
-# define GTS_ABI_CXA_DEMANGLE(name)  abi::__cxa_demangle(name, nullptr, nullptr, nullptr)
-#else //_MSVC
-# define GTS_ABI_CXA_DEMANGLE(name)  name
-#endif //compiler
+GTS_WEB_NAMESPACE_BEGIN
 
-#define GTS_UNUSED(x)  (void)(x)
+class socket_frame_parser_impl;
+class socket_frame_parser;
+class socket_frame_impl;
 
-#if defined(_WIN64) || defined(__x86_64__) || defined(__arm64__) || defined(__aarch64__)
-# define GTS_OS_64BIT
-#else
-# define GTS_OS_32BIT
-#endif // 32bit & 64bit
+class GTS_WEB_API socket_frame
+{
+	GTS_DISABLE_COPY(socket_frame)
+	using sp_close_code = socket_protocol::close_code;
+	using sp_op_code = socket_protocol::op_code;
 
-#define GTS_DISABLE_COPY(_class) \
-	explicit _class(const _class&) = delete; \
-	void operator=(const _class&) = delete;
+public:
+	socket_frame();
+	~socket_frame();
 
-#define GTS_DISABLE_MOVE(_class) \
-	explicit _class(_class&&) = delete; \
-	void operator=(_class&&) = delete;
+public:
+	socket_frame(socket_frame &&other) noexcept;
+	socket_frame &operator=(socket_frame &&other) noexcept;
+	socket_frame &swap(socket_frame &other);
 
-#define GTS_DISABLE_COPY_MOVE(_class) \
-	GTS_DISABLE_COPY(_class) GTS_DISABLE_MOVE(_class)
+public:
+	GTS_CXX_NODISCARD("") bool is_final_frame() const;
+	GTS_CXX_NODISCARD("") bool is_control_frame() const;
+	GTS_CXX_NODISCARD("") bool is_data_frame() const;
+	GTS_CXX_NODISCARD("") bool is_continuation_frame() const;
+
+public:
+	GTS_CXX_NODISCARD("") bool rsv1() const;
+	GTS_CXX_NODISCARD("") bool rsv2() const;
+	GTS_CXX_NODISCARD("") bool rsv3() const;
+
+public:
+	GTS_CXX_NODISCARD("") bool has_mask() const;
+	GTS_CXX_NODISCARD("") uint32_t mask() const;
+
+public:
+	GTS_CXX_NODISCARD("") sp_close_code close_code() const;
+	GTS_CXX_NODISCARD("") sp_op_code op_code() const;
+	GTS_CXX_NODISCARD("") std::string payload() const;
+
+public:
+	GTS_CXX_NODISCARD("") uint64_t length() const;
+	GTS_CXX_NODISCARD("") bool is_valid() const;
+
+private:
+	friend class socket_frame_parser_impl;
+	friend class socket_frame_parser;
+	socket_frame_impl *m_impl;
+};
+
+GTS_WEB_NAMESPACE_END
 
 GTS_NAMESPACE_BEGIN
-
-template <typename T>
-inline const char *type_name(T &&t) {
-	return GTS_ABI_CXA_DEMANGLE(typeid(t).name());
-}
-
-template <typename T>
-inline const char *type_name() {
-	return GTS_ABI_CXA_DEMANGLE(typeid(T).name());
-}
-
-template <bool C, typename T = void>
-using enable_if_t = typename std::enable_if<C,T>::type;
-
-template <typename T>
-using decay_t = typename std::decay<T>::type;
-
+using websocket_frame = web::socket_frame;
 GTS_NAMESPACE_END
 
-#define gts_is_integral(...)  std::is_integral<__VA_ARGS__>::value
 
-#define gts_is_arithmetic(...)  std::is_arithmetic<__VA_ARGS__>::value
-
-#define gts_is_enum(...)   std::is_enum<__VA_ARGS__>::value
-
-#define gts_is_same(...)   std::is_same<__VA_ARGS__>::value
-
-#define gts_is_dsame(x,y)   std::is_same<gts::decay_t<x>, y>::value
-
-#define gts_is_base_of(...)   std::is_base_of<__VA_ARGS__>::value
-
-#define GTS_DECLVAL(...)   std::declval<__VA_ARGS__>()
-
-#define GTS_CLASS_METHOD_DECLVAL(Class, Return, ...)   (GTS_DECLVAL(Class).*GTS_DECLVAL(Return(Class::*)(__VA_ARGS__)))
-
-#define GTS_TYPE_DECLTYPE(...)   typename U_GTD_0 = decltype(__VA_ARGS__)
-
-#define GTS_TYPE_ENABLE_IF(...)   typename U_GTEI_0 = gts::enable_if_t<__VA_ARGS__>
-
-#define GTS_RTTR_TYPE(...)   rttr::type::get<__VA_ARGS__>()
-
-#define GTS_RTTR_TYPE_BY_NAME(...)   rttr::type::get_by_name(__VA_ARGS__)
-
-
-#endif //GTS_UTILITY_H
+#endif //GTS_WEB_SOCKET_FRAME_H
