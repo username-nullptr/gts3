@@ -31,11 +31,6 @@
 
 GTS_NAMESPACE_BEGIN
 
-using function_void_mw = move_wrapper<std::function<void()>>;
-using function_size_mw = move_wrapper<std::function<void(std::size_t)>>;
-using function_error_mw = move_wrapper<std::function<void(asio::error_code)>>;
-using function_error_size_mw = move_wrapper<std::function<void(asio::error_code,std::size_t)>>;
-
 ssl_socket::ssl_socket(ssl_stream *sock) :
 	tcp_socket(&sock->next_layer()),
 	m_ssl_sock(sock)
@@ -117,7 +112,7 @@ void ssl_socket::async_read_some(std::string &buf, function_error callback) noex
 	get_option(option);
 
 	char *tmp = new char[option.value()] {0};
-	function_error_mw callback_mw(std::move(callback));
+	auto callback_mw = make_move_wrapper(std::move(callback));
 
 	m_ssl_sock->async_read_some(asio::buffer(tmp, option.value()), [&buf, tmp, callback_mw](const asio::error_code &error, std::size_t size)
 	{
@@ -133,7 +128,7 @@ void ssl_socket::async_read_some(std::string &buf, std::size_t size, function_er
 		return callback(asio::error_code());
 
 	char *tmp = new char[size] {0};
-	function_error_mw callback_mw(std::move(callback));
+	auto callback_mw = make_move_wrapper(std::move(callback));
 
 	m_ssl_sock->async_read_some(asio::buffer(tmp, size), [&buf, tmp, callback_mw](const asio::error_code &error, std::size_t size)
 	{

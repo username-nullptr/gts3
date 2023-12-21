@@ -223,8 +223,9 @@ void process::async_write_some(const char *buf, std::size_t size, std::function<
 	}
 	else
 	{
-		m_impl->m_io.post([call_back]{
-			call_back(std::make_error_code(std::errc::operation_canceled), 0);
+		auto call_back_mw = make_move_wrapper(std::move(call_back));
+		m_impl->m_io.post([call_back_mw]{
+			(*call_back_mw)(std::make_error_code(std::errc::operation_canceled), 0);
 		});
 	}
 }
@@ -233,8 +234,9 @@ void process::async_read_some(char *buf, std::size_t size, std::function<void(as
 {
 	if( m_impl->m_read_fd == nullptr )
 	{
-		m_impl->m_io.post([call_back]{
-			call_back(std::make_error_code(std::errc::operation_canceled), 0);
+		auto call_back_mw = make_move_wrapper(std::move(call_back));
+		m_impl->m_io.post([call_back_mw]{
+			(*call_back_mw)(std::make_error_code(std::errc::operation_canceled), 0);
 		});
 		return ;
 	}
@@ -243,8 +245,9 @@ void process::async_read_some(char *buf, std::size_t size, std::function<void(as
 
 	if( res > 0 )
 	{
-		m_impl->m_io.post([call_back, res]{
-			call_back({}, static_cast<std::size_t>(res));
+		auto call_back_mw = make_move_wrapper(std::move(call_back));
+		m_impl->m_io.post([call_back_mw, res]{
+			(*call_back_mw)({}, static_cast<std::size_t>(res));
 		});
 		return ;
 	}
@@ -252,16 +255,18 @@ void process::async_read_some(char *buf, std::size_t size, std::function<void(as
 	{
 		if( m_impl->m_pid < 0 )
 		{
-			m_impl->m_io.post([call_back]{
-				call_back(std::make_error_code(std::errc::operation_canceled), 0);
+			auto call_back_mw = make_move_wrapper(std::move(call_back));
+			m_impl->m_io.post([call_back_mw]{
+				(*call_back_mw)(std::make_error_code(std::errc::operation_canceled), 0);
 			});
 			return m_impl->reset_reader();
 		}
 	}
 	else if( errno != EAGAIN and errno != EWOULDBLOCK )
 	{
-		m_impl->m_io.post([call_back]{
-			call_back(std::make_error_code(static_cast<std::errc>(errno)), 0);
+		auto call_back_mw = make_move_wrapper(std::move(call_back));
+		m_impl->m_io.post([call_back_mw]{
+			(*call_back_mw)(std::make_error_code(static_cast<std::errc>(errno)), 0);
 		});
 
 		if( m_impl->m_pid < 0 )
@@ -271,8 +276,10 @@ void process::async_read_some(char *buf, std::size_t size, std::function<void(as
 	if( not is_running() )
 	{
 		m_impl->reset_reader();
-		m_impl->m_io.post([call_back]{
-			call_back(std::make_error_code(std::errc::operation_canceled), 0);
+		auto call_back_mw = make_move_wrapper(std::move(call_back));
+
+		m_impl->m_io.post([call_back_mw]{
+			(*call_back_mw)(std::make_error_code(std::errc::operation_canceled), 0);
 		});
 		return ;
 	}

@@ -31,6 +31,7 @@
 #include "global.h"
 
 #include "gts/gts_config_key.h"
+#include "gts/execution.h"
 #include "gts/algorithm.h"
 #include "gts/log.h"
 
@@ -68,10 +69,6 @@ public:
 public:
 	asio::signal_set m_sigs;
 #endif //__unix__
-
-public:
-	std::atomic_bool m_exit {false};
-	std::atomic_int m_exit_code {0};
 }
 *g_impl = nullptr;
 
@@ -129,10 +126,7 @@ applictaion_impl::applictaion_impl(int argc, const char *argv[])
 		gts_log_info("system signal: {}.", signo);
 
 		if( signo == SIGINT or signo == SIGTERM )
-		{
-			m_exit = true;
-			gts::io_context().stop();
-		}
+			gts_exe.exit();
 
 		else if( signo == SIGPIPE )
 			gts_log_info("pipe rupture. (ignore)");
@@ -255,20 +249,12 @@ string_list applictaion::args() const
 
 int applictaion::exec()
 {
-	if( g_impl->m_exit )
-		return g_impl->m_exit_code;
-
-	auto &io = gts::io_context();
-	asio::io_context::work io_work(io); GTS_UNUSED(io_work);
-
-	io.run();
-	return g_impl->m_exit_code;
+	return gts_exe.exec();
 }
 
 void applictaion::exit(int code)
 {
-	g_impl->m_exit_code = code;
-	gts::io_context().stop();
+	gts_exe.exit(code);
 }
 
 /*----------------------------------------------------------------------------------------------------------*/

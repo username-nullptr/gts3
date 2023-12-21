@@ -42,6 +42,8 @@
 # define GTS_CMDLINE_NAMESPACE_END    } //namespace gts::cmdline
 # define GTS_EXTENSION_NAMESPACE_BEGIN  namespace gts::extension {
 # define GTS_EXTENSION_NAMESPACE_END    } //namespace gts::extension
+# define GTS_CORO_DETAIL_NAMESPACE_BEGIN  namespace gts::coro_detail {
+# define GTS_CORO_DETAIL_NAMESPACE_END    } //namespace gts::coro_detail
 
 #else //cpp17
 
@@ -51,6 +53,8 @@
 # define GTS_CMDLINE_NAMESPACE_END    }} //namespace gts::cmdline
 # define GTS_EXTENSION_NAMESPACE_BEGIN  namespace gts { namespace extension {
 # define GTS_EXTENSION_NAMESPACE_END    }} //namespace gts::extension
+# define GTS_CORO_DETAIL_NAMESPACE_BEGIN  namespace gts { namespace coro_detail {
+# define GTS_CORO_DETAIL_NAMESPACE_END    }} //namespace gts::coro_detail
 
 #endif //cpp17
 

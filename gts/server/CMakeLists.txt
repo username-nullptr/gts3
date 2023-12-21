@@ -48,7 +48,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${all_files})
 add_executable(${all_files})
 
 target_include_directories(${target_name} PRIVATE .)
-target_link_libraries(${target_name} PRIVATE gtscore)
+target_link_libraries(${target_name} PRIVATE copp gtscore)
 
 set_target_properties(${target_name} PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY ../../${output_dir_name}/bin

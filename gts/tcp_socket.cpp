@@ -32,11 +32,6 @@
 
 GTS_NAMESPACE_BEGIN
 
-using function_void_mw = move_wrapper<std::function<void()>>;
-using function_size_mw = move_wrapper<std::function<void(std::size_t)>>;
-using function_error_mw = move_wrapper<std::function<void(asio::error_code)>>;
-using function_error_size_mw = move_wrapper<std::function<void(asio::error_code,std::size_t)>>;
-
 tcp_socket::tcp_socket(tcp::socket *sock) :
 	m_sock(sock)
 {
@@ -119,7 +114,7 @@ std::size_t tcp_socket::read_some(void *buf, std::size_t size, asio::error_code 
 
 void tcp_socket::async_write_some(const std::string &buf, function_error_size callback) noexcept
 {
-	function_error_size_mw callback_mw(std::move(callback));
+	auto callback_mw = make_move_wrapper(std::move(callback));
 	m_sock->async_write_some(asio::buffer(buf), [this, &buf, callback_mw](const asio::error_code &error, std::size_t size)
 	{
 		auto callback = callback_mw.take();
@@ -132,7 +127,7 @@ void tcp_socket::async_write_some(const std::string &buf, function_error_size ca
 
 void tcp_socket::async_write_some(const void *buf, std::size_t size, function_error_size callback) noexcept
 {
-	function_error_size_mw callback_mw(std::move(callback));
+	auto callback_mw = make_move_wrapper(std::move(callback));
 	m_sock->async_write_some(asio::buffer(buf, size), [this, buf, size, callback_mw](const asio::error_code &error, std::size_t rsize)
 	{
 		auto callback = callback_mw.take();
@@ -149,7 +144,7 @@ void tcp_socket::async_read_some(std::string &buf, function_error callback) noex
 	get_option(option);
 
 	char *tmp = new char[option.value()] {0};
-	function_error_mw callback_mw(std::move(callback));
+	auto callback_mw = make_move_wrapper(std::move(callback));
 
 	m_sock->async_read_some(asio::buffer(tmp, option.value()), [&buf, tmp, callback_mw](const asio::error_code &error, std::size_t size)
 	{
@@ -165,7 +160,7 @@ void tcp_socket::async_read_some(std::string &buf, std::size_t size, function_er
 		return callback(asio::error_code());
 
 	char *tmp = new char[size] {0};
-	function_error_mw callback_mw(std::move(callback));
+	auto callback_mw = make_move_wrapper(std::move(callback));
 
 	m_sock->async_read_some(asio::buffer(tmp, size), [&buf, tmp, callback_mw](const asio::error_code &error, std::size_t size)
 	{
@@ -227,7 +222,7 @@ std::size_t tcp_socket::read_some(void *buf, std::size_t size) noexcept
 
 void tcp_socket::async_write_some(const std::string &buf, function_size callback) noexcept
 {
-	function_size_mw callback_mw(std::move(callback));
+	auto callback_mw = make_move_wrapper(std::move(callback));
 	async_write_some(buf, [callback_mw](const asio::error_code &error, std::size_t size)
 	{
 		if( error )
@@ -238,7 +233,7 @@ void tcp_socket::async_write_some(const std::string &buf, function_size callback
 
 void tcp_socket::async_write_some(const void *buf, std::size_t size, function_size callback) noexcept
 {
-	function_size_mw callback_mw(std::move(callback));
+	auto callback_mw = make_move_wrapper(std::move(callback));
 	async_write_some(buf, size, [callback_mw](const asio::error_code &error, std::size_t size)
 	{
 		if( error )
@@ -249,7 +244,7 @@ void tcp_socket::async_write_some(const void *buf, std::size_t size, function_si
 
 void tcp_socket::async_read_some(std::string &buf, function_void callback) noexcept
 {
-	function_void_mw callback_mw(std::move(callback));
+	auto callback_mw = make_move_wrapper(std::move(callback));
 	async_read_some(buf, [callback_mw](const asio::error_code &error)
 	{
 		if( error )
@@ -260,7 +255,7 @@ void tcp_socket::async_read_some(std::string &buf, function_void callback) noexc
 
 void tcp_socket::async_read_some(std::string &buf, std::size_t size, function_void callback) noexcept
 {
-	function_void_mw callback_mw(std::move(callback));
+	auto callback_mw = make_move_wrapper(std::move(callback));
 	async_read_some(buf, size, [callback_mw](const asio::error_code &error)
 	{
 		if( error )
@@ -271,7 +266,7 @@ void tcp_socket::async_read_some(std::string &buf, std::size_t size, function_vo
 
 void tcp_socket::async_read_some(void *buf, std::size_t size, function_size callback) noexcept
 {
-	function_size_mw callback_mw(std::move(callback));
+	auto callback_mw = make_move_wrapper(std::move(callback));
 	async_read_some(buf, size, [callback_mw](const asio::error_code &error, std::size_t size)
 	{
 		if( error )

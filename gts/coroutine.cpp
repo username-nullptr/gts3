@@ -1,0 +1,5 @@
+#include "coroutine.h"
+
+GTS_NAMESPACE_BEGIN
+
+GTS_NAMESPACE_END

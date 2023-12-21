@@ -88,6 +88,12 @@ move_wrapper<T> make_move_wrapper(Args&&...args)
 	return move_wrapper<T>(T(std::forward<Args>(args)...));
 }
 
+template <typename T>
+move_wrapper<T> make_move_wrapper(T t)
+{
+	return move_wrapper<T>(std::move(t));
+}
+
 GTS_NAMESPACE_END
 
 

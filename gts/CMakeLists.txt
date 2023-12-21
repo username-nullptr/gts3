@@ -11,6 +11,7 @@ endif()
 
 set(core_sources
 	global.cpp
+	execution.cpp
 	byte_order.cpp
 	args_parser.cpp
 	application.cpp
@@ -25,6 +26,8 @@ set(core_sources
 	sha1.cpp
 	log_buffer.cpp
 	log.cpp
+	coroutine.cpp
+	coro_for_asio.cpp
 	private/app_info.cpp
 	private/application_${OS_CPP}.cpp
 	private/tcp_socket_${OS_CPP}.cpp
@@ -37,6 +40,7 @@ set(core_gts_headers
 	move_wrapper.h
 	utility.h
 	global.h
+	execution.h
 	byte_order.h
 	value.h
 	args_parser.h
@@ -58,6 +62,12 @@ set(core_gts_headers
 	chrono.h
 	log_buffer.h
 	log.h
+	coroutine.h
+	coro_for_asio.h
+)
+
+set(core_gts_detail_sources
+	detail/coroutine_base.cpp
 )
 
 set(core_gts_detail_headers
@@ -73,6 +83,11 @@ set(core_gts_detail_headers
 	detail/flags.h
 	detail/log_buffer.h
 	detail/log.h
+	detail/function_traits.h
+	detail/coro_utilities.h
+	detail/coroutine_base.h
+	detail/coroutine.h
+	detail/coro_for_asio.h
 )
 
 set(core_sp_headers
@@ -89,6 +104,7 @@ endif()
 set(all_files
 	${core_sources}
 	${core_gts_headers}
+	${core_gts_detail_sources}
 	${core_gts_detail_headers}
 	${core_sp_headers}
 )
@@ -101,7 +117,7 @@ if (ENABLE_SSL)
 	target_link_libraries(${target_name} PUBLIC ssl crypto)
 endif()
 
-target_link_libraries(${target_name} PUBLIC rttr_core)
+target_link_libraries(${target_name} PUBLIC rttr_core copp)
 if(UNIX)
 	target_link_libraries(${target_name} PUBLIC pthread)
 endif()

@@ -60,7 +60,7 @@ public:
 
 public:
 	int exec();
-	void exit(int code);
+	void exit(int code = 0);
 };
 
 GTS_NAMESPACE_END

@@ -31,6 +31,7 @@
 
 #include <gts/move_wrapper.h>
 #include <rttr/variant.h>
+#include <tuple>
 
 #ifdef __GNUC__
 # include <cxxabi.h>
@@ -75,6 +76,9 @@ using enable_if_t = typename std::enable_if<C,T>::type;
 
 template <typename T>
 using decay_t = typename std::decay<T>::type;
+
+template <std::size_t I, typename T>
+using tuple_element_t = typename std::tuple_element<I,T>::type;
 
 GTS_NAMESPACE_END
 

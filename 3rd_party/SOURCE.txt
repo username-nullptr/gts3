@@ -15,3 +15,7 @@ nlohmann.json  https://github.com/nlohmann/json.git
 filesystem     https://gitee.com/shaoguangcn/cpp-filesystem.git
 
 optional       https://github.com/martinmoene/optional-lite.git
+
+libcopp        https://github.com/owent/libcopp.git
+               https://gitee.com/minhanghuang/libcopp.git
+

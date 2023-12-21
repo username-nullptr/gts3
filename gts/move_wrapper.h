@@ -66,6 +66,9 @@ private:
 template <typename T, typename...Args>
 move_wrapper<T> make_move_wrapper(Args&&...args);
 
+template <typename T>
+move_wrapper<T> make_move_wrapper(T t);
+
 GTS_NAMESPACE_END
 #include <gts/detail/move_wrapper.h>
 

@@ -27,6 +27,7 @@
 *************************************************************************************/
 
 #include "global.h"
+#include "execution.h"
 
 GTS_NAMESPACE_BEGIN
 
@@ -35,12 +36,9 @@ std::string version_string()
 	return GTS_VERSION_STR;
 }
 
-// The destructor will crash after main returns (the program ends) for unknown reasons.
-static auto *io = new asio::io_context();
-
 asio::io_context &io_context()
 {
-	return *io;
+	return execution::instance().io_context();
 }
 
 GTS_NAMESPACE_END
