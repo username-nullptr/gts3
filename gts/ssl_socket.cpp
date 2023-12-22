@@ -29,6 +29,8 @@
 #include "ssl_socket.h"
 #ifdef GTS_ENABLE_SSL
 
+#include "coro_for_asio.h"
+
 GTS_NAMESPACE_BEGIN
 
 ssl_socket::ssl_socket(ssl_stream *sock) :
@@ -141,6 +143,31 @@ void ssl_socket::async_read_some(std::string &buf, std::size_t size, function_er
 void ssl_socket::async_read_some(void *buf, std::size_t size, function_error_size callback) noexcept
 {
 	m_ssl_sock->async_read_some(asio::buffer(buf, size), std::move(callback));
+}
+
+std::size_t ssl_socket::coro_await_write_some(const std::string &buf, asio::error_code &error) noexcept
+{
+	return coro_await_write(*m_ssl_sock, buf, error);
+}
+
+std::size_t ssl_socket::coro_await_write_some(const void *buf, std::size_t size, asio::error_code &error) noexcept
+{
+	return coro_await_write(*m_ssl_sock, buf, size, error);
+}
+
+std::size_t ssl_socket::coro_await_read_some(std::string &buf, asio::error_code &error) noexcept
+{
+	return coro_await_read(*m_ssl_sock, buf, error);
+}
+
+std::size_t ssl_socket::coro_await_read_some(std::string &buf, std::size_t size, asio::error_code &error) noexcept
+{
+	return coro_await_read(*m_ssl_sock, buf, size, error);
+}
+
+std::size_t ssl_socket::coro_await_read_some(void *buf, std::size_t size, asio::error_code &error) noexcept
+{
+	return coro_await_read(*m_ssl_sock, buf, size, error);
 }
 
 ssl::context &ssl_socket::asio_ssl_context()

@@ -68,6 +68,14 @@ public:
 	virtual void async_read_some(void *buf, std::size_t size, function_error_size callback) noexcept;
 
 public:
+	virtual std::size_t coro_await_write_some(const std::string &buf, asio::error_code &error) noexcept;
+	virtual std::size_t coro_await_write_some(const void *buf, std::size_t size, asio::error_code &error) noexcept;
+
+	virtual std::size_t coro_await_read_some(std::string &buf, asio::error_code &error) noexcept;
+	virtual std::size_t coro_await_read_some(std::string &buf, std::size_t size, asio::error_code &error) noexcept;
+	virtual std::size_t coro_await_read_some(void *buf, std::size_t size, asio::error_code &error) noexcept;
+
+public:
 	std::size_t write_some(const std::string &buf) noexcept;
 	std::size_t write_some(const void *buf, std::size_t size) noexcept;
 
@@ -82,6 +90,14 @@ public:
 	void async_read_some(std::string &buf, function_void callback) noexcept;
 	void async_read_some(std::string &buf, std::size_t, function_void callback) noexcept;
 	void async_read_some(void *buf, std::size_t size, function_size callback) noexcept;
+
+public:
+	std::size_t coro_await_write_some(const std::string &buf) noexcept;
+	std::size_t coro_await_write_some(const void *buf, std::size_t size) noexcept;
+
+	std::size_t coro_await_read_some(std::string &buf) noexcept;
+	std::size_t coro_await_read_some(std::string &buf, std::size_t size) noexcept;
+	std::size_t coro_await_read_some(void *buf, std::size_t size) noexcept;
 
 public:
 	void write_some_nonblock(std::string buf) noexcept;

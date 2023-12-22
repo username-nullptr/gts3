@@ -18,25 +18,26 @@ namespace coro_detail
 
 class coroutine_base
 {
+	GTS_DISABLE_COPY(coroutine_base)
+
 protected:
 	using coro_context = copp::coroutine_context_default;
 	using coro_context_ptr = copp::coroutine_context_default::ptr_t;
 
-protected:
+public:
+	coroutine_base() = default;
 	virtual ~coroutine_base() = 0;
 
 public:
 	void set_finished_callback(std::function<void()> func);
 	void set_again(bool flag = true);
+
+public:
+	bool is_yield() const noexcept;
 	bool is_finished() const noexcept;
 
 public:
 	void invoke() noexcept(false);
-	inline void operator()() {
-		invoke();
-	}
-
-public:
 	void yield() noexcept(false);
 
 	template <typename Func, typename...Args>
@@ -51,9 +52,14 @@ protected:
 	void _finished();
 
 protected:
+	coroutine_base(coroutine_base&&) noexcept = default;
+	coroutine_base &operator=(coroutine_base&&) noexcept = default;
+
+protected:
 	coro_context_ptr m_coro;
 	std::function<void()> m_yield_func;
 	std::function<void()> m_finished_callback;
+	bool m_yield = false;
 	bool m_again = false;
 };
 
@@ -63,15 +69,14 @@ using coro_context = coro_detail::coroutine_base;
 
 class this_coro
 {
+	GTS_DISABLE_COPY_MOVE(this_coro)
+
 public:
 	virtual ~this_coro() = 0;
 	static coro_context &get() noexcept(false);
 
 public:
 	static void invoke();
-	void operator()();
-
-public:
 	static void yield();
 
 	template <typename Func, typename...Args>
@@ -96,14 +101,14 @@ private:
 template <typename Arg0, typename...Args>
 class coroutine_base_args : public coroutine_base
 {
+	GTS_DISABLE_COPY(coroutine_base_args)
+
 public:
+	coroutine_base_args() = default;
 	virtual ~coroutine_base_args() = 0;
 
 public:
 	using coroutine_base::invoke;
-	using coroutine_base::operator();
-
-public:
 	void invoke(const Arg0 arg0, const Args...args) noexcept(false)
 	{
 		m_again = false;
@@ -123,10 +128,9 @@ public:
 			this->invoke();
 	}
 
-public:
-	inline void operator()(const Arg0 arg0, const Args...args) {
-		invoke(arg0, args...);
-	}
+protected:
+	coroutine_base_args(coroutine_base_args&&) noexcept = default;
+	coroutine_base_args &operator=(coroutine_base_args&&) noexcept = default;
 };
 
 template <typename Arg0, typename...Args>
@@ -137,7 +141,10 @@ inline coroutine_base_args<Arg0,Args...>::~coroutine_base_args() = default;
 template <typename Ret>
 class coroutine_base_return
 {
+	GTS_DISABLE_COPY(coroutine_base_return)
+
 public:
+	coroutine_base_return() = default;
 	virtual ~coroutine_base_return() = 0;
 
 public:
@@ -153,8 +160,11 @@ public:
 		return result();
 	}
 
-	inline Ret *operator->() {
-		return &result();
+	inline Ret *operator->()
+	{
+		if( m_ret == nullptr )
+			throw exception("coroutine_base_return<T>::operator->: coroutine is not over yet.");
+		return m_ret;
 	}
 
 protected:
@@ -183,6 +193,10 @@ protected:
 	};
 
 protected:
+	coroutine_base_return(coroutine_base_return&&) noexcept = default;
+	coroutine_base_return &operator=(coroutine_base_return&&) noexcept = default;
+
+protected:
 	decay_t<Ret> *m_ret;
 	decay_t<Ret> m_ret_s;
 };
@@ -195,9 +209,15 @@ inline coroutine_base_return<Ret>::~coroutine_base_return() = default;
 template <>
 class coroutine_base_return<void>
 {
+	GTS_DISABLE_COPY(coroutine_base_return)
+
 public:
+	coroutine_base_return() = default;
 	virtual ~coroutine_base_return() = 0;
-	void result() const {}
+
+protected:
+	coroutine_base_return(coroutine_base_return&&) noexcept = default;
+	coroutine_base_return &operator=(coroutine_base_return&&) noexcept = default;
 };
 
 inline coroutine_base_return<void>::~coroutine_base_return() = default;

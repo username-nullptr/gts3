@@ -10,6 +10,7 @@ class coroutine<std::function<Ret(Arg0,Args...)>> :
 	public coro_detail::coroutine_base_return<Ret>,
 	public coro_detail::coroutine_base_args<Arg0,Args...>
 {
+	GTS_DISABLE_COPY(coroutine)
 	coroutine() = default;
 
 	using base_type = coro_detail::coroutine_base_args<Arg0,Args...>;
@@ -19,6 +20,10 @@ class coroutine<std::function<Ret(Arg0,Args...)>> :
 public:
 	template <std::size_t...I> static this_ptr_type create
 	(std::function<Ret(Arg0,Args...)> func, std::size_t stack_size, coro_detail::index_sequence<I...>);
+
+public:
+	coroutine(coroutine&&) noexcept = default;
+	coroutine &operator=(coroutine&&) noexcept = default;
 };
 
 /*--------------------------------------------------------------------------------------------------------------------*/
@@ -28,6 +33,7 @@ class coroutine<std::function<Ret()>> :
 	public coro_detail::coroutine_base_return<Ret>,
 	public coro_detail::coroutine_base
 {
+	GTS_DISABLE_COPY(coroutine)
 	coroutine() = default;
 
 	using base_type = coro_detail::coroutine_base;
@@ -36,6 +42,10 @@ class coroutine<std::function<Ret()>> :
 
 public:
 	static this_ptr_type create(std::function<Ret()> func, std::size_t stack_size);
+
+public:
+	coroutine(coroutine&&) noexcept = default;
+	coroutine &operator=(coroutine&&) noexcept = default;
 };
 
 /*--------------------------------------------------------------------------------------------------------------------*/
@@ -45,6 +55,7 @@ class coroutine<std::function<void(Arg0,Args...)>> :
 	public coro_detail::coroutine_base_return<void>,
 	public coro_detail::coroutine_base_args<Arg0,Args...>
 {
+	GTS_DISABLE_COPY(coroutine)
 	coroutine() = default;
 
 	using base_type = coro_detail::coroutine_base_args<Arg0,Args...>;
@@ -55,6 +66,10 @@ public:
 	template <std::size_t...I>
 	static this_ptr_type create
 	(std::function<void(Arg0,Args...)> func, std::size_t stack_size, coro_detail::index_sequence<I...>);
+
+public:
+	coroutine(coroutine&&) noexcept = default;
+	coroutine &operator=(coroutine&&) noexcept = default;
 };
 
 /*--------------------------------------------------------------------------------------------------------------------*/
@@ -64,6 +79,7 @@ class coroutine<std::function<void()>> :
 	public coro_detail::coroutine_base_return<void>,
 	public coro_detail::coroutine_base
 {
+	GTS_DISABLE_COPY(coroutine)
 	coroutine() = default;
 
 	using base_type = coro_detail::coroutine_base;
@@ -72,6 +88,10 @@ class coroutine<std::function<void()>> :
 
 public:
 	static this_ptr_type create(std::function<void()> func, std::size_t stack_size);
+
+public:
+	coroutine(coroutine&&) noexcept = default;
+	coroutine &operator=(coroutine&&) noexcept = default;
 };
 
 /*--------------------------------------------------------------------------------------------------------------------*/
@@ -114,9 +134,16 @@ decltype ( // coroutine_ptr<std::function<return_type(void)>
 		(std::forward<Func>(func), stack_size, coro_detail::make_index_sequence<FT::arg_count>{});
 }
 
+template <typename Func, typename...Args>
+auto start_coroutine(Func &&func, Args&&...args, std::size_t stack_size = 0x7FFFF)
+->
+decltype(create_coroutine(std::forward<Func>(func), stack_size));
+
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 using this_coro = coro_detail::this_coro;
+
+using coro_context = coro_detail::coro_context;
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
@@ -129,6 +156,9 @@ void coro_yield(Func &&func, Args&&...args);
 
 template <typename Ret, typename...Args>
 Ret coro_await(coroutine_ptr<std::function<Ret(Args...)>> coro, Args...args);
+
+template <typename Ret, typename...Args>
+Ret coro_await(coroutine<std::function<Ret(Args...)>> &coro, Args...args);
 
 template <typename Func, typename...Args>
 enable_if_t <

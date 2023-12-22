@@ -109,6 +109,18 @@ create_coroutine(Func &&func, std::size_t stack_size, coro_detail::index_sequenc
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
+template <typename Func, typename...Args>
+auto start_coroutine(Func &&func, Args&&...args, std::size_t stack_size)
+->
+decltype(create_coroutine(std::forward<Func>(func), stack_size))
+{
+	auto coro = create_coroutine(std::forward<Func>(func), stack_size);
+	coro->invoke(std::forward<Args>(args)...);
+	return coro;
+}
+
+/*--------------------------------------------------------------------------------------------------------------------*/
+
 inline void coro_yield()
 {
 	this_coro::yield();
@@ -126,29 +138,35 @@ void coro_yield(Func &&func, Args&&...args)
 template <typename Ret, typename...Args>
 Ret coro_await(coroutine_ptr<std::function<Ret(Args...)>> coro, Args...args)
 {
+	return coro_await(*coro, std::forward<Args>(args)...);
+}
+
+template <typename Ret, typename...Args>
+Ret coro_await(coroutine<std::function<Ret(Args...)>> &coro, Args...args)
+{
 	auto context = &this_coro::get();
 	auto func_mw = make_move_wrapper (
 		std::bind (
 			static_cast<void(coroutine<std::function<Ret(Args...)>>::*)(Args...)> (
 				&coroutine<std::function<Ret(Args...)>>::invoke
 			),
-			coro.get(),
+			&coro,
 			std::forward<Args>(args)...
 		)
 	);
-	context->yield([context, coro, func_mw]
+	context->yield([&]
 	{
 		(*func_mw)();
-		if( coro->is_finished() )
+		if( coro.is_finished() )
 			context->set_again();
 		else
 		{
-			coro->set_finished_callback([context]{
+			coro.set_finished_callback([context]{
 				context->invoke();
 			});
 		}
 	});
-	return coro->result();
+	return *coro;
 }
 
 template <typename Func, typename...Args>

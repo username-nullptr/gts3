@@ -63,6 +63,14 @@ public:
 	void async_read_some(void *buf, std::size_t size, function_error_size callback) noexcept override;
 
 public:
+	std::size_t coro_await_write_some(const std::string &buf, asio::error_code &error) noexcept override;
+	std::size_t coro_await_write_some(const void *buf, std::size_t size, asio::error_code &error) noexcept override;
+
+	std::size_t coro_await_read_some(std::string &buf, asio::error_code &error) noexcept override;
+	std::size_t coro_await_read_some(std::string &buf, std::size_t size, asio::error_code &error) noexcept override;
+	std::size_t coro_await_read_some(void *buf, std::size_t size, asio::error_code &error) noexcept override;
+
+public:
 	static ssl::context &asio_ssl_context();
 
 protected:

@@ -27,6 +27,7 @@
 *************************************************************************************/
 
 #include "tcp_socket.h"
+#include "coro_for_asio.h"
 #include "gts/log.h"
 #include <cppformat>
 
@@ -175,6 +176,31 @@ void tcp_socket::async_read_some(void *buf, std::size_t size, function_error_siz
 	m_sock->async_read_some(asio::buffer(buf, size), std::move(callback));
 }
 
+std::size_t tcp_socket::coro_await_write_some(const std::string &buf, asio::error_code &error) noexcept
+{
+	return coro_await_write(*m_sock, buf, error);
+}
+
+std::size_t tcp_socket::coro_await_write_some(const void *buf, std::size_t size, asio::error_code &error) noexcept
+{
+	return coro_await_write(*m_sock, buf, size, error);
+}
+
+std::size_t tcp_socket::coro_await_read_some(std::string &buf, asio::error_code &error) noexcept
+{
+	return coro_await_read(*m_sock, buf, error);
+}
+
+std::size_t tcp_socket::coro_await_read_some(std::string &buf, std::size_t size, asio::error_code &error) noexcept
+{
+	return coro_await_read(*m_sock, buf, size, error);
+}
+
+std::size_t tcp_socket::coro_await_read_some(void *buf, std::size_t size, asio::error_code &error) noexcept
+{
+	return coro_await_read(*m_sock, buf, size, error);
+}
+
 std::size_t tcp_socket::write_some(const std::string &buf) noexcept
 {
 	asio::error_code _error;
@@ -273,6 +299,51 @@ void tcp_socket::async_read_some(void *buf, std::size_t size, function_size call
 			tcp_socket::error(error, "async_read_some(void*)");
 		(*callback_mw)(size);
 	});
+}
+
+std::size_t tcp_socket::coro_await_write_some(const std::string &buf) noexcept
+{
+	asio::error_code error;
+	auto res = coro_await_write_some(buf, error);
+	if( error )
+		tcp_socket::error(error, "coro_await_write_some(std::string)");
+	return res;
+}
+
+std::size_t tcp_socket::coro_await_write_some(const void *buf, std::size_t size) noexcept
+{
+	asio::error_code error;
+	auto res = coro_await_write_some(buf, size, error);
+	if( error )
+		tcp_socket::error(error, "coro_await_write_some(void*,std::size_t)");
+	return res;
+}
+
+std::size_t tcp_socket::coro_await_read_some(std::string &buf) noexcept
+{
+	asio::error_code error;
+	auto res = coro_await_read_some(buf, error);
+	if( error )
+		tcp_socket::error(error, "coro_await_read_some(std::string)");
+	return res;
+}
+
+std::size_t tcp_socket::coro_await_read_some(std::string &buf, std::size_t size) noexcept
+{
+	asio::error_code error;
+	auto res = coro_await_read_some(buf, size, error);
+	if( error )
+		tcp_socket::error(error, "coro_await_read_some(std::string,std::size_t)");
+	return res;
+}
+
+std::size_t tcp_socket::coro_await_read_some(void *buf, std::size_t size) noexcept
+{
+	asio::error_code error;
+	auto res = coro_await_read_some(buf, size, error);
+	if( error )
+		tcp_socket::error(error, "coro_await_read_some(void*,std::size_t)");
+	return res;
 }
 
 void tcp_socket::write_some_nonblock(std::string buf) noexcept

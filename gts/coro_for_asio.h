@@ -16,10 +16,6 @@ void coro_run_on(Exe &exe);
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
-void coro_await_timer(asio::steady_timer &timer, asio::error_code &error) noexcept;
-
-/*--------------------------------------------------------------------------------------------------------------------*/
-
 template <typename Dev>
 std::size_t coro_await_write(Dev &dev, const void *buf, std::size_t len) noexcept(false);
 
@@ -51,6 +47,18 @@ std::size_t coro_await_read(Dev &dev, std::string &buf, std::size_t len, asio::e
 
 template <typename Dev>
 std::size_t coro_await_read(Dev &dev, std::string &buf, asio::error_code &error) noexcept;
+
+/*--------------------------------------------------------------------------------------------------------------------*/
+
+GTS_CXX_NODISCARD("") asio::ip::tcp::socket
+coro_await_accept(asio::ip::tcp::acceptor &acceptor) noexcept(false);
+
+GTS_CXX_NODISCARD("") asio::ip::tcp::socket
+coro_await_accept(asio::ip::tcp::acceptor &acceptor, asio::error_code &error) noexcept;
+
+/*--------------------------------------------------------------------------------------------------------------------*/
+
+void coro_await_timer(asio::steady_timer &timer, asio::error_code &error) noexcept;
 
 GTS_NAMESPACE_END
 #include <gts/detail/coro_for_asio.h>

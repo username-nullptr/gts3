@@ -15,6 +15,11 @@ void coroutine_base::set_again(bool flag)
 		m_again = flag;
 }
 
+bool coroutine_base::is_yield() const noexcept
+{
+	return m_yield;
+}
+
 bool coroutine_base::is_finished() const noexcept
 {
 	return m_coro->is_finished();
@@ -41,7 +46,9 @@ void coroutine_base::invoke() noexcept(false)
 
 void coroutine_base::yield() noexcept(false)
 {
+	m_yield = true;
 	auto _r = m_coro->yield();
+	m_yield = false;
 	if( _r != 0 )
 		throw exception("coroutine_base::yield: coroutine yield failed ({}).", _r);
 }
@@ -67,11 +74,6 @@ inline coro_context &this_coro::get() noexcept(false)
 }
 
 void this_coro::invoke()
-{
-	get().invoke();
-}
-
-void this_coro::operator()()
 {
 	get().invoke();
 }

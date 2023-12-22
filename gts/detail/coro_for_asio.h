@@ -21,7 +21,7 @@ template <typename Dev>
 std::size_t coro_await_write(Dev &dev, const void *buf, std::size_t len) noexcept(false)
 {
 	asio::error_code error;
-	auto res = coro_await_tcp_socket_write(dev, buf, len, error);
+	auto res = coro_await_write(dev, buf, len, error);
 	if( error )
 		throw exception("gts::coro_await_write: {}.", error);
 	return res;
@@ -31,7 +31,7 @@ template <typename Dev>
 std::size_t coro_await_write(Dev &dev, const std::string &buf) noexcept(false)
 {
 	asio::error_code error;
-	auto res = coro_await_tcp_socket_write(dev, buf, error);
+	auto res = coro_await_write(dev, buf, error);
 	if( error )
 		throw exception("gts::coro_await_write: {}.", error);
 	return res;
@@ -75,7 +75,7 @@ template <typename Dev>
 std::size_t coro_await_read(Dev &dev, void *buf, std::size_t len) noexcept(false)
 {
 	asio::error_code error;
-	auto res = coro_await_tcp_socket_write(dev, buf, len, error);
+	auto res = coro_await_read(dev, buf, len, error);
 	if( error )
 		throw exception("gts::coro_await_read: {}.", error);
 	return res;
@@ -85,7 +85,7 @@ template <typename Dev>
 std::size_t coro_await_read(Dev &dev, std::string &buf, std::size_t len) noexcept(false)
 {
 	asio::error_code error;
-	auto res = coro_await_tcp_socket_write(dev, buf, len, error);
+	auto res = coro_await_read(dev, buf, len, error);
 	if( error )
 		throw exception("gts::coro_await_read: {}.", error);
 	return res;
@@ -95,7 +95,7 @@ template <typename Dev>
 std::size_t coro_await_read(Dev &dev, std::string &buf) noexcept(false)
 {
 	asio::error_code error;
-	auto res = coro_await_tcp_socket_write(dev, buf, error);
+	auto res = coro_await_read(dev, buf, error);
 	if( error )
 		throw exception("gts::coro_await_read: {}.", error);
 	return res;
