@@ -39,6 +39,12 @@ tcp_socket::tcp_socket(tcp::socket *sock) :
 	assert(sock);
 }
 
+tcp_socket::tcp_socket(tcp::socket &&sock) :
+	m_sock(new tcp::socket(std::move(sock)))
+{
+
+}
+
 tcp_socket::~tcp_socket() noexcept
 {
 	if( m_sock )

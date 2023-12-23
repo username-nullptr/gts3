@@ -30,12 +30,12 @@
 #include "gts/private/app_info.h"
 
 #include "gts/gts_config_key.h"
+#include "gts/coro_for_asio.h"
 #include "gts/registration.h"
 #include "gts/algorithm.h"
 #include "gts/settings.h"
 
 #include "server_tool.h"
-#include "application.h"
 #include "global.h"
 
 #include <nlohmann/json.hpp>
@@ -65,9 +65,11 @@ tcp_server::tcp_server()
 							ssl::context::no_sslv2);
 	asio::error_code error;
 
-	ssl_context.set_password_callback([](std::size_t, ssl::context::password_purpose){
+	auto context = ssl_context.set_password_callback([](std::size_t, ssl::context::password_purpose){
 		return settings::global_instance().read<std::string>(SINI_GROUP_GTS, SINI_GTS_SSL_KEY);
 	}, error);
+
+	GTS_UNUSED(context);
 	if( error )
 		gts_log_fatal("asio: ssl password failed: {}. ({})\n", error.message(), error.value());
 
@@ -79,7 +81,9 @@ tcp_server::tcp_server()
 		crt_file = app::absolute_path(crt_file);
 		gts_log_debug("ssl crt file: {}", crt_file);
 
-		ssl_context.use_certificate_chain_file(crt_file, error);
+		context = ssl_context.use_certificate_chain_file(crt_file, error);
+		GTS_UNUSED(context);
+
 		if( error )
 			gts_log_fatal("asio: ssl certificate file load failed: {}. ({})\n", error.message(), error.value());
 	}
@@ -89,13 +93,15 @@ tcp_server::tcp_server()
 		key_file = app::absolute_path(key_file);
 		gts_log_debug("ssl key file: {}", key_file);
 
-		ssl_context.use_private_key_file(key_file, ssl::context::pem, error);
+		context = ssl_context.use_private_key_file(key_file, ssl::context::pem, error);
+		GTS_UNUSED(context);
+
 		if( error )
 			gts_log_fatal("asio: ssl private key file file load failed: {}. ({})\n", error.message(), error.value());
 	}
 	if( not crt_file.empty() and not key_file.empty() )
 		m_no_ck_file = false;
-#endif //ssl
+#endif //GTS_ENABLE_SSL
 }
 
 tcp_server::~tcp_server()
@@ -116,7 +122,7 @@ void tcp_server::start()
 			"ipv4", 80, true
 #ifdef GTS_ENABLE_SSL
 			, false
-#endif //ssl
+#endif //GTS_ENABLE_SSL
 		};
 		m_sites.emplace("default", std::make_shared<tcp_site>(this, io_context(), info));
 		return ;
@@ -175,7 +181,7 @@ void tcp_server::start()
 									" (cmake -DENABLE_SSL -DOpenSSL_DIR)", pair.first->first);
 				}
 			}
-#endif //ssl
+#endif //GTS_ENABLE_SSL
 		}
 	}
 	catch(...) {
@@ -208,25 +214,29 @@ void tcp_server::start()
 		if( pair.second.ssl )
 			site = std::make_shared<ssl_site>(this, io_context(), pair.second);
 		else
-#endif //ssl
+#endif //GTS_ENABLE_SSL
 			site = std::make_shared<tcp_site>(this, io_context(), pair.second);
 
-		if( site->start() )
+		auto coro = start_coroutine([site]() -> bool {
+			return site->start();
+		},0x7FFFFF);
+
+		if( coro->is_finished() )
 		{
-			auto &info = pair.second;
-			gts_log_info("Site '{}' start ...\n"
-						 "    addr: '{}';  port: {};  universal: {};  ssl: {}",
-						 pair.first, info.addr, info.port, info.universal,
-#ifdef GTS_ENABLE_SSL
-						 info.ssl
-#else //ssl
-						 false
-#endif //ssl
-						 );
-			m_sites.emplace(pair.first, std::move(site));
-		}
-		else
 			gts_log_error("Site '{}' start failed.", pair.first);
+			continue;
+		}
+		auto &info = pair.second;
+		gts_log_info("Site '{}' start ...\n"
+					 "    addr: '{}';  port: {};  universal: {};  ssl: {}",
+					 pair.first, info.addr, info.port, info.universal,
+#ifdef GTS_ENABLE_SSL
+					 info.ssl
+#else //ssl
+			false
+#endif //GTS_ENABLE_SSL
+		);
+		m_sites.emplace(pair.first, std::move(site));
 	}
 	if( m_sites.empty() )
 		gts_log_fatal("No site is available.");
@@ -267,16 +277,6 @@ void tcp_server::service(tcp_socket *sock, bool universal) const
 	if( not plugin_call_handle::new_connection(sock, universal) )
 		gts_log_fatal("gts.plugin error: new connection method is null.");
 }
-
-#define ERROR_CHECK(_error) \
-({ \
-	if( error ) { \
-		if( error.value() == asio::error::operation_aborted ) \
-			return ; \
-		else if ERR_VAL(error) \
-			gts_log_fatal("asio: accept error: {}. ({})\n", error.message(), error.value()); \
-	} \
-})
 
 /*-----------------------------------------------------------------------------------------------------------------*/
 
@@ -328,7 +328,17 @@ tcp_server::basic_site::~basic_site()
 	} \
 })
 
-bool tcp_server::basic_site::start()
+#define ERROR_CHECK(_error) \
+({ \
+	if( error ) { \
+		if( error.value() == asio::error::operation_aborted ) \
+			break; \
+		else if ERR_VAL(error) \
+			gts_log_fatal("asio: accept error: {}. ({})\n", error.message(), error.value()); \
+	} \
+})
+
+GTS_CORO_FUNC bool tcp_server::basic_site::start()
 {
 	asio::error_code error;
 	ACCEPTOR_OPERAT(open, m_endpoint.protocol());
@@ -340,12 +350,12 @@ bool tcp_server::basic_site::start()
 
 void tcp_server::basic_site::stop()
 {
-	if( m_acceptor.is_open() )
-	{
-		asio::error_code error;
-		m_acceptor.cancel(error);
-		m_acceptor.close(error);
-	}
+	if( not m_acceptor.is_open() )
+		return;
+
+	asio::error_code error;
+	error = m_acceptor.cancel(error);
+	error = m_acceptor.close(error);
 }
 
 std::string tcp_server::tcp_site::view_status() const
@@ -354,25 +364,19 @@ std::string tcp_server::tcp_site::view_status() const
 			"  protocol: tcp\n";
 }
 
-bool tcp_server::tcp_site::start()
+GTS_CORO_FUNC bool tcp_server::tcp_site::start()
 {
-	if( basic_site::start() )
-	{
-		do_accept();
-		return true;
-	}
-	return false;
-}
+	if( not basic_site::start() )
+        return false;
 
-void tcp_server::tcp_site::do_accept()
-{
-	auto sock = new tcp::socket(gts_app.io_context());
-	m_acceptor.async_accept(*sock, [sock, this](asio::error_code error)
+	asio::error_code error;
+	for(;;)
 	{
+		auto socket = coro_await_accept(m_acceptor, error);
 		ERROR_CHECK(error);
-		q_ptr->service(new tcp_socket(sock), m_universal);
-		do_accept();
-	});
+		q_ptr->service(new tcp_socket(std::move(socket)), m_universal);
+	}
+    return true;
 }
 
 #ifdef GTS_ENABLE_SSL
@@ -383,41 +387,35 @@ std::string tcp_server::ssl_site::view_status() const
 			"  protocol: ssl\n";
 }
 
-bool tcp_server::ssl_site::start()
+GTS_CORO_FUNC bool tcp_server::ssl_site::start()
 {
 	if( q_ptr->m_no_ck_file )
 	{
 		gts_log_error("SSL: certificate or private-key is not configured.");
 		return false;
 	}
-	else if( basic_site::start() )
-	{
-		do_accept();
-		return true;
-	}
-	return false;
-}
+	else if( not basic_site::start() )
+		return false;
 
-void tcp_server::ssl_site::do_accept()
-{
-	auto sock = new ssl_stream(tcp::socket(io_context()), ssl_socket::asio_ssl_context());
-	m_acceptor.async_accept(sock->next_layer(), [sock, this](asio::error_code error)
+	asio::error_code error;
+	for(;;)
 	{
+		auto sock = new ssl_stream(tcp::socket(io_context()), ssl_socket::asio_ssl_context());
+		coro_await_accept(m_acceptor, sock->next_layer(), error);
 		ERROR_CHECK(error);
-		sock->async_handshake(ssl_stream::server, [sock, this](const asio::error_code &error)
+
+		coro_await_ssl_handshake(*sock, error);
+		if( error )
 		{
-			if( error )
-			{
-				gts_log_warning("asio: ssl_stream handshake error: {}.", error);
-				sock->next_layer().close();
-			}
-			else
-				q_ptr->service(new ssl_socket(sock), m_universal);
-			do_accept();
-		});
-	});
+			gts_log_warning("asio: ssl_stream handshake error: {}.", error);
+			sock->next_layer().close();
+		}
+		else
+			q_ptr->service(new ssl_socket(sock), m_universal);
+	}
+	return true;
 }
 
-#endif //ssl
+#endif //GTS_ENABLE_SSL
 
 GTS_NAMESPACE_END

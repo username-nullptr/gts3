@@ -49,6 +49,7 @@ protected:
 
 public:
 	explicit tcp_socket(tcp::socket *sock);
+    explicit tcp_socket(tcp::socket &&sock);
 	virtual ~tcp_socket() noexcept;
 
 public:

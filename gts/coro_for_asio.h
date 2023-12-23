@@ -5,6 +5,10 @@
 #include <gts/coroutine.h>
 #include <asio.hpp>
 
+#ifdef GTS_ENABLE_SSL
+# include <asio/ssl.hpp>
+#endif //GTS_ENABLE_SSL
+
 GTS_NAMESPACE_BEGIN
 
 void coro_run_on_main();
@@ -55,6 +59,22 @@ coro_await_accept(asio::ip::tcp::acceptor &acceptor) noexcept(false);
 
 GTS_CXX_NODISCARD("") asio::ip::tcp::socket
 coro_await_accept(asio::ip::tcp::acceptor &acceptor, asio::error_code &error) noexcept;
+
+void coro_await_accept
+(asio::ip::tcp::acceptor &acceptor, asio::ip::tcp::socket &sock) noexcept(false);
+
+void coro_await_accept
+(asio::ip::tcp::acceptor &acceptor, asio::ip::tcp::socket &sock, asio::error_code &error) noexcept;
+
+/*--------------------------------------------------------------------------------------------------------------------*/
+
+#ifdef GTS_ENABLE_SSL
+
+void coro_await_ssl_handshake(asio::ssl::stream<asio::ip::tcp::socket> &sock) noexcept(false);
+
+void coro_await_ssl_handshake(asio::ssl::stream<asio::ip::tcp::socket> &sock, asio::error_code &error) noexcept;
+
+#endif //GTS_ENABLE_SSL
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 

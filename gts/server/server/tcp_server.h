@@ -73,7 +73,7 @@ private:
 		GTS_CXX_NODISCARD("")
 		virtual std::string view_status() const;
 
-		virtual bool start();
+		virtual bool start(); //coro
 		void stop();
 
 	protected:
@@ -89,10 +89,7 @@ private:
 	public:
 		using basic_site::basic_site;
 		GTS_CXX_NODISCARD("") std::string view_status() const override;
-		GTS_CXX_NODISCARD("") bool start() override;
-
-	private:
-		void do_accept();
+		GTS_CXX_NODISCARD("") bool start() override; //coro
 	};
 
 #ifdef GTS_ENABLE_SSL
@@ -101,10 +98,7 @@ private:
 	public:
 		using basic_site::basic_site;
 		GTS_CXX_NODISCARD("") std::string view_status() const override;
-		GTS_CXX_NODISCARD("") bool start() override;
-
-	private:
-		void do_accept();
+		GTS_CXX_NODISCARD("") bool start() override; //coro
 	};
 	bool m_no_ck_file = true;
 #endif //ssl

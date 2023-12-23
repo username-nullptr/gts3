@@ -46,6 +46,7 @@ class GTSCORE_API ssl_socket : public tcp_socket
 
 public:
 	explicit ssl_socket(ssl_stream *sock);
+	explicit ssl_socket(ssl_stream &&sock);
 	~ssl_socket() noexcept override;
 
 public:
@@ -79,6 +80,6 @@ protected:
 
 GTS_NAMESPACE_END
 
-#endif //ssl
+#endif //GTS_ENABLE_SSL
 
 #endif //GTS_SSL_SOCKET_H

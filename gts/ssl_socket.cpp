@@ -40,6 +40,13 @@ ssl_socket::ssl_socket(ssl_stream *sock) :
 
 }
 
+ssl_socket::ssl_socket(ssl_stream &&sock) :
+	tcp_socket(reinterpret_cast<tcp::socket*>(1)),
+	m_ssl_sock(new ssl_stream(std::move(sock)))
+{
+	m_sock = &m_ssl_sock->next_layer();
+}
+
 ssl_socket::~ssl_socket() noexcept
 {
 	m_sock = nullptr;

@@ -156,11 +156,11 @@ public:
 	}
 
 public:
-	inline Ret operator*() {
+	inline Ret operator*() noexcept(false) {
 		return result();
 	}
 
-	inline Ret *operator->()
+	inline Ret *operator->() noexcept(false)
 	{
 		if( m_ret == nullptr )
 			throw exception("coroutine_base_return<T>::operator->: coroutine is not over yet.");

@@ -145,6 +145,8 @@ using this_coro = coro_detail::this_coro;
 
 using coro_context = coro_detail::coro_context;
 
+#define GTS_CORO_FUNC
+
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 void coro_yield();
