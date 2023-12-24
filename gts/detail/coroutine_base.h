@@ -49,6 +49,7 @@ public:
 	}
 
 protected:
+	void _invoke() noexcept(false);
 	void _finished();
 
 protected:
@@ -59,7 +60,7 @@ protected:
 	coro_context_ptr m_coro;
 	std::function<void()> m_yield_func;
 	std::function<void()> m_finished_callback;
-	bool m_yield = false;
+	std::atomic_bool m_yield {false};
 	bool m_again = false;
 };
 
@@ -73,6 +74,9 @@ class this_coro
 
 public:
 	virtual ~this_coro() = 0;
+
+public:
+	static bool is_valid() noexcept;
 	static coro_context &get() noexcept(false);
 
 public:
@@ -111,6 +115,28 @@ public:
 	using coroutine_base::invoke;
 	void invoke(const Arg0 arg0, const Args...args) noexcept(false)
 	{
+		if( not this_coro::is_valid() )
+			return _invoke(std::forward<Arg0>(arg0), std::forward<Args>(args)...);
+
+		auto &context = this_coro::get();
+		if( &context == this )
+			return ;
+
+		context.yield([&]
+		{
+			context.m_again = true;
+			_invoke(std::forward<Arg0>(arg0), std::forward<Args>(args)...);
+		});
+	}
+
+protected:
+	coroutine_base_args(coroutine_base_args&&) noexcept = default;
+	coroutine_base_args &operator=(coroutine_base_args&&) noexcept = default;
+
+protected:
+	using coroutine_base::_invoke;
+	void _invoke(const Arg0 arg0, const Args...args) noexcept(false)
+	{
 		m_again = false;
 		this_coro::_set(this);
 		auto t = std::tuple<Arg0,Args...>(arg0,args...);
@@ -125,12 +151,8 @@ public:
 			m_yield_func = {};
 		}
 		if( m_again )
-			this->invoke();
+			_invoke();
 	}
-
-protected:
-	coroutine_base_args(coroutine_base_args&&) noexcept = default;
-	coroutine_base_args &operator=(coroutine_base_args&&) noexcept = default;
 };
 
 template <typename Arg0, typename...Args>
@@ -148,7 +170,7 @@ public:
 	virtual ~coroutine_base_return() = 0;
 
 public:
-	Ret result() const noexcept(false)
+	Ret result() noexcept(false)
 	{
 		if( m_ret == nullptr )
 			throw exception("coroutine_base_return<T>::result: coroutine is not over yet.");
@@ -214,6 +236,10 @@ class coroutine_base_return<void>
 public:
 	coroutine_base_return() = default;
 	virtual ~coroutine_base_return() = 0;
+
+public:
+	void result() noexcept {}
+	void operator*() noexcept {}
 
 protected:
 	coroutine_base_return(coroutine_base_return&&) noexcept = default;

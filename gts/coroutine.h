@@ -167,7 +167,7 @@ enable_if_t <
     coro_detail::is_functor<Func>::value,
 	decltype(std::declval<Func>()(std::declval<Args>()...))
 >
-coro_await(Func &&func, Args&&...args);
+coro_await(Func &&func, Args&&...args, std::size_t stack_size = 0x7FFFF);
 
 GTS_NAMESPACE_END
 #include <gts/detail/coroutine.h>

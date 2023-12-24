@@ -88,7 +88,8 @@ void coro_await_ssl_handshake(ssl_stream &sock, asio::error_code &error) noexcep
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
-void coro_await_timer(asio::steady_timer &timer, asio::error_code &error) noexcept
+void coro_await_timer
+(asio::steady_timer &timer, asio::error_code &error) noexcept
 {
 	auto &context = this_coro::get();
 	timer.async_wait([&](const asio::error_code &_e)
@@ -97,6 +98,13 @@ void coro_await_timer(asio::steady_timer &timer, asio::error_code &error) noexce
 		context.invoke();
 	});
 	context.yield();
+}
+
+void coro_await_timer
+(asio::steady_timer &timer, const asio::steady_timer::duration &time, asio::error_code &error) noexcept
+{
+	timer.expires_after(time);
+	coro_await_timer(timer, error);
 }
 
 GTS_NAMESPACE_END

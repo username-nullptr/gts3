@@ -20,12 +20,42 @@ bool coroutine_base::is_yield() const noexcept
 	return m_yield;
 }
 
+thread_local coroutine_base *g_context = nullptr;
+
 bool coroutine_base::is_finished() const noexcept
 {
-	return m_coro->is_finished();
+	return m_coro->is_finished() or (g_context != this and not m_yield);
 }
 
 void coroutine_base::invoke() noexcept(false)
+{
+	if( not this_coro::is_valid() )
+		return _invoke();
+
+	auto &context = this_coro::get();
+	if( &context == this )
+		return ;
+
+	context.yield([&]
+	{
+		context.m_again = true;
+		_invoke();
+	});
+}
+
+void coroutine_base::yield() noexcept(false)
+{
+	this_coro::_set(nullptr);
+	m_yield = true;
+
+	auto _r = m_coro->yield();
+	m_yield = false;
+
+	if( _r != 0 )
+		throw exception("coroutine_base::yield: coroutine yield failed ({}).", _r);
+}
+
+void coroutine_base::_invoke() noexcept(false)
 {
 	do {
 		m_again = false;
@@ -44,15 +74,6 @@ void coroutine_base::invoke() noexcept(false)
 	while( m_again );
 }
 
-void coroutine_base::yield() noexcept(false)
-{
-	m_yield = true;
-	auto _r = m_coro->yield();
-	m_yield = false;
-	if( _r != 0 )
-		throw exception("coroutine_base::yield: coroutine yield failed ({}).", _r);
-}
-
 void coroutine_base::_finished()
 {
 	this_coro::_set(nullptr);
@@ -64,7 +85,10 @@ void coroutine_base::_finished()
 
 this_coro::~this_coro() = default;
 
-thread_local coroutine_base *g_context = nullptr;
+bool this_coro::is_valid() noexcept
+{
+	return g_context != nullptr;
+}
 
 inline coro_context &this_coro::get() noexcept(false)
 {

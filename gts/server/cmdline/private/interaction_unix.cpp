@@ -62,8 +62,8 @@ public:
 	ssize_t write(const char *buf, ssize_t len, int timeout);
 
 public:
-	void async_read(char *buf, ssize_t len, std::function<void(ssize_t)> call_back);
-	void async_write(char *buf, ssize_t len, std::function<void(ssize_t)> call_back);
+	void async_read(char *buf, ssize_t len, std::function<void(ssize_t)> callback);
+	void async_write(const char *buf, ssize_t len, std::function<void(ssize_t)> callback);
 	void cancel();
 
 private:
@@ -249,71 +249,77 @@ ssize_t pipe_ope::write(const char *buf, ssize_t len, int timeout)
 	return res;
 }
 
-void pipe_ope::async_read(char *buf, ssize_t len, std::function<void(ssize_t)> call_back)
+void pipe_ope::async_read(char *buf, ssize_t len, std::function<void(ssize_t)> callback)
 {
 	if( not is_open() )
 	{
 		gts_log_error("pipe not open.");
-		gts::io_context().post([call_back]{
-			call_back(0);
+		auto callback_mw = make_move_wrapper(std::move(callback));
+
+		gts::io_context().post([callback_mw]{
+			(*callback_mw)(0);
 		});
 		return ;
 	}
 	assert(buf);
 	if( len < 0 )
-		return call_back(-1);
+		return callback(-1);
 	else if( len == 0 )
-		return call_back(0);
+		return callback(0);
 
+	auto callback_mw = make_move_wrapper(std::move(callback));
 	m_read_pipe->async_read_some(asio::buffer(buf, len),
-	[call_back](const asio::error_code &error, std::size_t size)
+	[callback_mw](const asio::error_code &error, std::size_t size)
 	{
 		if( error )
 		{
 			if( error.value() == asio::error::operation_aborted )
-				call_back(0);
+				(*callback_mw)(0);
 			else
 			{
 				gts_log_error("read: {}.", error.value());
-				call_back(-1);
+				(*callback_mw)(-1);
 			}
 		}
 		else
-			call_back(static_cast<ssize_t>(size));
+			(*callback_mw)(static_cast<ssize_t>(size));
 	});
 }
 
-void pipe_ope::async_write(char *buf, ssize_t len, std::function<void(ssize_t)> call_back)
+void pipe_ope::async_write(const char *buf, ssize_t len, std::function<void(ssize_t)> callback)
 {
 	if( not is_open() )
 	{
 		gts_log_error("pipe not open.");
-		gts::io_context().post([call_back]{
-			call_back(0);
+		auto callback_mw = make_move_wrapper(std::move(callback));
+
+		gts::io_context().post([callback_mw]{
+			(*callback_mw)(0);
 		});
 		return ;
 	}
 	assert(buf);
 	if( len < 0 )
-		return call_back(-1);
+		return callback(-1);
 	else if( len == 0 )
-		return call_back(0);
+		return callback(0);
 
+	auto callback_mw = make_move_wrapper(std::move(callback));
 	m_write_pipe->async_write_some(asio::buffer(buf, len),
-	[call_back](const asio::error_code &error, std::size_t size)
+	[callback_mw](const asio::error_code &error, std::size_t size)
 	{
 		if( error )
 		{
 			if( error.value() == asio::error::operation_aborted )
-				call_back(0);
+				(*callback_mw)(0);
 			else
 			{
 				gts_log_error("write: {}.", error.value());
-				call_back(-1);
+				(*callback_mw)(-1);
 			}
 		}
 		else
-			call_back(static_cast<ssize_t>(size));
+			(*callback_mw)(static_cast<ssize_t>(size));
 	});
 }
 
@@ -365,14 +371,14 @@ ssize_t interaction::write(const char *buf, ssize_t len, int timeout)
 	return d_ptr->m_ope->write(buf, len, timeout);
 }
 
-void interaction::async_read(char *buf, ssize_t len, std::function<void(ssize_t)> call_back)
+void interaction::async_read(char *buf, ssize_t len, std::function<void(ssize_t)> callback)
 {
-	d_ptr->m_ope->async_read(buf, len, std::move(call_back));
+	d_ptr->m_ope->async_read(buf, len, std::move(callback));
 }
 
-void interaction::async_write(char *buf, ssize_t len, std::function<void(ssize_t)> call_back)
+void interaction::async_write(const char *buf, ssize_t len, std::function<void(ssize_t)> callback)
 {
-	d_ptr->m_ope->async_write(buf, len, std::move(call_back));
+	d_ptr->m_ope->async_write(buf, len, std::move(callback));
 }
 
 void interaction::cancel()

@@ -49,9 +49,8 @@ public:
 	static std::string view_status();
 
 private:
-	void do_recv();
-	void time_out_allow_preemptionx(const asio::error_code &was_cancel);
-	void time_out_destory(const asio::error_code &was_cancel);
+	void do_recv_work();
+	void do_timer_work();
 
 private:
 	tcp_socket_ptr m_socket;

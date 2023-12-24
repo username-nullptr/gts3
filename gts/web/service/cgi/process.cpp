@@ -27,6 +27,7 @@
 *************************************************************************************/
 
 #include "process_p.h"
+#include "gts/coroutine.h"
 /*
 	private/process_xxx.cpp
 
@@ -117,6 +118,36 @@ std::size_t process::read_some(void *buf, std::size_t size)
 	auto res = read_some(buf, size, _error);
 	if( _error )
 		error(_error, "read_some");
+	return res;
+}
+
+std::size_t process::coro_await_write_some(const char *buf, std::size_t size, asio::error_code &error)
+{
+	auto &context = this_coro::get();
+	std::size_t res = 0;
+
+	async_write_some(buf, size, [&](const asio::error_code &_e, std::size_t _s)
+	{
+		error = _e;
+		res = _s;
+		context.invoke();
+	});
+	context.yield();
+	return res;
+}
+
+std::size_t process::coro_await_read_some(char *buf, std::size_t size, asio::error_code &error)
+{
+	auto &context = this_coro::get();
+	std::size_t res = 0;
+
+	async_read_some(buf, size, [&](const asio::error_code &_e, std::size_t _s)
+	{
+		error = _e;
+		res = _s;
+		context.invoke();
+	});
+	context.yield();
 	return res;
 }
 

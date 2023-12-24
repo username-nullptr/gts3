@@ -92,8 +92,14 @@ public:
 	std::size_t read_some(void *buf, std::size_t size);
 
 public:
-	void async_write_some(const char *buf, std::size_t size, std::function<void(asio::error_code,std::size_t)> call_back);
-	void async_read_some(char *buf, std::size_t size, std::function<void(asio::error_code,std::size_t)> call_back);
+	void async_write_some(const char *buf, std::size_t size, std::function<void(asio::error_code,std::size_t)> callback);
+	void async_read_some(char *buf, std::size_t size, std::function<void(asio::error_code,std::size_t)> callback);
+
+public:
+	std::size_t coro_await_write_some(const char *buf, std::size_t size, asio::error_code &error);
+	std::size_t coro_await_read_some(char *buf, std::size_t size, asio::error_code &error);
+
+public:
 	void cancel();
 
 private:

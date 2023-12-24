@@ -78,7 +78,11 @@ void coro_await_ssl_handshake(asio::ssl::stream<asio::ip::tcp::socket> &sock, as
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
-void coro_await_timer(asio::steady_timer &timer, asio::error_code &error) noexcept;
+void coro_await_timer
+(asio::steady_timer &timer, asio::error_code &error) noexcept;
+
+void coro_await_timer
+(asio::steady_timer &timer, const asio::steady_timer::duration &time, asio::error_code &error) noexcept;
 
 GTS_NAMESPACE_END
 #include <gts/detail/coro_for_asio.h>

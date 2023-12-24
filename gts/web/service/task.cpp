@@ -33,6 +33,7 @@
 
 #include "gts/settings.h"
 #include "gts/application.h"
+#include "gts/coro_for_asio.h"
 #include "gts/http/formatter.h"
 
 #include "gts/web/config_key.h"
@@ -122,37 +123,6 @@ void task::init()
 	cgi_service::init();
 }
 
-void task::start(http::service_context_ptr context)
-{
-	m_socket->non_blocking(false);
-	m_context = std::move(context);
-
-	asio::post(thread_pool(), [this]
-	{
-		run();
-		io_context().post([this]
-		{
-			if( m_call_back )
-			{
-				bool cont = m_context->is_valid();
-				m_context.reset();
-				m_call_back(cont);
-			}
-		});
-	});
-}
-
-void task::async_wait_next(std::function<void(bool)> call_back)
-{
-	assert(call_back != nullptr);
-	m_call_back = std::move(call_back);
-}
-
-void task::cancel()
-{
-	m_call_back = nullptr;
-}
-
 static void CALL_GET    (service_io &sio);
 static void CALL_POST   (service_io &sio);
 static void CALL_PUT    (service_io &sio);
@@ -162,12 +132,16 @@ static void CALL_OPTIONS(service_io &sio);
 static void CALL_CONNECT(service_io &sio);
 static void CALL_TRACH  (service_io &sio);
 
-void task::run()
+bool task::run(http::service_context_ptr &context)
 {
-	service_io sio(*m_context);
-	auto method = m_context->request().method();
+	m_cancel = true;
+	m_socket->non_blocking(false);
 
-	gts_log_debug("URL: '{}' ({:s})", m_context->request().path(), method);
+	service_io sio(*context);
+	auto method = context->request().method();
+
+	gts_log_debug("URL: '{}' ({:s})", context->request().path(), method);
+	coro_run_on(thread_pool());
 
 	if(      method == http::GET     ) CALL_GET    (sio);
 	else if( method == http::POST    ) CALL_POST   (sio);
@@ -179,9 +153,19 @@ void task::run()
 	else if( method == http::TRACH   ) CALL_TRACH  (sio);
 
 	else sio.response().write_default(http::hs_bad_request);
-	if( not m_context->request().keep_alive() )
+	if( not context->request().keep_alive() )
 		m_socket->close(true);
+
+	coro_run_on(m_socket->native().get_executor());
+	return m_cancel and context->is_valid();
 }
+
+void task::cancel()
+{
+	m_cancel = true;
+}
+
+/*--------------------------------------------------------------------------------------------------------------------*/
 
 #define TASK_DO_PARSING(sio) \
 ({ \

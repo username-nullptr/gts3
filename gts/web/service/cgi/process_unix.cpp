@@ -214,29 +214,29 @@ std::size_t process::read_some(void *buf, std::size_t size, asio::error_code &er
 	return 0;
 }
 
-void process::async_write_some(const char *buf, std::size_t size, std::function<void(asio::error_code,std::size_t)> call_back)
+void process::async_write_some(const char *buf, std::size_t size, std::function<void(asio::error_code,std::size_t)> callback)
 {
 	if( m_impl->m_pid > 0 )
 	{
 		m_impl->m_write_fd->non_blocking(true);
-		m_impl->m_write_fd->async_write_some(asio::buffer(buf, size), std::move(call_back));
+		m_impl->m_write_fd->async_write_some(asio::buffer(buf, size), std::move(callback));
 	}
 	else
 	{
-		auto call_back_mw = make_move_wrapper(std::move(call_back));
-		m_impl->m_io.post([call_back_mw]{
-			(*call_back_mw)(std::make_error_code(std::errc::operation_canceled), 0);
+		auto callback_mw = make_move_wrapper(std::move(callback));
+		m_impl->m_io.post([callback_mw]{
+			(*callback_mw)(std::make_error_code(std::errc::operation_canceled), 0);
 		});
 	}
 }
 
-void process::async_read_some(char *buf, std::size_t size, std::function<void(asio::error_code,std::size_t)> call_back)
+void process::async_read_some(char *buf, std::size_t size, std::function<void(asio::error_code,std::size_t)> callback)
 {
 	if( m_impl->m_read_fd == nullptr )
 	{
-		auto call_back_mw = make_move_wrapper(std::move(call_back));
-		m_impl->m_io.post([call_back_mw]{
-			(*call_back_mw)(std::make_error_code(std::errc::operation_canceled), 0);
+		auto callback_mw = make_move_wrapper(std::move(callback));
+		m_impl->m_io.post([callback_mw]{
+			(*callback_mw)(std::make_error_code(std::errc::operation_canceled), 0);
 		});
 		return ;
 	}
@@ -245,7 +245,7 @@ void process::async_read_some(char *buf, std::size_t size, std::function<void(as
 
 	if( res > 0 )
 	{
-		auto call_back_mw = make_move_wrapper(std::move(call_back));
+		auto call_back_mw = make_move_wrapper(std::move(callback));
 		m_impl->m_io.post([call_back_mw, res]{
 			(*call_back_mw)({}, static_cast<std::size_t>(res));
 		});
@@ -255,7 +255,7 @@ void process::async_read_some(char *buf, std::size_t size, std::function<void(as
 	{
 		if( m_impl->m_pid < 0 )
 		{
-			auto call_back_mw = make_move_wrapper(std::move(call_back));
+			auto call_back_mw = make_move_wrapper(std::move(callback));
 			m_impl->m_io.post([call_back_mw]{
 				(*call_back_mw)(std::make_error_code(std::errc::operation_canceled), 0);
 			});
@@ -264,7 +264,7 @@ void process::async_read_some(char *buf, std::size_t size, std::function<void(as
 	}
 	else if( errno != EAGAIN and errno != EWOULDBLOCK )
 	{
-		auto call_back_mw = make_move_wrapper(std::move(call_back));
+		auto call_back_mw = make_move_wrapper(std::move(callback));
 		m_impl->m_io.post([call_back_mw]{
 			(*call_back_mw)(std::make_error_code(static_cast<std::errc>(errno)), 0);
 		});
@@ -276,7 +276,7 @@ void process::async_read_some(char *buf, std::size_t size, std::function<void(as
 	if( not is_running() )
 	{
 		m_impl->reset_reader();
-		auto call_back_mw = make_move_wrapper(std::move(call_back));
+		auto call_back_mw = make_move_wrapper(std::move(callback));
 
 		m_impl->m_io.post([call_back_mw]{
 			(*call_back_mw)(std::make_error_code(std::errc::operation_canceled), 0);
@@ -288,9 +288,9 @@ void process::async_read_some(char *buf, std::size_t size, std::function<void(as
 	// ith size equal to 0, but in practice the callback function is never called.
 	m_impl->m_read_fd->async_read_some
 			(asio::buffer(buf, size),
-			 [this, call_back](const asio::error_code &error, std::size_t size)
+			 [this, callback](const asio::error_code &error, std::size_t size)
 	{
-		call_back(error, size);
+		callback(error, size);
 		if( size == 0 )
 			m_impl->reset_reader();
 	});

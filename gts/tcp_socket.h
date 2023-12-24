@@ -120,6 +120,12 @@ public:
 	bool wait_readable(const duration &ms) noexcept;
 
 public:
+	bool coro_await_writeable(const duration &ms, asio::error_code &error) noexcept;
+	bool coro_await_readable(const duration &ms, asio::error_code &error) noexcept;
+	bool coro_await_writeable(const duration &ms) noexcept;
+	bool coro_await_readable(const duration &ms) noexcept;
+
+public:
 	GTS_CXX_NODISCARD("") tcp::endpoint remote_endpoint(asio::error_code &error) noexcept;
 	GTS_CXX_NODISCARD("") tcp::endpoint remote_endpoint() noexcept;
 

@@ -34,10 +34,6 @@
 #include <gts/tcp_socket.h>
 #include <functional>
 
-GTS_HTTP_NAMESPACE_BEGIN
-class request;
-GTS_HTTP_NAMESPACE_END
-
 GTS_WEB_NAMESPACE_BEGIN
 
 class GTS_DECL_HIDDEN task
@@ -51,17 +47,12 @@ public:
 	static void init();
 
 public:
-	void start(http::service_context_ptr context);
-	void async_wait_next(std::function<void(bool)> call_back);
+	bool run(http::service_context_ptr &context);
 	void cancel();
 
 private:
-	void run();
-
-private:
 	tcp_socket_ptr m_socket;
-	http::service_context_ptr m_context;
-	std::function<void(bool)> m_call_back;
+	bool m_cancel = false;
 };
 
 GTS_WEB_NAMESPACE_END

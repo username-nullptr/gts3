@@ -415,6 +415,62 @@ std::size_t tcp_socket::read_some(void *buf, std::size_t size, const duration &t
 	return 0;
 }
 
+bool tcp_socket::coro_await_writeable(const duration &ms, asio::error_code &error) noexcept
+{
+	return coro_await([&]
+	{
+		auto &exe = m_sock->get_executor();
+
+		coro_run_on_thread();
+		auto res = wait_writeable(ms, error);
+
+		coro_run_on(exe);
+		return res;
+	});
+}
+
+bool tcp_socket::coro_await_readable(const duration &ms, asio::error_code &error) noexcept
+{
+	return coro_await([&]
+	{
+		auto &exe = m_sock->get_executor();
+
+		coro_run_on_thread();
+		auto res = wait_readable(ms, error);
+
+		coro_run_on(exe);
+		return res;
+	});
+}
+
+bool tcp_socket::coro_await_writeable(const duration &ms) noexcept
+{
+	return coro_await([&]
+	{
+		auto &exe = m_sock->get_executor();
+
+		coro_run_on_thread();
+		auto res = wait_writeable(ms);
+
+		coro_run_on(exe);
+		return res;
+	});
+}
+
+bool tcp_socket::coro_await_readable(const duration &ms) noexcept
+{
+	return coro_await([&]
+	{
+		auto &exe = m_sock->get_executor();
+
+		coro_run_on_thread();
+		auto res = wait_readable(ms);
+
+		coro_run_on(exe);
+		return res;
+	});
+}
+
 tcp::endpoint tcp_socket::remote_endpoint(asio::error_code &error) noexcept
 {
 	return m_sock->remote_endpoint(error);

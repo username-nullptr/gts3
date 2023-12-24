@@ -57,8 +57,14 @@ public:
 	ssize_t write(const char *buf, ssize_t len, int timeout = -1);
 
 public:
-	void async_read(char *buf, ssize_t len, std::function<void(ssize_t)> call_back);
-	void async_write(char *buf, ssize_t len, std::function<void(ssize_t)> call_back);
+	void async_read(char *buf, ssize_t len, std::function<void(ssize_t)> callback);
+	void async_write(const char *buf, ssize_t len, std::function<void(ssize_t)> callback);
+
+public:
+	ssize_t coro_await_read(char *buf, ssize_t len, int timeout = -1);
+	ssize_t coro_await_write(const char *buf, ssize_t len, int timeout = -1);
+
+public:
 	void cancel();
 
 private:

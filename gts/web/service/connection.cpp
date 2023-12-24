@@ -28,6 +28,7 @@
 
 #include "connection.h"
 #include <gts/web/config_key.h>
+#include <gts/coro_for_asio.h>
 #include <gts/settings.h>
 
 using namespace std::chrono;
@@ -50,7 +51,7 @@ connection::connection(tcp_socket_ptr socket) :
 	m_asio_buffer = new char[m_ab_size]{0};
 	m_parser = new http::parser(m_ab_size);
 
-	do_recv();
+	do_recv_work();
 }
 
 connection::~connection()
@@ -138,27 +139,26 @@ std::string connection::view_status()
 					   "  connection count: {} / {}\n\n", g_counter, g_max_count);
 }
 
-void connection::do_recv()
+void connection::do_recv_work()
 {
-	if( not m_socket->is_open() )
-		return delete_later(this);
-
-	m_timer.expires_after(std::chrono::milliseconds(g_idle_time_tv));
-	m_timer.async_wait([this](const asio::error_code &was_cancel){
-		time_out_allow_preemptionx(was_cancel);
-	});
-
-	m_socket->async_read_some(m_asio_buffer, m_ab_size,
-				[this](const asio::error_code &error, std::size_t size)
+	for(;;)
 	{
+		if( not m_socket->is_open() )
+			return delete_later(this);
+
+		start_coroutine([&]{
+			do_timer_work();
+		});
+		asio::error_code error;
+		auto size = m_socket->coro_await_read_some(m_asio_buffer, m_ab_size, error);
+
 		m_timer.cancel();
 		g_timeout_set.erase(this);
 
 		if( error or size == 0 )
 			return delete_later(this);
-
-		if( not m_parser->load(std::string(m_asio_buffer, size)) )
-			return do_recv();
+		else if( not m_parser->load(std::string(m_asio_buffer, size)) )
+			continue;
 
 		auto context = m_parser->get_request(m_socket);
 		assert(context);
@@ -172,33 +172,27 @@ void connection::do_recv()
 			m_socket->close(true);
 			return delete_later(this);
 		}
-		m_task.async_wait_next([this](bool cont)
+		coro_await([&]
 		{
-			if( cont )
-				do_recv();
-			else
-				return delete_later(this);
-		});
-		m_task.start(std::move(context));
-	});
+			if( not m_task.run(context) )
+				delete_later(this);
+		},
+		0x7FFFFF);
+	}
 }
 
-void connection::time_out_allow_preemptionx(const asio::error_code &was_cancel)
+void connection::do_timer_work()
 {
+	asio::error_code was_cancel;
+
+	coro_await_timer(m_timer, std::chrono::milliseconds(g_idle_time_tv), was_cancel);
 	if( was_cancel )
 		return ;
 
 	gts_log_debug("Session enters the idle state. (client: {})", m_socket->remote_endpoint());
 	g_timeout_set.emplace(this);
 
-	m_timer.expires_after(std::chrono::milliseconds(g_max_idle_time));
-	m_timer.async_wait([this](const asio::error_code &was_cancel){
-		time_out_destory(was_cancel);
-	});
-}
-
-void connection::time_out_destory(const asio::error_code &was_cancel)
-{
+	coro_await_timer(m_timer, std::chrono::milliseconds(g_max_idle_time), was_cancel);
 	if( was_cancel )
 		return ;
 

@@ -27,6 +27,7 @@
 *************************************************************************************/
 
 #include "private/interaction_p.h"
+#include "gts/coroutine.h"
 
 GTS_CMDLINE_NAMESPACE_BEGIN
 
@@ -39,6 +40,34 @@ interaction::interaction(bool is_server) :
 interaction::~interaction()
 {
 	delete d_ptr;
+}
+
+ssize_t interaction::coro_await_read(char *buf, ssize_t len, int timeout)
+{
+	auto &context = this_coro::get();
+	ssize_t res = 0;
+
+	async_read(buf, len, [&](ssize_t size)
+	{
+		res = size;
+		context.invoke();
+	});
+	context.yield();
+	return res;
+}
+
+ssize_t interaction::coro_await_write(const char *buf, ssize_t len, int timeout)
+{
+	auto &context = this_coro::get();
+	ssize_t res = 0;
+
+	async_write(buf, len, [&](ssize_t size)
+	{
+		res = size;
+		context.invoke();
+	});
+	context.yield();
+	return res;
 }
 
 GTS_CMDLINE_NAMESPACE_END
