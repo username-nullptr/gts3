@@ -15,6 +15,11 @@ void coroutine_base::set_again(bool flag)
 		m_again = flag;
 }
 
+bool coroutine_base::is_started() const noexcept
+{
+	return m_start;
+}
+
 bool coroutine_base::is_yield() const noexcept
 {
 	return m_yield;
@@ -24,11 +29,12 @@ thread_local coroutine_base *g_context = nullptr;
 
 bool coroutine_base::is_finished() const noexcept
 {
-	return m_coro->is_finished() or (g_context != this and not m_yield);
+	return m_coro->is_finished();
 }
 
 void coroutine_base::invoke() noexcept(false)
 {
+	m_start = true;
 	if( not this_coro::is_valid() )
 		return _invoke();
 

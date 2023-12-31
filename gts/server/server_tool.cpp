@@ -28,16 +28,19 @@
 
 #include "server_tool.h"
 #include "gts/private/app_info.h"
+#include "gts/coro_for_asio.h"
 #include "gts/registration.h"
+#include "gts/execution.h"
 #include "gts/algorithm.h"
 
 #include <nlohmann/json.hpp>
-#include <rttr/library.h>
 #include <cppformat>
 
 using njson = nlohmann::json;
 
 GTS_NAMESPACE_BEGIN
+
+using coro_ptr = coroutine_ptr<std::function<void()>>;
 
 static site_info_map g_site_infos;
 
@@ -51,25 +54,18 @@ site_info_map &server_get_site_infos()
 	return g_site_infos;
 }
 
-#define CHECK_RETURN_CALL(...) \
-({ \
-	if( method.get_return_type() == GTS_RTTR_TYPE(future_ptr) ) { \
-		rttr::variant var = method.invoke(__VA_ARGS__); \
-		futures.emplace_back(var.get_value<future_ptr>()); \
-	} \
-	else \
-		method.invoke(__VA_ARGS__); \
-})
-
 template <typename Ins>
-static void call_init(const rttr::method &method, Ins obj, std::list<future_ptr> &futures, const std::string &config_file)
+static coro_ptr call_init(const rttr::method &method, Ins obj, const std::string &config_file)
 {
-	auto para_list = method.get_parameter_infos();
-	if( para_list.empty() )
-		CHECK_RETURN_CALL(obj);
+	return start_coroutine([&]
+	{
+		auto para_list = method.get_parameter_infos();
+		if( para_list.empty() )
+			method.invoke(obj);
 
-	else if( para_list.size() == 1 and para_list.begin()->get_type() == GTS_RTTR_TYPE(std::string) )
-		CHECK_RETURN_CALL(obj, config_file);
+		else if( para_list.size() == 1 and para_list.begin()->get_type() == GTS_RTTR_TYPE(std::string) )
+			method.invoke(obj, config_file);
+	});
 }
 
 static bool load_library(const njson &name_json, const njson &lib_json, const std::string &json_file_path)
@@ -157,14 +153,14 @@ void plugin_call_handle::init(const std::string &json_file, const std::string &c
 	if( sum == 0 )
 		gts_log_fatal("gts::tcp_server::start: No plugins found.");
 
-	std::list<future_ptr> futures;
+	std::list<coro_ptr> coros;
 	{
 		auto it = rttr::type::get_global_methods().begin();
 		for(int i=0; it!=rttr::type::get_global_methods().end(); it=std::next(rttr::type::get_global_methods().begin(), ++i))
 		{
 			auto &method = *it;
 			if( str_starts_with(method.get_name().to_string(), "gts.plugin.init.") )
-				call_init(method, rttr::instance(), futures, config_file);
+				coros.emplace_back(call_init(method, rttr::instance(), config_file));
 		}
 	}{
 		auto it = rttr::type::get_types().begin();
@@ -191,24 +187,40 @@ void plugin_call_handle::init(const std::string &json_file, const std::string &c
 			}
 			auto method = type.get_method(fmt::format("init.{}", type.get_id()));
 			if( method.is_valid() )
-				call_init(method, obj, futures, config_file);
+				coros.emplace_back(call_init(method, obj, config_file));
 		}
 	}
-	for(auto &future : futures)
-		future->wait();
+	auto &exe = execution::instance();
+	post(exe.io_context(),[&]
+	{
+		start_coroutine([&]
+		{
+			for(auto &coro : coros)
+			{
+				coro_await(coro);
+				coro_run_on_main();
+			}
+			exe.exit();
+		},
+		8192);
+	});
+	exe.exec();
 }
 
 template <typename Ins>
-static void call_exit(const rttr::method &method, Ins obj, std::list<future_ptr> &futures)
+static coro_ptr call_exit(const rttr::method &method, Ins obj)
 {
-	auto para_list = method.get_parameter_infos();
-	if( para_list.empty() )
-		CHECK_RETURN_CALL(obj);
+	return start_coroutine([&]
+	{
+		auto para_list = method.get_parameter_infos();
+		if( para_list.empty() )
+			method.invoke(obj);
+	});
 }
 
 void plugin_call_handle::exit()
 {
-	std::list<future_ptr> futures;
+	std::list<coro_ptr> coros;
 	for(auto &pair : registration::g_obj_hash)
 	{
 		auto &type = pair.first;
@@ -216,7 +228,7 @@ void plugin_call_handle::exit()
 
 		auto method = type.get_method(fmt::format("exit.{}", type.get_id()));
 		if( method.is_valid() )
-			call_exit(method, obj, futures);
+			coros.emplace_back(call_exit(method, obj));
 		obj.clear();
 	}
 	auto it = rttr::type::get_global_methods().begin();
@@ -224,10 +236,20 @@ void plugin_call_handle::exit()
 	{
 		auto &method = *it;
 		if( str_starts_with(method.get_name().to_string(), "gts.web.plugin.exit.") )
-			call_exit(method, rttr::instance(), futures);
+			coros.emplace_back(call_exit(method, rttr::instance()));
 	}
-	for(auto &future : futures)
-		future->wait();
+	post(execution::instance().io_context(),[&]
+	{
+		start_coroutine([&]
+		{
+			for(auto &coro : coros)
+			{
+				coro_await(coro);
+				coro_run_on_main();
+			}
+		},
+		8192);
+	});
 	registration::g_obj_hash.clear();
 }
 

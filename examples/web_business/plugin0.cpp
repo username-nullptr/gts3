@@ -1,5 +1,6 @@
 #include <gts/web/registration.h>
 #include <gts/http/formatter.h>
+#include <gts/coro_for_asio.h>
 #include <iostream>
 
 using namespace asio::ip;
@@ -9,28 +10,24 @@ namespace gts { namespace web { namespace business
 
 using namespace http;
 
-GTS_PLUGIN_ASYNC_INIT()
+GTS_PLUGIN_INIT()
 {
-	return make_future_ptr(std::async(std::launch::async,[]
+	coro_run_on_thread();
+	for(int i=0; i<3; i++)
 	{
-		for(int i=0; i<3; i++)
-		{
-			std::cerr << "plugin0: init task ..." << std::endl;
-			std::this_thread::sleep_for(std::chrono::seconds(1));
-		}
-	}));
+		std::cerr << "plugin0: init task ..." << std::endl;
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+	}
 }
 
-//GTS_PLUGIN_ASYNC_EXIT()
+//GTS_PLUGIN_EXIT()
 //{
-//	return std::make_shared<std::future<void>>(std::async(std::launch::async, []
+//	coro_run_on_thread();
+//	for(int i=0; i<10; i++)
 //	{
-//		for(int i=0; i<10; i++)
-//		{
-//			std::cerr << "plugin0: exit task ..." << std::endl;
-//			std::this_thread::sleep_for(std::chrono::milliseconds(100));
-//		}
-//	}));
+//		std::cerr << "plugin0: exit task ..." << std::endl;
+//		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+//	}
 //}
 
 GTS_PLUGIN_EXIT(){

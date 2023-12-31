@@ -33,7 +33,7 @@ GTS_NAMESPACE_BEGIN
 
 std::atomic_int g_exit_code {0};
 
-std::atomic_bool g_run_flag {true};
+std::atomic_bool g_run_flag {false};
 
 execution &execution::instance()
 {
@@ -49,13 +49,12 @@ asio::io_context &execution::io_context()
 
 int execution::exec()
 {
-	static std::atomic_bool flag {false};
-	if( flag )
+	if( g_run_flag )
 	{
 		gts_log_error("gts::execution::exec: not reentrant.");
 		return -1;
 	}
-	flag = true;
+	g_run_flag = true;
 	auto &ioc = io_context();
 
 	asio::io_context::work io_work(ioc); GTS_UNUSED(io_work);
@@ -74,6 +73,11 @@ void execution::exit(int code)
 	g_exit_code = code;
 	g_run_flag = false;
 	io_context().stop();
+}
+
+bool execution::is_run() const
+{
+	return g_run_flag;
 }
 
 GTS_NAMESPACE_END

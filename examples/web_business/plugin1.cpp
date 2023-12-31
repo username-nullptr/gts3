@@ -1,4 +1,5 @@
 #include <gts/web/registration.h>
+#include <gts/coro_for_asio.h>
 #include <iostream>
 
 namespace gts { namespace web { namespace business
@@ -7,16 +8,14 @@ namespace gts { namespace web { namespace business
 class GTS_DECL_EXPORT plugin1_0
 {
 public:
-	future_ptr init()
+	void init()
 	{
-		return make_future_ptr(std::async(std::launch::async,[]
+		coro_run_on_thread();
+		for(int i=0; i<10; i++)
 		{
-			for(int i=0; i<10; i++)
-			{
-				std::cerr << "plugin1-0: init task ..." << std::endl;
-				std::this_thread::sleep_for(std::chrono::milliseconds(150));
-			}
-		}));
+			std::cerr << "plugin1-0: init task ..." << std::endl;
+			std::this_thread::sleep_for(std::chrono::milliseconds(150));
+		}
 	}
 
 	void exit()
@@ -54,16 +53,14 @@ public:
 class GTS_DECL_EXPORT plugin1_1
 {
 public:
-	future_ptr init()
+	void init()
 	{
-		return make_future_ptr(std::async(std::launch::async, []
+		coro_run_on_thread();
+		for(int i=0; i<4; i++)
 		{
-			for(int i=0; i<4; i++)
-			{
-				std::cerr << "plugin1-1: init task ..." << std::endl;
-				std::this_thread::sleep_for(std::chrono::milliseconds(550));
-			}
-		}));
+			std::cerr << "plugin1-1: init task ..." << std::endl;
+			std::this_thread::sleep_for(std::chrono::milliseconds(550));
+		}
 	}
 
 	void exit()

@@ -219,7 +219,9 @@ void tcp_server::start()
 
 		auto coro = start_coroutine([site]() -> bool {
 			return site->start();
-		});
+		},
+		8192);
+
 		if( coro->is_finished() )
 		{
 			gts_log_error("Site '{}' start failed.", pair.first);

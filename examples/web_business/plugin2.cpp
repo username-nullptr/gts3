@@ -1,22 +1,34 @@
 #include <gts/web/registration.h>
 #include <gts/http/formatter.h>
+#include <gts/coro_for_asio.h>
 #include <iostream>
+#include <thread>
+
+using namespace std::chrono;
 
 namespace gts { namespace web { namespace business
 {
 
 using namespace http;
 
-GTS_PLUGIN_ASYNC_INIT()
+GTS_PLUGIN_INIT()
 {
-	return make_future_ptr(std::async(std::launch::async,[]
-	{
-		for(int i=0; i<2; i++)
-		{
-			std::cerr << "plugin2: global init task ..." << std::endl;
-			std::this_thread::sleep_for(std::chrono::seconds(1));
-		}
-	}));
+	std::cerr << "plugin2: global init task 000 : " << std::this_thread::get_id() << std::endl;
+
+	coro_run_on_thread();
+
+	std::this_thread::sleep_for(milliseconds(300));
+	std::cerr << "plugin2: global init task 111 : " << std::this_thread::get_id() << std::endl;
+
+	coro_run_on_thread();
+
+	std::this_thread::sleep_for(milliseconds(200));
+	std::cerr << "plugin2: global init task 222 : " << std::this_thread::get_id() << std::endl;
+	std::this_thread::sleep_for(milliseconds(400));
+
+	coro_run_on_main();
+
+	std::cerr << "plugin2: global init task 333 : " << std::this_thread::get_id() << std::endl;
 }
 
 GTS_PLUGIN_EXIT(){
@@ -37,16 +49,14 @@ GTS_PLUGIN_NEW_WEBSOCKET_CONNECTION("websocket_test", GET|PUT|POST, web::socket_
 class GTS_DECL_EXPORT plugin2
 {
 public:
-	future_ptr init()
+	void init()
 	{
-		return make_future_ptr(std::async(std::launch::async,[]
+		coro_run_on_thread();
+		for(int i=0; i<8; i++)
 		{
-			for(int i=0; i<8; i++)
-			{
-				std::cerr << "plugin2: init task ..." << std::endl;
-				std::this_thread::sleep_for(std::chrono::milliseconds(120));
-			}
-		}));
+			std::cerr << "plugin2: init task ..." << std::endl;
+			std::this_thread::sleep_for(std::chrono::milliseconds(120));
+		}
 	}
 
 	void exit()

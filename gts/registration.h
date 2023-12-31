@@ -37,14 +37,6 @@
 
 GTS_NAMESPACE_BEGIN
 
-using future_void = std::future<void>;
-
-using future_ptr = std::shared_ptr<future_void>;
-
-inline future_ptr make_future_ptr(future_void &&future) {
-	return std::make_shared<future_void>(std::move(future));
-}
-
 class plugin_call_handle;
 
 class registration_base
@@ -223,18 +215,8 @@ GTS_EXTENSION_NAMESPACE_END
 #define GTS_PLUGIN_INIT(...) \
 	GTS_PLUGIN_XX_FUNC_REG(gts::registration().init_method, ##__VA_ARGS__)
 
-#define GTS_PLUGIN_ASYNC_INIT(...) \
-	GTS_DECL_AUTO_FUNC(gts::future_ptr, ##__VA_ARGS__); \
-	GTS_PLUGIN_REGISTRATION{ gts::registration().init_method(GTS_AUTO_FUNC_NAME); } \
-	GTS_DECL_AUTO_FUNC(gts::future_ptr, ##__VA_ARGS__)
-
 #define GTS_PLUGIN_EXIT() \
 	GTS_PLUGIN_XX_FUNC_REG(gts::registration().exit_method)
-
-#define GTS_PLUGIN_ASYNC_EXIT() \
-	GTS_DECL_AUTO_FUNC(gts::future_ptr); \
-	GTS_PLUGIN_REGISTRATION{ gts::registration().exit_method(GTS_AUTO_FUNC_NAME); } \
-	GTS_DECL_AUTO_FUNC(gts::future_ptr)
 
 #define GTS_PLUGIN_VIEW_STATUS() \
 	GTS_PLUGIN_XX_STR_FUNC_REG(gts::registration().view_status_method)

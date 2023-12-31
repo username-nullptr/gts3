@@ -2,6 +2,7 @@
 #define GTS_DETAIL_COROUTINE_H
 
 #include <asio.hpp>
+#include <gts/log.h>
 
 GTS_NAMESPACE_BEGIN
 
@@ -145,6 +146,9 @@ template <typename Ret, typename...Args>
 Ret coro_await(coroutine<std::function<Ret(Args...)>> &coro, Args...args)
 {
 	auto context = &this_coro::get();
+	if( coro.is_finished() )
+		return *coro;
+
 	auto func_mw = make_move_wrapper (
 		std::bind (
 			static_cast<void(coroutine<std::function<Ret(Args...)>>::*)(Args...)> (
@@ -156,7 +160,8 @@ Ret coro_await(coroutine<std::function<Ret(Args...)>> &coro, Args...args)
 	);
 	context->yield([&]
 	{
-		(*func_mw)();
+		if( not coro.is_started() )
+			(*func_mw)();
 		if( coro.is_finished() )
 			context->set_again();
 		else

@@ -33,6 +33,7 @@ public:
 	void set_again(bool flag = true);
 
 public:
+	bool is_started() const noexcept;
 	bool is_yield() const noexcept;
 	bool is_finished() const noexcept;
 
@@ -60,6 +61,7 @@ protected:
 	coro_context_ptr m_coro;
 	std::function<void()> m_yield_func;
 	std::function<void()> m_finished_callback;
+	std::atomic_bool m_start {false};
 	std::atomic_bool m_yield {false};
 	bool m_again = false;
 };
@@ -115,6 +117,7 @@ public:
 	using coroutine_base::invoke;
 	void invoke(const Arg0 arg0, const Args...args) noexcept(false)
 	{
+		m_start = true;
 		if( not this_coro::is_valid() )
 			return _invoke(std::forward<Arg0>(arg0), std::forward<Args>(args)...);
 

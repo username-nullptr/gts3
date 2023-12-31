@@ -45,6 +45,9 @@ public:
 public:
 	int exec();
 	void exit(int code = 0);
+
+public:
+	bool is_run() const;
 };
 
 GTS_NAMESPACE_END
