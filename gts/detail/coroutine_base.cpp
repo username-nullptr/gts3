@@ -29,7 +29,7 @@ thread_local coroutine_base *g_context = nullptr;
 
 bool coroutine_base::is_finished() const noexcept
 {
-	return m_coro->is_finished();
+	return m_coro == nullptr or m_coro->is_finished();
 }
 
 void coroutine_base::invoke() noexcept(false)
@@ -61,6 +61,15 @@ void coroutine_base::yield() noexcept(false)
 		throw exception("coroutine_base::yield: coroutine yield failed ({}).", _r);
 }
 
+bool coroutine_base::cancel()
+{
+	if( is_started() and not is_yield() and not is_finished() )
+		return false;
+
+	m_coro = {};
+	return true;
+}
+
 void coroutine_base::_invoke() noexcept(false)
 {
 	do {
@@ -78,6 +87,8 @@ void coroutine_base::_invoke() noexcept(false)
 		}
 	}
 	while( m_again );
+	if( is_finished() )
+		m_coro = {};
 }
 
 void coroutine_base::_finished()

@@ -52,7 +52,7 @@ public:
 
 private:
 	tcp_socket_ptr m_socket;
-	bool m_cancel = false;
+	std::atomic_bool m_cancel {false};
 };
 
 GTS_WEB_NAMESPACE_END

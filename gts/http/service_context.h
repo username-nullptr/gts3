@@ -52,6 +52,9 @@ public:
 	GTS_CXX_NODISCARD("") tcp_socket &socket();
 	GTS_CXX_NODISCARD("") bool is_valid() const;
 
+public:
+	GTS_CXX_NODISCARD("") std::string &body_cache();
+
 private:
 	service_context_impl *m_impl;
 };

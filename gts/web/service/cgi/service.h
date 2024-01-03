@@ -54,13 +54,17 @@ public:
 	std::string exists() const;
 	bool call(std::string file_name = "");
 
-private:
-	void async_write_socket(const char *buf, std::size_t buf_size);
-	void async_read_socket();
+//private:
+//	void async_write_socket(const char *buf, std::size_t buf_size);
+//	void async_read_socket();
+//
+//private:
+//	void async_write_cgi(const char *buf, std::size_t buf_size);
+//	void async_read_cgi();
 
 private:
-	void async_write_cgi(const char *buf, std::size_t buf_size);
-	void async_read_cgi();
+	void await_io_socket_to_cgi();
+	void await_io_cgi_to_socket();
 
 private:
 	std::string replace_http_to_env(const std::string &str);
@@ -71,14 +75,14 @@ private:
 
 private:
 	char m_cgi_read_buf[BUF_SIZE];
-	std::size_t m_content_length = 0;
+//	std::size_t m_content_length = 0;
 	std::size_t m_tcp_buf_size = BUF_SIZE;
 	char *m_sock_read_buf = nullptr;
 
-private:
-	std::atomic_int m_counter {0};
-	std::condition_variable m_condition;
-	std::mutex m_mutex;
+//private:
+//	std::atomic_int m_counter {0};
+//	std::condition_variable m_condition;
+//	std::mutex m_mutex;
 };
 
 GTS_WEB_NAMESPACE_END

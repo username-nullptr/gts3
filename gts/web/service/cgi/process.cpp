@@ -27,7 +27,7 @@
 *************************************************************************************/
 
 #include "process_p.h"
-#include "gts/coroutine.h"
+#include "gts/coro_for_asio.h"
 /*
 	private/process_xxx.cpp
 
@@ -148,6 +148,14 @@ std::size_t process::coro_await_read_some(char *buf, std::size_t size, asio::err
 		context.invoke();
 	});
 	context.yield();
+	return res;
+}
+
+bool process::coro_await_join(int *ret_val)
+{
+	coro_run_on_thread();
+	auto res = join(ret_val);
+	coro_run_on(m_impl->m_io);
 	return res;
 }
 

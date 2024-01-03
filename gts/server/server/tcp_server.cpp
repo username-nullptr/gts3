@@ -220,7 +220,7 @@ void tcp_server::start()
 		auto coro = start_coroutine([site]() -> bool {
 			return site->start();
 		},
-		8192);
+		0x7FFFFF);
 
 		if( coro->is_finished() )
 		{

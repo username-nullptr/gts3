@@ -40,7 +40,7 @@ using njson = nlohmann::json;
 
 GTS_NAMESPACE_BEGIN
 
-using coro_ptr = coroutine_ptr<std::function<void()>>;
+using coro_ptr = coroutine_ptr<void()>;
 
 static site_info_map g_site_infos;
 

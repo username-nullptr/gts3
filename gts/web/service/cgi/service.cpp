@@ -27,12 +27,13 @@
 *************************************************************************************/
 
 #include "service.h"
-#include "gts/web/global.h"
 #include "gts/http/detail/request_impl.h"
 
 #include "gts/web/service/service_io.h"
 #include "gts/web/config_key.h"
 #include "gts/web/types.h"
+
+#include "gts/coroutine.h"
 #include "gts/settings.h"
 
 #include "gts/private/app_info.h"
@@ -41,12 +42,13 @@
 
 #ifdef GTS_ENABLE_SSL
 # include "gts/gts_config_key.h"
-#endif //ssl
+#endif //GTS_ENABLE_SSL
 
 GTS_WEB_NAMESPACE_BEGIN
 
 cgi_service::cgi_service(service_io &sio) :
-	m_sio(sio), m_cgi(io_context(), sio.url_name)
+	m_sio(sio),
+	m_cgi(io_context(), sio.url_name)
 {
 
 }
@@ -66,7 +68,7 @@ void cgi_service::init()
 
 	for(auto &env : env_list)
 	{
-		auto pos = env.find("=");
+		auto pos = env.find('=');
 
 		if( pos == std::string::npos )
 			g_cgi_env.emplace(str_trimmed(env), "");
@@ -88,7 +90,7 @@ void cgi_service::init()
 		key_file = app::absolute_path(key_file);
 		g_cgi_env.emplace("SSL_KEY_FILE", key_file);
 	}
-#endif //ssl
+#endif //GTS_ENABLE_SSL
 }
 
 std::string cgi_service::exists() const
@@ -98,7 +100,7 @@ std::string cgi_service::exists() const
 #ifdef _WINDOWS
 		file_name = m_sio.url_name + ".exe";
 		if( not fs::exists(file_name) )
-#endif //windows
+#endif //_WINDOWS
 			return "";
 	}
 	return m_sio.url_name;
@@ -139,128 +141,216 @@ bool cgi_service::call(std::string file_name)
 	for(auto &pair : m_sio.request().cookies())
 		m_cgi.add_env("COOKIE_" + str_to_upper(replace_http_to_env(pair.first)), pair.second);
 
-	auto it = m_sio.request().headers().find("content-length");
-	if( it != m_sio.request().headers().end() )
-		m_content_length = it->second.get<std::size_t>();
+//	auto it = m_sio.request().headers().find("content-length");
+//	if( it != m_sio.request().headers().end() )
+//		m_content_length = it->second.get<std::size_t>();
 
-	if( m_cgi.start() == false )
+	if( not m_cgi.start() )
 	{
 		m_sio.return_to_null(http::hs_forbidden);
 		return true;
 	}
-	async_read_cgi();
+//	async_read_cgi();
 
 	tcp::socket::send_buffer_size attr;
 	m_sio.socket.get_option(attr);
 	m_tcp_buf_size = attr.value();
 	m_sock_read_buf = new char[m_tcp_buf_size] {0};
 
-	auto res = m_sio.request().read_body(m_sock_read_buf, m_tcp_buf_size);
-	if( res > 0 )
+//	auto res = m_sio.request().read_body(m_sock_read_buf, m_tcp_buf_size);
+//	if( res > 0 )
+//	{
+//		m_content_length -= res;
+//		async_write_cgi(m_sock_read_buf, res);
+//	}
+//	else
+//		async_read_socket();
+
+	using coro_ptr = coroutine_ptr<void()>;
+	coro_ptr coro[2];
+
+	if( m_sio.request().can_read_body() )
 	{
-		m_content_length -= res;
-		async_write_cgi(m_sock_read_buf, res);
+		coro[0] = start_coroutine([this]{
+			await_io_socket_to_cgi();
+		});
 	}
-	else
-		async_read_socket();
+	coro[1] = start_coroutine([this]{
+		await_io_cgi_to_socket();
+	},0x1FFFF);
 
 	int pro_res = 0;
 	bool pro_is_nor = m_cgi.join(&pro_res);
 
-	if( m_counter > 0 )
-	{
-		std::unique_lock<std::mutex> locker(m_mutex);
-		m_condition.wait(locker);
-	}
+//	if( m_counter > 0 )
+//	{
+//		std::unique_lock<std::mutex> locker(m_mutex);
+//		m_condition.wait(locker);
+//	}
 	gts_log_debug("cgi '{}' finished.", m_cgi.file());
 
 	if( not m_sio.response().is_writed() and (not pro_is_nor or pro_res != 0) )
 		m_sio.return_to_null(http::hs_internal_server_error);
+
+	if( coro[0] )
+		coro_await(coro[0]);
+	coro_await(coro[1]);
 	return true;
 }
 
-void cgi_service::async_write_socket(const char *buf, std::size_t buf_size)
-{
-	++m_counter;
-	m_sio.socket.async_write_some(buf, buf_size, [this, buf, buf_size](const asio::error_code &error, std::size_t size)
-	{
-		--m_counter;
-		if( error )
-		{
-			m_cgi.terminate();
-			if( m_counter == 0 )
-				m_condition.notify_one();
-			return ;
-		}
+//void cgi_service::async_write_socket(const char *buf, std::size_t buf_size)
+//{
+//	++m_counter;
+//	m_sio.socket.async_write_some(buf, buf_size, [this, buf, buf_size](const asio::error_code &error, std::size_t size)
+//	{
+//		--m_counter;
+//		if( error )
+//		{
+//			m_cgi.terminate();
+//			if( m_counter == 0 )
+//				m_condition.notify_one();
+//			return ;
+//		}
+//
+//		if( size < buf_size )
+//			async_write_socket(buf + size, buf_size - size);
+//		else
+//			async_read_cgi();
+//	});
+//}
+//
+//void cgi_service::async_read_socket()
+//{
+//	auto buf_size = m_content_length;
+//	if( buf_size > m_tcp_buf_size )
+//		buf_size = m_tcp_buf_size;
+//
+//	else if( buf_size == 0 )
+//		return ;
+//
+//	++m_counter;
+//	m_sio.socket.async_read_some(m_sock_read_buf, buf_size, [this](const asio::error_code &error, std::size_t size)
+//	{
+//		--m_counter;
+//		if( error or size == 0 or not m_cgi.is_running() )
+//		{
+//			if( m_counter == 0 )
+//				m_condition.notify_one();
+//			return ;
+//		}
+//
+//		m_content_length -= size;
+//		async_write_cgi(m_sock_read_buf, size);
+//	});
+//}
+//
+//void cgi_service::async_write_cgi(const char *buf, std::size_t buf_size)
+//{
+//	++m_counter;
+//	m_cgi.async_write_some(buf, buf_size, [this, buf, buf_size](const asio::error_code &error, std::size_t size)
+//	{
+//		--m_counter;
+//		if( error )
+//		{
+//			if( m_counter == 0 )
+//				m_condition.notify_one();
+//			return ;
+//		}
+//
+//		else if( size < buf_size )
+//			async_write_cgi(buf + size, buf_size - size);
+//
+//		else if( m_content_length > 0 )
+//			async_read_socket();
+//
+//		else if( m_counter == 0 )
+//			m_condition.notify_one();
+//	});
+//}
+//
+//void cgi_service::async_read_cgi()
+//{
+//	++m_counter;
+//	m_cgi.async_read_some(m_cgi_read_buf, BUF_SIZE,
+//						  [this](const asio::error_code&, std::size_t size)
+//	{
+//		--m_counter;
+//		if( size > 0 )
+//			async_write_socket(m_cgi_read_buf, size);
+//		else if( m_counter == 0 )
+//			m_condition.notify_one();
+//	});
+//}
 
-		if( size < buf_size )
-			async_write_socket(buf + size, buf_size - size);
-		else
-			async_read_cgi();
-	});
+void cgi_service::await_io_socket_to_cgi()
+{
+	auto &body_cache = m_sio.context.body_cache();
+	auto buf_size = body_cache.size();
+
+	memcpy(m_sock_read_buf, body_cache.c_str(), buf_size);
+	body_cache.clear();
+
+	asio::error_code error;
+	auto write_cgi = [&](char *buf, std::size_t buf_size)
+	{
+		do {
+			auto size = m_cgi.coro_await_write_some(buf, buf_size, error);
+			if( error )
+				break;
+
+			else if( size > 0 )
+			{
+				buf += size;
+				buf_size -= size;
+			}
+		}
+		while( buf_size > 0 );
+	};
+	if( buf_size > 0 )
+		write_cgi(m_sock_read_buf, buf_size);
+	for(;;)
+	{
+		buf_size = m_sio.socket.coro_await_read_some(m_sock_read_buf, m_tcp_buf_size, error);
+
+		if( error or buf_size == 0 )
+		{
+			if( m_cgi.is_running() )
+				m_cgi.kill();
+			break;
+		}
+		else if( not m_cgi.is_running() )
+			break;
+
+		write_cgi(m_sock_read_buf, buf_size);
+	}
 }
 
-void cgi_service::async_read_socket()
+void cgi_service::await_io_cgi_to_socket()
 {
-	auto buf_size = m_content_length;
-	if( buf_size > m_tcp_buf_size )
-		buf_size = m_tcp_buf_size;
-
-	else if( buf_size == 0 )
-		return ;
-
-	++m_counter;
-	m_sio.socket.async_read_some(m_sock_read_buf, buf_size, [this](const asio::error_code &error, std::size_t size)
+	for(;;)
 	{
-		--m_counter;
-		if( error or size == 0 or not m_cgi.is_running() )
-		{
-			if( m_counter == 0 )
-				m_condition.notify_one();
-			return ;
+		asio::error_code error;
+		auto buf_size = m_cgi.coro_await_read_some(m_cgi_read_buf, BUF_SIZE, error);
+
+		if( error or buf_size == 0 )
+			break;
+
+		auto buf = m_cgi_read_buf;
+		do {
+			auto size = m_sio.socket.coro_await_write_some(buf, buf_size, error);
+			if( error )
+			{
+				m_cgi.terminate();
+				break;
+			}
+			else if( size > 0 )
+			{
+				buf += size;
+				buf_size -= size;
+			}
 		}
-
-		m_content_length -= size;
-		async_write_cgi(m_sock_read_buf, size);
-	});
-}
-
-void cgi_service::async_write_cgi(const char *buf, std::size_t buf_size)
-{
-	++m_counter;
-	m_cgi.async_write_some(buf, buf_size, [this, buf, buf_size](const asio::error_code &error, std::size_t size)
-	{
-		--m_counter;
-		if( error )
-		{
-			if( m_counter == 0 )
-				m_condition.notify_one();
-			return ;
-		}
-
-		else if( size < buf_size )
-			async_write_cgi(buf + size, buf_size - size);
-
-		else if( m_content_length > 0 )
-			async_read_socket();
-
-		else if( m_counter == 0 )
-			m_condition.notify_one();
-	});
-}
-
-void cgi_service::async_read_cgi()
-{
-	++m_counter;
-	m_cgi.async_read_some(m_cgi_read_buf, BUF_SIZE,
-						  [this](const asio::error_code&, std::size_t size)
-	{
-		--m_counter;
-		if( size > 0 )
-			async_write_socket(m_cgi_read_buf, size);
-		else if( m_counter == 0 )
-			m_condition.notify_one();
-	});
+		while( buf_size > 0 );
+	}
 }
 
 std::string cgi_service::replace_http_to_env(const std::string &str)

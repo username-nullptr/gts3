@@ -85,4 +85,9 @@ bool service_context::is_valid() const
 	return m_impl->m_requst->is_valid();
 }
 
+std::string &service_context::body_cache()
+{
+	return m_impl->m_requst->m_impl->m_body;
+}
+
 GTS_HTTP_NAMESPACE_END

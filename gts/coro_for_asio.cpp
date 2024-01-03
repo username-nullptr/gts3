@@ -12,11 +12,12 @@ void coro_run_on_main()
 
 void coro_run_on_thread()
 {
-	auto context = &this_coro::get();
-	context->yield([&, context]
+	auto &context = this_coro::get();
+	context.yield([&]
 	{
-		std::thread([context]{
-			context->invoke();
+		std::thread([&]{
+			if( not context.is_finished() )
+				context.invoke();
 		})
 		.detach();
 	});

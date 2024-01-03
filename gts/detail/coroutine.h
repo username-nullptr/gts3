@@ -2,13 +2,12 @@
 #define GTS_DETAIL_COROUTINE_H
 
 #include <asio.hpp>
-#include <gts/log.h>
 
 GTS_NAMESPACE_BEGIN
 
 template <typename Ret, typename Arg0, typename...Args>
 template <std::size_t...I>
-coroutine_ptr<std::function<Ret(Arg0,Args...)>>
+coroutine_ptr<Ret(Arg0,Args...)>
 coroutine<std::function<Ret(Arg0,Args...)>>::
 create(std::function<Ret(Arg0,Args...)> func, std::size_t stack_size, coro_detail::index_sequence<I...>)
 {
@@ -31,7 +30,7 @@ create(std::function<Ret(Arg0,Args...)> func, std::size_t stack_size, coro_detai
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 template <typename Ret>
-coroutine_ptr<std::function<Ret()>>
+coroutine_ptr<Ret()>
 coroutine<std::function<Ret()>>::
 create(std::function<Ret()> func, std::size_t stack_size)
 {
@@ -50,7 +49,7 @@ create(std::function<Ret()> func, std::size_t stack_size)
 
 template <typename Arg0, typename...Args>
 template <std::size_t...I>
-coroutine_ptr<std::function<void(Arg0,Args...)>>
+coroutine_ptr<void(Arg0,Args...)>
 coroutine<std::function<void(Arg0,Args...)>>::
 create(std::function<void(Arg0,Args...)> func, std::size_t stack_size, coro_detail::index_sequence<I...>)
 {
@@ -72,7 +71,7 @@ create(std::function<void(Arg0,Args...)> func, std::size_t stack_size, coro_deta
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 
-inline coroutine_ptr<std::function<void()>>
+inline coroutine_ptr<void()>
 coroutine<std::function<void()>>::
 create(std::function<void()> func, std::size_t stack_size)
 {
@@ -137,7 +136,7 @@ void coro_yield(Func &&func, Args&&...args)
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 template <typename Ret, typename...Args>
-Ret coro_await(coroutine_ptr<std::function<Ret(Args...)>> coro, Args...args)
+Ret coro_await(coroutine_ptr<Ret(Args...)> coro, Args...args)
 {
 	return coro_await(*coro, std::forward<Args>(args)...);
 }

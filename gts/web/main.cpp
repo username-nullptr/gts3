@@ -85,7 +85,7 @@ GTS_PLUGIN_INIT()
 	if( not str_ends_with(g_resource_path, "/") )
 		g_resource_path += "/";
 
-	g_count = _settings.read<int>(SINI_GROUP_WEB, SINI_WEB_THREAD_POOL_TC, 255);
+	g_count = _settings.read<int>(SINI_GROUP_WEB, SINI_WEB_THREAD_POOL_TC, 16);
 	if( g_count < 1 )
 	{
 		gts_log_warning("Config: max thread count setting error.");

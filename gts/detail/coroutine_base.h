@@ -11,7 +11,7 @@ template <typename T>
 class coroutine;
 
 template <typename T>
-using coroutine_ptr = std::shared_ptr<coroutine<T>>;
+using coroutine_ptr = std::shared_ptr<coroutine<std::function<T>>>;
 
 namespace coro_detail
 {
@@ -48,6 +48,9 @@ public:
 		m_yield_func = std::bind(std::forward<Func>(func), std::forward<Args>(args)...);
 		yield();
 	}
+
+public:
+	bool cancel();
 
 protected:
 	void _invoke() noexcept(false);
@@ -255,11 +258,9 @@ inline coroutine_base_return<void>::~coroutine_base_return() = default;
 
 template <typename Func, std::size_t...I>
 using coroutine_ptr = gts::coroutine_ptr <
-	std::function <
-		typename coro_detail::function_traits<Func>::return_type (
-			tuple_element_t< I, typename coro_detail::function_traits<Func>::arg_types >...
-		)
-	>
+	typename coro_detail::function_traits<Func>::return_type (
+		tuple_element_t< I, typename coro_detail::function_traits<Func>::arg_types >...
+	)
 >;
 
 template <typename Func, std::size_t...I>

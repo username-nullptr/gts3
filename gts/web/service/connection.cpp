@@ -141,14 +141,22 @@ std::string connection::view_status()
 
 void connection::do_recv_work()
 {
+	using coro_ptr = coroutine_ptr<void()>;
+	coro_ptr timer_coro;
+
 	for(;;)
 	{
 		if( not m_socket->is_open() )
 			return delete_later(this);
 
-		start_coroutine([&]{
-			do_timer_work();
-		});
+		else if( timer_coro )
+			timer_coro->invoke();
+		else
+		{
+			timer_coro = start_coroutine([&]{
+				do_timer_work();
+			});
+		}
 		asio::error_code error;
 		auto size = m_socket->coro_await_read_some(m_asio_buffer, m_ab_size, error);
 
@@ -172,33 +180,36 @@ void connection::do_recv_work()
 			m_socket->close(true);
 			return delete_later(this);
 		}
-		coro_await([&]
-		{
-			if( not m_task.run(context) )
-				delete_later(this);
-		},
-		0x7FFFFF);
+		if( not m_task.run(context) )
+			return delete_later(this);
 	}
 }
 
 void connection::do_timer_work()
 {
 	asio::error_code was_cancel;
+	for(;;)
+	{
+		for(;;)
+		{
+			coro_await_timer(m_timer, std::chrono::milliseconds(g_idle_time_tv), was_cancel);
+			if( was_cancel )
+				break;
 
-	coro_await_timer(m_timer, std::chrono::milliseconds(g_idle_time_tv), was_cancel);
-	if( was_cancel )
-		return ;
+			gts_log_debug("Session enters the idle state. (client: {})", m_socket->remote_endpoint());
+			g_timeout_set.emplace(this);
 
-	gts_log_debug("Session enters the idle state. (client: {})", m_socket->remote_endpoint());
-	g_timeout_set.emplace(this);
+			coro_await_timer(m_timer, std::chrono::milliseconds(g_max_idle_time), was_cancel);
+			if( was_cancel )
+				break;
 
-	coro_await_timer(m_timer, std::chrono::milliseconds(g_max_idle_time), was_cancel);
-	if( was_cancel )
-		return ;
+			gts_log_debug("The life cycle of connection ends. (client: {})", m_socket->remote_endpoint());
+			g_timeout_set.erase(this);
 
-	gts_log_debug("The life cycle of connection ends. (client: {})", m_socket->remote_endpoint());
-	g_timeout_set.erase(this);
-	cancel();
+			return cancel();
+		}
+		coro_yield();
+	}
 }
 
 GTS_WEB_NAMESPACE_END

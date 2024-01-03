@@ -1,16 +1,20 @@
 #ifndef GTS_DETAIL_CORO_FOR_ASIO_H
 #define GTS_DETAIL_CORO_FOR_ASIO_H
 
+#include "gts/log.h"
+
 GTS_NAMESPACE_BEGIN
 
 template <typename Exe>
 void coro_run_on(Exe &exe)
 {
-	auto context = &this_coro::get();
-	context->yield([&, context]
+	auto &context = this_coro::get();
+	context.yield([&]
 	{
-		asio::post(exe, [&, context]{
-			context->invoke();
+		asio::post(exe, [&]
+		{
+			if( not context.is_finished() )
+				context.invoke();
 		});
 	});
 }
