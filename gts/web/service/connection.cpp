@@ -208,7 +208,10 @@ void connection::do_timer_work()
 
 			return cancel();
 		}
-		coro_yield();
+		if( m_task.is_cancel() )
+			break;
+		else
+			coro_yield();
 	}
 }
 

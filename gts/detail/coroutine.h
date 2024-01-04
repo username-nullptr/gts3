@@ -110,12 +110,12 @@ create_coroutine(Func &&func, std::size_t stack_size, coro_detail::index_sequenc
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 template <typename Func, typename...Args>
-auto start_coroutine(Func &&func, Args&&...args, std::size_t stack_size)
+auto start_coroutine(Func &&func, std::size_t stack_size)
 ->
 decltype(create_coroutine(std::forward<Func>(func), stack_size))
 {
 	auto coro = create_coroutine(std::forward<Func>(func), stack_size);
-	coro->invoke(std::forward<Args>(args)...);
+	coro->invoke();
 	return coro;
 }
 

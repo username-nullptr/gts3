@@ -29,9 +29,7 @@
 #ifndef TCP_SERVER_H
 #define TCP_SERVER_H
 
-#include <thread>
-#include <rttr/type>
-#include "gts/log.h"
+#include "gts/gts_enable_ssl.h"
 
 #ifdef GTS_ENABLE_SSL
 # include "gts/ssl_socket.h"
@@ -101,12 +99,14 @@ private:
 		GTS_CXX_NODISCARD("") bool start() override; //coro
 	};
 	bool m_no_ck_file = true;
-#endif //ssl
+#endif //GTS_ENABLE_SSL
 
 private:
 	typedef std::shared_ptr<basic_site>  site_ptr;
 	std::map<std::string, site_ptr> m_sites;
-	int m_buffer_size = 65536;
+
+	std::size_t m_coro_stack_size = 8 * 1024 * 1024;
+	std::size_t m_buffer_size = 65536;
 };
 
 GTS_NAMESPACE_END

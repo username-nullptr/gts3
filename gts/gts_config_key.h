@@ -35,6 +35,8 @@
 
 #define SINI_GTS_TCP_BUF_SIZE    "tcp_buffer_size"
 
+#define SINI_GTS_COSTK_SIZE      "coro_stack_size"
+
 #define SINI_GTS_SSL_CRT_FILE    "ssl_crt_file"
 
 #define SINI_GTS_SSL_KEY_FILE    "ssl_key_file"

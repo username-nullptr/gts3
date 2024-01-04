@@ -33,7 +33,6 @@
 
 #include "gts/settings.h"
 #include "gts/application.h"
-#include "gts/coro_for_asio.h"
 #include "gts/http/formatter.h"
 
 #include "gts/web/config_key.h"
@@ -132,9 +131,8 @@ static void CALL_OPTIONS(service_io &sio);
 static void CALL_CONNECT(service_io &sio);
 static void CALL_TRACH  (service_io &sio);
 
-bool task::run(http::service_context_ptr &context)
+bool task::run(http::service_context_ptr context)
 {
-	m_cancel = true;
 	m_socket->non_blocking(false);
 
 	service_io sio(*context);
@@ -157,12 +155,17 @@ bool task::run(http::service_context_ptr &context)
 		m_socket->close(true);
 
 	coro_run_on(m_socket->native().get_executor());
-	return m_cancel and context->is_valid();
+	return m_cancel or context->is_valid();
 }
 
 void task::cancel()
 {
 	m_cancel = true;
+}
+
+bool task::is_cancel() const
+{
+	return m_cancel;
 }
 
 /*--------------------------------------------------------------------------------------------------------------------*/
@@ -203,7 +206,7 @@ static void CALL_GET(service_io &sio)
 	if( fs::is_directory(sio.url_name) )
 		return sio.return_to_null(http::hs_not_found);
 
-	if( not _ps->call_filter() )
+	else if( not _ps->call_filter() )
 		sio.response().write_file(sio.url_name);
 }
 

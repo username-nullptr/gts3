@@ -31,7 +31,7 @@
 
 #include <gts/web/global.h>
 #include <gts/http/service_context.h>
-#include <gts/tcp_socket.h>
+#include <gts/coro_for_asio.h>
 #include <functional>
 
 GTS_WEB_NAMESPACE_BEGIN
@@ -47,12 +47,17 @@ public:
 	static void init();
 
 public:
-	bool run(http::service_context_ptr &context);
+	bool run(http::service_context_ptr context);
 	void cancel();
+
+public:
+	bool is_cancel() const;
 
 private:
 	tcp_socket_ptr m_socket;
 	std::atomic_bool m_cancel {false};
+
+
 };
 
 GTS_WEB_NAMESPACE_END

@@ -34,6 +34,7 @@
 #include "gts/registration.h"
 #include "gts/algorithm.h"
 #include "gts/settings.h"
+#include "gts/log.h"
 
 #include "server_tool.h"
 #include "global.h"
@@ -173,7 +174,7 @@ void tcp_server::start()
 				info.ssl = obj["ssl"].get<bool>();
 			else
 				info.ssl = false;
-#else //no ssl
+#else //GTS_ENABLE_SSL
 			{
 				if( obj["ssl"].get<bool>() )
 				{
@@ -202,10 +203,19 @@ void tcp_server::start()
 		return ;
 	}
 	plugin_call_handle::init(json_file, _settings.file_name());
-	m_buffer_size = READ_CONFIG(SINI_GTS_TCP_BUF_SIZE, m_buffer_size);
 
+	m_coro_stack_size = READ_CONFIG(SINI_GTS_COSTK_SIZE, m_coro_stack_size);
+	if( m_coro_stack_size < 1 * 1024 * 1024 )
+		m_coro_stack_size = 1 * 1024 * 1024;
+	else if( m_coro_stack_size > 32 * 1024 * 1024 )
+		m_coro_stack_size = 32 * 1024 * 1024;
+
+	m_buffer_size = READ_CONFIG(SINI_GTS_TCP_BUF_SIZE, m_buffer_size);
 	if( m_buffer_size < 1024 )
 		m_buffer_size = 1024;
+
+	gts_log_debug("coroutine stack size: {}.", m_coro_stack_size);
+	gts_log_debug("tcp buffer size: {}.", m_buffer_size);
 
 	for(auto &pair : si_map)
 	{
@@ -220,7 +230,7 @@ void tcp_server::start()
 		auto coro = start_coroutine([site]() -> bool {
 			return site->start();
 		},
-		0x7FFFFF);
+		8192);
 
 		if( coro->is_finished() )
 		{
@@ -233,7 +243,7 @@ void tcp_server::start()
 					 pair.first, info.addr, info.port, info.universal,
 #ifdef GTS_ENABLE_SSL
 					 info.ssl
-#else //ssl
+#else //GTS_ENABLE_SSL
 			false
 #endif //GTS_ENABLE_SSL
 		);
@@ -266,17 +276,21 @@ std::string tcp_server::view_status() const
 
 void tcp_server::service(tcp_socket *sock, bool universal) const
 {
-	asio::error_code error;
-	sock->set_option(tcp::socket::send_buffer_size(m_buffer_size), error);
-	if( error )
-		gts_log_error("asio: set socket send buffer error: {}. ({})\n", error.message(), error.value());
+	start_coroutine([&]
+	{
+		asio::error_code error;
+		sock->set_option(tcp::socket::send_buffer_size(static_cast<int>(m_buffer_size)), error);
+		if( error )
+			gts_log_error("asio: set socket send buffer error: {}. ({})\n", error.message(), error.value());
 
-	sock->set_option(tcp::socket::receive_buffer_size(m_buffer_size), error);
-	if( error )
-		gts_log_error("asio: set socket receive buffer error: {}. ({})\n", error.message(), error.value());
+		sock->set_option(tcp::socket::receive_buffer_size(static_cast<int>(m_buffer_size)), error);
+		if( error )
+			gts_log_error("asio: set socket receive buffer error: {}. ({})\n", error.message(), error.value());
 
-	if( not plugin_call_handle::new_connection(sock, universal) )
-		gts_log_fatal("gts.plugin error: new connection method is null.");
+		if( not plugin_call_handle::new_connection(sock, universal) )
+			gts_log_fatal("gts.plugin error: new connection method is null.");
+	},
+	m_coro_stack_size);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------*/

@@ -269,7 +269,9 @@ bool plugin_call_handle::new_connection(tcp_socket *sock, bool universal)
 	if( universal or not _new_connection_method_call(fmt::format("new_connection.{}", sock->local_endpoint().port()), sock) )
 	{
 		if( not _new_connection_method_call("new_connection", sock) )
+		{
 			return false;
+		}
 	}
 	return true;
 }

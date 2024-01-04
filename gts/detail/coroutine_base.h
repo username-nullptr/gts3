@@ -16,6 +16,9 @@ using coroutine_ptr = std::shared_ptr<coroutine<std::function<T>>>;
 namespace coro_detail
 {
 
+template <typename Arg0, typename...Args>
+class coroutine_base_args;
+
 class coroutine_base
 {
 	GTS_DISABLE_COPY(coroutine_base)
@@ -66,7 +69,11 @@ protected:
 	std::function<void()> m_finished_callback;
 	std::atomic_bool m_start {false};
 	std::atomic_bool m_yield {false};
-	bool m_again = false;
+	std::atomic_bool m_again {false};
+
+private:
+	template <typename Arg0, typename...Args>
+	friend class coroutine_base_args;
 };
 
 /*--------------------------------------------------------------------------------------------------------------------*/
@@ -122,7 +129,7 @@ public:
 	{
 		m_start = true;
 		if( not this_coro::is_valid() )
-			return _invoke(std::forward<Arg0>(arg0), std::forward<Args>(args)...);
+			return _invoke(arg0, args...);
 
 		auto &context = this_coro::get();
 		if( &context == this )
@@ -131,7 +138,7 @@ public:
 		context.yield([&]
 		{
 			context.m_again = true;
-			_invoke(std::forward<Arg0>(arg0), std::forward<Args>(args)...);
+			_invoke(arg0, args...);
 		});
 	}
 

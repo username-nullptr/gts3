@@ -2,7 +2,6 @@
 #define GTS_COROUTINE_H
 
 #include <gts/detail/coroutine_base.h>
-#include <gts/log.h>
 
 GTS_NAMESPACE_BEGIN
 
@@ -136,7 +135,7 @@ decltype ( // coroutine_ptr<return_type(void)>
 }
 
 template <typename Func, typename...Args>
-auto start_coroutine(Func &&func, Args&&...args, std::size_t stack_size = 0x7FFFF)
+auto start_coroutine(Func &&func, std::size_t stack_size = 0x7FFFF)
 ->
 decltype(create_coroutine(std::forward<Func>(func), stack_size));
 
