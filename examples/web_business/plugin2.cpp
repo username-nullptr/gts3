@@ -1,6 +1,6 @@
 #include <gts/web/registration.h>
+#include <gts/web/thread_pool.h>
 #include <gts/http/formatter.h>
-#include <gts/coro_for_asio.h>
 #include <iostream>
 #include <thread>
 
@@ -72,6 +72,14 @@ public:
 
 	void new_request_0(http::response &response)
 	{
+		std::cerr << "plugin2: new_request_0 0000 : " << std::this_thread::get_id() << std::endl;
+
+		coro_run_on_thread();
+		std::cerr << "plugin2: new_request_0 1111 : " << std::this_thread::get_id() << std::endl;
+
+		coro_run_on_thread_pool();
+		std::cerr << "plugin2: new_request_0 2222 : " << std::this_thread::get_id() << std::endl;
+
 		response.write("plugin2-0");
 	}
 

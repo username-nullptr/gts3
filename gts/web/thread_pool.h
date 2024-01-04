@@ -30,12 +30,15 @@
 #define GTS_WEB_THREAD_POOL_H
 
 #include <gts/web/global.h>
+#include <gts/coro_for_asio.h>
 
 GTS_WEB_NAMESPACE_BEGIN
 
 GTS_WEB_API asio::thread_pool &thread_pool();
 
 GTS_WEB_API std::size_t thread_pool_count();
+
+GTS_WEB_API void coro_run_on_thread_pool();
 
 GTS_WEB_NAMESPACE_END
 

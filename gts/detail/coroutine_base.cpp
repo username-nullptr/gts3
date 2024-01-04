@@ -72,6 +72,8 @@ bool coroutine_base::cancel()
 
 void coroutine_base::_invoke() noexcept(false)
 {
+	if( is_finished() )
+		throw exception("coroutine_base::invoke: coroutine is finished, and the call is repeated.");
 	do {
 		m_again = false;
 		this_coro::_set(this);

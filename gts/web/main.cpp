@@ -51,6 +51,11 @@ std::size_t thread_pool_count()
 	return g_count;
 }
 
+void coro_run_on_thread_pool()
+{
+	coro_run_on(thread_pool());
+}
+
 static std::string g_resource_path = _GTS_WEB_DEFAULT_RC_PATH;
 
 std::string resource_root()
